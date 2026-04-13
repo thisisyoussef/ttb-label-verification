@@ -44,5 +44,5 @@ jobs:
             echo
             echo "- Source ref: $SOURCE_REF"
             echo "- Target branch: production"
-            echo "- Railway production should auto-deploy if the environment is linked to the \`production\` branch."
+            echo "- CI on \`production\` will verify and then deploy Railway production via the CLI workflow."
           } >> "$GITHUB_STEP_SUMMARY"

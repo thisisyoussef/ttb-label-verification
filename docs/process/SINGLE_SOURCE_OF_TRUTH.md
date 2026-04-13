@@ -23,11 +23,11 @@ Last updated: 2026-04-13
 
 ## Current project state
 
-- Project status: runnable scaffold plus full-product planning set
+- Project status: runnable scaffold plus full-product planning set with live GitHub and Railway backing
 - Runtime status: React + Express scaffold exists, seed API is live, shared contracts are tested
 - Process status: lane rules, next-story routing, spec gate, TDD gate, Stitch handoff flow, deployment flow, and memory-bank update rules are checked in
-- GitHub bootstrap status: not created yet
-- Railway bootstrap status: config files are checked in, but external project and environment linkage are not configured yet
+- GitHub bootstrap status: live repo exists at `thisisyoussef/ttb-label-verification`
+- Railway bootstrap status: project, service, staging, production, public domains, and GitHub Actions token wiring are configured
 
 ## Active pointers
 
@@ -36,7 +36,7 @@ Last updated: 2026-04-13
 - Next ready for Claude: `TTB-101`
 - Next ready for Codex: `TTB-EVAL-001`
 - Current blocker owner: none
-- Current manual user action: choose GitHub repo slug/owner and complete Railway project linkage when ready
+- Current manual user action: none; continue from the next ready story for the active lane
 
 ## Story queue snapshot
 
@@ -64,7 +64,7 @@ Last updated: 2026-04-13
 - Hand off to Codex only after the user approves the UI direction and `docs/backlog/codex-handoffs/<story-id>.md` is `ready-for-codex`.
 - Hand off back to Claude if Codex finds a required UI change.
 - Hand off to QA-style review or final acceptance after Codex completes engineering, tests, evals, privacy checks, and timing proof.
-- After deployable Codex stories, report staging deployment status or the exact external bootstrap blocker.
+- After deployable Codex stories, report staging deployment status or the exact CI/Railway deploy failure.
 
 ## Update rules
 

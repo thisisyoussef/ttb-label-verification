@@ -56,11 +56,12 @@ Use this checklist whenever Codex is the active lane owner for a story.
 - [ ] Run `npm run test`.
 - [ ] Run `npm run typecheck`.
 - [ ] Run `npm run build`.
-- [ ] If the story changed deployable runtime behavior and GitHub plus Railway are configured, report staging deployment status per `docs/process/DEPLOYMENT_FLOW.md`.
+- [ ] If the story changed deployable runtime behavior, check the CI plus Railway deploy status per `docs/process/DEPLOYMENT_FLOW.md`, and use the local `railway` CLI for spot checks when needed.
 
 ## Handoff and memory sync
 
 - [ ] Update `docs/process/SINGLE_SOURCE_OF_TRUTH.md` with the new owner, status, and next gate.
 - [ ] Update the packet docs, backlog handoff, rule index, eval result, and memory files when durable truth changed.
-- [ ] Update deployment notes or blockers when external bootstrap state changed.
+- [ ] Update deployment notes or blockers when external deploy state changed.
+- [ ] If Railway or GitHub deploy wiring changed, update the checked-in harness docs before closing the story.
 - [ ] Use `.ai/workflows/story-handoff.md` for QA-style review or final acceptance.

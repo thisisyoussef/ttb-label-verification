@@ -24,7 +24,7 @@ Claude should actively reference these docs while working:
 - `docs/process/UI_CLAUDE_CHECKLIST.md` for the required UI-phase workflow
 - `docs/specs/<story-id>/` for the shared story packet
 - `docs/reference/env-audit-2026-04-13.md` for current integration/env assumptions
-- `docs/process/DEPLOYMENT_FLOW.md` for how completed stories move to staging and production after Codex finishes them
+- `docs/process/DEPLOYMENT_FLOW.md` for how completed stories move through CI and Railway after Codex finishes them
 - `docs/reference/product-docs/` for product requirements and imported source material
 - `docs/design/MASTER_DESIGN.md` for the durable product design baseline
 - `evals/labels/` for seeded scenarios and review-state coverage
@@ -52,7 +52,7 @@ Claude must block and redirect instead of improvising outside its lane.
 - If `stitch-screen-brief.md` is ready but the user has not yet returned a Stitch image reference and Stitch HTML/code reference, stop and tell the user to run Stitch manually and come back with those references.
 - If the UI is approved and the remaining work is contract, API, validator, orchestration, testing, or integration work, stop and tell the user to move to Codex with `docs/specs/<story-id>/` and `docs/backlog/codex-handoffs/<story-id>.md`.
 - If the next ready story in the tracker belongs to Codex instead of Claude, stop and tell the user to continue in Codex with the exact story path.
-- Do not promise staging or production deployment from Claude. Deployment ownership sits in Codex and the external bootstrap flow.
+- Do not promise staging or production deployment from Claude. Deployment ownership sits in Codex and the Railway CLI/GitHub Actions release flow.
 - Redirect messages should be short and explicit:
   - `Blocked in Claude lane`
   - `Next agent: Codex` or `Next step: run Stitch and return references`

@@ -31,7 +31,7 @@ Use the checked-in docs deliberately, not as background noise:
 - `docs/specs/` for the universal story packet, full product blueprint, and story queue
 - `docs/reference/product-docs/` for imported product and domain source material
 - `docs/reference/` for env and integration audit notes
-- `docs/process/DEPLOYMENT_FLOW.md` for repo bootstrap, Railway environments, and story-to-deploy wiring
+- `docs/process/DEPLOYMENT_FLOW.md` for repo bootstrap, Railway CLI flow, and story-to-deploy wiring
 - `docs/design/MASTER_DESIGN.md` for durable UI direction
 - `docs/rules/` for rule traceability and source mapping
 - `evals/` for required label scenarios, expected outcomes, and run records
@@ -82,6 +82,7 @@ Use the checked-in docs deliberately, not as background noise:
 - Use `docs/specs/FULL_PRODUCT_SPEC.md` plus `docs/specs/PROJECT_STORY_INDEX.md` as the full checked-in map of the product. The legacy `TTB-001` through `TTB-004` folders are umbrella packets; the `TTB-1xx`, `TTB-2xx`, `TTB-3xx`, and `TTB-4xx` stories are the executable leaf queue.
 - A planning-stage leaf story may begin as `docs/specs/<story-id>/story-packet.md`. Before implementation starts, the active agent expands that compact packet into the standard artifact set if the story needs deeper working files.
 - Deployment scaffolding lives in repo code and process docs: `.github/workflows/`, `railway.toml`, `scripts/bootstrap-github-repo.sh`, and `docs/process/DEPLOYMENT_FLOW.md`.
+- Use the local `railway` CLI for Railway bootstrap, status, logs, and manual spot checks. Do not treat ad hoc dashboard clicks as the harness source of truth.
 - For `standard` non-UI-first work, run `.ai/workflows/spec-driven-delivery.md` and write the artifact set under `docs/specs/<story-id>/` using the conventions in `docs/specs/README.md` and `.ai/docs/SPEC_CREATION_METHODOLOGY.md`.
 - For stories with material UI scope, Claude follows `docs/process/UI_CLAUDE_CHECKLIST.md`: create or update `docs/specs/<story-id>/ui-component-spec.md` and `docs/specs/<story-id>/stitch-screen-brief.md`, stop for the user to run Google Stitch manually, then implement `src/client/**` from the returned Stitch image and HTML references, get user visual approval, and finally write `docs/backlog/codex-handoffs/<story-id>.md`.
 - Codex must not begin implementation work for a story with UI scope until the Claude UI phase is complete and the handoff is marked `ready-for-codex`.
@@ -95,7 +96,7 @@ Use the checked-in docs deliberately, not as background noise:
 - For all behavior changes, run `.ai/workflows/tdd-pipeline.md`.
 - Derive tests directly from acceptance criteria, require a real RED state before implementation, and keep refactor as a separate step after GREEN.
 - Keep `docs/process/SINGLE_SOURCE_OF_TRUTH.md` current when active work, status, next owner, or handoff state changes.
-- When deployable implementation work is completed and GitHub plus Railway are configured, follow `docs/process/DEPLOYMENT_FLOW.md` so the story reaches Railway staging after merge to `main`.
+- When deployable implementation work is completed, follow `docs/process/DEPLOYMENT_FLOW.md` so CI plus Railway CLI deploys staging after merge to `main`.
 - Production promotion is explicit. Do not treat a completed story as production-shipped unless the production branch or Railway production environment was actually promoted.
 - Promote recurring corrections into `AGENTS.md` or the relevant `.ai/workflows/*.md` file instead of leaving them as chat-only knowledge.
 - Use `.ai/workflows/story-handoff.md` for lane redirects, Stitch prep, visual review, UI-to-Codex backlog handoff, QA-style review, and final user acceptance handoff.
@@ -134,7 +135,7 @@ Refresh the smallest set needed after each story:
 - For latency-sensitive single-label stories, include measured timings against `performance-budget.md` before final handoff.
 - Run `.ai/workflows/story-handoff.md` and include the correct handoff type for the story: lane redirect, direction, Stitch prep, visual review, UI-to-Codex backlog handoff, QA-style review, or final acceptance.
 - Start the dev server when the scaffold or UI changes materially, and use that same route in the user visual-review handoff.
-- For deployable implementation stories, report whether staging deployment is verified, skipped because the change was docs-only, or blocked because GitHub/Railway bootstrap is not configured yet.
+- For deployable implementation stories, report whether staging deployment is verified, incidental with no runtime delta, or failed with the exact CI/Railway blocker.
 
 ## Delivery expectations
 

@@ -4,24 +4,54 @@ This file defines how GitHub and Railway fit into the story-completion workflow 
 
 ## Goals
 
-- every deployable story lands in a real staging environment
+- every completed implementation story can reach staging automatically after merge
 - production is promoted deliberately, not implicitly
 - the deploy flow stays compatible with the Claude/Codex lane split
 - the workflow works from checked-in state instead of one-off chat instructions
 
 ## Deployment model
 
-For this project, use Railway branch-linked environments rather than ad hoc manual deploys.
+For this project, use GitHub Actions plus Railway CLI rather than Railway dashboard branch-trigger settings.
 
-- GitHub `main` branch -> Railway `staging` environment
-- GitHub `production` branch -> Railway `production` environment
+- GitHub `main` push -> `ci` workflow -> Railway CLI deploy to `staging`
+- GitHub `production` push -> `ci` workflow -> Railway CLI deploy to `production`
+- production promotion is still explicit and happens by updating the `production` branch through `promote-production.yml`
 
 Why this model:
 
-- every completed implementation story can reach staging automatically after merge
-- production promotion becomes a clean branch promotion, not a one-off dashboard ritual
-- Railway can wait for CI before deploying
-- the repo stays simple: one app, one service, two long-lived environments
+- it uses the same Railway CLI locally and in GitHub Actions
+- it removes manual Railway service-setting drift from the harness
+- CI remains the hard gate before staging or production deploys
+- the repo still stays simple: one app, one service, two long-lived environments
+
+## Live external state
+
+As of 2026-04-13, the checked-in scaffold is backed by live external resources:
+
+- GitHub repo: `thisisyoussef/ttb-label-verification`
+- Railway project: `ttb-label-verification` (`a80335ea-ec6b-408f-8e38-81fb157cf993`)
+- Railway service: `ttb-label-verification`
+- Railway environments:
+  - `staging` (`5f215f39-d4b2-4fbd-afcf-bd2d6644e2f9`)
+  - `production` (`c0e22572-77d6-424a-84fc-d51d10d3fb8e`)
+- Staging URL: `https://ttb-label-verification-staging.up.railway.app`
+- Production URL: `https://ttb-label-verification-production-f17b.up.railway.app`
+- GitHub Actions secret configured: `RAILWAY_API_TOKEN`
+
+## Local CLI rules
+
+Codex should prefer the locally installed `railway` CLI for bootstrap, status checks, log inspection, manual spot deploys, and environment edits.
+
+Primary commands:
+
+- `railway status --json`
+- `railway service status --all`
+- `railway logs --service ttb-label-verification --environment staging --lines 100`
+- `railway logs --service ttb-label-verification --environment production --lines 100`
+- `railway up --ci --verbose --project a80335ea-ec6b-408f-8e38-81fb157cf993 --environment staging --service ttb-label-verification`
+- `railway up --ci --verbose --project a80335ea-ec6b-408f-8e38-81fb157cf993 --environment production --service ttb-label-verification`
+
+Local Railway link state is stored in `~/.railway/config.json`. Do not commit that state.
 
 ## One-time bootstrap
 
@@ -33,23 +63,30 @@ Why this model:
   - creates the GitHub repo with `gh repo create`
   - pushes `main`
   - creates and pushes `production`
+  - restores `main` to track `origin/main`
 
 ### 2. Create the Railway project
 
-In Railway:
+Using the local CLI:
 
-1. Create a project for `ttb-label-verification`.
-2. Create or keep two persistent environments:
-   - `staging`
-   - `production`
-3. Link the GitHub repo to the Railway service.
-4. Set branch mapping:
-   - `staging` tracks `main`
-   - `production` tracks `production`
-5. Enable `Wait for CI` in Railway so deploys happen only after GitHub Actions pass.
-6. Use `railway.toml` in repo as the config-as-code source.
+1. `railway init -n ttb-label-verification`
+2. `railway add --service ttb-label-verification`
+3. `railway environment new staging -d production`
+4. `railway link -p <project-id> -e staging`
+5. `railway service link ttb-label-verification`
+6. `railway domain` while linked to `staging`
+7. `railway link -p <project-id> -e production`
+8. `railway service link ttb-label-verification`
+9. `railway domain` while linked to `production`
+10. use `railway.toml` in repo as the config-as-code source
 
-### 3. Set Railway variables in both environments
+### 3. Set GitHub Actions access to Railway
+
+Set a repository secret using the local Railway account token:
+
+- `gh secret set RAILWAY_API_TOKEN --repo <owner/repo>`
+
+### 4. Set Railway variables in both environments
 
 Required in `staging` and `production`:
 
@@ -65,12 +102,14 @@ Do not store app data, uploads, or results in Railway volumes or attached databa
 - `.github/workflows/ci.yml`
   - runs tests, typecheck, and build on PRs and on pushes to `main` and `production`
 - `.github/workflows/railway-post-deploy.yml`
-  - runs after Railway reports a successful GitHub deployment
-  - hits `/api/health` on the deployed target URL
+  - listens for successful `ci` runs triggered by branch pushes
+  - uses Railway CLI with `RAILWAY_API_TOKEN`
+  - deploys `main` to staging and `production` to production
+  - verifies `/api/health` against the known Railway public domain for that environment
 - `.github/workflows/promote-production.yml`
   - manual promotion workflow
   - updates the `production` branch to the selected source ref
-  - Railway production auto-deploys from that branch
+  - the subsequent `ci` and `railway-deploy` workflows deploy production after verification passes
 
 ## Story-completion wiring
 
@@ -79,15 +118,15 @@ Do not store app data, uploads, or results in Railway volumes or attached databa
 1. Finish the story packet and handoff normally.
 2. Merge the story into `main`.
 3. Let CI pass.
-4. Railway `staging` auto-deploys from `main`.
-5. The post-deploy workflow verifies `/api/health`.
+4. The `railway-deploy` workflow runs `railway up` against `staging`.
+5. The deploy workflow verifies `/api/health`.
 6. Include staging deployment status in the final acceptance or deployment note.
 
 ### After a docs-only or harness-only story is complete
 
 - CI still runs after merge.
-- staging deploy may be skipped if no deployable runtime artifact changed.
-- if skipped, say so explicitly in handoff notes instead of implying a deploy happened.
+- the branch-driven deploy workflow may still run even if runtime code did not change.
+- if no runtime artifact changed, say that explicitly in handoff notes instead of implying a meaningful app delta shipped.
 
 ### Production promotion
 
@@ -103,8 +142,9 @@ Promotion path:
 
 1. confirm staging is healthy
 2. run `promote-production` GitHub workflow with `source_ref=main` or another validated ref
-3. Railway production auto-deploys from `production`
-4. verify `/api/health` and the agreed smoke path
+3. CI runs on the updated `production` branch
+4. `railway-deploy` runs `railway up` against `production`
+5. verify `/api/health` and the agreed smoke path
 
 ## Lane ownership
 
@@ -115,11 +155,12 @@ Promotion path:
 
 ### Codex
 
-- owns deployment scaffolding, server deployability, CI, and Railway flow docs
+- owns deployment scaffolding, server deployability, CI, Railway CLI wiring, and flow docs
 - records staging/prod rollout notes in the final handoff when relevant
 
 ## Blocking rules
 
-- If the GitHub repo does not exist yet, deployment verification is blocked at the external-bootstrap layer.
-- If Railway branch-linked environments are not configured yet, staging/prod deployment steps are blocked at the external-bootstrap layer.
+- If `RAILWAY_API_TOKEN` is missing or invalid in GitHub Actions, deploys are blocked at the CI-to-Railway layer.
+- If the checked-in project, service, environment, or domain values drift from the live Railway project, update the harness docs and workflows before claiming deploy success.
+- Do not run a local production `railway up` unless the user explicitly asks for that direct action.
 - Do not claim a story is staging-deployed or production-promoted unless the relevant external step actually happened.

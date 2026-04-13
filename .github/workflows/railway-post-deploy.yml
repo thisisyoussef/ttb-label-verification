@@ -1,35 +1,116 @@
-name: railway-post-deploy
+name: railway-deploy
 
 on:
-  deployment_status:
+  workflow_run:
+    workflows:
+      - ci
+    types:
+      - completed
 
 permissions:
   contents: read
 
+env:
+  RAILWAY_PROJECT_ID: a80335ea-ec6b-408f-8e38-81fb157cf993
+  RAILWAY_SERVICE_NAME: ttb-label-verification
+
 jobs:
-  verify-railway-deploy:
-    if: github.event.deployment_status.state == 'success' && github.event.deployment_status.target_url != ''
+  deploy-staging:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
+    environment: staging
 
     steps:
-      - name: Verify Railway health endpoint
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Railway CLI
+        run: npm install --global @railway/cli@4.33.0
+
+      - name: Deploy to Railway staging
         env:
-          TARGET_URL: ${{ github.event.deployment_status.target_url }}
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+        run: |
+          railway up --ci --verbose --project "$RAILWAY_PROJECT_ID" --environment staging --service "$RAILWAY_SERVICE_NAME"
+
+      - name: Verify staging health endpoint
         run: |
           set -euo pipefail
-          root="${TARGET_URL%/}"
-          curl --fail --silent --show-error "$root/api/health" > /tmp/health.json
-          cat /tmp/health.json
+          root="https://ttb-label-verification-staging.up.railway.app"
+          for _attempt in $(seq 1 20); do
+            if curl --fail --silent --show-error "$root/api/health" > /tmp/health.json; then
+              cat /tmp/health.json
+              exit 0
+            fi
+            sleep 6
+          done
+          echo "Staging healthcheck failed after deployment." >&2
+          exit 1
 
-      - name: Write deployment summary
-        env:
-          TARGET_URL: ${{ github.event.deployment_status.target_url }}
-          ENVIRONMENT: ${{ github.event.deployment.environment }}
+      - name: Write staging deployment summary
         run: |
           {
-            echo "## Railway deploy verified"
+            echo "## Railway staging deploy verified"
             echo
-            echo "- Environment: $ENVIRONMENT"
-            echo "- URL: $TARGET_URL"
+            echo "- Commit: ${{ github.event.workflow_run.head_sha }}"
+            echo "- Branch: main"
+            echo "- URL: https://ttb-label-verification-staging.up.railway.app"
+            echo "- Healthcheck: \`/api/health\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy-production:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'production'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Railway CLI
+        run: npm install --global @railway/cli@4.33.0
+
+      - name: Deploy to Railway production
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+        run: |
+          railway up --ci --verbose --project "$RAILWAY_PROJECT_ID" --environment production --service "$RAILWAY_SERVICE_NAME"
+
+      - name: Verify production health endpoint
+        run: |
+          set -euo pipefail
+          root="https://ttb-label-verification-production-f17b.up.railway.app"
+          for _attempt in $(seq 1 20); do
+            if curl --fail --silent --show-error "$root/api/health" > /tmp/health.json; then
+              cat /tmp/health.json
+              exit 0
+            fi
+            sleep 6
+          done
+          echo "Production healthcheck failed after deployment." >&2
+          exit 1
+
+      - name: Write production deployment summary
+        run: |
+          {
+            echo "## Railway production deploy verified"
+            echo
+            echo "- Commit: ${{ github.event.workflow_run.head_sha }}"
+            echo "- Branch: production"
+            echo "- URL: https://ttb-label-verification-production-f17b.up.railway.app"
             echo "- Healthcheck: \`/api/health\`"
           } >> "$GITHUB_STEP_SUMMARY"

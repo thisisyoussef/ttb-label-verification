@@ -30,6 +30,6 @@ API: `http://localhost:8787`
 - CI: `.github/workflows/ci.yml`
 - Railway config: `railway.toml`
 - Deployment flow: `docs/process/DEPLOYMENT_FLOW.md`
-- Intended branch mapping:
-  - `main` -> Railway `staging`
-  - `production` -> Railway `production`
+- GitHub Actions use Railway CLI for deploys
+- `main` pushes deploy staging after CI
+- `production` pushes deploy production after CI

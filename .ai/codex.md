@@ -27,7 +27,7 @@ Codex should actively reference these docs while working:
 - `docs/specs/FULL_PRODUCT_SPEC.md` for the full build map and `docs/specs/<story-id>/` for the active universal packet
 - `docs/reference/product-docs/` for product and domain source material
 - `docs/reference/` for env and integration audit notes
-- `docs/process/DEPLOYMENT_FLOW.md` for repo bootstrap, Railway environments, and post-story deploy rules
+- `docs/process/DEPLOYMENT_FLOW.md` for repo bootstrap, Railway CLI flow, and post-story deploy rules
 - `docs/design/MASTER_DESIGN.md` when preserving approved UI
 - `docs/specs/<story-id>/stitch-screen-brief.md` when preserving a Stitch-assisted UI direction
 - `docs/rules/` for deterministic rule sources and citations
@@ -85,6 +85,7 @@ Codex must block and redirect instead of improvising outside its lane.
 - Every upload or model story needs explicit no-persistence verification, not just intent.
 - Every single-label critical-path story needs measured timing, not just a budget claim.
 - Codex owns deployment scaffolding and release automation for this repo.
+- Prefer the local `railway` CLI for Railway bootstrap, status, log inspection, and manual spot checks.
 - Update the checked-in memory and source-of-truth docs when durable workflow or architecture truth changes.
 
 ## Execution loop
@@ -104,7 +105,7 @@ Codex must block and redirect instead of improvising outside its lane.
 8. If engineering exposes a UI gap, record it back in `docs/backlog/codex-handoffs/<story-id>.md` instead of redesigning the frontend.
 9. Run the relevant eval slice, privacy checks, and measured timing before final handoff.
 10. Verify the result with `npm run test`, `npm run typecheck`, and `npm run build`.
-11. For deployable implementation stories, follow `docs/process/DEPLOYMENT_FLOW.md` and report staging-deploy status or the exact external bootstrap blocker.
+11. For deployable implementation stories, follow `docs/process/DEPLOYMENT_FLOW.md` and report staging-deploy status or the exact CI/Railway blocker.
 12. Update the presearch, spec packet, rule index, eval result, backlog item, deploy note, or memory docs when durable truth changes.
 
 ## Boundaries with Claude

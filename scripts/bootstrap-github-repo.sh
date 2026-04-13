@@ -39,6 +39,7 @@ fi
 gh repo create "$repo_slug" "--$visibility" --source=. --remote=origin --push
 
 git push -u origin main
-git push -u origin main:production
+git push origin main:production
+git branch --set-upstream-to=origin/main main
 
 echo "Repository created and production branch bootstrapped."

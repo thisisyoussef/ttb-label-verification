@@ -12,4 +12,4 @@
 - Adopt `docs/specs/FULL_PRODUCT_SPEC.md` plus executable `TTB-1xx` through `TTB-4xx` leaf stories as the full product build map.
 - Allow compact leaf `story-packet.md` files during planning, with expansion into the full working packet before active implementation.
 - Record the local env audit and treat `OPENAI_API_KEY` as the only required live product key for the MVP path.
-- Use a branch-linked Railway deployment model: `main` deploys staging, `production` deploys production, and production promotion is explicit.
+- Use GitHub Actions plus Railway CLI for deploys: `main` pushes deploy staging, `production` pushes deploy production, and production promotion is explicit.
