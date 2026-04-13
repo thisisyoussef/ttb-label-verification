@@ -1,0 +1,36 @@
+# Feature Spec
+
+## Story
+
+- Story ID: `TTB-WF-001`
+- Title: workflow foundation upgrade
+
+## Problem statement
+
+The repo has a light harness, but it does not yet enforce the default gauntlet workflow for preflight, lookup, sizing, spec-driven delivery, TDD, memory updates, and checked-in progress tracking.
+
+## User-facing outcomes
+
+- Agents working in this repo follow a consistent workflow.
+- Standard feature work has a checked-in spec packet.
+- Behavior changes must run through RED -> GREEN -> REFACTOR.
+- Durable lessons survive in checked-in memory instead of chat only.
+
+## Acceptance criteria
+
+1. The repo has checked-in workflow docs for lookup, sizing, spec delivery, and TDD.
+2. The repo has a checked-in single source of truth and memory-bank structure.
+3. `AGENTS.md` and `.ai/codex.md` enforce the new workflow.
+4. The repo has reusable spec templates for future stories.
+
+## Edge cases
+
+- Small trivial edits should not require the full spec packet.
+- UI-only stories should still use the same spec flow when they are non-trivial.
+- Workflow docs must not contradict current package commands.
+
+## Out of scope
+
+- Runtime validator implementation
+- Upload handling
+- OpenAI adapter implementation

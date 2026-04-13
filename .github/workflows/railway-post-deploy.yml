@@ -1,0 +1,35 @@
+name: railway-post-deploy
+
+on:
+  deployment_status:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-railway-deploy:
+    if: github.event.deployment_status.state == 'success' && github.event.deployment_status.target_url != ''
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify Railway health endpoint
+        env:
+          TARGET_URL: ${{ github.event.deployment_status.target_url }}
+        run: |
+          set -euo pipefail
+          root="${TARGET_URL%/}"
+          curl --fail --silent --show-error "$root/api/health" > /tmp/health.json
+          cat /tmp/health.json
+
+      - name: Write deployment summary
+        env:
+          TARGET_URL: ${{ github.event.deployment_status.target_url }}
+          ENVIRONMENT: ${{ github.event.deployment.environment }}
+        run: |
+          {
+            echo "## Railway deploy verified"
+            echo
+            echo "- Environment: $ENVIRONMENT"
+            echo "- URL: $TARGET_URL"
+            echo "- Healthcheck: \`/api/health\`"
+          } >> "$GITHUB_STEP_SUMMARY"

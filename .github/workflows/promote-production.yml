@@ -1,0 +1,48 @@
+name: promote-production
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: Branch or tag to promote to the production branch
+        required: true
+        default: main
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Promote source ref to production branch
+        env:
+          SOURCE_REF: ${{ github.event.inputs.source_ref }}
+        run: |
+          set -euo pipefail
+          git fetch origin "$SOURCE_REF"
+          git checkout --detach FETCH_HEAD
+          git push origin HEAD:production --force-with-lease
+
+      - name: Write promotion summary
+        env:
+          SOURCE_REF: ${{ github.event.inputs.source_ref }}
+        run: |
+          {
+            echo "## Production promotion requested"
+            echo
+            echo "- Source ref: $SOURCE_REF"
+            echo "- Target branch: production"
+            echo "- Railway production should auto-deploy if the environment is linked to the \`production\` branch."
+          } >> "$GITHUB_STEP_SUMMARY"

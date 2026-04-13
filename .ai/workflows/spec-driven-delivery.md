@@ -1,0 +1,67 @@
+# Spec-Driven Delivery Workflow
+
+## Purpose
+
+Translate intent into executable engineering work before coding begins.
+
+## When to run
+
+Run for `standard` feature work and significant behavior changes.
+
+## Step 1: Constitution check
+
+Create `constitution-check.md` from the template and confirm the story does not violate:
+
+- no-persistence rules
+- Responses API and `store: false` rules
+- deterministic-validator ownership
+- shared-contract boundaries
+- latency and UX constraints
+
+## Step 2: Feature spec
+
+Create `feature-spec.md` and capture:
+
+- problem statement
+- user-facing outcomes
+- acceptance criteria
+- edge cases
+- out-of-scope
+
+Do not bury implementation details here.
+
+## Step 3: Technical plan
+
+Create `technical-plan.md` and define:
+
+- modules and file paths
+- data and API contracts
+- dependency boundaries
+- risk and fallback plan
+- testing strategy
+
+## Step 4: Task breakdown
+
+Create `task-breakdown.md` with executable tasks, dependencies, and validation commands.
+
+## Step 5: Optional briefs
+
+- Add `ui-component-spec.md` when UI structure, interaction, or evidence presentation is material.
+- Add `evidence-contract.md` when the review payload, detail panels, extracted evidence, or confidence semantics change.
+- Add `rule-source-map.md` when validator behavior, citation sources, beverage applicability, or severity mapping changes.
+- Add `privacy-checklist.md` when uploads, model calls, temp files, logs, caches, or ephemeral-data handling change.
+- Add `performance-budget.md` when the single-label critical path or latency-sensitive behavior changes.
+- Add `eval-brief.md` when AI behavior, grading, extraction quality, or routing changes.
+
+## Step 6: Derive tests from acceptance criteria
+
+Map acceptance criteria directly to tests before coding starts. For AI or validator stories, also map the relevant eval cases from `evals/labels/`.
+
+## Exit criteria
+
+- Constitution check complete
+- Feature spec complete
+- Technical plan complete
+- Task breakdown complete
+- Required relevant artifacts for UI, evidence, rule traceability, privacy, performance, or evals added when relevant
+- Tests mapped from acceptance criteria

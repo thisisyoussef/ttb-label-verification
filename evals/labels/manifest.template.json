@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "perfect-spirit-label",
+      "assetPath": "replace-with-real-asset/perfect-spirit-label.png",
+      "beverageType": "distilled-spirits",
+      "scenario": "baseline happy path",
+      "expectedRecommendation": "approve"
+    },
+    {
+      "id": "spirit-warning-errors",
+      "assetPath": "replace-with-real-asset/spirit-warning-errors.png",
+      "beverageType": "distilled-spirits",
+      "scenario": "government warning title case plus punctuation defect",
+      "expectedRecommendation": "reject"
+    },
+    {
+      "id": "spirit-brand-case-mismatch",
+      "assetPath": "replace-with-real-asset/spirit-brand-case-mismatch.png",
+      "beverageType": "distilled-spirits",
+      "scenario": "cosmetic brand mismatch should downgrade to review, not fail",
+      "expectedRecommendation": "review"
+    },
+    {
+      "id": "wine-missing-appellation",
+      "assetPath": "replace-with-real-asset/wine-missing-appellation.png",
+      "beverageType": "wine",
+      "scenario": "vintage and varietal present without appellation",
+      "expectedRecommendation": "reject"
+    },
+    {
+      "id": "beer-forbidden-abv-format",
+      "assetPath": "replace-with-real-asset/beer-forbidden-abv-format.png",
+      "beverageType": "malt-beverage",
+      "scenario": "ABV uses forbidden format",
+      "expectedRecommendation": "reject"
+    },
+    {
+      "id": "low-quality-image",
+      "assetPath": "replace-with-real-asset/low-quality-image.png",
+      "beverageType": "unknown",
+      "scenario": "blurry or low-confidence extraction should surface review",
+      "expectedRecommendation": "review"
+    }
+  ]
+}
