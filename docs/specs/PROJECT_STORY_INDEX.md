@@ -19,6 +19,13 @@ This file is the checked-in leaf-story queue for completing the TTB Label Verifi
 | `TTB-003` | batch workflow umbrella |
 | `TTB-004` | release hardening and submission umbrella |
 
+## Workflow and maintenance stories
+
+| Order | Story ID | Title | Notes |
+| --- | --- | --- | --- |
+| W1 | `TTB-WF-001` | workflow foundation upgrade | baseline harness and process story |
+| W2 | `TTB-WF-002` | source cleanup and reviewer-oriented refactor pass | user-directed maintenance story for structural cleanup and file-size enforcement |
+
 ## Delivery order
 
 | Order | Story ID | Parent | Title | Lane shape | Depends On | Completes When |
@@ -35,7 +42,7 @@ This file is the checked-in leaf-story queue for completing the TTB Label Verifi
 | 9 | `TTB-104` | `TTB-003` | batch dashboard, drill-in shell, and export UI | Claude-first, then Codex integration | `TTB-103` approved | the batch triage experience is approved and frozen |
 | 10 | `TTB-301` | `TTB-003` | batch parser, matcher, orchestration, and session export | Codex-only | `TTB-205`, `TTB-104` ready-for-codex | batch processing works end to end without persistence |
 | 11 | `TTB-105` | `TTB-004` | accessibility, trust copy, and final UI polish | Claude-first, then Codex release handoff | `TTB-104` approved | the integrated UI is polished and approved for release gating |
-| 12 | `TTB-106` | `TTB-004` | guided review, replayable help, and contextual info layer | Claude-first, then Codex integration | `TTB-301`, `TTB-105` approved | reviewers can launch and replay product guidance without persistence or hidden critical instructions |
+| 12 | `TTB-106` | `TTB-004` | guided tour, replayable help, and contextual info layer | Claude-first, then Codex integration | `TTB-301`, `TTB-105` approved | reviewers can launch and replay product guidance without persistence or hidden critical instructions |
 | 13 | `TTB-107` | `TTB-004` | mock Treasury auth entry and signed-in shell identity | Claude-first, then Codex integration | `TTB-106` approved | the prototype opens in a realistic internal-tool entry flow and returns there on sign-out without adding real auth infrastructure |
 | 14 | `TTB-108` | `TTB-004` | extraction mode selector and mode-aware processing states | Claude-first, then Codex integration | `TTB-107` approved | the reviewer can switch between cloud and local extraction without changing the rest of the workstation UX |
 | 15 | `TTB-206` | `TTB-002` | extraction mode routing foundation and privacy-safe cloud/local provider policy | Codex-only | `TTB-205`, `TTB-301` | extraction-mode routing, provider policy, env surface, and privacy rules exist without flipping the live extraction default |
@@ -64,7 +71,7 @@ This file is the checked-in leaf-story queue for completing the TTB Label Verifi
 - `TTB-212` is the restricted-network deployment story under `TTB-002`. It adds a self-hosted local extraction path without changing the downstream validator pipeline.
 - `TTB-210` and `TTB-211` are the user-centered LLM hardening follow-ons under `TTB-002`. `TTB-210` introduces endpoint-aware and mode-aware prompt plus guardrail policy on top of the cloud/local foundation; `TTB-211` turns those promises into route-specific and mode-specific eval and trace gates tied to the personas.
 - The mock auth story is prototype theater, not security infrastructure. It should strengthen federal context without introducing real credential handling, tokens, or server sessions.
-- Guided-review/help work ships only after the integrated single-label and batch workflows exist, and it should remain optional, replayable, and calm rather than a forced tutorial.
+- Guided-tour/help work ships only after the integrated single-label and batch workflows exist, and it should remain optional, replayable, and calm rather than a forced tutorial.
 - `TTB-401` is the release gate. No project-level “done” claim skips it.
 
 ## Completion definition

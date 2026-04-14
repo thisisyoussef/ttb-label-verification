@@ -146,6 +146,7 @@ What to include:
 Stop rule:
 
 - If the current branch is not pushed or `npm run gate:publish` fails, stop and publish it before claiming final acceptance or GitHub visibility.
+- If the implementation was developed in an isolated side worktree or temporary branch, stop and integrate it back into the active delivery branch or merge target before claiming the story is done.
 
 ## Default stopping rules
 

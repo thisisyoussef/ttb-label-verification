@@ -1,6 +1,6 @@
-import { useCallback, useRef, useState } from 'react';
-import type { ChangeEvent, DragEvent, KeyboardEvent } from 'react';
+import { useCallback, useState } from 'react';
 import type { DropZoneError, LabelImage } from './types';
+import { useFileDropInput } from './useFileDropInput';
 
 const ACCEPTED_MIME = new Set([
   'image/jpeg',
@@ -51,8 +51,6 @@ interface DropZoneProps {
 }
 
 export function DropZone({ image, disabled, onAccept, onRemove }: DropZoneProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [isDragOver, setDragOver] = useState(false);
   const [error, setError] = useState<DropZoneError | null>(null);
 
   const handleFile = useCallback(
@@ -69,40 +67,24 @@ export function DropZone({ image, disabled, onAccept, onRemove }: DropZoneProps)
     [onAccept]
   );
 
-  const onInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = '';
-    if (file) handleFile(file);
-  };
-
-  const onDrop = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setDragOver(false);
-    if (disabled) return;
-    const file = event.dataTransfer.files?.[0];
-    if (file) handleFile(file);
-  };
-
-  const onDragOver = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    if (disabled) return;
-    setDragOver(true);
-  };
-
-  const onDragLeave = () => setDragOver(false);
-
-  const openPicker = () => {
-    if (disabled) return;
-    inputRef.current?.click();
-  };
-
-  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (disabled) return;
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      openPicker();
+  const {
+    inputRef,
+    isDragOver,
+    openPicker,
+    onInputChange,
+    onDragOver,
+    onDragLeave,
+    onDrop,
+    onKeyDown
+  } = useFileDropInput({
+    interactive: !disabled,
+    trackDragState: true,
+    onSelect: ([file]) => {
+      if (file) {
+        handleFile(file);
+      }
     }
-  };
+  });
 
   if (image) {
     return (

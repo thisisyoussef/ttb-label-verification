@@ -1,63 +1,71 @@
-import type { HelpShowMe, TourStep } from './helpManifest';
-import { buildLabelThumbnail } from './labelThumbnail';
-import { buildReportForScenario } from './resultScenarios';
-import type { SeedScenario } from './scenarios';
-import type { LabelImage, ProcessingPhase, UIVerificationReport } from './types';
+import type { TourStep } from './helpManifest';
+import {
+  buildLoadScenarioAction,
+  buildResultsAction,
+  buildReturnToIntakeAction
+} from './help-tour-actions';
+export { buildTourDemoImage, resolveTourDemoReviewReport } from './help-tour-demo';
+export type {
+  PendingVerifyAdvanceAction,
+  TourInteractionAction,
+  TourNextAction,
+  TourRuntimeContext
+} from './help-tour-types';
+import {
+  DEFAULT_TOUR_SCENARIO_ID,
+  WARNING_TOUR_SCENARIO_ID,
+  type PendingVerifyAdvanceAction,
+  type TourInteractionAction,
+  type TourNextAction,
+  type TourRuntimeContext
+} from './help-tour-types';
 
-const DEFAULT_TOUR_SCENARIO_ID = 'perfect-spirit-label';
-const WARNING_TOUR_SCENARIO_ID = 'spirit-warning-errors';
-const DEMO_IMAGE_BYTES = new Uint8Array([
-  137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0,
-  0, 0, 1, 8, 4, 0, 0, 0, 181, 28, 12, 2, 0, 0, 0, 11, 73, 68, 65, 84, 120, 218,
-  99, 252, 255, 31, 0, 3, 3, 2, 0, 239, 167, 43, 183, 0, 0, 0, 0, 73, 69, 78, 68,
-  174, 66, 96, 130
-]);
+function isUsingDemoResult(context: TourRuntimeContext): boolean {
+  if (typeof context.usingDemoResult === 'boolean') {
+    return context.usingDemoResult;
+  }
 
-export type TourMode = 'single' | 'batch';
-export type TourView =
-  | 'intake'
-  | 'processing'
-  | 'results'
-  | 'batch-intake'
-  | 'batch-processing'
-  | 'batch-dashboard'
-  | 'batch-result';
-
-export interface TourRuntimeContext {
-  mode: TourMode;
-  view: TourView;
-  scenarioId: string;
-  hasImage: boolean;
-  hasReport: boolean;
-  processingPhase?: ProcessingPhase;
+  return context.scenarioId !== 'blank';
 }
 
-export type TourNextAction = {
-  kind: 'advance';
-};
+function resolveFallbackScenarioId(context: TourRuntimeContext): string {
+  if (isUsingDemoResult(context) && context.scenarioId !== 'blank') {
+    return context.scenarioId;
+  }
 
-export type TourInteractionAction =
-  | {
-      kind: 'advance';
-    }
-  | {
-      kind: 'await-results';
-    };
+  return DEFAULT_TOUR_SCENARIO_ID;
+}
 
-export type PendingVerifyAdvanceAction =
-  | {
-      kind: 'wait';
-    }
-  | {
-      kind: 'advance';
-    }
-  | {
-      kind: 'show-me-and-advance';
-      action: HelpShowMe;
-    }
-  | {
-      kind: 'clear';
-    };
+function hasWarningIssue(context: TourRuntimeContext): boolean {
+  return (
+    context.warningStatus === 'review' ||
+    context.warningStatus === 'fail' ||
+    (context.warningStatus == null && context.scenarioId === WARNING_TOUR_SCENARIO_ID)
+  );
+}
+
+function buildFallbackResultsAction(
+  label: string,
+  context: TourRuntimeContext
+) {
+  return buildResultsAction(label, resolveFallbackScenarioId(context));
+}
+
+function resolveVerdictReadyCta(context: TourRuntimeContext): string {
+  const subject = isUsingDemoResult(context)
+    ? 'This sample label'
+    : 'Your uploaded label';
+
+  if (context.reportVerdict === 'approve') {
+    return subject + ' cleared the current deterministic checks. Click Next to compare it with an issue case.';
+  }
+
+  if (context.reportVerdict === 'review' || context.reportVerdict === 'reject') {
+    return subject + ' already surfaced issues. Click Next to inspect the evidence behind them.';
+  }
+
+  return subject + ' is ready to review. Click Next to continue.';
+}
 
 export function isTourNextDisabled(
   step: TourStep,
@@ -76,11 +84,7 @@ export function isTourNextDisabled(
   }
 
   if (step.anchorKey === 'warning-evidence') {
-    return (
-      context.view !== 'results' ||
-      !context.hasReport ||
-      context.scenarioId !== WARNING_TOUR_SCENARIO_ID
-    );
+    return context.view !== 'results' || !context.hasReport || !hasWarningIssue(context);
   }
 
   if (step.anchorKey === 'batch-matching') {
@@ -98,43 +102,12 @@ export function resolveTourExpandedCheckId(
     step.anchorKey === 'warning-evidence' &&
     context.view === 'results' &&
     context.hasReport &&
-    context.scenarioId === WARNING_TOUR_SCENARIO_ID
+    hasWarningIssue(context)
   ) {
     return step.requires?.expandRowId ?? null;
   }
 
   return null;
-}
-
-function buildLoadScenarioAction(label: string, scenarioId: string): HelpShowMe {
-  return {
-    label,
-    action: 'load-scenario',
-    payload: { scenarioId }
-  };
-}
-
-function buildResultsAction(label: string, scenarioId: string): HelpShowMe {
-  return {
-    label,
-    action: 'advance-view',
-    payload: {
-      mode: 'single',
-      view: 'results',
-      scenarioId
-    }
-  };
-}
-
-function buildReturnToIntakeAction(label = 'Return to intake'): HelpShowMe {
-  return {
-    label,
-    action: 'advance-view',
-    payload: {
-      mode: 'single',
-      view: 'intake'
-    }
-  };
 }
 
 export function resolveTourStep(
@@ -170,19 +143,16 @@ export function resolveTourStep(
       if (context.processingPhase === 'failed') {
         return {
           ...step,
+          target: 'tour-processing-status' as TourStep['target'],
           interaction: undefined,
           cta: 'Verification failed. Use Show sample results to continue the tour.',
-          showMe: buildResultsAction(
-            'Show sample results',
-            context.scenarioId === 'blank'
-              ? DEFAULT_TOUR_SCENARIO_ID
-              : context.scenarioId
-          )
+          showMe: buildFallbackResultsAction('Show sample results', context)
         };
       }
 
       return {
         ...step,
+        target: 'tour-processing-status' as TourStep['target'],
         interaction: undefined,
         cta: 'Verification is running. Wait for results to continue.',
         showMe: undefined
@@ -214,36 +184,48 @@ export function resolveTourStep(
         ...step,
         interaction: undefined,
         cta: 'Results appear after a verification run finishes.',
-        showMe: buildResultsAction(
-          'Show sample results',
-          context.scenarioId === 'blank'
-            ? DEFAULT_TOUR_SCENARIO_ID
-            : context.scenarioId
-        )
-      };
-    }
-  }
-
-  if (step.anchorKey === 'warning-evidence') {
-    if (
-      context.view !== 'results' ||
-      !context.hasReport ||
-      context.scenarioId !== WARNING_TOUR_SCENARIO_ID
-    ) {
-      return {
-        ...step,
-        cta: 'Load the failing label to review the failed checks and highlighted text.',
-        showMe: buildResultsAction(
-          'Load failing label',
-          WARNING_TOUR_SCENARIO_ID
-        )
+        showMe: buildFallbackResultsAction('Show sample results', context)
       };
     }
 
     return {
       ...step,
       showMe: undefined,
-      cta: 'Review the failed checks and highlighted text in the expanded warning evidence.'
+      cta: resolveVerdictReadyCta(context)
+    };
+  }
+
+  if (step.anchorKey === 'warning-evidence') {
+    if (context.view !== 'results' || !context.hasReport) {
+      return {
+        ...step,
+        cta: 'Load the failing label to review the failed checks and highlighted text.',
+        showMe: buildResultsAction('Load failing label', WARNING_TOUR_SCENARIO_ID)
+      };
+    }
+
+    if (hasWarningIssue(context)) {
+      return {
+        ...step,
+        showMe: undefined,
+        cta: isUsingDemoResult(context)
+          ? 'Review the failed checks and highlighted text in the expanded warning evidence.'
+          : 'Your uploaded label already shows a warning issue. Review the failed checks and highlighted text in the expanded warning evidence.'
+      };
+    }
+
+    if (!isUsingDemoResult(context)) {
+      return {
+        ...step,
+        cta: 'Your uploaded label cleared the warning checks. Use Compare failing example to see how the issue evidence looks when something is wrong.',
+        showMe: buildResultsAction('Compare failing example', WARNING_TOUR_SCENARIO_ID)
+      };
+    }
+
+    return {
+      ...step,
+      cta: 'Load the failing label to review the failed checks and highlighted text.',
+      showMe: buildResultsAction('Load failing label', WARNING_TOUR_SCENARIO_ID)
     };
   }
 
@@ -298,12 +280,7 @@ export function resolvePendingVerifyAdvanceAction(
   if (context.view === 'processing' && context.processingPhase === 'failed') {
     return {
       kind: 'show-me-and-advance',
-      action: buildResultsAction(
-        'Show sample results',
-        context.scenarioId === 'blank'
-          ? DEFAULT_TOUR_SCENARIO_ID
-          : context.scenarioId
-      )
+      action: buildFallbackResultsAction('Show sample results', context)
     };
   }
 
@@ -317,28 +294,4 @@ export function resolvePendingVerifyAdvanceAction(
   }
 
   return { kind: 'clear' };
-}
-
-export function buildTourDemoImage(scenario: SeedScenario): LabelImage {
-  return {
-    file: new File([DEMO_IMAGE_BYTES], `${scenario.id}.png`, {
-      type: 'image/png'
-    }),
-    previewUrl: buildLabelThumbnail({
-      brandName: scenario.fields.brandName || scenario.title,
-      classType: scenario.fields.classType || scenario.description
-    }),
-    sizeLabel: '1 KB',
-    demoScenarioId: scenario.id
-  };
-}
-
-export function resolveTourDemoReviewReport(
-  image: LabelImage | null
-): UIVerificationReport | null {
-  if (!image?.demoScenarioId) {
-    return null;
-  }
-
-  return buildReportForScenario(image.demoScenarioId);
 }

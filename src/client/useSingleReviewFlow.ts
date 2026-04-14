@@ -1,16 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { buildTourDemoImage, resolveTourDemoReviewReport } from './help-tour-runtime';
-import { resolveResultReport } from './review-runtime';
-import type { SeedScenario } from './scenarios';
+
+import { DEFAULT_FAILURE_MESSAGE } from './appReviewApi';
 import {
-  buildInitialSteps,
   buildLowQualityCautionReport,
   emptyIntake,
-  prefillFromReport,
-  STEP_ADVANCE_MS
+  prefillFromReport
 } from './appSingleState';
-import { DEFAULT_FAILURE_MESSAGE, submitReview } from './appReviewApi';
 import type { View } from './appTypes';
+import { buildTourDemoImage, resolveTourDemoReviewReport } from './help-tour-runtime';
+import { logReviewClientEvent } from './review-observability';
+import { resolveResultReport } from './review-runtime';
+import type { SeedScenario } from './scenarios';
+import { exportReviewResults } from './single-review-export';
 import type {
   BeverageSelection,
   IntakeFields,
@@ -20,6 +21,10 @@ import type {
   ResultVariantOverride,
   UIVerificationReport
 } from './types';
+import {
+  type ReviewPipelineEvent,
+  useSingleReviewPipeline
+} from './useSingleReviewPipeline';
 
 export interface SingleReviewFlow {
   image: LabelImage | null;
@@ -67,23 +72,10 @@ export function useSingleReviewFlow(options: {
   const [scenarioId, setScenarioId] = useState<string>('blank');
   const [forceFailure, setForceFailure] = useState<boolean>(false);
   const [variantOverride, setVariantOverride] = useState<ResultVariantOverride>('auto');
-  const [steps, setSteps] = useState<ProcessingStep[]>(buildInitialSteps);
-  const [phase, setPhase] = useState<ProcessingPhase>('running');
-  const [failureMessage, setFailureMessage] = useState<string>(DEFAULT_FAILURE_MESSAGE);
-  const [report, setReport] = useState<UIVerificationReport | null>(null);
-  const timerRef = useRef<number | null>(null);
-  const requestIdRef = useRef<number>(0);
-  const abortControllerRef = useRef<AbortController | null>(null);
   const imageRef = useRef<LabelImage | null>(null);
+  const reviewTraceIdRef = useRef<string | null>(null);
 
   const useFixtureReport = options.fixtureControlsEnabled && scenarioId !== 'blank';
-
-  const clearPipelineTimer = useCallback(() => {
-    if (timerRef.current !== null) {
-      window.clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-  }, []);
 
   const revokeImage = useCallback((previous: LabelImage | null) => {
     if (previous?.previewUrl.startsWith('blob:')) {
@@ -105,168 +97,50 @@ export function useSingleReviewFlow(options: {
 
   useEffect(() => {
     return () => {
-      clearPipelineTimer();
-      abortControllerRef.current?.abort();
       revokeImage(imageRef.current);
     };
-  }, [clearPipelineTimer, revokeImage]);
+  }, [revokeImage]);
 
-  const completePipeline = useCallback(
-    (requestId: number, liveReport: UIVerificationReport | null) => {
-      if (requestId !== requestIdRef.current) return;
+  const handlePipelineEvent = useCallback((event: ReviewPipelineEvent) => {
+    if (event.traceId) {
+      reviewTraceIdRef.current = event.traceId;
+    }
 
-      clearPipelineTimer();
-      abortControllerRef.current = null;
-      setSteps((previous) => previous.map((step) => ({ ...step, status: 'done' })));
-      setPhase('terminal');
-      setReport(
-        resolveResultReport({
-          fields: fieldsState,
-          liveReport,
-          scenarioId,
-          useFixtureReport,
-          variantOverride
-        })
-      );
-      options.setView('results');
-    },
-    [clearPipelineTimer, fieldsState, options, scenarioId, useFixtureReport, variantOverride]
-  );
+    const { type, ...payload } = event;
+    logReviewClientEvent(type, payload);
+  }, []);
 
-  const failPipeline = useCallback(
-    (requestId: number, message: string) => {
-      if (requestId !== requestIdRef.current) return;
-
-      clearPipelineTimer();
-      abortControllerRef.current = null;
-      setFailureMessage(message);
-      setSteps((previous) => {
-        const next = previous.map((step) => ({ ...step }));
-        const activeIndex = next.findIndex((step) => step.status === 'active');
-
-        if (activeIndex === -1) {
-          return previous;
-        }
-
-        next[activeIndex] = { ...next[activeIndex]!, status: 'failed' };
-        return next;
-      });
-      setPhase('failed');
-    },
-    [clearPipelineTimer]
-  );
-
-  const startPipeline = useCallback(
-    (shouldFail: boolean, requestId: number) => {
-      clearPipelineTimer();
-      setSteps(buildInitialSteps());
-      setPhase('running');
-      setFailureMessage(DEFAULT_FAILURE_MESSAGE);
-
-      const tick = () => {
-        if (requestId !== requestIdRef.current) return;
-
-        let shouldContinue = false;
-        let failed = false;
-
-        setSteps((previous) => {
-          const next = previous.map((step) => ({ ...step }));
-          const activeIndex = next.findIndex((step) => step.status === 'active');
-          if (activeIndex === -1) return previous;
-
-          if (shouldFail && activeIndex === 2) {
-            next[activeIndex] = { ...next[activeIndex]!, status: 'failed' };
-            failed = true;
-            return next;
-          }
-
-          if (activeIndex === next.length - 1) {
-            shouldContinue = true;
-            return previous;
-          }
-
-          next[activeIndex] = { ...next[activeIndex]!, status: 'done' };
-          const nextIndex = activeIndex + 1;
-          if (nextIndex < next.length) {
-            next[nextIndex] = { ...next[nextIndex]!, status: 'active' };
-            shouldContinue = true;
-          }
-          return next;
-        });
-
-        if (failed) {
-          setPhase('failed');
-          return;
-        }
-
-        if (shouldContinue) {
-          timerRef.current = window.setTimeout(tick, STEP_ADVANCE_MS);
-        }
-      };
-
-      timerRef.current = window.setTimeout(tick, STEP_ADVANCE_MS);
-    },
-    [clearPipelineTimer]
-  );
-
-  const startReview = useCallback(
-    async (shouldFail: boolean) => {
-      if (!image) return;
-
-      requestIdRef.current += 1;
-      const requestId = requestIdRef.current;
-
-      abortControllerRef.current?.abort();
-      setReport(null);
-      options.setView('processing');
-      startPipeline(shouldFail, requestId);
-
-      if (shouldFail) {
-        return;
-      }
-
-      const controller = new AbortController();
-      abortControllerRef.current = controller;
-
-      try {
-        const result = await submitReview({
-          image,
-          beverage,
-          fields: fieldsState,
-          signal: controller.signal
-        });
-
-        if (result.ok) {
-          completePipeline(requestId, result.report);
-          return;
-        }
-
-        failPipeline(requestId, result.message);
-      } catch (error) {
-        if (controller.signal.aborted) {
-          return;
-        }
-
-        const message =
-          error instanceof Error && error.name === 'AbortError'
-            ? DEFAULT_FAILURE_MESSAGE
-            : 'We could not finish this review. Your label and inputs are still here — nothing was saved.';
-
-        failPipeline(requestId, message);
-      }
-    },
-    [beverage, completePipeline, failPipeline, fieldsState, image, options, startPipeline]
-  );
-
-  const abandonInFlightReview = useCallback(() => {
-    clearPipelineTimer();
-    abortControllerRef.current?.abort();
-    abortControllerRef.current = null;
-    requestIdRef.current += 1;
-  }, [clearPipelineTimer]);
+  const {
+    steps,
+    phase,
+    failureMessage,
+    report,
+    setReport,
+    setPhase,
+    setFailureMessage,
+    startReview,
+    abandonInFlightReview,
+    resetPipelineState
+  } = useSingleReviewPipeline({
+    image,
+    beverage,
+    fields: fieldsState,
+    scenarioId,
+    setView: options.setView,
+    resolveTerminalReport: (liveReport) =>
+      resolveResultReport({
+        fields: fieldsState,
+        liveReport,
+        scenarioId,
+        useFixtureReport,
+        variantOverride
+      }),
+    onEvent: handlePipelineEvent
+  });
 
   const reset = useCallback(() => {
     abandonInFlightReview();
+    reviewTraceIdRef.current = null;
     revokeImage(imageRef.current);
     setImage(null);
     setFieldsState(emptyIntake());
@@ -275,10 +149,8 @@ export function useSingleReviewFlow(options: {
     setForceFailure(false);
     setVariantOverride('auto');
     setReport(null);
-    setSteps(buildInitialSteps());
-    setPhase('running');
-    setFailureMessage(DEFAULT_FAILURE_MESSAGE);
-  }, [abandonInFlightReview, revokeImage]);
+    resetPipelineState();
+  }, [abandonInFlightReview, resetPipelineState, revokeImage, setReport]);
 
   const variantOptions = useMemo(
     () =>
@@ -303,17 +175,27 @@ export function useSingleReviewFlow(options: {
     (scenario: SeedScenario) => {
       abandonInFlightReview();
       revokeImage(imageRef.current);
+      logReviewClientEvent('tour.demo.intake-loaded', {
+        scenarioId: scenario.id
+      });
       setImage(buildTourDemoImage(scenario));
       setReport(null);
       setVariantOverride('auto');
       setForceFailure(false);
       setFailureMessage(DEFAULT_FAILURE_MESSAGE);
-      setSteps(buildInitialSteps());
-      setPhase('running');
+      resetPipelineState();
       applyScenario(scenario);
       options.setView('intake');
     },
-    [abandonInFlightReview, applyScenario, options, revokeImage]
+    [
+      abandonInFlightReview,
+      applyScenario,
+      options,
+      resetPipelineState,
+      revokeImage,
+      setFailureMessage,
+      setReport
+    ]
   );
 
   const showTourResults = useCallback(
@@ -324,11 +206,16 @@ export function useSingleReviewFlow(options: {
       const demoImage = buildTourDemoImage(scenario);
       const demoReport = resolveTourDemoReviewReport(demoImage);
 
+      logReviewClientEvent('tour.demo.results-loaded', {
+        scenarioId: scenario.id,
+        variant
+      });
+
       setImage(demoImage);
       setVariantOverride(variant);
       setForceFailure(false);
       setFailureMessage(DEFAULT_FAILURE_MESSAGE);
-      setSteps(buildInitialSteps());
+      resetPipelineState();
       applyScenario(scenario);
       setPhase('terminal');
       setReport(
@@ -342,7 +229,17 @@ export function useSingleReviewFlow(options: {
       );
       options.setView('results');
     },
-    [abandonInFlightReview, applyScenario, cloneScenarioFields, options, revokeImage]
+    [
+      abandonInFlightReview,
+      applyScenario,
+      cloneScenarioFields,
+      options,
+      resetPipelineState,
+      revokeImage,
+      setFailureMessage,
+      setPhase,
+      setReport
+    ]
   );
 
   return {
@@ -366,10 +263,18 @@ export function useSingleReviewFlow(options: {
     },
     onCancel: () => {
       abandonInFlightReview();
+      logReviewClientEvent('review.submit.cancelled', {
+        traceId: reviewTraceIdRef.current,
+        scenarioId
+      });
       options.setView('intake');
     },
     onBackToIntake: () => {
       abandonInFlightReview();
+      logReviewClientEvent('review.submit.back-to-intake', {
+        traceId: reviewTraceIdRef.current,
+        scenarioId
+      });
       options.setView('intake');
     },
     onRetry: () => {
@@ -377,10 +282,20 @@ export function useSingleReviewFlow(options: {
     },
     onImageChange: (next) => {
       revokeImage(image);
+      logReviewClientEvent('review.intake.image-selected', {
+        scenarioId,
+        filename: next?.file.name ?? null,
+        labelBytes: next?.file.size ?? null,
+        labelMimeType: next?.file.type ?? null,
+        demoScenarioId: next?.demoScenarioId ?? null
+      });
       setImage(next);
     },
     onClear: () => {
       revokeImage(image);
+      logReviewClientEvent('review.intake.cleared', {
+        scenarioId
+      });
       setImage(null);
       setFieldsState(emptyIntake());
       setBeverage('auto');
@@ -414,23 +329,11 @@ export function useSingleReviewFlow(options: {
     },
     onExportResults: () => {
       if (!report) return;
-      const payload = {
-        generatedAt: new Date().toISOString(),
-        imageName: image?.file.name ?? null,
-        beverageType: beverage,
+      exportReviewResults({
+        image,
+        beverage,
         report
-      };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], {
-        type: 'application/json'
       });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = `ttb-label-verification-${report.id}.json`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-      URL.revokeObjectURL(url);
     },
     reset
   };

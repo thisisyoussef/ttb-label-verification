@@ -1,7 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { formatFileSize } from '../shared/batch-file-meta';
-import { batchDashboardResponseSchema } from '../shared/contracts/review';
-import { DEFAULT_DASHBOARD_SEED_ID } from './batchDashboardScenarios';
 import {
   DEFAULT_SEED_BATCH_ID,
   findSeedBatch,
@@ -11,20 +8,20 @@ import {
   type SeedBatch
 } from './batchScenarios';
 import {
-  buildBatchLabelImage,
-  buildDashboardSeedFromResponse,
-  buildStreamItem,
   revokeBatchLabelImages
 } from './batch-runtime';
 import {
-  countRunnableBatchItems,
   cloneSeed,
   emptyBatchSeedState,
   summarizeItems,
   updateMatching
 } from './appBatchState';
-import { prepareLiveBatchPreflight } from './appBatchPreflight';
-import { streamBatchRun } from './appReviewApi';
+import {
+  retryLiveBatchItem,
+  selectLiveCsv,
+  selectLiveImages,
+  startLiveBatchRun
+} from './batchWorkflowLive';
 import type { Mode, View } from './appTypes';
 import { useBatchDashboardFlow, type BatchDashboardFlow } from './useBatchDashboardFlow';
 import type {
@@ -176,68 +173,29 @@ export function useBatchWorkflow(options: {
       options.setView('batch-processing');
     },
     onSelectLiveImages: (files) => {
-      const nextImages = files.map((file, index) =>
-        buildBatchLabelImage(file, `image-${index + 1}-${crypto.randomUUID()}`)
-      );
-
-      revokeBatchLabelImages(batchSeed.images);
-      setBatchSessionId(null);
-      setBatchSeed((previous) => ({
-        ...previous,
-        images: nextImages,
-        fileErrors: [],
-        overCap: false,
-        matching: emptyBatchSeedState().matching
-      }));
-      setBatchItems([]);
-      setBatchProgress({ done: 0, total: 0, secondsRemaining: null });
-      setBatchPhase('intake');
-      dashboard.onSelectDashboardSeed(DEFAULT_DASHBOARD_SEED_ID);
-      setPreviewImage(null);
-
-      if (batchCsvFile) {
-        const requestId = batchPreflightRequestRef.current + 1;
-        batchPreflightRequestRef.current = requestId;
-        void prepareLiveBatchPreflight({
-          nextImages,
-          nextCsvFile: batchCsvFile,
-          requestId,
-          getCurrentRequestId: () => batchPreflightRequestRef.current,
-          setBatchSessionId,
-          setBatchSeed
-        });
-      }
+      selectLiveImages({
+        files,
+        batchSeedImages: batchSeed.images,
+        batchCsvFile,
+        batchPreflightRequestRef,
+        setBatchSessionId,
+        setBatchSeed,
+        setBatchItems,
+        setBatchProgress,
+        setBatchPhase,
+        setPreviewImage,
+        resetDashboardSeed: dashboard.onSelectDashboardSeed
+      });
     },
     onSelectLiveCsv: (file) => {
       setBatchCsvFile(file);
-      setBatchSessionId(null);
-      setBatchSeed((previous) => ({
-        ...previous,
-        csv: {
-          filename: file.name,
-          sizeLabel: formatFileSize(file.size),
-          rowCount: 0,
-          headers: [],
-          rows: []
-        },
-        csvError: null,
-        fileErrors: previous.fileErrors,
-        overCap: false,
-        matching: emptyBatchSeedState().matching
-      }));
-
-      if (batchSeed.images.length > 0) {
-        const requestId = batchPreflightRequestRef.current + 1;
-        batchPreflightRequestRef.current = requestId;
-        void prepareLiveBatchPreflight({
-          nextImages: batchSeed.images,
-          nextCsvFile: file,
-          requestId,
-          getCurrentRequestId: () => batchPreflightRequestRef.current,
-          setBatchSessionId,
-          setBatchSeed
-        });
-      }
+      selectLiveCsv({
+        file,
+        batchImages: batchSeed.images,
+        batchPreflightRequestRef,
+        setBatchSessionId,
+        setBatchSeed
+      });
     },
     onSelectMode: (next, currentMode) => {
       if (next === currentMode) return;
@@ -266,92 +224,20 @@ export function useBatchWorkflow(options: {
         return;
       }
 
-      void (async () => {
-        if (!batchCsvFile) {
-          return;
-        }
-
-        const requestId = batchPreflightRequestRef.current + 1;
-        batchPreflightRequestRef.current = requestId;
-        const ensuredSessionId =
-          batchSessionId ??
-          (await prepareLiveBatchPreflight({
-            nextImages: batchSeed.images,
-            nextCsvFile: batchCsvFile,
-            requestId,
-            getCurrentRequestId: () => batchPreflightRequestRef.current,
-            setBatchSessionId,
-            setBatchSeed
-          }));
-        if (!ensuredSessionId) {
-          return;
-        }
-
-        const controller = new AbortController();
-        batchRunAbortRef.current?.abort();
-        batchRunAbortRef.current = controller;
-
-        setBatchItems([]);
-        setBatchProgress({
-          done: 0,
-          total: countRunnableBatchItems(batchSeed.matching),
-          secondsRemaining: null
-        });
-        setBatchPhase('running');
-        dashboard.reset();
-        options.setView('batch-processing');
-
-        try {
-          await streamBatchRun({
-            batchSessionId: ensuredSessionId,
-            matching: batchSeed.matching,
-            signal: controller.signal,
-            onFrame: (frame) => {
-              if (frame.type === 'progress') {
-                setBatchProgress({
-                  done: frame.done,
-                  total: frame.total,
-                  secondsRemaining: frame.secondsRemainingEstimate ?? null
-                });
-                return;
-              }
-
-              if (frame.type === 'item') {
-                const nextItem = buildStreamItem({
-                  frame,
-                  images: batchSeed.images
-                });
-                setBatchItems((previous) => [
-                  nextItem,
-                  ...previous.filter((item) => item.id !== nextItem.id)
-                ]);
-                return;
-              }
-
-              setBatchProgress({
-                done: frame.total,
-                total: frame.total,
-                secondsRemaining: 0
-              });
-              setBatchPhase((current) => (current === 'cancelled' ? current : 'terminal'));
-            }
-          });
-        } catch (error) {
-          if (controller.signal.aborted) {
-            return;
-          }
-
-          setBatchSeed((previous) => ({
-            ...previous,
-            csvError:
-              error instanceof Error
-                ? error.message
-                : 'We could not start this batch right now. Try again.'
-          }));
-          setBatchPhase('intake');
-          options.setView('batch-intake');
-        }
-      })();
+      void startLiveBatchRun({
+        batchCsvFile,
+        batchSessionId,
+        batchSeed,
+        batchPreflightRequestRef,
+        batchRunAbortRef,
+        setBatchSessionId,
+        setBatchSeed,
+        setBatchItems,
+        setBatchProgress,
+        setBatchPhase,
+        resetDashboard: dashboard.reset,
+        setView: options.setView
+      });
     },
     onCancelBatchRun: () => {
       if (options.fixtureControlsEnabled) {
@@ -387,36 +273,12 @@ export function useBatchWorkflow(options: {
         return;
       }
 
-      void (async () => {
-        const response = await fetch(`/api/batch/${batchSessionId}/retry/${itemId}`, {
-          method: 'POST'
-        });
-        if (!response.ok) {
-          return;
-        }
-
-        const dashboardResponse = batchDashboardResponseSchema.parse(await response.json());
-        const nextSeed = buildDashboardSeedFromResponse({
-          batchSessionId,
-          response: dashboardResponse,
-          images: batchSeed.images
-        });
-        const retriedRow = nextSeed.rows.find((row) => row.imageId === itemId);
-        if (retriedRow) {
-          setBatchItems((previous) =>
-            previous.map((item) =>
-              item.id === itemId
-                ? {
-                    ...item,
-                    status: retriedRow.status,
-                    errorMessage: retriedRow.errorMessage ?? undefined,
-                    retryKey: item.retryKey + 1
-                  }
-                : item
-            )
-          );
-        }
-      })();
+      void retryLiveBatchItem({
+        itemId,
+        batchSessionId,
+        batchSeedImages: batchSeed.images,
+        setBatchItems
+      });
     },
     onBatchBackToIntake: () => {
       options.setView('batch-intake');
