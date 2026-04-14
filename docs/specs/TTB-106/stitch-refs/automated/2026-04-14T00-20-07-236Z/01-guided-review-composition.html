@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TTB Label Verification Assistant</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&amp;family=Work+Sans:wght@400;500;600&amp;family=Inter:wght@400;600;700&amp;family=IBM+Plex+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#fff7f6",
+                        "primary": "#546067",
+                        "background": "#f9f9f8",
+                        "tertiary-fixed-dim": "#90e28a",
+                        "tertiary-fixed": "#9df197",
+                        "tertiary-dim": "#096119",
+                        "on-secondary-fixed-variant": "#455f6b",
+                        "error": "#9f403d",
+                        "on-tertiary-fixed": "#00460e",
+                        "primary-fixed": "#d7e4ec",
+                        "surface": "#f9f9f8",
+                        "on-tertiary": "#eaffe2",
+                        "on-primary-container": "#47545a",
+                        "primary-container": "#d7e4ec",
+                        "on-primary-fixed": "#354147",
+                        "on-primary-fixed-variant": "#515d64",
+                        "secondary-fixed-dim": "#bdd9e6",
+                        "surface-container": "#ebeeed",
+                        "on-secondary-fixed": "#29434e",
+                        "inverse-on-surface": "#9c9d9c",
+                        "surface-container-highest": "#dee4e2",
+                        "surface-tint": "#546067",
+                        "secondary-fixed": "#cbe7f5",
+                        "error-dim": "#4e0309",
+                        "on-secondary": "#f2faff",
+                        "outline-variant": "#adb3b2",
+                        "inverse-surface": "#0c0f0e",
+                        "secondary-dim": "#3d5762",
+                        "on-surface-variant": "#5a6060",
+                        "primary-dim": "#48545b",
+                        "secondary-container": "#cbe7f5",
+                        "surface-dim": "#d4dcda",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#f9f9f8",
+                        "on-tertiary-container": "#005c15",
+                        "error-container": "#fe8983",
+                        "tertiary-container": "#9df197",
+                        "secondary": "#49636f",
+                        "on-error-container": "#752121",
+                        "tertiary": "#1c6d25",
+                        "surface-container-high": "#e5e9e8",
+                        "on-primary": "#f0f9ff",
+                        "primary-fixed-dim": "#c9d6de",
+                        "on-background": "#2d3433",
+                        "on-surface": "#2d3433",
+                        "on-tertiary-fixed-variant": "#12661e",
+                        "surface-container-low": "#f2f4f3",
+                        "inverse-primary": "#e6f3fb",
+                        "outline": "#767c7b",
+                        "on-secondary-container": "#3c5561",
+                        "surface-variant": "#dee4e2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Public Sans"],
+                        "body": ["Work Sans"],
+                        "label": ["Inter"],
+                        "mono": ["IBM Plex Mono"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Work Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased overflow-hidden">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 h-12 bg-slate-50 dark:bg-slate-900 flex justify-between items-center px-6 w-full text-slate-600 dark:text-slate-300 font-['Public_Sans'] font-semibold tracking-tight text-sm">
+<div class="flex items-center gap-6">
+<span class="text-lg font-bold tracking-tighter text-slate-800 dark:text-slate-100">ComplianceEngine</span>
+<nav class="flex gap-4">
+<a class="text-slate-900 dark:text-white border-b-2 border-slate-600 dark:border-slate-300 pb-1 ease-out duration-200" href="#">Dashboard</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors ease-out duration-200" href="#">Inventory</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors ease-out duration-200" href="#">Archive</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors ease-out duration-200" href="#">Settings</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative bg-slate-200 dark:bg-slate-800 h-8 w-64 rounded-lg flex items-center px-3 gap-2">
+<span class="material-symbols-outlined text-sm">search</span>
+<span class="text-xs opacity-50">Search records...</span>
+</div>
+<span class="material-symbols-outlined hover:bg-slate-200/50 dark:hover:bg-slate-800/50 p-1 rounded transition-colors" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined hover:bg-slate-200/50 dark:hover:bg-slate-800/50 p-1 rounded transition-colors" data-icon="account_circle">account_circle</span>
+</div>
+</header>
+<!-- Sub-Header / Tool Bar -->
+<div class="fixed top-12 left-0 w-full h-16 bg-surface-container-lowest flex items-center justify-between px-6 z-40">
+<div class="flex flex-col">
+<h1 class="font-headline font-bold text-lg text-on-surface leading-tight">TTB Label Verification Assistant</h1>
+<p class="font-label text-xs text-on-surface-variant">AI-assisted compliance checking</p>
+</div>
+<div class="flex items-center gap-4">
+<!-- Toggle Single | Batch -->
+<div class="bg-surface-container-low p-1 rounded-lg flex">
+<button class="px-4 py-1.5 text-xs font-bold rounded-md bg-surface-container-lowest shadow-sm text-on-surface">Single</button>
+<button class="px-4 py-1.5 text-xs font-bold rounded-md text-on-surface-variant hover:text-on-surface">Batch</button>
+</div>
+<button class="flex items-center gap-2 px-3 py-1.5 bg-primary text-on-primary rounded-lg text-xs font-semibold shadow-md transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="auto_awesome">auto_awesome</span>
+                Guided review
+            </button>
+</div>
+</div>
+<!-- Main Workspace -->
+<main class="pt-28 flex h-screen overflow-hidden">
+<!-- Pinned Left Column (Thumbnail & Meta) -->
+<aside class="w-72 bg-surface-container-low flex flex-col p-6 gap-6 h-full overflow-y-auto border-r border-outline-variant/10">
+<div class="aspect-[3/4] w-full bg-surface-container-lowest rounded-lg overflow-hidden shadow-sm flex items-center justify-center p-4">
+<img class="max-w-full h-auto object-contain" data-alt="high-detail close-up of a vintage-style bourbon label with classic serif typography and ornamental borders on a dark textured background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-YC2e5ux5AE7qCMy-8uz-9IglwuKkWhXIryznL0YT29gZbjL_9dveuWWc5trVc0PSDD3WMzT6E7m0n-FYj1f-05VK5l3MJ2zf7vn1Jj4vQokzANM-a3HWbeGc4i-wZl4FFhotN71PDvq37jU3h7s5RP7Qq0YPfaJ5gRYzCRZ3kDz2IDxNxHdm5d4WXYFDsM4FX5lnEM6bqaOQ7VYNFvsueBMChX-JG5Gs54rBOOW9iuwWu7vv00FNtviutU2XbXcJzsRCdqxfAWo"/>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-mono text-[10px] text-on-surface-variant uppercase tracking-wider">File Reference</span>
+<span class="font-body font-semibold text-sm text-on-surface">bourbon-front.jpg</span>
+<span class="font-body text-xs text-on-surface-variant">2.4 MB</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-mono text-[10px] text-on-surface-variant uppercase tracking-wider">Classification</span>
+<span class="font-body font-semibold text-sm text-on-surface">Distilled Spirits</span>
+</div>
+<div class="mt-auto pt-8 border-t border-outline-variant/10 flex items-start gap-2 text-[10px] text-on-surface-variant leading-relaxed italic">
+<span class="material-symbols-outlined text-xs" data-icon="lock">lock</span>
+<span>Nothing is stored on the server. Analysis happens in volatile memory for privacy compliance.</span>
+</div>
+</aside>
+<!-- Central Analysis Area -->
+<section class="flex-1 bg-background p-8 overflow-y-auto pb-32">
+<!-- Verdict Banner -->
+<div class="bg-tertiary-container border-l-4 border-tertiary p-4 flex items-center justify-between mb-8 rounded-r-lg">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-tertiary-container text-2xl" data-icon="check_circle" data-weight="fill">check_circle</span>
+<div>
+<h3 class="font-headline font-bold text-on-tertiary-container">Recommend approval</h3>
+<p class="font-body text-xs text-on-tertiary-container opacity-90">No critical compliance failures detected in automated sweep.</p>
+</div>
+</div>
+<div class="bg-tertiary/10 px-3 py-1 rounded-full text-[10px] font-bold text-on-tertiary-container uppercase tracking-widest">Confidence: 98.4%</div>
+</div>
+<!-- Bento Layout for Checklist -->
+<div class="grid grid-cols-2 gap-6">
+<!-- Checklist Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm">
+<h4 class="font-headline font-bold text-sm mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="fact_check">fact_check</span>
+                        Field Checklist
+                    </h4>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg">
+<span class="font-body text-sm font-medium">Brand Name</span>
+<div class="flex items-center gap-2 text-tertiary">
+<span class="font-mono text-xs font-bold">MATCHED</span>
+<span class="material-symbols-outlined text-sm" data-icon="verified">verified</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg">
+<span class="font-body text-sm font-medium">Alcohol Content</span>
+<div class="flex items-center gap-2 text-tertiary">
+<span class="font-mono text-xs font-bold">45% VOL</span>
+<span class="material-symbols-outlined text-sm" data-icon="verified">verified</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg">
+<span class="font-body text-sm font-medium">Net Contents</span>
+<div class="flex items-center gap-2 text-tertiary">
+<span class="font-mono text-xs font-bold">750 ML</span>
+<span class="material-symbols-outlined text-sm" data-icon="verified">verified</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Cross-Field Checks -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm">
+<h4 class="font-headline font-bold text-sm mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="rule_folder">rule_folder</span>
+                        Cross-Field Checks
+                    </h4>
+<div class="space-y-3">
+<div class="flex items-start gap-3 p-3 border-l-2 border-secondary/20">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="sync_alt">sync_alt</span>
+<div>
+<p class="font-body text-xs font-bold">Class/Type vs Statement</p>
+<p class="font-body text-[11px] text-on-surface-variant">Validated: 'Straight Bourbon' matches classification.</p>
+</div>
+</div>
+<div class="flex items-start gap-3 p-3 border-l-2 border-secondary/20">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="location_on">location_on</span>
+<div>
+<p class="font-body text-xs font-bold">Name and Address</p>
+<p class="font-body text-[11px] text-on-surface-variant">Matched with COLA registry database record 882-X.</p>
+</div>
+</div>
+<div class="flex items-start gap-3 p-3 border-l-2 border-tertiary/20">
+<span class="material-symbols-outlined text-tertiary text-sm" data-icon="description">description</span>
+<div>
+<p class="font-body text-xs font-bold">Government Warning</p>
+<p class="font-body text-[11px] text-on-surface-variant">Text verified. Legibility score 9.2/10.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Raw Data Preview -->
+<div class="mt-8">
+<h4 class="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest mb-3">System Raw Data Preview</h4>
+<div class="bg-surface-container-highest p-4 rounded-lg font-mono text-xs text-on-surface leading-relaxed">
+                    { "extracted_text": "OLD OAK BOURBON... DISTILLED IN KENTUCKY... 45% ALC BY VOL... GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL...", "ocr_confidence": 0.992, "processing_id": "TTB-992-X" }
+                </div>
+</div>
+</section>
+<!-- Right Side: Guided Review Drawer (Docked 360px) -->
+<aside class="fixed right-0 top-12 h-screen w-[360px] bg-slate-100/85 dark:bg-slate-950/85 backdrop-blur-xl flex flex-col border-l border-slate-200 dark:border-slate-800 shadow-2xl z-50 transition-all duration-300 transform translate-x-0">
+<!-- Drawer Header -->
+<div class="p-6 pb-2 flex items-center justify-between">
+<span class="font-headline font-bold text-slate-800 text-sm">Guided Review</span>
+<button class="material-symbols-outlined text-slate-400 hover:text-slate-800 transition-colors" data-icon="close">close</button>
+</div>
+<!-- Progress Header -->
+<div class="px-6 pb-6">
+<div class="flex justify-between items-baseline mb-2">
+<span class="font-['Inter'] text-[10px] uppercase tracking-widest text-slate-400">Tour Step 2 of 8</span>
+<span class="font-body text-xs font-bold text-slate-600">25%</span>
+</div>
+<div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+<div class="h-full bg-slate-600" style="width: 25%"></div>
+</div>
+</div>
+<!-- Content -->
+<div class="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+<h2 class="font-headline font-bold text-xl text-slate-900 leading-tight">Verify Brand Name</h2>
+<p class="font-body text-sm text-slate-600 leading-relaxed">
+                    The system compares the brand name on the label against the application. Check for consistent capitalization and spelling.
+                </p>
+<!-- Verification Block -->
+<div class="bg-white/50 dark:bg-slate-900/50 border-l-4 border-slate-600 p-4 space-y-3">
+<div class="flex items-center justify-between">
+<span class="font-mono text-[10px] uppercase text-slate-400">Application Data</span>
+<span class="font-mono text-[10px] text-tertiary">CONFIRMED</span>
+</div>
+<p class="font-mono text-sm font-bold text-slate-800 tracking-tight">OLD OAK DISTILLERY</p>
+<div class="w-full h-px bg-slate-200"></div>
+<div class="flex items-center justify-between">
+<span class="font-mono text-[10px] uppercase text-slate-400">Label OCR Extract</span>
+</div>
+<p class="font-mono text-sm font-bold text-slate-800 tracking-tight">OLD OAK DISTILLERY</p>
+</div>
+<button class="w-full py-2.5 bg-white border border-slate-200 text-slate-800 text-xs font-bold rounded flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="visibility">visibility</span>
+                    Show me
+                </button>
+</div>
+<!-- Footer Actions -->
+<div class="p-6 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+<button class="text-xs font-bold text-slate-400 hover:text-slate-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_left">chevron_left</span>
+                    Previous
+                </button>
+<button class="px-6 py-2 bg-slate-800 text-white text-xs font-bold rounded hover:bg-slate-900 transition-shadow shadow-md">
+                    Next Step
+                </button>
+</div>
+</aside>
+</main>
+<!-- Navigation Components (SideNav Reference) -->
+<nav class="fixed left-0 top-12 h-screen w-64 bg-slate-100 dark:bg-slate-950 flex flex-col gap-1 p-3 text-slate-700 dark:text-slate-200 font-['Work_Sans'] text-sm antialiased border-r border-slate-200 dark:border-slate-800 hidden lg:flex">
+<div class="mb-6 px-3 py-4 border-b border-slate-200 dark:border-slate-800">
+<h2 class="font-['Public_Sans'] font-bold text-slate-900 dark:text-slate-50">Project Alpha</h2>
+<p class="text-[10px] opacity-60">Gov-ID: TTB-992-X</p>
+</div>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+            Overview
+        </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-900/80 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="fact_check">fact_check</span>
+            Verification
+        </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-900/80 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="rule_folder">rule_folder</span>
+            Discrepancies
+        </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-900/80 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+            History
+        </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-900/80 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="assessment">assessment</span>
+            Reports
+        </a>
+<div class="mt-auto px-3 pb-20">
+<button class="w-full py-2 bg-primary text-on-primary font-bold rounded text-xs shadow-sm hover:brightness-110">
+                New Audit
+            </button>
+</div>
+</nav>
+</body></html>

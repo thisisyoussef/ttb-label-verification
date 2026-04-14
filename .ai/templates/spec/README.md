@@ -14,3 +14,13 @@ Recommended files:
 - `privacy-checklist.md` when uploads or model calls change
 - `performance-budget.md` when the single-label critical path changes
 - `eval-brief.md` when AI behavior, routing, grading, or prompt behavior changes
+- `trace-brief.md` when prompt/model/tool-call or agentic behavior needs trace-driven tuning
+
+The `technical-plan.md` testing strategy should explicitly cover:
+
+- lowest viable test layers
+- contract boundaries
+- negative and boundary cases
+- invariants or properties worth broad-input testing
+- likely flake hazards and required seams
+- mutation-worthy pure modules

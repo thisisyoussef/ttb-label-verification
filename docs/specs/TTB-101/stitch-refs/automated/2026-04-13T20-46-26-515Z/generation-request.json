@@ -1,0 +1,7 @@
+{
+  "projectId": "15350665813018316672",
+  "modelId": "GEMINI_3_FLASH",
+  "deviceType": "DESKTOP",
+  "promptSource": "docs/specs/TTB-101/stitch-screen-brief.md",
+  "promptLength": 7149
+}

@@ -2,9 +2,14 @@
 
 This project treats evaluation as part of the product contract.
 
-## Required corpus
+## Canonical datasets
 
-The base corpus is the six-label set described in the product roadmap:
+- `golden/manifest.json` is the canonical full golden eval set.
+- `labels/manifest.json` is the live image-backed core-six subset used for default demos, seeded UI, and the first live extraction slice.
+
+## Required baseline
+
+The core-six baseline remains:
 
 1. perfect spirit label
 2. spirit label with warning errors
@@ -13,14 +18,36 @@ The base corpus is the six-label set described in the product roadmap:
 5. beer label with forbidden ABV abbreviation
 6. deliberately low-quality image
 
+The full golden set extends this baseline with beverage-specific, format, comparison, cross-field, warning-edge, standalone, batch, and error-handling cases.
+
+## Applicability model
+
+Run only the smallest applicable slice:
+
+- `core-six` for default live single-label regression, demo, and seeded UI
+- `beverage-type-coverage` for beverage-specific rules
+- `format-compliance` for net contents, ABV, and proof formatting
+- `deterministic-comparison` for string/numeric comparison behavior without real media
+- `cross-field-dependencies` for multi-field logic
+- `government-warning-edge-cases` for warning validator work
+- `standalone-mode` for no-application-data flows
+- `batch-processing` for batch intake, triage, and export
+- `error-handling` for upload and unreadable-image behavior
+
 ## Structure
 
-- `labels/` — corpus manifest and instructions for label assets
+- `golden/manifest.json` — canonical full golden set and slice catalog
+- `golden/README.md` — how to pick the smallest applicable slice
+- `labels/manifest.json` — live image-backed core-six subset
+- `labels/manifest.template.json` — shape reference for live image-backed subset files
+- `labels/assets/` — expected live-eval filenames and any checked-in media for the core-six live subset
 - `results/` — checked-in run logs for story-specific eval runs
 
 ## Rules
 
-- If a story changes extraction, validators, recommendation logic, or evidence payloads, record an eval run.
-- If a story exposes a new important failure mode, update the corpus manifest or create a backlog item to do so.
+- If a story changes extraction, validators, recommendation logic, evidence payloads, or user-visible seeded scenario claims, record an eval run.
+- If a story changes prompt, model choice, tool-calling, or agentic orchestration, pair the eval run with a LangSmith trace review and record the winning traces.
+- If a story exposes a new important failure mode, update `golden/manifest.json` or create a backlog item to do so.
 - Capture measured latency with each eval run for single-label critical-path work.
 - Until an automated runner exists, manual eval results are acceptable if they are checked in and reproducible.
+- Missing binaries under `labels/assets/` are only a blocker when the active story actually requires a live extraction or live eval run against the core-six subset.

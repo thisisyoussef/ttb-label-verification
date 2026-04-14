@@ -1,0 +1,35 @@
+{
+  "storyId": "TTB-106",
+  "generatedAt": "2026-04-14T00:20:07.237Z",
+  "flowMode": "automated",
+  "reviewRequired": true,
+  "project": {
+    "id": "3197911668966401642",
+    "title": "TTB Label Verification System",
+    "wasCreated": false
+  },
+  "modelId": "GEMINI_3_1_PRO",
+  "deviceType": "DESKTOP",
+  "promptSource": "docs/specs/TTB-106/stitch-screen-brief.md",
+  "runDir": "docs/specs/TTB-106/stitch-refs/automated/2026-04-14T00-20-07-236Z",
+  "screens": [
+    {
+      "id": "cc31765ca5db4bd5b49e4de66d76c68c",
+      "name": "projects/3197911668966401642/screens/cc31765ca5db4bd5b49e4de66d76c68c",
+      "title": "Guided Review Composition",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzhiNjA1Y2VhYjdjMzRiYzk4NDhiMDQwMDYzMTA3N2E2EgsSBxCDmeS-iQEYAZIBIwoKcHJvamVjdF9pZBIVQhMzMTk3OTExNjY4OTY2NDAxNjQy&filename=&opi=96797242",
+      "screenshotUrl": "https://lh3.googleusercontent.com/aida/ADBb0ug0lbf5MTP6jRz2nJ2YRmDh01LyOq9Xs2rAGSdI3h90aVfQbYS3zi7AffiWtBtQedQ2SYDwqqcC5QBE2Z7lH0XXtl_W76DnEQnrTbN9GmLBykGs67nYFFLDr-N6LyBiP5p0nTachWk8datwYYLk6w9qK-98Mpb_L-GgXlYnrzKkfmzJ-j7Fr5HVG0M1xc-Gt6yPdw7hCBcnLqv4hLIq3y34XVesSnTEQhEvt3g-1gcGdoQuJzdG-uVxSQ",
+      "localHtmlPath": "docs/specs/TTB-106/stitch-refs/automated/2026-04-14T00-20-07-236Z/01-guided-review-composition.html",
+      "htmlFetchError": null
+    },
+    {
+      "id": "2436040b4b40429fa9b4e951ab808995",
+      "name": "projects/3197911668966401642/screens/2436040b4b40429fa9b4e951ab808995",
+      "title": "Contextual Info Composition",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzE3OWQ3ZWI2MzE2ZTQ2YmZhMDA4NWQxNTA3YThkZmM1EgsSBxCDmeS-iQEYAZIBIwoKcHJvamVjdF9pZBIVQhMzMTk3OTExNjY4OTY2NDAxNjQy&filename=&opi=96797242",
+      "screenshotUrl": "https://lh3.googleusercontent.com/aida/ADBb0uiVb31yNkWUE994bCe1pK8HCqQUrgXUXNx5qyxnbAHkJk5_NiJcHOsCeU1Z8eZ1QBSP-FCrCySM7lo9kPmX1b-KYV93ArYbc2ts0X39vhjZSUsiToLpXt1YbW7PHO3e5QzkF9OK3gfIBqb7xjGkCJVJY20esdFsucAhWh-5gC45vMWB-WK4dR0jegWqetoReNARVbePdgD8MNjIxZZDD1c_O-UAtoUfWW_Qp_wyzpqhwsrnp-UpTK7YhpM",
+      "localHtmlPath": "docs/specs/TTB-106/stitch-refs/automated/2026-04-14T00-20-07-236Z/02-contextual-info-composition.html",
+      "htmlFetchError": null
+    }
+  ]
+}

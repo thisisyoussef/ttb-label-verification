@@ -5,11 +5,48 @@
 - Split execution into a Claude UI checklist and a Codex engineering checklist against the same tracker.
 - Treat `docs/specs/<story-id>/` as the universal packet for both lanes rather than separate frontend and backend specs.
 - For any story with material UI scope, Codex waits until Claude finishes the UI phase and the handoff is approved.
-- Both agents must block and redirect the user when work is in the wrong lane or a prerequisite from the other lane is missing.
+- Both agents must redirect the user when they are explicitly asked to work outside their lane or a manual prerequisite is missing, but Claude should continue the UI queue instead of blocking on pending Codex work.
 - Require spec packets for standard feature work and TDD for all behavior changes.
 - Capture durable lessons in project memory and promote recurring corrections into `AGENTS.md` or workflow docs.
 - Add a dedicated `continue-next-story` workflow so either agent can recover the next valid story from checked-in state.
 - Adopt `docs/specs/FULL_PRODUCT_SPEC.md` plus executable `TTB-1xx` through `TTB-4xx` leaf stories as the full product build map.
 - Allow compact leaf `story-packet.md` files during planning, with expansion into the full working packet before active implementation.
+- Allow either agent to create or expand a story packet; lane ownership still controls implementation and handoff work.
 - Record the local env audit and treat `OPENAI_API_KEY` as the only required live product key for the MVP path.
+- Add `npm run env:bootstrap` plus automatic server-side `.env` loading so agents stop reporting missing repo-local OpenAI config when the key already exists in the local gauntlet env inventory.
+- Wire LangSmith into the repo as an opt-in trace-driven development path: bootstrap the key from local env inventory, keep tracing off by default, verify with `npm run langsmith:smoke`, and use checked-in trace briefs plus LangSmith inspection for future LLM stories.
+- Make the local automated Stitch flow the project default, and keep manual Comet Stitch as an explicit fallback only.
+- Enforce the automated Stitch path with process-level timeouts and keep the post-generation user review gate explicit instead of auto-implementing from unreviewed generated refs.
+- Hardwire the canonical Stitch project id `3197911668966401642` into the local harness so smoke tests and automated story runs prefer `TTB Label Verification System` deterministically.
+- Let the repo Stitch scripts reuse the local ignored MCP config so Claude's project-local Stitch setup doubles as harness auth instead of requiring a separate exported shell key.
+- Require Claude to self-review automated Stitch output before asking the user to review it, and rerun/tweak when the generated result is obviously off-target.
+- Allow Codex to advance tracker-marked parallel-safe Codex-only stories without waiting for Claude to finish an unrelated active UI story.
+- Add checked-in branch, commit, push, and merge gates plus shared local gate commands so story work stays on story branches and deploy branches remain protected by workflow.
 - Use GitHub Actions plus Railway CLI for deploys: `main` pushes deploy staging, `production` pushes deploy production, and production promotion is explicit.
+- Do not add a database as part of the current proof-of-concept foundation; the checked-in product direction remains no DB, no queue, and no background jobs unless presearch changes.
+- Treat earlier workflow and eval stories as hard gates before later feature pickup.
+- For `TTB-101`, Codex may make narrow `src/client/**` integration edits to stitch the approved UI into live behavior without changing design.
+- For visible Codex stories, the acceptance handoff should give the running local URL and a manual user test script instead of relying on Playwright automation.
+- Plan future onboarding/help as an optional, replayable guided-review system with typed manifests and no server-side persistence, not as a forced first-run tutorial.
+- For `TTB-201`, cut the shared review contract over directly to the approved `verdict`/`counts`/`extractionQuality` results model and migrate the seed fixture in the same change.
+- For `TTB-201`, alias client fixture/report types from `src/shared/contracts/review.ts` instead of preserving a duplicate results interface tree.
+- For `TTB-202`, treat omitted or blank multipart `fields` as a valid standalone request instead of a validation failure.
+- For `TTB-202`, keep multipart parsing and intake normalization in `src/server/review-intake.ts` so later extraction stories can consume a typed, bounded, no-path intake object.
+- For `TTB-203`, stage the live extraction work behind `POST /api/review/extraction` so the approved results UI can stay seeded until validator and aggregation stories are done.
+- For `TTB-203`, use a model-facing required-plus-nullable structured-output schema and normalize it into the shared extraction contract after parsing.
+- For `TTB-203`, resolve beverage type in this order: explicit application value, deterministic class/type inference, model hint, then strict distilled-spirits fallback.
+- For `TTB-204`, stage the warning validator behind `POST /api/review/warning` so the extraction-to-warning path can be exercised before the full `POST /api/review` cutover in `TTB-205`.
+- For `TTB-204`, normalize whitespace before exact warning comparison but keep case and punctuation literal.
+- For `TTB-204`, use token-level diff alignment and merge adjacent wrong-case words across matching spaces so the warning evidence matches the approved UI fixture.
+- For `TTB-204`, treat the `legibility` sub-check as the approved UI bucket for both readability and the CFR `separate and apart` requirement.
+- For `TTB-102`, complete the story-local Codex integration by rendering the `VerificationReport` returned by `POST /api/review` directly and emitting a dedicated standalone seed report whenever application data is omitted.
+- Gate single-label and batch dev fixture controls behind fixture-mode rules (`import.meta.env.DEV` or `VITE_ENABLE_DEV_FIXTURES`) so seeded behavior does not silently replace the live runtime path.
+- Mark completed `TTB-102` and `TTB-103` handoffs as `done`, not still `ready-parallel`, and prefer ready approved `TTB-1xx` handoffs before later blocking `TTB-2xx+` work whenever the workflow/eval foundations are already complete.
+- For seed-backed or staging routes that still power approved UI, TDD must use non-default submitted values and prove they survive into the returned comparison payload instead of only validating schema shape.
+- For `TTB-205`, keep `POST /api/review/seed` as the explicit scaffold-inspection route, but move the main `POST /api/review` contract to the integrated extraction + warning + aggregation path.
+- For distilled spirits in `TTB-205`, same-field-of-vision stays a `review`-class advisory until spatial evidence exists; do not manufacture an approve path from text extraction alone.
+- For `TTB-301`, keep batch session data in an in-memory store only; no DB, no queue, and no restore path after reload.
+- For `TTB-301`, use NDJSON streaming from `/api/batch/run` instead of adding a queue or background worker.
+- For `TTB-301`, preserve submitted CSV identity values in dashboard rows and export payloads even when extraction text differs.
+- For `TTB-301`, keep fixture-mode batch seeds intact in dev, but wire the production/non-fixture runtime through the real batch endpoints.
+- Plan `TTB-107` as a separate follow-on UI story without changing the existing `TTB-106` sequence.

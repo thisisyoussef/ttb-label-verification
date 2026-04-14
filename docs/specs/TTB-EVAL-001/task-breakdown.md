@@ -4,19 +4,19 @@
 
 ### Task 1
 
-- Objective: lock the six baseline eval scenarios and their stable IDs.
+- Objective: lock the full golden case catalog, named slices, and stable case IDs.
 - Dependency: `must-have`
-- Validation: `jq . evals/labels/manifest.template.json`
+- Validation: `jq . evals/golden/manifest.json && npm run evals:validate`
 
 ### Task 2
 
-- Objective: document the rules for corpus usage, asset naming, and result logging.
+- Objective: document the rules for slice usage, live-subset asset naming, and result logging.
 - Dependency: `must-have`
-- Validation: manual review of `evals/README.md`, `evals/labels/README.md`, and `evals/results/README.md`
+- Validation: manual review of `evals/README.md`, `evals/golden/README.md`, `evals/labels/README.md`, and `evals/results/README.md`
 
 ### Task 3
 
-- Objective: wire the story queue and later implementation stories to consume the eval corpus instead of ad hoc examples.
+- Objective: wire the story queue and later implementation stories to consume applicable golden slices instead of ad hoc examples.
 - Dependency: `must-have`
 - Validation: manual review of `docs/specs/PROJECT_STORY_INDEX.md` and downstream story packets
 

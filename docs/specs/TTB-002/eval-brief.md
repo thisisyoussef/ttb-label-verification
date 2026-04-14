@@ -28,7 +28,7 @@ This story introduces the real extraction, validator orchestration, and recommen
 
 ## Eval inputs or dataset slice
 
-- all six baseline cases in `evals/labels/manifest.template.json`
+- all six baseline cases in `evals/labels/manifest.json`
 
 ## Pass criteria
 

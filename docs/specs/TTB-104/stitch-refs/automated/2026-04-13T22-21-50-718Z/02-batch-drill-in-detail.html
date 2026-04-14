@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TTB Label Verification Assistant - Batch Drill-in</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@700;800&amp;family=Work+Sans:wght@400;500;600&amp;family=Inter:wght@400;600;700&amp;family=IBM+Plex+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#9df197",
+                        "on-secondary-fixed": "#29434e",
+                        "surface": "#f9f9f8",
+                        "tertiary-fixed": "#9df197",
+                        "on-primary-fixed": "#354147",
+                        "surface-bright": "#f9f9f8",
+                        "primary-fixed": "#d7e4ec",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#2d3433",
+                        "tertiary-dim": "#096119",
+                        "on-primary-container": "#47545a",
+                        "tertiary": "#1c6d25",
+                        "error": "#9f403d",
+                        "secondary": "#49636f",
+                        "surface-tint": "#546067",
+                        "secondary-fixed": "#cbe7f5",
+                        "on-error": "#fff7f6",
+                        "on-secondary-fixed-variant": "#455f6b",
+                        "error-container": "#fe8983",
+                        "on-secondary": "#f2faff",
+                        "secondary-fixed-dim": "#bdd9e6",
+                        "error-dim": "#4e0309",
+                        "background": "#f9f9f8",
+                        "secondary-container": "#cbe7f5",
+                        "on-secondary-container": "#3c5561",
+                        "on-primary-fixed-variant": "#515d64",
+                        "surface-dim": "#d4dcda",
+                        "on-tertiary-fixed-variant": "#12661e",
+                        "on-tertiary": "#eaffe2",
+                        "outline": "#767c7b",
+                        "on-tertiary-container": "#005c15",
+                        "surface-container-highest": "#dee4e2",
+                        "primary-fixed-dim": "#c9d6de",
+                        "inverse-surface": "#0c0f0e",
+                        "inverse-primary": "#e6f3fb",
+                        "inverse-on-surface": "#9c9d9c",
+                        "primary": "#546067",
+                        "surface-container-high": "#e5e9e8",
+                        "primary-container": "#d7e4ec",
+                        "on-background": "#2d3433",
+                        "surface-container-low": "#f2f4f3",
+                        "primary-dim": "#48545b",
+                        "surface-container": "#ebeeed",
+                        "surface-variant": "#dee4e2",
+                        "tertiary-fixed-dim": "#90e28a",
+                        "on-tertiary-fixed": "#00460e",
+                        "on-surface-variant": "#5a6060"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Public Sans"],
+                        "body": ["Work Sans"],
+                        "label": ["Inter"],
+                        "mono": ["IBM Plex Mono"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-[#f9f9f8] dark:bg-[#1a1c1c] border-b border-[#adb3b2]/15">
+<div class="flex justify-between items-center w-full px-6 py-3 max-w-full">
+<div class="flex items-center gap-6">
+<span class="text-xl font-bold tracking-tight text-[#2d3433] dark:text-[#f2f4f3] font-headline">TTB Label Verification Assistant</span>
+<nav class="hidden md:flex gap-4">
+<a class="text-[#5a6060] dark:text-[#adb3b2] hover:text-[#2d3433] dark:hover:text-[#ffffff] transition-colors text-sm font-bold" href="#">Compliance Hub</a>
+<a class="text-[#546067] dark:text-[#f2f4f3] border-b-2 border-[#546067] pb-1 text-sm font-bold" href="#">History</a>
+<a class="text-[#5a6060] dark:text-[#adb3b2] hover:text-[#2d3433] dark:hover:text-[#ffffff] transition-colors text-sm font-bold" href="#">Standards</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-xs font-label text-[#546067] dark:text-[#adb3b2] uppercase tracking-wider">AI-assisted compliance checking</span>
+<div class="h-8 w-[1px] bg-outline-variant/30"></div>
+<button class="bg-primary text-on-primary px-4 py-1.5 text-sm font-bold rounded-lg">Single | Batch</button>
+</div>
+</div>
+</header>
+<main class="pt-16 pb-24 min-h-screen">
+<!-- Batch Drill-in Shell Header (The Navigation) -->
+<div class="bg-surface-container-low px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+<div class="flex items-center gap-4">
+<a class="flex items-center gap-2 text-secondary font-label font-semibold hover:underline" href="#">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+                    Back to Batch Results
+                </a>
+<div class="h-4 w-[1px] bg-outline-variant/50"></div>
+<span class="font-mono text-sm bg-surface-container-highest px-2 py-1 rounded">3 of 7 rejects</span>
+</div>
+<div class="flex items-center gap-6">
+<a class="flex items-center gap-1 text-on-surface-variant hover:text-on-surface transition-colors text-sm font-medium" href="#">
+<span class="material-symbols-outlined">chevron_left</span> Previous
+                </a>
+<a class="flex items-center gap-1 text-on-surface-variant hover:text-on-surface transition-colors text-sm font-medium" href="#">
+                    Next <span class="material-symbols-outlined">chevron_right</span>
+</a>
+</div>
+</div>
+<div class="max-w-[1400px] mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Context Column (Pinned) -->
+<aside class="lg:col-span-3 space-y-6">
+<div class="bg-surface-container-lowest p-1 rounded shadow-sm border border-outline-variant/10">
+<img class="w-full aspect-[3/4] object-cover rounded-sm" data-alt="front view of a vintage wine label with detailed typography and ornate borders on a dark glass bottle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCewLvIwx4PMeERz9HA0uQ_vouBI83YtVAUtiK_qTAjh1vPZLzbZ5q1G25BoHJ652hNaXxM8sDCtbX-ZCPQVIRnUy_exzxzNGYA5pR1gu1jdpJ0p20N8x76tyl-VuYyiy1X9WTuzNv-lpAqVr8vH0Q4mMII7gZhVBkW6mW6w7ilitTudID12qLHXeyhL_oFnJT41DeNAAOb_hpAD7JPWhnbO03fojakWZHJBtxF5bONP2BIS5DS9kIBnXScsvYxMmRps8awbarHl8A"/>
+</div>
+<div class="space-y-4">
+<div class="bg-surface-container-low p-4 rounded-lg">
+<label class="block text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest mb-1">Filename</label>
+<p class="font-mono text-sm break-all">CHARDONNAY_RES_2023_V12.JPG</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg">
+<label class="block text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest mb-1">File Metadata</label>
+<div class="grid grid-cols-2 gap-2 text-sm font-medium">
+<span class="text-on-surface-variant">Size</span>
+<span class="text-right">4.2 MB</span>
+<span class="text-on-surface-variant">Type</span>
+<span class="text-right">Wine (Still)</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Results Column -->
+<div class="lg:col-span-9 space-y-8">
+<!-- Verdict Banner -->
+<section class="bg-error-container/10 border-l-4 border-error p-6 rounded-lg flex items-start justify-between">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-error" data-weight="fill">error</span>
+<h2 class="text-xl font-headline font-extrabold text-on-error-container uppercase tracking-tight">Compliance Failed</h2>
+</div>
+<p class="text-on-surface-variant text-sm max-w-2xl">This label contains 3 critical regulatory violations and 2 advisory warnings that require manual intervention before TTB submission.</p>
+</div>
+<div class="text-right">
+<span class="block text-[10px] font-label font-bold text-on-surface-variant uppercase mb-1">Internal Reference</span>
+<span class="font-mono text-lg font-bold">TTB-772-CHK-91</span>
+</div>
+</section>
+<!-- Field Checklist -->
+<section class="space-y-4">
+<h3 class="text-sm font-label font-bold text-on-surface-variant uppercase tracking-widest px-1">Mandatory Field Verification</h3>
+<div class="grid gap-2">
+<!-- Passed Field -->
+<div class="bg-surface-container-lowest p-4 rounded-lg flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-tertiary">check_circle</span>
+<div>
+<span class="text-sm font-semibold block">Brand Name</span>
+<span class="font-mono text-xs text-on-surface-variant">EXTRACTED: "Oak &amp; Iron"</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="bg-tertiary-container text-on-tertiary-container text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Compliant</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary cursor-pointer transition-colors">expand_more</span>
+</div>
+</div>
+<!-- Failed Field -->
+<div class="bg-surface-container-lowest p-4 rounded-lg flex flex-col gap-4 border-l-4 border-error">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-error" data-weight="fill">cancel</span>
+<div>
+<span class="text-sm font-semibold block">Alcohol Content</span>
+<span class="font-mono text-xs text-on-surface-variant">EXTRACTED: "14.5% ALC. BY VOL."</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="bg-error-container text-on-error-container text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Failed</span>
+<span class="material-symbols-outlined text-primary">expand_less</span>
+</div>
+</div>
+<div class="ml-10 bg-surface-container-low p-4 rounded border-l-2 border-error/30">
+<p class="text-sm text-on-surface mb-2 font-medium">Deviation detected in font size requirement (CFR 4.38).</p>
+<div class="font-mono text-xs bg-surface-container-highest p-3 rounded">
+<span class="text-error">- REQUIRED: Minimum 2mm height</span><br/>
+<span class="text-tertiary">+ DETECTED: 1.42mm height</span>
+</div>
+</div>
+</div>
+<!-- Advisory/Review Field -->
+<div class="bg-surface-container-lowest p-4 rounded-lg flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-secondary">info</span>
+<div>
+<span class="text-sm font-semibold block">Net Contents</span>
+<span class="font-mono text-xs text-on-surface-variant">EXTRACTED: "750ml"</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Review Required</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary cursor-pointer transition-colors">expand_more</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Cross-field Checks -->
+<section class="bg-surface-container-high/30 p-6 rounded-xl space-y-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">analytics</span>
+<h3 class="text-sm font-label font-bold text-on-surface-variant uppercase tracking-widest">Cross-Field Logical Checks</h3>
+</div>
+<div class="grid md:grid-cols-2 gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-lg flex gap-4">
+<div class="w-1 bg-tertiary rounded-full"></div>
+<div>
+<p class="text-xs font-bold text-on-surface-variant uppercase mb-1">Vintage vs. Varietal</p>
+<p class="text-sm">2023 Vintage is consistent with AVA harvest window for Chardonnay.</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-lg flex gap-4">
+<div class="w-1 bg-error rounded-full"></div>
+<div>
+<p class="text-xs font-bold text-on-surface-variant uppercase mb-1">Sulfite Declaration</p>
+<p class="text-sm">Missing mandatory "Contains Sulfites" statement for product containing &gt;10ppm.</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Bottom Action Bar / Footer Area -->
+<footer class="fixed bottom-0 left-0 right-0 z-50 bg-surface-container-low border-t border-outline-variant/15">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-6 py-4">
+<div class="flex flex-col gap-1 mb-4 md:mb-0">
+<span class="text-[10px] uppercase tracking-widest text-[#49636f] font-headline font-bold">TTB Label Verification Assistant</span>
+<p class="text-xs text-on-surface-variant font-label">Nothing is stored. Inputs and results are discarded when you leave.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-6 py-2 text-sm font-bold text-on-surface hover:bg-surface-container-high transition-colors rounded-lg">
+                    Export Results
+                </button>
+<button class="px-8 py-2 text-sm font-bold text-on-primary bg-gradient-to-b from-primary to-primary-dim shadow-sm hover:brightness-110 transition-all rounded-lg">
+                    New Review
+                </button>
+</div>
+<nav class="hidden md:flex gap-6 mt-4 md:mt-0">
+<a class="text-xs font-label text-on-surface-variant hover:underline" href="#">Privacy Policy</a>
+<a class="text-xs font-label text-on-surface-variant hover:underline" href="#">Security Protocol</a>
+<a class="text-xs font-label text-on-surface-variant hover:underline" href="#">Audit Guidelines</a>
+</nav>
+</div>
+</footer>
+</body></html>
