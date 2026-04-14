@@ -52,6 +52,7 @@ export async function submitReview(options: {
   beverage: BeverageSelection;
   fields: IntakeFields;
   signal: AbortSignal;
+  clientRequestId?: string;
 }) {
   const formData = new FormData();
   formData.append('label', options.image.file);
@@ -62,6 +63,11 @@ export async function submitReview(options: {
 
   const response = await fetch('/api/review', {
     method: 'POST',
+    headers: options.clientRequestId
+      ? {
+          'x-review-client-id': options.clientRequestId
+        }
+      : undefined,
     body: formData,
     signal: options.signal
   });

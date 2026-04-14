@@ -1,0 +1,428 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { buildInitialSteps, STEP_ADVANCE_MS } from './appSingleState';
+import { DEFAULT_FAILURE_MESSAGE, submitReview } from './appReviewApi';
+import type { View } from './appTypes';
+import type {
+  BeverageSelection,
+  IntakeFields,
+  LabelImage,
+  ProcessingPhase,
+  ProcessingStep,
+  UIVerificationReport
+} from './types';
+
+export type ReviewPipelineEvent =
+  | {
+      type: 'review.submit.started';
+      traceId: string;
+      requestId: number;
+      scenarioId: string;
+      demoScenarioId: string | null;
+      labelMimeType: string;
+      labelBytes: number;
+      hasApplicationData: boolean;
+      beverage: BeverageSelection;
+    }
+  | {
+      type: 'review.submit.fixture-failure';
+      traceId: string;
+      requestId: number;
+      scenarioId: string;
+    }
+  | {
+      type: 'review.submit.response-ok';
+      traceId: string;
+      requestId: number;
+      scenarioId: string;
+      reportId: string;
+      verdict: UIVerificationReport['verdict'];
+      standalone: boolean;
+      extractionState: UIVerificationReport['extractionQuality']['state'];
+    }
+  | {
+      type: 'review.submit.response-error';
+      traceId: string;
+      requestId: number;
+      scenarioId: string;
+      message: string;
+    }
+  | {
+      type: 'review.submit.aborted';
+      traceId: string;
+      requestId: number;
+      scenarioId: string;
+    }
+  | {
+      type: 'review.submit.exception';
+      traceId: string;
+      requestId: number;
+      scenarioId: string;
+      errorName: string;
+      message: string;
+    }
+  | {
+      type: 'review.pipeline.complete';
+      traceId: string | null;
+      requestId: number;
+      scenarioId: string;
+      hasLiveReport: boolean;
+      resultReportId: string | null;
+      resultVerdict: UIVerificationReport['verdict'] | null;
+    }
+  | {
+      type: 'review.pipeline.failed';
+      traceId: string | null;
+      requestId: number;
+      scenarioId: string;
+      phase: ProcessingPhase;
+      message: string;
+    }
+  | {
+      type: 'review.pipeline.state';
+      traceId: string | null;
+      scenarioId: string;
+      phase: ProcessingPhase;
+      activeStepId: ProcessingStep['id'] | null;
+      failedStepId: ProcessingStep['id'] | null;
+      stepStatuses: Array<{
+        id: ProcessingStep['id'];
+        status: ProcessingStep['status'];
+      }>;
+    };
+
+interface UseSingleReviewPipelineOptions {
+  image: LabelImage | null;
+  beverage: BeverageSelection;
+  fields: IntakeFields;
+  scenarioId: string;
+  setView: (view: View) => void;
+  resolveTerminalReport: (
+    liveReport: UIVerificationReport | null
+  ) => UIVerificationReport;
+  onEvent?: (event: ReviewPipelineEvent) => void;
+}
+
+function hasApplicationData(fields: IntakeFields): boolean {
+  return (
+    fields.brandName.trim().length > 0 ||
+    fields.fancifulName.trim().length > 0 ||
+    fields.classType.trim().length > 0 ||
+    fields.alcoholContent.trim().length > 0 ||
+    fields.netContents.trim().length > 0 ||
+    fields.applicantAddress.trim().length > 0 ||
+    fields.country.trim().length > 0 ||
+    fields.formulaId.trim().length > 0 ||
+    fields.appellation.trim().length > 0 ||
+    fields.vintage.trim().length > 0 ||
+    fields.varietals.some(
+      (row) => row.name.trim().length > 0 || row.percentage.trim().length > 0
+    )
+  );
+}
+
+export function useSingleReviewPipeline(
+  options: UseSingleReviewPipelineOptions
+) {
+  const [steps, setSteps] = useState<ProcessingStep[]>(buildInitialSteps);
+  const [phase, setPhase] = useState<ProcessingPhase>('running');
+  const [failureMessage, setFailureMessage] = useState<string>(
+    DEFAULT_FAILURE_MESSAGE
+  );
+  const [report, setReport] = useState<UIVerificationReport | null>(null);
+  const timerRef = useRef<number | null>(null);
+  const requestIdRef = useRef(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const traceIdRef = useRef<string | null>(null);
+  const pipelineStateSignatureRef = useRef<string | null>(null);
+
+  const clearPipelineTimer = useCallback(() => {
+    if (timerRef.current !== null) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  const resetPipelineState = useCallback(() => {
+    setSteps(buildInitialSteps());
+    setPhase('running');
+    setFailureMessage(DEFAULT_FAILURE_MESSAGE);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      clearPipelineTimer();
+      abortControllerRef.current?.abort();
+    };
+  }, [clearPipelineTimer]);
+
+  useEffect(() => {
+    const stepStatuses = steps.map((step) => ({
+      id: step.id,
+      status: step.status
+    }));
+    const activeStep = steps.find((step) => step.status === 'active') ?? null;
+    const failedStep = steps.find((step) => step.status === 'failed') ?? null;
+    const signature = JSON.stringify({
+      scenarioId: options.scenarioId,
+      phase,
+      stepStatuses
+    });
+
+    if (signature === pipelineStateSignatureRef.current) {
+      return;
+    }
+
+    pipelineStateSignatureRef.current = signature;
+    options.onEvent?.({
+      type: 'review.pipeline.state',
+      traceId: traceIdRef.current,
+      scenarioId: options.scenarioId,
+      phase,
+      activeStepId: activeStep?.id ?? null,
+      failedStepId: failedStep?.id ?? null,
+      stepStatuses
+    });
+  }, [options.onEvent, options.scenarioId, phase, steps]);
+
+  const completePipeline = useCallback(
+    (requestId: number, liveReport: UIVerificationReport | null) => {
+      if (requestId !== requestIdRef.current) {
+        return;
+      }
+
+      options.onEvent?.({
+        type: 'review.pipeline.complete',
+        traceId: traceIdRef.current,
+        requestId,
+        scenarioId: options.scenarioId,
+        hasLiveReport: liveReport !== null,
+        resultReportId: liveReport?.id ?? null,
+        resultVerdict: liveReport?.verdict ?? null
+      });
+
+      clearPipelineTimer();
+      abortControllerRef.current = null;
+      setSteps((previous) =>
+        previous.map((step) => ({ ...step, status: 'done' }))
+      );
+      setPhase('terminal');
+      setReport(options.resolveTerminalReport(liveReport));
+      options.setView('results');
+    },
+    [clearPipelineTimer, options]
+  );
+
+  const failPipeline = useCallback(
+    (requestId: number, message: string) => {
+      if (requestId !== requestIdRef.current) {
+        return;
+      }
+
+      options.onEvent?.({
+        type: 'review.pipeline.failed',
+        traceId: traceIdRef.current,
+        requestId,
+        scenarioId: options.scenarioId,
+        phase,
+        message
+      });
+
+      clearPipelineTimer();
+      abortControllerRef.current = null;
+      setFailureMessage(message);
+      setSteps((previous) => {
+        const next = previous.map((step) => ({ ...step }));
+        const activeIndex = next.findIndex((step) => step.status === 'active');
+
+        if (activeIndex === -1) {
+          return previous;
+        }
+
+        next[activeIndex] = { ...next[activeIndex], status: 'failed' };
+        return next;
+      });
+      setPhase('failed');
+    },
+    [clearPipelineTimer, options, phase]
+  );
+
+  const startPipeline = useCallback(
+    (shouldFail: boolean, requestId: number) => {
+      clearPipelineTimer();
+      resetPipelineState();
+
+      const tick = () => {
+        if (requestId !== requestIdRef.current) {
+          return;
+        }
+
+        let shouldContinue = false;
+        let failed = false;
+
+        setSteps((previous) => {
+          const next = previous.map((step) => ({ ...step }));
+          const activeIndex = next.findIndex((step) => step.status === 'active');
+          if (activeIndex === -1) {
+            return previous;
+          }
+
+          if (shouldFail && activeIndex === 2) {
+            next[activeIndex] = { ...next[activeIndex], status: 'failed' };
+            failed = true;
+            return next;
+          }
+
+          if (activeIndex === next.length - 1) {
+            shouldContinue = true;
+            return previous;
+          }
+
+          next[activeIndex] = { ...next[activeIndex], status: 'done' };
+          const nextIndex = activeIndex + 1;
+          if (nextIndex < next.length) {
+            next[nextIndex] = { ...next[nextIndex], status: 'active' };
+            shouldContinue = true;
+          }
+          return next;
+        });
+
+        if (failed) {
+          setPhase('failed');
+          return;
+        }
+
+        if (shouldContinue) {
+          timerRef.current = window.setTimeout(tick, STEP_ADVANCE_MS);
+        }
+      };
+
+      timerRef.current = window.setTimeout(tick, STEP_ADVANCE_MS);
+    },
+    [clearPipelineTimer, resetPipelineState]
+  );
+
+  const startReview = useCallback(
+    async (shouldFail: boolean) => {
+      if (!options.image) {
+        return;
+      }
+
+      requestIdRef.current += 1;
+      const requestId = requestIdRef.current;
+      const clientRequestId = crypto.randomUUID();
+      traceIdRef.current = clientRequestId;
+
+      abortControllerRef.current?.abort();
+      setReport(null);
+      options.setView('processing');
+      startPipeline(shouldFail, requestId);
+
+      options.onEvent?.({
+        type: 'review.submit.started',
+        traceId: clientRequestId,
+        requestId,
+        scenarioId: options.scenarioId,
+        demoScenarioId: options.image.demoScenarioId ?? null,
+        labelMimeType: options.image.file.type,
+        labelBytes: options.image.file.size,
+        hasApplicationData: hasApplicationData(options.fields),
+        beverage: options.beverage
+      });
+
+      if (shouldFail) {
+        options.onEvent?.({
+          type: 'review.submit.fixture-failure',
+          traceId: clientRequestId,
+          requestId,
+          scenarioId: options.scenarioId
+        });
+        return;
+      }
+
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      try {
+        const result = await submitReview({
+          image: options.image,
+          beverage: options.beverage,
+          fields: options.fields,
+          signal: controller.signal,
+          clientRequestId
+        });
+
+        if (result.ok) {
+          options.onEvent?.({
+            type: 'review.submit.response-ok',
+            traceId: clientRequestId,
+            requestId,
+            scenarioId: options.scenarioId,
+            reportId: result.report.id,
+            verdict: result.report.verdict,
+            standalone: result.report.standalone,
+            extractionState: result.report.extractionQuality.state
+          });
+          completePipeline(requestId, result.report);
+          return;
+        }
+
+        options.onEvent?.({
+          type: 'review.submit.response-error',
+          traceId: clientRequestId,
+          requestId,
+          scenarioId: options.scenarioId,
+          message: result.message
+        });
+        failPipeline(requestId, result.message);
+      } catch (error) {
+        if (controller.signal.aborted) {
+          options.onEvent?.({
+            type: 'review.submit.aborted',
+            traceId: clientRequestId,
+            requestId,
+            scenarioId: options.scenarioId
+          });
+          return;
+        }
+
+        const message =
+          error instanceof Error && error.name === 'AbortError'
+            ? DEFAULT_FAILURE_MESSAGE
+            : 'We could not finish this review. Your label and inputs are still here - nothing was saved.';
+
+        options.onEvent?.({
+          type: 'review.submit.exception',
+          traceId: clientRequestId,
+          requestId,
+          scenarioId: options.scenarioId,
+          errorName: error instanceof Error ? error.name : 'unknown',
+          message
+        });
+
+        failPipeline(requestId, message);
+      }
+    },
+    [completePipeline, failPipeline, options, startPipeline]
+  );
+
+  const abandonInFlightReview = useCallback(() => {
+    clearPipelineTimer();
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+    requestIdRef.current += 1;
+  }, [clearPipelineTimer]);
+
+  return {
+    steps,
+    phase,
+    failureMessage,
+    report,
+    setReport,
+    setPhase,
+    setFailureMessage,
+    startReview,
+    abandonInFlightReview,
+    resetPipelineState
+  };
+}

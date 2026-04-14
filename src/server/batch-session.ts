@@ -1,22 +1,12 @@
 import { randomUUID } from 'node:crypto';
+
 import {
-  BATCH_LABEL_CAP,
-  MAX_LABEL_UPLOAD_BYTES,
   type BatchDashboardResponse,
   batchDashboardResponseSchema,
   batchExportPayloadSchema,
-  batchPreflightRequestSchema,
-  batchPreflightResponseSchema,
   batchStreamFrameSchema,
-  type BatchResolution,
   type BatchStartRequest,
 } from '../shared/contracts/review';
-import {
-  buildBatchFileError,
-  formatFileSize,
-  hasSupportedLabelFileType,
-  normalizeFilenameForComparison
-} from '../shared/batch-file-meta';
 import { buildGovernmentWarningCheck } from './government-warning-validator';
 import type { LlmEndpointSurface } from './llm-policy';
 import { runTracedReviewExtraction } from './llm-trace';
@@ -27,8 +17,6 @@ import {
 } from './review-extraction';
 import { createNormalizedReviewIntake } from './review-intake';
 import { buildVerificationReport } from './review-report';
-import { parseBatchCsv } from './batch-csv';
-import { buildBatchMatching } from './batch-matching';
 import {
   buildDashboardRow,
   buildErroredRow,
@@ -39,11 +27,12 @@ import {
   summarizeRows,
   toMemoryUploadedLabel
 } from './batch-session-helpers';
+import { resolveBatchAssignments } from './batch-session-assignments';
+import { createBatchSessionPreflight } from './batch-session-preflight';
 import type {
   BatchSession,
   RunFrameWriter,
   StoredBatchAssignment,
-  StoredBatchImage,
   UploadedBatchFile
 } from './batch-session-types';
 
@@ -57,124 +46,9 @@ export class BatchSessionStore {
     imageFiles: UploadedBatchFile[];
     csvFile: UploadedBatchFile;
   }) {
-    const manifest = batchPreflightRequestSchema.parse(input.manifest);
-    const acceptedImages = new Map<string, StoredBatchImage>();
-    const fileErrors: ReturnType<typeof buildBatchFileError>[] = [];
-    const seenFilenames = new Set<string>();
-
-    manifest.images.forEach((meta, index) => {
-      const file = input.imageFiles[index];
-      if (!file) {
-        return;
-      }
-
-      if (index >= BATCH_LABEL_CAP) {
-        fileErrors.push(
-          buildBatchFileError({
-            filename: file.originalname,
-            reason: 'over-cap'
-          })
-        );
-        return;
-      }
-
-      if (
-        !hasSupportedLabelFileType({
-          filename: file.originalname,
-          mimeType: file.mimetype
-        })
-      ) {
-        fileErrors.push(
-          buildBatchFileError({
-            filename: file.originalname,
-            reason: 'unsupported-type'
-          })
-        );
-        return;
-      }
-
-      if (file.size > MAX_LABEL_UPLOAD_BYTES) {
-        fileErrors.push(
-          buildBatchFileError({
-            filename: file.originalname,
-            reason: 'oversized'
-          })
-        );
-        return;
-      }
-
-      const normalizedName = normalizeFilenameForComparison(file.originalname);
-      if (seenFilenames.has(normalizedName)) {
-        fileErrors.push(
-          buildBatchFileError({
-            filename: file.originalname,
-            reason: 'duplicate'
-          })
-        );
-        return;
-      }
-      seenFilenames.add(normalizedName);
-
-      acceptedImages.set(meta.clientId, {
-        id: meta.clientId,
-        filename: file.originalname,
-        mimeType: file.mimetype,
-        sizeBytes: file.size,
-        sizeLabel: formatFileSize(file.size),
-        isPdf: file.mimetype === 'application/pdf',
-        buffer: file.buffer
-      });
-    });
-
-    const csv = parseBatchCsv({
-      filename: input.csvFile.originalname,
-      text: input.csvFile.buffer.toString('utf8')
-    });
-
-    const sessionId = randomUUID();
-    const rows = csv.success ? csv.rows : [];
-    const matching = csv.success
-      ? buildBatchMatching({
-          images: [...acceptedImages.values()].map((image) => ({
-            id: image.id,
-            filename: image.filename
-          })),
-          rows
-        })
-      : {
-          matched: [],
-          ambiguous: [],
-          unmatchedImageIds: [...acceptedImages.keys()],
-          unmatchedRowIds: []
-        };
-
-    const preflight = batchPreflightResponseSchema.parse({
-      batchSessionId: sessionId,
-      csvHeaders: csv.success ? csv.headers : [],
-      csvRows: csv.success ? csv.preview.rows : [],
-      matching,
-      csvError: csv.success ? undefined : csv.error,
-      fileErrors
-    });
-
-    this.sessions.set(sessionId, {
-      id: sessionId,
-      images: acceptedImages,
-      rows,
-      preflight,
-      assignments: new Map(),
-      results: new Map(),
-      reports: new Map(),
-      phase: 'prepared',
-      totals: {
-        started: 0,
-        done: 0
-      },
-      summary: emptySummary(),
-      cancelRequested: false
-    });
-
-    return preflight;
+    const session = createBatchSessionPreflight(input);
+    this.sessions.set(session.id, session);
+    return session.preflight;
   }
 
   async run(
@@ -182,7 +56,7 @@ export class BatchSessionStore {
     onFrame: RunFrameWriter
   ) {
     const session = this.requireSession(payload.batchSessionId);
-    const assignments = this.resolveAssignments(session, payload.resolutions);
+    const assignments = resolveBatchAssignments(session, payload.resolutions);
 
     session.assignments = new Map(
       assignments.map((assignment) => [assignment.image.id, assignment])
@@ -401,68 +275,6 @@ export class BatchSessionStore {
         report: null
       };
     }
-  }
-
-  private resolveAssignments(session: BatchSession, resolutions: BatchResolution[]) {
-    const rowsById = new Map(session.rows.map((row) => [row.id, row]));
-    const assignedRowIds = new Set<string>();
-    const assignments: StoredBatchAssignment[] = [];
-
-    for (const matched of session.preflight.matching.matched) {
-      const image = session.images.get(matched.imageId);
-      const row = rowsById.get(matched.row.id);
-      if (!image || !row) {
-        continue;
-      }
-      assignedRowIds.add(row.id);
-      assignments.push({ image, row });
-    }
-
-    const resolutionByImageId = new Map(resolutions.map((resolution) => [resolution.imageId, resolution]));
-    const unresolvedImageIds = new Set([
-      ...session.preflight.matching.ambiguous.map((entry) => entry.imageId),
-      ...session.preflight.matching.unmatchedImageIds
-    ]);
-
-    for (const imageId of unresolvedImageIds) {
-      const resolution = resolutionByImageId.get(imageId);
-      if (!resolution) {
-        throw createReviewExtractionFailure({
-          status: 400,
-          kind: 'validation',
-          message: 'Resolve every ambiguous or unmatched image before starting the batch.',
-          retryable: false
-        });
-      }
-
-      if (resolution.action.kind === 'dropped') {
-        continue;
-      }
-
-      const image = session.images.get(imageId);
-      const row = rowsById.get(resolution.action.rowId);
-      if (!image || !row) {
-        throw createReviewExtractionFailure({
-          status: 400,
-          kind: 'validation',
-          message: 'One of the selected row matches was not available.',
-          retryable: false
-        });
-      }
-      if (assignedRowIds.has(row.id)) {
-        throw createReviewExtractionFailure({
-          status: 400,
-          kind: 'validation',
-          message: 'A CSV row was assigned to more than one image.',
-          retryable: false
-        });
-      }
-
-      assignedRowIds.add(row.id);
-      assignments.push({ image, row });
-    }
-
-    return assignments;
   }
 
   private serializeSummary(session: BatchSession): BatchDashboardResponse {

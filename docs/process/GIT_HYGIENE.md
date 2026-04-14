@@ -38,6 +38,7 @@ Rules:
 - Starting a new feature, story, or tightly-coupled workflow item means opening a fresh branch is the first action before packet or code edits.
 - Do not mix unrelated stories in one branch unless the tracker explicitly treats them as one coupled unit.
 - If the worktree already contains unrelated changes, do not revert them. Stage only the files for the story you are committing.
+- If you temporarily isolate work in a side worktree or branch to avoid those unrelated changes, merge, rebase, or cherry-pick the finished story diff back into the user's active delivery branch before calling the work done.
 - When the active story changes, create or switch to a fresh branch for that story immediately. Do not repurpose the old story branch, even if it is otherwise valid.
 - Repo gates enforce branch naming. Normal work must use `claude/<story-id>-<summary>`, `codex/<story-id>-<summary>`, or `chore/<story-id>-<summary>`. `archive/` and `rewrite/` branches are exceptional maintenance paths only.
 
@@ -171,6 +172,7 @@ Reviewable merge gate:
 - GitHub deletes merged branches automatically after merge.
 - GitHub Actions now auto-open draft story PRs on first push, auto-update clean story PR branches when `main` moves, and auto-merge eligible story PRs after green CI. Branches with real conflicts stay open for manual resolution.
 - A published, validated, mergeable story branch should be merged promptly. Leaving reviewable work unmerged is a workflow failure unless the user explicitly asks to hold it or a concrete blocker exists.
+- Verified work that exists only in an isolated side worktree is not done. Integrate it back into the active delivery branch or intended merge branch before any completion handoff.
 - Do not apply that rule to `archive/*`, `rewrite/*`, or long-lived environment rails like `production`; those refs exist for backup, maintenance, or deployment control, not for feature-history consolidation.
 
 Deployment branch rules:

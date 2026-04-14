@@ -10,7 +10,7 @@ Use this checklist whenever Codex is the active lane owner for a story.
 - [ ] For any story with material UI scope, confirm `docs/backlog/codex-handoffs/<story-id>.md` exists and is marked `ready-for-codex`.
 - [ ] If the story is an approved `TTB-1xx` handoff marked `ready-parallel`, confirm it is the preferred Codex pick ahead of later blocking `TTB-2xx+` work under the tracker rules.
 - [ ] Confirm the task belongs to the engineering lane, not a net-new frontend direction or broad redesign.
-- [ ] Before packet or code edits, confirm the current branch already belongs to this story. If the worktree is on `main`, `production`, or another story branch, switch immediately to a fresh `codex/<story-id>-<summary>` or `chore/<story-id>-<summary>` branch.
+- [ ] Before packet or code edits, confirm the current branch is story-scoped. If the worktree is on `main` or `production`, switch immediately to `codex/<story-id>-<summary>`.
 - [ ] If the story only has `story-packet.md`, expand it into the standard working docs before implementation begins.
 - [ ] Before declaring missing local model credentials, run `npm run env:bootstrap`.
 - [ ] If the story changes prompt/model/tool-call or agentic LLM behavior, run `npm run langsmith:smoke` before starting the trace loop.
@@ -40,22 +40,18 @@ Use this checklist whenever Codex is the active lane owner for a story.
 - [ ] `docs/rules/README.md`, `docs/rules/RULE_SOURCE_INDEX.md`, and `evals/README.md` for validator or AI behavior work
 - [ ] `src/shared/contracts/review.ts`
 
-## Blast-radius map
-
-- [ ] Before coding, list the files, routes, contracts, selectors, fixtures, state transitions, and docs the story is expected to touch.
-- [ ] Search for each planned touchpoint with `rg` and record the direct dependents before making changes.
-- [ ] Include adjacent consumers in the blast radius: shared contracts, API routes, seeded scenarios, fixtures, evals, packet docs, backlog handoffs, and user-visible flows that rely on the changed surface.
-- [ ] If the story touches client shell, navigation, results, view-state, or target-anchor surfaces, inspect the guided-help stack: `src/shared/contracts/help.ts`, `src/shared/help-fixture.ts`, `src/server/help-routes.test.ts`, `src/client/help-runtime.ts`, `src/client/helpManifest.ts`, `src/client/tourTargets.ts`, `src/client/helpReplayState.ts`, `src/client/GuidedTourSpotlight.tsx`, plus affected `data-tour-target` anchors.
-- [ ] If a dependent surface is intentionally unchanged, note the reason in the packet or handoff instead of assuming it.
-
 ## Packet and implementation setup
 
 - [ ] Treat `docs/specs/<story-id>/` as the universal story packet and complete the engineering parts there rather than creating a separate backend-only spec.
 - [ ] Treat `story-packet.md` as a compact planning artifact only; materialize the deeper docs before real engineering starts.
 - [ ] Complete any missing packet docs required by `.ai/docs/SPEC_CREATION_METHODOLOGY.md`.
+- [ ] For visible runtime behavior or multi-step interaction, create or update `user-flow-map.md` before coding and enumerate happy, empty, disabled, loading, success, failure, retry, cancel, back, close, reset, and skip branches.
+- [ ] For async, upload, model, guided-tour, or user-reported state bugs, create or update `observability-plan.md` before coding and define the sanitized step-level logs, failure markers, and run-correlation fields.
 - [ ] Translate the accepted behavior into contract, validator, privacy, performance, and eval requirements before coding.
+- [ ] Translate the accepted behavior into explicit user-flow branches and observability requirements before coding.
 - [ ] Add `trace-brief.md` when prompt/model/tool-call or agentic LLM behavior needs trace-driven tuning.
 - [ ] Derive tests directly from acceptance criteria and relevant eval scenarios.
+- [ ] Derive tests and manual checks from `user-flow-map.md`, not only from the happy path.
 - [ ] Decide the smallest viable test layer for each acceptance criterion before writing tests.
 - [ ] Force a real RED state before implementation.
 - [ ] When a seed adapter, staging route, or story-local bridge powers approved UI, add a RED test that uses non-default submitted values and proves those values survive into the returned contract.
@@ -71,7 +67,9 @@ Use this checklist whenever Codex is the active lane owner for a story.
 - [ ] If you make a material UI refinement from the Codex lane, update the relevant packet and handoff docs so the new durable baseline is recorded.
 - [ ] If engineering exposes a broader UI-direction gap, write it back to `docs/backlog/codex-handoffs/<story-id>.md` and hand it back instead of improvising a redesign.
 - [ ] When a new screen concept, broad redesign question, or fresh Stitch pass blocks engineering, stop and tell the user explicitly to switch to Claude with the relevant packet and backlog handoff files.
+- [ ] Implement the observability plan for step transitions and failure branches when the story includes async or multi-step behavior. Logs must be structured enough to localize the active branch quickly.
 - [ ] Keep no-persistence guarantees explicit for uploads, model calls, temp files, caches, and logs.
+- [ ] Keep observability privacy-safe: no raw label uploads, no raw form payload dumps, and no durable sensitive logs.
 - [ ] Keep LangSmith tracing disabled outside explicit trace runs, and never trace staging or production user submissions.
 - [ ] Keep low-confidence or ambiguous outcomes reversible and biased toward `review`.
 
@@ -87,8 +85,8 @@ Use this checklist whenever Codex is the active lane owner for a story.
 - [ ] Run `npm run test`.
 - [ ] Run `npm run typecheck`.
 - [ ] Run `npm run build`.
-- [ ] If the blast radius includes downstream consumers, verify at least one adjacent dependent flow before handoff and record the result.
 - [ ] For visible runtime changes that depend on submitted input, run at least one manual or route-level spot-check with non-default values and confirm the returned payload reflects those exact values.
+- [ ] For multi-step or async runtime changes, execute at least one non-happy-path branch from `user-flow-map.md` and confirm the observability plan makes the branch transition and failure point obvious.
 - [ ] If the story changed visible or repeatable runtime behavior, start the local app/server and prepare a user-facing manual test handoff with the exact local URL, steps, and expected results.
 - [ ] Do not rely on Playwright or other browser automation as the final acceptance gate for visible Codex stories; use the user handoff instead.
 - [ ] If the story changed deployable runtime behavior, check the CI plus Railway deploy status per `docs/process/DEPLOYMENT_FLOW.md`, and use the local `railway` CLI for spot checks when needed.
@@ -110,4 +108,4 @@ Use this checklist whenever Codex is the active lane owner for a story.
 - [ ] Push to a story branch, never directly to `main` or `production`.
 - [ ] Before a reviewable push, run `npm run gate:push` and re-run the required local validation for the changed surface.
 - [ ] Before any QA-style handoff, final acceptance handoff, or claim that the branch is on GitHub, run `npm run gate:publish`.
-- [ ] If a PR exists or is being prepared, update the PR description with `.github/pull_request_template.md` and make sure tests added or updated, validation results, risks, screenshots or manual QA, and follow-ups match the real diff.
+- [ ] If implementation happened in an isolated side worktree or branch, merge, rebase, or cherry-pick the finished diff back into the active delivery branch before final handoff.

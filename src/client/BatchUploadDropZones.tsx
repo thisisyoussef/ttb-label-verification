@@ -1,7 +1,5 @@
-import { useRef } from 'react';
-import type { ChangeEvent, DragEvent, KeyboardEvent } from 'react';
-
 import { CSV_REQUIRED_HEADERS, type BatchLabelImage } from './batchTypes';
+import { useFileDropInput } from './useFileDropInput';
 
 export function ImagesDropZone({
   images,
@@ -17,38 +15,16 @@ export function ImagesDropZone({
   onPreviewImage: (image: BatchLabelImage) => void;
 }) {
   const empty = images.length === 0;
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const openPicker = () => {
-    if (!interactive) return;
-    inputRef.current?.click();
-  };
-
-  const onInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files ?? []);
-    event.target.value = '';
-    if (files.length > 0) {
-      onSelectImages?.(files);
-    }
-  };
-
-  const onDrop = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    if (!interactive) return;
-    const files = Array.from(event.dataTransfer.files).filter((file) =>
-      /^(image\/(jpeg|png|webp)|application\/pdf)$/.test(file.type)
-    );
-    if (files.length > 0) {
-      onSelectImages?.(files);
-    }
-  };
-
-  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      openPicker();
-    }
-  };
+  const { inputRef, openPicker, onInputChange, onDragOver, onDrop, onKeyDown } =
+    useFileDropInput({
+      interactive,
+      multiple: true,
+      filterFiles: (files) =>
+        files.filter((file) =>
+          /^(image\/(jpeg|png|webp)|application\/pdf)$/.test(file.type)
+        ),
+      onSelect: onSelectImages
+    });
 
   return (
     <section
@@ -72,7 +48,7 @@ export function ImagesDropZone({
         tabIndex={interactive ? 0 : -1}
         onClick={openPicker}
         onKeyDown={onKeyDown}
-        onDragOver={(event) => event.preventDefault()}
+        onDragOver={onDragOver}
         onDrop={onDrop}
         className={[
           'rounded-lg border border-dashed px-5 py-6 transition-colors',
@@ -178,39 +154,22 @@ export function CsvDropZone({
   interactive: boolean;
   onSelectCsv?: (file: File) => void;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
   const hasError = csvError !== null;
-
-  const openPicker = () => {
-    if (!interactive) return;
-    inputRef.current?.click();
-  };
-
-  const onInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = '';
-    if (file) {
-      onSelectCsv?.(file);
-    }
-  };
-
-  const onDrop = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    if (!interactive) return;
-    const file = Array.from(event.dataTransfer.files).find(
-      (candidate) => candidate.type === 'text/csv' || candidate.name.toLowerCase().endsWith('.csv')
-    );
-    if (file) {
-      onSelectCsv?.(file);
-    }
-  };
-
-  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      openPicker();
-    }
-  };
+  const { inputRef, openPicker, onInputChange, onDragOver, onDrop, onKeyDown } =
+    useFileDropInput({
+      interactive,
+      filterFiles: (files) =>
+        files.filter(
+          (candidate) =>
+            candidate.type === 'text/csv' ||
+            candidate.name.toLowerCase().endsWith('.csv')
+        ),
+      onSelect: ([file]) => {
+        if (file) {
+          onSelectCsv?.(file);
+        }
+      }
+    });
 
   return (
     <section
@@ -234,7 +193,7 @@ export function CsvDropZone({
         tabIndex={interactive ? 0 : -1}
         onClick={openPicker}
         onKeyDown={onKeyDown}
-        onDragOver={(event) => event.preventDefault()}
+        onDragOver={onDragOver}
         onDrop={onDrop}
         className={[
           'rounded-lg border border-dashed px-5 py-6 transition-colors',

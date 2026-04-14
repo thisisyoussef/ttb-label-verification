@@ -65,6 +65,18 @@ function readPublishStatus(upstream: string): PublishStatus {
   };
 }
 
+function runLocalGuard(args: string[]): void {
+  try {
+    execFileSync("npm", args, {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      stdio: "inherit",
+    });
+  } catch {
+    fail(`npm ${args.join(" ")} failed.`);
+  }
+}
+
 const mode = process.argv[2] as GateMode | undefined;
 
 if (mode !== "commit" && mode !== "push" && mode !== "publish") {
@@ -111,6 +123,8 @@ if (upstream) {
 }
 
 if (mode === "push") {
+  runLocalGuard(["run", "--silent", "guard:source-size"]);
+
   if (!upstream) {
     console.log(`First push required: git push -u origin ${branch}`);
   }
@@ -118,6 +132,10 @@ if (mode === "push") {
   console.log(
     "Reminder: refresh remotes with git fetch --all --prune if this branch may have drifted.",
   );
+}
+
+if (mode === "commit") {
+  runLocalGuard(["run", "--silent", "guard:source-size"]);
 }
 
 if (mode === "publish") {
