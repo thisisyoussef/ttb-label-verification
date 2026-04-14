@@ -24,6 +24,12 @@ export const AUTH_TIMINGS = {
   successMs: 700
 } as const;
 
+export const SESSION_TIMEOUTS = {
+  inactivityMs: 15 * 60 * 1000,
+  warningMs: 60 * 1000,
+  tickMs: 1000
+} as const;
+
 export function advanceAuthPhase(phase: AuthPhase): AuthPhase {
   if (phase === 'piv-loading') return 'piv-success';
   if (phase === 'sso-loading') return 'sso-success';
@@ -39,6 +45,14 @@ export function getAuthAutoAdvanceDelay(phase: AuthPhase): number | null {
     return AUTH_TIMINGS.successMs;
   }
   return null;
+}
+
+export function advanceSessionTimeoutCountdown(remainingMs: number): number {
+  return Math.max(0, remainingMs - SESSION_TIMEOUTS.tickMs);
+}
+
+export function getSessionTimeoutSeconds(remainingMs: number): number {
+  return Math.max(1, Math.ceil(remainingMs / 1000));
 }
 
 export interface MockAuthSignOutResetActions {

@@ -12,6 +12,7 @@ import { Intake } from './Intake';
 import { Processing } from './Processing';
 import { Results } from './Results';
 import { ScenarioPicker } from './ScenarioPicker';
+import { SessionTimeoutModal } from './SessionTimeoutModal';
 import { SignedInIdentity } from './SignedInIdentity';
 import { type HelpShowMe } from './helpManifest';
 import type { Mode, View } from './appTypes';
@@ -26,10 +27,13 @@ interface AppShellProps {
   single: SingleReviewFlow;
   batch: BatchWorkflow;
   help: HelpTourFlow;
+  sessionTimeoutOpen: boolean;
+  sessionTimeoutRemainingSeconds: number;
   tourExpandedCheckId?: string | null;
   tourNextDisabled?: boolean;
   onSelectMode: (next: Mode) => void;
   onSignOut: () => void;
+  onStaySignedIn: () => void;
   onTourNext: () => void;
   onTourAdvanceInteraction: () => void;
   onTourFinish: () => void;
@@ -43,10 +47,13 @@ export function AppShell({
   single,
   batch,
   help,
+  sessionTimeoutOpen,
+  sessionTimeoutRemainingSeconds,
   tourExpandedCheckId = null,
   tourNextDisabled = false,
   onSelectMode,
   onSignOut,
+  onStaySignedIn,
   onTourNext,
   onTourAdvanceInteraction,
   onTourFinish,
@@ -54,6 +61,12 @@ export function AppShell({
 }: AppShellProps) {
   return (
     <div className="min-h-full flex flex-col bg-background">
+      <SessionTimeoutModal
+        open={sessionTimeoutOpen}
+        remainingSeconds={sessionTimeoutRemainingSeconds}
+        onStaySignedIn={onStaySignedIn}
+        onSignOut={onSignOut}
+      />
       <header className="bg-surface-container-low border-b border-outline-variant/15 sticky top-0 z-40">
         <div className="max-w-[1400px] mx-auto w-full px-6 py-3 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-8">

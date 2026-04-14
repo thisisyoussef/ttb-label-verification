@@ -3,7 +3,10 @@ import { AppShell } from './AppShell';
 import { AuthScreen } from './AuthScreen';
 import {
   advanceAuthPhase,
+  advanceSessionTimeoutCountdown,
   applyMockAuthSignOutReset,
+  getSessionTimeoutSeconds,
+  SESSION_TIMEOUTS,
   type AuthPhase
 } from './authState';
 import type { Mode, View } from './appTypes';
@@ -30,6 +33,9 @@ export function App() {
   const [mode, setMode] = useState<Mode>('single');
   const [view, setView] = useState<View>('intake');
   const [authPhase, setAuthPhase] = useState<AuthPhase>('signed-out');
+  const [sessionRemainingMs, setSessionRemainingMs] = useState<number>(
+    SESSION_TIMEOUTS.inactivityMs
+  );
   const [pendingVerifyTourAdvance, setPendingVerifyTourAdvance] = useState(false);
 
   const single = useSingleReviewFlow({
@@ -219,6 +225,71 @@ export function App() {
     help.onFinishTour();
   }, [batch, help, single]);
 
+  const performSignOut = useCallback(() => {
+    setSessionRemainingMs(SESSION_TIMEOUTS.inactivityMs);
+    applyMockAuthSignOutReset({
+      setPendingVerifyTourAdvance,
+      resetSingle: single.reset,
+      resetBatch: batch.reset,
+      resetHelp: help.reset,
+      setMode,
+      setView,
+      setAuthPhase
+    });
+  }, [batch, help, single]);
+
+  const resetSessionTimeout = useCallback(() => {
+    setSessionRemainingMs(SESSION_TIMEOUTS.inactivityMs);
+  }, []);
+
+  useEffect(() => {
+    if (authPhase !== 'signed-in') {
+      setSessionRemainingMs(SESSION_TIMEOUTS.inactivityMs);
+      return;
+    }
+
+    const handle = window.setInterval(() => {
+      setSessionRemainingMs((current) => advanceSessionTimeoutCountdown(current));
+    }, SESSION_TIMEOUTS.tickMs);
+
+    return () => window.clearInterval(handle);
+  }, [authPhase]);
+
+  useEffect(() => {
+    if (authPhase !== 'signed-in') return;
+    if (sessionRemainingMs <= SESSION_TIMEOUTS.warningMs) return;
+
+    const onActivity = () => {
+      setSessionRemainingMs(SESSION_TIMEOUTS.inactivityMs);
+    };
+
+    const activityEvents: Array<keyof WindowEventMap> = [
+      'pointerdown',
+      'keydown',
+      'scroll',
+      'focus'
+    ];
+
+    for (const eventName of activityEvents) {
+      window.addEventListener(eventName, onActivity, { passive: true });
+    }
+
+    return () => {
+      for (const eventName of activityEvents) {
+        window.removeEventListener(eventName, onActivity);
+      }
+    };
+  }, [authPhase, sessionRemainingMs]);
+
+  useEffect(() => {
+    if (authPhase !== 'signed-in' || sessionRemainingMs > 0) return;
+    performSignOut();
+  }, [authPhase, performSignOut, sessionRemainingMs]);
+
+  const sessionTimeoutOpen =
+    authPhase === 'signed-in' && sessionRemainingMs <= SESSION_TIMEOUTS.warningMs;
+  const sessionTimeoutRemainingSeconds = getSessionTimeoutSeconds(sessionRemainingMs);
+
   if (authPhase !== 'signed-in') {
     return (
       <AuthScreen
@@ -243,20 +314,13 @@ export function App() {
       fixtureControlsEnabled={fixtureControlsEnabled}
       single={single}
       batch={batch}
+      sessionTimeoutOpen={sessionTimeoutOpen}
+      sessionTimeoutRemainingSeconds={sessionTimeoutRemainingSeconds}
       tourExpandedCheckId={tourExpandedCheckId}
       tourNextDisabled={tourNextDisabled}
       onSelectMode={(next) => batch.onSelectMode(next, mode)}
-      onSignOut={() =>
-        applyMockAuthSignOutReset({
-          setPendingVerifyTourAdvance,
-          resetSingle: single.reset,
-          resetBatch: batch.reset,
-          resetHelp: help.reset,
-          setMode,
-          setView,
-          setAuthPhase
-        })
-      }
+      onSignOut={performSignOut}
+      onStaySignedIn={resetSessionTimeout}
       onTourNext={onTourNext}
       onTourAdvanceInteraction={onTourAdvanceInteraction}
       onTourFinish={onTourFinish}

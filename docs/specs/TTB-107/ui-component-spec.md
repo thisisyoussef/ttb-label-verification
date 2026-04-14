@@ -221,7 +221,7 @@ None. The entire feature is client-local prototype theater. No shared contract c
 ## Open questions (captured for Codex handoff)
 
 1. **Timing knobs.** The 1.2s + 0.7s durations are design choices, not brand rules. Codex may dial them up/down; if reduced motion, collapse to ~150ms each to keep the state transition observable but fast.
-2. **Sign-out confirmation auto-dismiss.** The inline confirmation auto-dismisses to Cancel after ~3 seconds. If Codex thinks that's brittle, remove the auto-dismiss and let the reviewer click explicitly. Not a design blocker.
+2. **Session timeout warning.** Inactivity follows a 15-minute timeout with a 60-second warning modal and explicit `Stay signed in` / `Sign out` choices. Manual sign-out remains a direct inline confirmation in the header.
 3. **SSO User ID preservation on Back.** UI default: preserve typed text when the reviewer clicks Back during SSO entry. Codex may clear it if a reset-is-cleaner argument emerges.
 4. **`TTB-106` launcher placement.** The Guided tour launcher (future) should sit in the signed-in shell's right cluster to the left of the identity block. Not implemented in this story; flagged here so TTB-106 can wire it in correctly.
 
