@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TTB Label Verification Assistant</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&amp;family=Work+Sans:wght@400;500;600&amp;family=Inter:wght@400;600;700&amp;family=IBM+Plex+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#354147",
+                        "on-tertiary-fixed-variant": "#12661e",
+                        "outline-variant": "#adb3b2",
+                        "on-primary-fixed-variant": "#515d64",
+                        "tertiary-container": "#9df197",
+                        "on-secondary-fixed-variant": "#455f6b",
+                        "on-error-container": "#752121",
+                        "surface-dim": "#d4dcda",
+                        "surface-bright": "#f9f9f8",
+                        "on-secondary-fixed": "#29434e",
+                        "primary-container": "#d7e4ec",
+                        "on-primary": "#f0f9ff",
+                        "secondary-container": "#cbe7f5",
+                        "tertiary-dim": "#096119",
+                        "on-tertiary-container": "#005c15",
+                        "on-background": "#2d3433",
+                        "surface-tint": "#546067",
+                        "primary-dim": "#48545b",
+                        "on-primary-container": "#47545a",
+                        "secondary": "#49636f",
+                        "surface-variant": "#dee4e2",
+                        "surface-container-low": "#f2f4f3",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#5a6060",
+                        "background": "#f9f9f8",
+                        "outline": "#767c7b",
+                        "inverse-on-surface": "#9c9d9c",
+                        "tertiary-fixed": "#9df197",
+                        "primary-fixed": "#d7e4ec",
+                        "on-tertiary-fixed": "#00460e",
+                        "secondary-fixed-dim": "#bdd9e6",
+                        "tertiary": "#1c6d25",
+                        "error-dim": "#4e0309",
+                        "primary": "#546067",
+                        "error-container": "#fe8983",
+                        "tertiary-fixed-dim": "#90e28a",
+                        "secondary-dim": "#3d5762",
+                        "secondary-fixed": "#cbe7f5",
+                        "primary-fixed-dim": "#c9d6de",
+                        "error": "#9f403d",
+                        "on-secondary": "#f2faff",
+                        "inverse-surface": "#0c0f0e",
+                        "on-surface": "#2d3433",
+                        "surface-container": "#ebeeed",
+                        "surface-container-high": "#e5e9e8",
+                        "on-error": "#fff7f6",
+                        "on-secondary-container": "#3c5561",
+                        "surface-container-highest": "#dee4e2",
+                        "inverse-primary": "#e6f3fb",
+                        "surface": "#f9f9f8",
+                        "on-tertiary": "#eaffe2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Public Sans"],
+                        "body": ["Work Sans"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background-color: #f9f9f8;
+        }
+    </style>
+</head>
+<body class="text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Header Navigation Shell -->
+<header class="bg-[#f2f4f3] dark:bg-slate-900 font-['Public_Sans'] tracking-tight flex justify-between items-center w-full px-6 py-3 max-w-full sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex flex-col">
+<span class="text-lg font-bold text-[#2d3433] dark:text-slate-100 leading-none">TTB Label Verification Assistant</span>
+<span class="text-[10px] font-medium text-on-surface-variant uppercase tracking-widest mt-1">AI-assisted compliance checking</span>
+</div>
+<nav class="hidden md:flex items-center gap-6 text-sm">
+<a class="text-[#546067] dark:text-slate-100 border-b-2 border-[#546067] pb-1 font-semibold" href="#">Single Mode</a>
+<a class="text-[#5a6060] dark:text-slate-400 hover:bg-[#f9f9f8] dark:hover:bg-slate-800 transition-colors px-2 py-1 rounded-sm" href="#">Batch Mode</a>
+<a class="text-[#5a6060] dark:text-slate-400 hover:bg-[#f9f9f8] dark:hover:bg-slate-800 transition-colors px-2 py-1 rounded-sm" href="#">Developer Controls</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-gradient-to-r from-primary to-primary-dim text-on-primary px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm">rule</span>
+                Guided review
+            </button>
+<div class="h-8 w-[1px] bg-outline-variant/20 mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold text-on-surface leading-none">Sarah Chen · ALFD</p>
+<p class="text-[10px] text-on-surface-variant">Auditor ID: 99201-X</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-3xl" data-icon="account_circle">account_circle</span>
+<button class="flex items-center gap-1 border border-outline-variant/30 px-3 py-1.5 rounded-lg text-xs font-medium text-on-surface-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="logout">logout</span>
+                    Sign out
+                </button>
+</div>
+</div>
+</header>
+<main class="max-w-[1440px] mx-auto p-6 pb-24 grid grid-cols-12 gap-6">
+<!-- Dashboard Summary Bar -->
+<div class="col-span-12 grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
+<div class="bg-surface-container-lowest p-4 border-l-4 border-tertiary">
+<p class="font-label text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Compliance Status</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-2xl font-bold text-on-surface">94.2%</span>
+<span class="bg-tertiary-container text-on-tertiary-container text-[10px] font-bold px-1.5 py-0.5 rounded">PASSED</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 border-l-4 border-secondary">
+<p class="font-label text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Review Queue</p>
+<p class="text-2xl font-bold text-on-surface mt-1">12 Labels</p>
+</div>
+<div class="bg-surface-container-lowest p-4 border-l-4 border-primary">
+<p class="font-label text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Processed (24h)</p>
+<p class="text-2xl font-bold text-on-surface mt-1">1,402</p>
+</div>
+<div class="bg-surface-container-lowest p-4 border-l-4 border-outline-variant">
+<p class="font-label text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">System Latency</p>
+<p class="text-2xl font-bold text-on-surface mt-1">180ms</p>
+</div>
+</div>
+<!-- Left Column: Label Viewport -->
+<div class="col-span-12 lg:col-span-5 flex flex-col gap-4">
+<div class="bg-surface-container-low rounded-xl overflow-hidden aspect-[3/4] relative group">
+<img alt="Wine bottle label scan" class="w-full h-full object-cover" data-alt="Detailed macro scan of a premium wine bottle label with ornate typography and architectural illustration, professional studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlIYPtHAkhas9pym6DDBDBQxowqacqsV498esiq5xLAvSJBp0quguTjz4OfI5A5A5bwYP1i0nB1QMOXOgayY5d8tmVOCq5ABySNNUFkrmmr-Kv7JGZlmzjvuJsFcb_MDt7M6vvN_sv-xPJeNxwrB0qd7svLc1J4I8k9HI7u3ONhfdG0jpGlupgpdkt3FQN-crt5_WZTXWo3egsOCU8DynbzMqnE8zoM-wuNFl1zKXYLRBCHCN_Lp2DtPfrq2O8Ii4hJFR2AB5eMc8"/>
+<div class="absolute inset-0 bg-black/5 pointer-events-none"></div>
+<!-- OCR Overlay markers -->
+<div class="absolute top-1/4 left-1/4 w-32 h-8 border-2 border-tertiary bg-tertiary/10 backdrop-blur-sm flex items-center px-2">
+<span class="text-[10px] font-bold text-on-tertiary-container uppercase">Brand Match</span>
+</div>
+<div class="absolute top-1/2 left-1/3 w-40 h-6 border-2 border-error bg-error/10 backdrop-blur-sm flex items-center px-2">
+<span class="text-[10px] font-bold text-on-error-container uppercase font-mono">Missing: ABV %</span>
+</div>
+</div>
+<div class="bg-surface-container-highest p-4 rounded-lg">
+<p class="font-label text-[10px] uppercase font-bold text-on-surface-variant mb-2">Technical Metadata</p>
+<div class="grid grid-cols-2 gap-y-2 text-xs font-mono">
+<span class="text-on-surface-variant">Source Resolution:</span> <span class="text-right">1200 DPI</span>
+<span class="text-on-surface-variant">Capture Date:</span> <span class="text-right">2023-11-27 09:42</span>
+<span class="text-on-surface-variant">Batch Reference:</span> <span class="text-right">BATCH-V09-ALPHA</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Verification Results -->
+<div class="col-span-12 lg:col-span-7 flex flex-col gap-6">
+<div class="bg-surface-container-lowest p-6 rounded-xl">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h2 class="text-xl font-bold font-headline">Verification Report: #9938210-C</h2>
+<p class="text-on-surface-variant text-sm">Product: Chateau Montelena Reserve 2019</p>
+</div>
+<div class="bg-error-container/15 text-on-error-container px-3 py-1 rounded-full flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="text-xs font-bold font-label uppercase">Action Required</span>
+</div>
+</div>
+<!-- Analysis Grid -->
+<div class="space-y-4">
+<!-- Check Item 1 -->
+<div class="p-4 bg-surface-container-low rounded-lg flex items-center justify-between">
+<div class="flex gap-4 items-center">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div>
+<p class="text-sm font-bold">Health Warning Statement</p>
+<p class="text-xs text-on-surface-variant">Formatting and font size compliant with 27 CFR 16.21</p>
+</div>
+</div>
+<span class="text-xs font-mono bg-white px-2 py-1 rounded border border-outline-variant/10 text-on-surface-variant">CONFIDENCE: 0.99</span>
+</div>
+<!-- Check Item 2: FAILED -->
+<div class="p-4 bg-surface-container-low rounded-lg border-l-4 border-error">
+<div class="flex gap-4 items-start">
+<span class="material-symbols-outlined text-error mt-0.5" style="font-variation-settings: 'FILL' 1;">cancel</span>
+<div class="flex-1">
+<div class="flex justify-between items-center mb-2">
+<p class="text-sm font-bold">Alcohol Content (ABV)</p>
+<span class="text-[10px] bg-error text-on-error px-1.5 py-0.5 rounded font-bold uppercase">Critical Fail</span>
+</div>
+<div class="font-mono text-xs bg-surface-container-highest p-3 rounded mb-2">
+<span class="text-error-container block mb-1 font-bold">EXPECTED:</span>
+<span class="text-on-surface-variant">"ALC. 14.2% BY VOL." or equivalent statement.</span>
+<span class="text-tertiary block mt-2 mb-1 font-bold">FOUND:</span>
+<span class="text-on-surface-variant">[NULL] - String not detected in primary label scan.</span>
+</div>
+<p class="text-xs text-on-surface-variant italic">Suggestion: Re-scan back label or flag for manual verification.</p>
+</div>
+</div>
+</div>
+<!-- Check Item 3 -->
+<div class="p-4 bg-surface-container-low rounded-lg flex items-center justify-between">
+<div class="flex gap-4 items-center">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div>
+<p class="text-sm font-bold">Net Contents Statement</p>
+<p class="text-xs text-on-surface-variant">Detected "750ml" in primary brand area.</p>
+</div>
+</div>
+<span class="text-xs font-mono bg-white px-2 py-1 rounded border border-outline-variant/10 text-on-surface-variant">CONFIDENCE: 0.92</span>
+</div>
+</div>
+<div class="mt-8 flex gap-3">
+<button class="flex-1 bg-surface-container-high py-3 rounded-lg text-sm font-bold hover:bg-surface-container-highest transition-colors">
+                        Flag for Manual Audit
+                    </button>
+<button class="flex-1 bg-gradient-to-r from-primary to-primary-dim text-on-primary py-3 rounded-lg text-sm font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+                        Proceed to Next Label
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Notes Section -->
+<div class="bg-surface-container-lowest p-6 rounded-xl">
+<p class="font-label text-[10px] uppercase font-bold text-on-surface-variant tracking-wider mb-4">Audit History / Logs</p>
+<div class="space-y-3">
+<div class="flex gap-4 text-xs">
+<span class="font-mono text-on-surface-variant">10:14:02</span>
+<span class="text-on-surface"><strong>System:</strong> OCR analysis completed. 44 strings extracted.</span>
+</div>
+<div class="flex gap-4 text-xs">
+<span class="font-mono text-on-surface-variant">10:14:05</span>
+<span class="text-on-surface"><strong>Sarah Chen:</strong> Re-triggered vision model with high contrast filter.</span>
+</div>
+<div class="flex gap-4 text-xs">
+<span class="font-mono text-on-surface-variant">10:14:06</span>
+<span class="text-on-surface"><strong>System:</strong> No change in ABV detection. Flagging as error.</span>
+</div>
+</div>
+<div class="mt-4">
+<input class="w-full bg-surface-container-low border-none rounded-lg text-xs p-3 focus:ring-1 focus:ring-primary" placeholder="Add audit note..." type="text"/>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Shell -->
+<footer class="bg-[#f9f9f8] dark:bg-slate-950 text-[#5a6060] dark:text-slate-500 font-['Work_Sans'] text-xs uppercase tracking-wider fixed bottom-0 w-full border-t border-[#adb3b2]/15 flex justify-center items-center py-4 px-8 z-50">
+<div class="flex items-center gap-12">
+<span>Nothing is stored. Inputs and results are discarded when you leave.</span>
+<div class="flex gap-6">
+<a class="hover:text-[#546067] dark:hover:text-slate-300 transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-[#546067] dark:hover:text-slate-300 transition-colors" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+</body></html>
