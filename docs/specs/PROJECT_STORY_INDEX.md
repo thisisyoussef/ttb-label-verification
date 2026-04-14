@@ -37,7 +37,9 @@ This file is the checked-in leaf-story queue for completing the TTB Label Verifi
 | 11 | `TTB-105` | `TTB-004` | accessibility, trust copy, and final UI polish | Claude-first, then Codex release handoff | `TTB-104` approved | the integrated UI is polished and approved for release gating |
 | 12 | `TTB-106` | `TTB-004` | guided review, replayable help, and contextual info layer | Claude-first, then Codex integration | `TTB-301`, `TTB-105` approved | reviewers can launch and replay product guidance without persistence or hidden critical instructions |
 | 13 | `TTB-107` | `TTB-004` | mock Treasury auth entry and signed-in shell identity | Claude-first, then Codex integration | `TTB-106` approved | the prototype opens in a realistic internal-tool entry flow and returns there on sign-out without adding real auth infrastructure |
-| 14 | `TTB-401` | `TTB-004` | final privacy, performance, eval, and submission pack | Codex-led release gate | `TTB-106`, `TTB-107` | the final proof of concept is measured, documented, and submission-ready |
+| 14 | `TTB-206` | `TTB-002` | provider routing foundation and privacy-safe Gemini/OpenAI capability policy | Codex-only | `TTB-205`, `TTB-301` | provider capability routing, fallback policy, env surface, and privacy rules exist without flipping the live extraction default |
+| 15 | `TTB-207` | `TTB-002` | Gemini-primary label extraction with OpenAI fallback and cross-provider validation | Codex-only | `TTB-206` | single-label and batch extraction routes can run Gemini first, fall back to OpenAI when allowed, and record trace/eval/privacy/performance evidence |
+| 16 | `TTB-401` | `TTB-004` | final privacy, performance, eval, and submission pack | Codex-led release gate | `TTB-106`, `TTB-107`, `TTB-207` | the final proof of concept is measured, documented, and submission-ready |
 
 ## Execution notes
 
@@ -50,6 +52,7 @@ This file is the checked-in leaf-story queue for completing the TTB Label Verifi
 - Approved `TTB-1xx` and `TTB-3xx` UI handoffs can remain executable Codex work after approval without becoming the blocking next story. Keep the handoff doc `ready-for-codex`, and let `docs/process/SINGLE_SOURCE_OF_TRUTH.md` express that non-blocking executability with `ready-parallel`.
 - Once workflow/eval foundations are clear, ready approved `TTB-1xx` handoffs should be picked before later blocking `TTB-2xx+` Codex work. The SSOT pointer is the source of truth for when that preference applies.
 - Batch stories reuse the single-label evidence language instead of inventing a second result model.
+- `TTB-206` and `TTB-207` are late-added provider-migration stories under `TTB-002`. `TTB-206` establishes shared routing and privacy policy, while `TTB-207` may only flip label extraction to Gemini-primary after trace, eval, privacy, and performance gates pass.
 - The mock auth story is prototype theater, not security infrastructure. It should strengthen federal context without introducing real credential handling, tokens, or server sessions.
 - Guided-review/help work ships only after the integrated single-label and batch workflows exist, and it should remain optional, replayable, and calm rather than a forced tutorial.
 - `TTB-401` is the release gate. No project-level “done” claim skips it.

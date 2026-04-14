@@ -9,6 +9,7 @@
 - Intake backend: route-local multipart `POST /api/review` validates one in-memory label file, accepts omitted `fields` for standalone reviews, normalizes a bounded intake object in `src/server/review-intake.ts`, then runs the extractor, warning validator, and deterministic report builder before returning the final `VerificationReport`
 - Runtime review wiring: `src/client/App.tsx` now consumes the `VerificationReport` returned by `POST /api/review`, while `src/client/review-runtime.ts` decides when dev fixtures are allowed and falls back to a standalone seed report when application data is absent
 - Extraction backend slice: `POST /api/review/extraction` now uses `src/server/openai-review-extractor.ts` plus `src/server/review-extraction.ts` to package in-memory uploads for the Responses API, normalize image-quality signals, and resolve beverage type before later validators run
+- Planned provider-routing slice: follow-on stories `TTB-206` and `TTB-207` will insert a capability-based Gemini/OpenAI routing layer in front of extraction and future model-backed capabilities, but the live runtime is still OpenAI-only until those stories land
 - Warning-validation slice: `src/server/government-warning-validator.ts` now turns extracted warning text plus visual signals into the final warning `CheckReview`, and `POST /api/review/warning` stages that path end to end
 - Review aggregation slice: `src/server/review-report.ts` now turns extracted fields plus the warning check into deterministic field comparisons, beverage-specific rules, cross-field checks, verdict aggregation, and the no-text fallback used by the approved results UI
 - Batch execution slice: `src/server/batch-csv.ts`, `src/server/batch-matching.ts`, and `src/server/batch-session.ts` now parse uploaded CSVs, resolve filename/order matching, keep batch sessions in memory, stream run frames, and shape dashboard/export payloads around the existing single-label report builder
@@ -28,5 +29,6 @@
 - No persistence of batch session data, dashboard rows, or export payloads beyond in-memory session life
 - OpenAI Responses API only for new model work
 - `store: false` on every request
+- Gemini integrations must stay inline-only with logging and data-sharing disabled; no Files API or other durable provider-managed upload surface
 - Low-confidence visual judgments downgrade to `review`
 - Workflow and eval foundations gate later story pickup; once those are clear, ready approved `TTB-1xx` handoffs are preferred before later blocking `TTB-2xx+` Codex work

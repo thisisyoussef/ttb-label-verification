@@ -40,6 +40,8 @@
 - Validator work can follow the same pattern with a narrow staging route (`POST /api/review/warning`) as long as the validator itself remains a pure reusable module for the later full aggregation story.
 - Once the staging slices exist, the production review route should cut over by composing those same pure modules into a dedicated report builder (`src/server/review-report.ts`) rather than duplicating comparison logic inside `src/server/index.ts`.
 - Batch mode should follow the same pattern: keep parsing/matching/session orchestration in focused server modules, and let `src/server/index.ts` remain a thin route composition layer.
+- Model-provider selection should route through a capability policy instead of direct provider checks inside routes: planned `TTB-206` defaults non-image capabilities to `openai,gemini`, while planned `TTB-207` gives label extraction its own `gemini,openai` order.
+- Gemini multimodal extraction should use the native Google GenAI path with inline image/PDF bytes plus structured JSON output, not the Gemini Files API and not the OpenAI-compat layer for the core extraction path.
 - Seed fixtures unlock UI progress before live backend integration.
 - For frozen UI shells that need live wiring, add a pure client runtime adapter (`src/client/batch-runtime.ts`) so API-to-view-model mapping stays testable outside React components.
 - The golden eval set is part of the product contract, not optional test garnish. The core-six live subset is only the first slice, not the whole corpus.

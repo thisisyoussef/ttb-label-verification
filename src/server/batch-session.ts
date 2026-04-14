@@ -1,23 +1,15 @@
 import { randomUUID } from 'node:crypto';
-import { Readable } from 'node:stream';
-
 import {
   BATCH_LABEL_CAP,
   MAX_LABEL_UPLOAD_BYTES,
+  type BatchDashboardResponse,
   batchDashboardResponseSchema,
   batchExportPayloadSchema,
   batchPreflightRequestSchema,
   batchPreflightResponseSchema,
   batchStreamFrameSchema,
-  type BatchDashboardResponse,
-  type BatchDashboardRow,
-  type BatchDashboardSummary,
-  type BatchItemStatus,
-  type BatchPreflightResponse,
   type BatchResolution,
   type BatchStartRequest,
-  type ReviewError,
-  type VerificationReport
 } from '../shared/contracts/review';
 import {
   buildBatchFileError,
@@ -28,58 +20,29 @@ import {
 import { buildGovernmentWarningCheck } from './government-warning-validator';
 import {
   createReviewExtractionFailure,
-  isReviewExtractionFailure,
   type ReviewExtractor
 } from './review-extraction';
-import {
-  createNormalizedReviewIntake,
-  type MemoryUploadedLabel,
-  type ParsedReviewFields
-} from './review-intake';
+import { createNormalizedReviewIntake } from './review-intake';
 import { buildVerificationReport } from './review-report';
-import { parseBatchCsv, type ParsedBatchCsvRow } from './batch-csv';
+import { parseBatchCsv } from './batch-csv';
 import { buildBatchMatching } from './batch-matching';
-
-type UploadedBatchFile = Express.Multer.File;
-
-type StoredBatchImage = {
-  id: string;
-  filename: string;
-  mimeType: string;
-  sizeBytes: number;
-  sizeLabel: string;
-  isPdf: boolean;
-  buffer: Buffer;
-};
-
-type StoredBatchAssignment = {
-  image: StoredBatchImage;
-  row: ParsedBatchCsvRow;
-};
-
-type StoredBatchResult = {
-  row: BatchDashboardRow;
-  assignment: StoredBatchAssignment;
-};
-
-type BatchSession = {
-  id: string;
-  images: Map<string, StoredBatchImage>;
-  rows: ParsedBatchCsvRow[];
-  preflight: BatchPreflightResponse;
-  assignments: Map<string, StoredBatchAssignment>;
-  results: Map<string, StoredBatchResult>;
-  reports: Map<string, VerificationReport>;
-  phase: 'prepared' | 'running' | 'complete' | 'cancelled-partial';
-  totals: {
-    started: number;
-    done: number;
-  };
-  summary: BatchDashboardSummary;
-  cancelRequested: boolean;
-};
-
-type RunFrameWriter = (frame: unknown) => Promise<void> | void;
+import {
+  buildDashboardRow,
+  buildErroredRow,
+  buildParsedReviewFields,
+  emptySummary,
+  incrementSummary,
+  normalizeProcessingError,
+  summarizeRows,
+  toMemoryUploadedLabel
+} from './batch-session-helpers';
+import type {
+  BatchSession,
+  RunFrameWriter,
+  StoredBatchAssignment,
+  StoredBatchImage,
+  UploadedBatchFile
+} from './batch-session-types';
 
 export class BatchSessionStore {
   private readonly sessions = new Map<string, BatchSession>();
@@ -520,182 +483,4 @@ export class BatchSessionStore {
 
     return session;
   }
-}
-
-function toMemoryUploadedLabel(image: StoredBatchImage): MemoryUploadedLabel {
-  return {
-    fieldname: 'label',
-    originalname: image.filename,
-    encoding: '7bit',
-    mimetype: image.mimeType,
-    size: image.sizeBytes,
-    stream: Readable.from(image.buffer),
-    destination: '',
-    filename: '',
-    path: '',
-    buffer: image.buffer
-  };
-}
-
-function buildParsedReviewFields(row: ParsedBatchCsvRow): ParsedReviewFields {
-  const fields = {
-    beverageTypeHint: row.beverageType,
-    origin: row.origin,
-    brandName: row.brandName || undefined,
-    fancifulName: row.fancifulName || undefined,
-    classType: row.classType || undefined,
-    alcoholContent: row.alcoholContent || undefined,
-    netContents: row.netContents || undefined,
-    applicantAddress: row.applicantAddress || undefined,
-    country: row.country || undefined,
-    formulaId: row.formulaId || undefined,
-    appellation: row.appellation || undefined,
-    vintage: row.vintage || undefined,
-    varietals: []
-  };
-
-  return {
-    fields,
-    hasApplicationData: Boolean(
-      fields.brandName ||
-        fields.fancifulName ||
-        fields.classType ||
-        fields.alcoholContent ||
-        fields.netContents ||
-        fields.applicantAddress ||
-        fields.country ||
-        fields.formulaId ||
-        fields.appellation ||
-        fields.vintage
-    )
-  };
-}
-
-function buildDashboardRow(input: {
-  assignment: StoredBatchAssignment;
-  report: VerificationReport;
-  completedOrder: number;
-}): BatchDashboardRow {
-  return {
-    rowId: input.assignment.row.id,
-    reportId: input.report.id,
-    imageId: input.assignment.image.id,
-    filename: input.assignment.image.filename,
-    brandName: input.assignment.row.brandName,
-    classType: input.assignment.row.classType,
-    beverageType: input.report.beverageType,
-    status: verdictToBatchStatus(input.report.verdict),
-    previewUrl: null,
-    isPdf: input.assignment.image.isPdf,
-    sizeLabel: input.assignment.image.sizeLabel,
-    issues: summarizeIssues(input.report),
-    confidenceState: input.report.extractionQuality.state,
-    errorMessage: null,
-    completedOrder: input.completedOrder
-  };
-}
-
-function buildErroredRow(input: {
-  assignment: StoredBatchAssignment;
-  completedOrder: number;
-  error: ReviewError;
-}): BatchDashboardRow {
-  return {
-    rowId: input.assignment.row.id,
-    reportId: null,
-    imageId: input.assignment.image.id,
-    filename: input.assignment.image.filename,
-    brandName: input.assignment.row.brandName,
-    classType: input.assignment.row.classType,
-    beverageType: normalizeBatchBeverageType(input.assignment.row.beverageType),
-    status: 'error',
-    previewUrl: null,
-    isPdf: input.assignment.image.isPdf,
-    sizeLabel: input.assignment.image.sizeLabel,
-    issues: {
-      blocker: 0,
-      major: 0,
-      minor: 0,
-      note: 0
-    },
-    confidenceState: 'low-confidence',
-    errorMessage: input.error.message,
-    completedOrder: input.completedOrder
-  };
-}
-
-function normalizeBatchBeverageType(value: string) {
-  if (
-    value === 'distilled-spirits' ||
-    value === 'wine' ||
-    value === 'malt-beverage'
-  ) {
-    return value;
-  }
-
-  return 'unknown' as const;
-}
-
-function summarizeIssues(report: VerificationReport) {
-  const issues = {
-    blocker: 0,
-    major: 0,
-    minor: 0,
-    note: 0
-  };
-
-  for (const check of [...report.checks, ...report.crossFieldChecks]) {
-    if (check.status === 'pass' || check.status === 'info') {
-      continue;
-    }
-
-    issues[check.severity] += 1;
-  }
-
-  return issues;
-}
-
-function verdictToBatchStatus(verdict: VerificationReport['verdict']): BatchItemStatus {
-  if (verdict === 'approve') {
-    return 'pass';
-  }
-  if (verdict === 'reject') {
-    return 'fail';
-  }
-  return 'review';
-}
-
-function emptySummary(): BatchDashboardSummary {
-  return {
-    pass: 0,
-    review: 0,
-    fail: 0,
-    error: 0
-  };
-}
-
-function incrementSummary(summary: BatchDashboardSummary, status: BatchItemStatus) {
-  summary[status] += 1;
-}
-
-function summarizeRows(rows: BatchDashboardRow[]) {
-  return rows.reduce(
-    (summary, row) => {
-      summary[row.status] += 1;
-      return summary;
-    },
-    emptySummary()
-  );
-}
-
-function normalizeProcessingError(error: unknown): ReviewError {
-  if (isReviewExtractionFailure(error)) {
-    return error.error;
-  }
-
-  return {
-    kind: 'unknown',
-    message: 'We could not finish this item right now.',
-    retryable: true
-  };
 }

@@ -1,6 +1,6 @@
 # Active Context
 
-- Current focus: `TTB-301` is complete; `TTB-106` remains the next queued Claude story, while `TTB-107` is now planned as a follow-on UI story.
+- Current focus: `TTB-301` is complete; `TTB-106` now has a ready-parallel Codex handoff, `TTB-107` is the next queued Claude story, and provider migration is now planned as `TTB-206` plus `TTB-207`.
 - GitHub repo and Railway project are now live; the checked-in deploy flow uses GitHub Actions plus Railway CLI.
 - Stitch automation is now the project-default UI generation path, with a user-review gate preserved after generation and a successful automated `TTB-101` artifact run recorded under `docs/specs/TTB-101/stitch-refs/automated/`.
 - The Stitch harness now hardwires the canonical local project target to `TTB Label Verification System` (`3197911668966401642`) while still keeping title fallback when `STITCH_PROJECT_ID` is unset.
@@ -19,5 +19,7 @@
 - Git hygiene is now explicit in `docs/process/GIT_HYGIENE.md`, wired into both lane checklists plus deployment rules, and backed by `npm run gate:commit` / `npm run gate:push`.
 - `TTB-106` remains the next cross-lane story for optional guided review, replayable help, and contextual info surfaces.
 - `TTB-107` is now planned as a later Claude-first story: a prototype-safe mock PIV/CAC or Treasury SSO entry screen plus persistent `Sarah Chen · ALFD` shell identity and sign-out flow.
+- `TTB-206` is the next Codex-only engine-planning story after the ready-parallel `TTB-106` handoff priority is respected; it defines capability routing and Gemini/OpenAI privacy-safe fallback policy.
+- `TTB-207` follows `TTB-206` and is the actual Gemini-primary extraction cutover, including trace, eval, privacy, and timing proof before any default flip.
 - Current contract anchor: `src/shared/contracts/review.ts`
 - Current progress tracker: `docs/process/SINGLE_SOURCE_OF_TRUTH.md`

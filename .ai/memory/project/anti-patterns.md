@@ -34,3 +34,5 @@
 - Turning batch execution into hidden durable state or a background queue when the checked-in product contract still requires ephemeral in-memory sessions only
 - Reusing shared optional-field Zod schemas directly for Responses structured outputs instead of adapting them into required-plus-nullable API schemas
 - Letting the warning diff collapse into overly broad case-mismatch spans that stop matching the approved UI evidence semantics
+- Adding Gemini through the Files API or any other provider-managed durable upload surface inside a no-persistence product
+- Treating provider fallback as a route-local try/catch instead of a typed capability policy with explicit retry and privacy classification

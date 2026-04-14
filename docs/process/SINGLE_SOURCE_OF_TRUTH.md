@@ -1,6 +1,6 @@
 # Single Source of Truth
 
-Last updated: 2026-04-14 (`TTB-301` Codex work remains complete; git workflow hardening now requires repo-managed hooks plus a publish gate before GitHub-facing handoff claims)
+Last updated: 2026-04-14 (`TTB-106` Claude lane is approved and ready for Codex integration, `TTB-107` is the next ready Claude story, and Gemini provider migration is now planned as `TTB-206` plus `TTB-207` before `TTB-401`)
 
 ## Continue resolution
 
@@ -34,17 +34,17 @@ Last updated: 2026-04-14 (`TTB-301` Codex work remains complete; git workflow ha
 - Project status: runnable scaffold plus full-product planning set with live GitHub and Railway backing
 - Runtime status: React + Express scaffold exists, the shared review contract now includes typed extraction plus warning evidence, `POST /api/review` keeps uploads in memory and now runs the integrated extraction + warning + aggregation path, `POST /api/review/seed` remains the explicit scaffold-only inspection route, `POST /api/review/extraction` runs the live extraction boundary, `POST /api/review/warning` stages the warning validator, and contracts are tested
 - Process status: lane rules, next-story routing, spec gate, TDD gate, LangSmith-backed trace-driven development, automated-first Stitch flow with manual fallback, deployment flow, repo-managed git hooks, and publish-gate handoff rules are checked in
-- Planning status: guided-review/help remains the next queued UI story as `TTB-106`; mock Treasury auth entry is now captured separately as `TTB-107` without changing the existing story order
+- Planning status: `TTB-106` now has a ready-parallel Codex handoff, `TTB-107` is the next queued Claude story, and Gemini provider migration is now captured as `TTB-206` plus `TTB-207` without changing the existing UI-first Codex priority rule
 - GitHub bootstrap status: live repo exists at `thisisyoussef/ttb-label-verification`
 - Railway bootstrap status: project, service, staging, production, public domains, and GitHub Actions token wiring are configured
 
 ## Active pointers
 
-- Active Claude story: none in progress (`TTB-105` Claude lane complete and approved 2026-04-13)
-- Active Codex story: none in progress (`TTB-301` complete 2026-04-13)
-- Next ready for Claude: `TTB-106` — the guided-review/info-layer story remains the next queued UI story
-- Next preferred for Codex: none — `TTB-401` still waits on the later hardening gates
-- Next blocking for Codex: `TTB-401` after `TTB-106` and `TTB-107`; live six-label eval media is still missing and extractor connectivity is still unreliable for corpus-grade batch verification
+- Active Claude story: none in progress (`TTB-106` Claude lane complete and approved 2026-04-14)
+- Active Codex story: none in progress (`TTB-301` complete 2026-04-13; `TTB-106` and `TTB-206` are both ready picks, with `TTB-106` still preferred by lane rules)
+- Next ready for Claude: `TTB-107` — the mock Treasury auth entry + signed-in shell identity story is now unblocked by the approved `TTB-106` handoff
+- Next preferred for Codex: `TTB-106` (`ready-parallel`) — typed help contract + stateless manifest routes remain the earliest ready approved `TTB-1xx` handoff; `TTB-206` is the next Codex-only engine story after that handoff priority clears
+- Next blocking for Codex: `TTB-206` — provider routing foundation and privacy-safe Gemini/OpenAI capability policy; `TTB-207` follows it, and `TTB-401` now waits on `TTB-106`, `TTB-107`, and `TTB-207`
 - Current blocker owner: none
 - Current manual user action: none
 
@@ -65,9 +65,11 @@ Last updated: 2026-04-14 (`TTB-301` Codex work remains complete; git workflow ha
 | 10 | `TTB-104` | `TTB-003` | batch dashboard, drill-in shell, and export UI | Codex | `ready-parallel` | preserve the approved batch dashboard + drill-in shell (verbatim reuse of the `TTB-102` Results view) + session-scoped export UI as frozen input; backend execution still lands under `TTB-301` once `TTB-205` completes | none |
 | 11 | `TTB-301` | `TTB-003` | batch parser, matcher, orchestration, and session export | Codex | `done` | keep the packet, eval note, and live smoke record as the proof that the approved batch shells now run against the real session-scoped engine | none |
 | 12 | `TTB-105` | `TTB-004` | accessibility, trust copy, and final UI polish | Codex | `ready-parallel` | preserve the approved polish (single-label Results `Back to Intake` breadcrumb, promoted Processing `Cancel review`) as frozen release-gate input for `TTB-401` | none |
-| 13 | `TTB-106` | `TTB-004` | guided review, replayable help, and contextual info layer | Claude | `ready` | design the optional guided-review and info-layer system on the current integrated app shell | none |
-| 14 | `TTB-107` | `TTB-004` | mock Treasury auth entry and signed-in shell identity | Claude | `blocked-by-dependency` | design the prototype-safe mock auth entry and signed-in shell after the guided-help pass clears | `TTB-106` approved |
-| 15 | `TTB-401` | `TTB-004` | final privacy, performance, eval, and submission pack | Codex | `blocked-by-dependency` | run the release gate and package the submission | `TTB-106` complete and `TTB-107` complete |
+| 13 | `TTB-106` | `TTB-004` | guided review, replayable help, and contextual info layer | Codex | `ready-parallel` | preserve the approved guided-tour spotlight + info anchor layer; add the typed help contract, stateless `/api/help/manifest` route, and cutover the client fixture per the handoff doc | none |
+| 14 | `TTB-107` | `TTB-004` | mock Treasury auth entry and signed-in shell identity | Claude | `ready` | design the prototype-safe mock auth entry and signed-in shell; the `TTB-106` help launcher will move inside the signed-in header when this story lands | none |
+| 15 | `TTB-206` | `TTB-002` | provider routing foundation and privacy-safe Gemini/OpenAI capability policy | Codex | `ready` | implement the provider capability registry, fallback policy, env/bootstrap surface, and no-persistence guardrails from the new packet | none |
+| 16 | `TTB-207` | `TTB-002` | Gemini-primary label extraction with OpenAI fallback and cross-provider validation | Codex | `blocked-by-dependency` | implement Gemini-primary extraction after `TTB-206`, then run trace, eval, privacy, and performance gates before any default flip | `TTB-206` complete |
+| 17 | `TTB-401` | `TTB-004` | final privacy, performance, eval, and submission pack | Codex | `blocked-by-dependency` | run the release gate and package the submission | `TTB-106` complete and `TTB-107` complete and `TTB-207` complete |
 
 ## Handoff points
 
