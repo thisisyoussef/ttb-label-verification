@@ -19,7 +19,7 @@ The repo has a light harness, but it does not yet enforce the default gauntlet w
 
 ## Acceptance criteria
 
-1. The repo has checked-in workflow docs for lookup, sizing, spec delivery, and TDD.
+1. The repo has checked-in workflow docs for lookup, sizing, spec delivery, TDD, and UI flow-mode selection.
 2. The repo has a checked-in single source of truth and memory-bank structure.
 3. `AGENTS.md` and `.ai/codex.md` enforce the new workflow.
 4. The repo has reusable spec templates for future stories.

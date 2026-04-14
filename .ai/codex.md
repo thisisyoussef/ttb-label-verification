@@ -33,7 +33,7 @@ Codex should actively reference these docs while working:
 - `docs/reference/` for env and integration audit notes
 - `docs/process/TRACE_DRIVEN_DEVELOPMENT.md` for LangSmith-backed prompt/model/tool-call tuning
 - `docs/process/TEST_QUALITY_STANDARD.md` for repo-level test design rules, contract coverage, property tests, and mutation checks
-- `docs/process/STITCH_AUTOMATION.md` for the project-default automated Stitch flow and manual fallback rules
+- `docs/process/STITCH_AUTOMATION.md` for the Claude-direct default UI flow and Stitch alternate-mode rules
 - `docs/process/GIT_HYGIENE.md` for branch, commit, push, and merge gates
 - `docs/process/DEPLOYMENT_FLOW.md` for repo bootstrap, Railway CLI flow, and post-story deploy rules
 - `docs/design/MASTER_DESIGN.md` when preserving approved UI
