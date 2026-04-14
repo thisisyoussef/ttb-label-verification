@@ -17,14 +17,16 @@ import {
 } from '../shared/contracts/review';
 import { LOCAL_HELP_MANIFEST } from '../shared/help-fixture';
 import { BatchSessionStore } from './batch-session';
-import { buildGovernmentWarningCheck } from './government-warning-validator';
 import {
   createOpenAIReviewExtractor,
   readReviewExtractionConfig
 } from './openai-review-extractor';
-import { runTracedReviewExtraction } from './llm-trace';
+import {
+  runTracedExtractionSurface,
+  runTracedReviewSurface,
+  runTracedWarningSurface
+} from './llm-trace';
 import { REVIEW_EXTRACTION_MODE } from './llm-policy';
-import { buildVerificationReport } from './review-report';
 import { type ReviewExtractor } from './review-extraction';
 import {
   handleBatchUpload,
@@ -44,6 +46,11 @@ type CreateAppOptions = {
   clientDistDir?: string;
   extractor?: ReviewExtractor;
 };
+
+function readClientTraceId(request: express.Request) {
+  const raw = request.header('x-review-client-id')?.trim();
+  return raw && raw.length > 0 ? raw : undefined;
+}
 
 export function createApp(options: CreateAppOptions = {}) {
   const app = express();
@@ -93,19 +100,13 @@ export function createApp(options: CreateAppOptions = {}) {
         return;
       }
 
-      const extraction = await runTracedReviewExtraction({
-        surface: '/api/review',
-        extractionMode: REVIEW_EXTRACTION_MODE,
-        intake,
-        extractor: extractorResolution.extractor
-      });
-      const warningCheck = buildGovernmentWarningCheck(extraction);
-
       response.json(
-        buildVerificationReport({
+        await runTracedReviewSurface({
+          surface: '/api/review',
+          extractionMode: REVIEW_EXTRACTION_MODE,
+          clientTraceId: readClientTraceId(request),
           intake,
-          extraction,
-          warningCheck
+          extractor: extractorResolution.extractor
         })
       );
     });
@@ -122,9 +123,10 @@ export function createApp(options: CreateAppOptions = {}) {
         return;
       }
 
-      const extraction = await runTracedReviewExtraction({
+      const extraction = await runTracedExtractionSurface({
         surface: '/api/review/extraction',
         extractionMode: REVIEW_EXTRACTION_MODE,
+        clientTraceId: readClientTraceId(request),
         intake,
         extractor: extractorResolution.extractor
       });
@@ -143,13 +145,14 @@ export function createApp(options: CreateAppOptions = {}) {
         return;
       }
 
-      const extraction = await runTracedReviewExtraction({
+      const warningCheck = await runTracedWarningSurface({
         surface: '/api/review/warning',
         extractionMode: REVIEW_EXTRACTION_MODE,
+        clientTraceId: readClientTraceId(request),
         intake,
         extractor: extractorResolution.extractor
       });
-      response.json(checkReviewSchema.parse(buildGovernmentWarningCheck(extraction)));
+      response.json(checkReviewSchema.parse(warningCheck));
     });
   });
 

@@ -109,3 +109,5 @@ Use this checklist whenever Codex is the active lane owner for a story.
 - [ ] Before a reviewable push, run `npm run gate:push` and re-run the required local validation for the changed surface.
 - [ ] Before any QA-style handoff, final acceptance handoff, or claim that the branch is on GitHub, run `npm run gate:publish`.
 - [ ] If implementation happened in an isolated side worktree or branch, merge, rebase, or cherry-pick the finished diff back into the active delivery branch before final handoff.
+- [ ] Before any final "done" response on mergeable story work, confirm the story branch is already merged to `main` and that `origin/main` contains the change. If not, merge first or report the exact blocker.
+- [ ] If a PR exists or is being prepared, update the PR description with `.github/pull_request_template.md` and make sure tests added or updated, validation results, risks, screenshots or manual QA, and follow-ups match the real diff.

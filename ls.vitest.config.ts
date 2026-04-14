@@ -8,6 +8,7 @@ export default mergeConfig(
     test: {
       include: ['evals/**/*.eval.ts'],
       testTimeout: 30000,
+      hookTimeout: 120000,
       passWithNoTests: false
     }
   })

@@ -90,7 +90,11 @@ langsmith project list --format pretty
 langsmith trace list --project "$LANGSMITH_PROJECT" --limit 10 --format pretty
 langsmith trace get <trace-id> --project "$LANGSMITH_PROJECT" --full --format pretty
 langsmith run list --project "$LANGSMITH_PROJECT" --run-type llm --limit 20 --format pretty
+langsmith experiment list --limit 10 --format pretty
+langsmith experiment get <experiment-id> --format pretty
 ```
+
+For `langsmith/vitest` eval suites, do not stop at the experiment summary or the eval root run. Start from the experiment session id, inspect the example root runs under that experiment, then drill into the nested route-surface span whose name matches the surface under test (for example `ttb.review_surface.execution`, `ttb.extraction_surface.execution`, or `ttb.warning_surface.execution`).
 
 Look for:
 
@@ -100,6 +104,8 @@ Look for:
 - retry loops
 - brittle reasoning paths
 - inconsistent extraction on the same fixture
+- missing root surface spans that force you to infer route behavior from child LLM calls
+- missing stage timing summaries that hide where latency actually moved
 
 6. Change one variable at a time
 

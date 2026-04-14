@@ -51,6 +51,7 @@
 - LLM evaluation should stay endpoint-aware, mode-aware, and persona-aware: score the route graph the way Sarah, Dave, Jenny, Marcus, and Janet experience it instead of relying on corpus accuracy alone.
 - Endpoint-aware eval and trace artifacts must record extraction mode alongside endpoint surface, provider, prompt profile, and guardrail policy, even when only one live mode is implemented today.
 - Shared extraction tracing should wrap the capability once and feed the route surface into the wrapper instead of duplicating trace plumbing in each handler.
+- Route-aware trace review for `langsmith/vitest` evals should follow the path experiment session -> eval root run -> route-surface span -> stage spans; experiment summaries alone are not sufficient evidence.
 - Fixture-backed OpenAI clients are the preferred eval seam for route-aware LLM tests in this repo: they exercise the real extractor contract while keeping LangSmith traces privacy-safe and deterministic.
 - Route-aware golden evals should live beside reusable support modules (`evals/llm/support/*`) and select manifest slices by endpoint surface before any broader corpus expansion.
 - Cache-friendly request structuring is acceptable only for static prefixes; provider features that create durable storage of user-bearing content are not valid baseline latency solutions in this repo.

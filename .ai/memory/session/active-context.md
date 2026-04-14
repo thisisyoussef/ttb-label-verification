@@ -40,6 +40,6 @@
 - `TTB-209` uses that timing foundation to tune the default cloud hot path down to `<= 4,000 ms` and is the only planned story allowed to flip the visible latency budget from `5000` to `4000`.
 - `TTB-212` follows `TTB-209` and adds the Ollama/Qwen restricted-network local extraction path without changing the deterministic validator pipeline.
 - `TTB-210` follows `TTB-212` and hardens the shared extraction path with persona-centered prompt policy plus endpoint-aware and mode-aware structural guardrails across `/api/review`, `/api/review/extraction`, `/api/review/warning`, and batch item processing.
-- `TTB-211` is now complete under the explicit user override: `src/server/llm-trace.ts` tags the shared extraction capability with endpoint plus extraction-mode metadata, `evals/llm/*.eval.ts` provides the route-aware LangSmith fixture gate, and CI now runs `npm run eval:golden` before staging deploy can trigger.
+- `TTB-211` is now complete under the explicit user override: `src/server/llm-trace.ts` adds route-surface spans plus nested extraction, warning, and report stages with privacy-safe summaries, `evals/llm/*.eval.ts` provides the route-aware LangSmith fixture gate, `evals/results/2026-04-14-TTB-211.md` records the experiment sessions and representative surface run ids, and CI now runs `npm run eval:golden` before staging deploy can trigger.
 - Current contract anchor: `src/shared/contracts/review.ts`
 - Current progress tracker: `docs/process/SINGLE_SOURCE_OF_TRUTH.md`
