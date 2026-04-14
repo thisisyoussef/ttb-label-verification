@@ -49,6 +49,7 @@
 - Latency tuning should follow a two-step pattern: instrument stage timing first, then optimize the measured hot leg, and only after proof cut the visible `latencyBudgetMs` contract to the tighter target.
 - Prompt hardening should follow the same central-policy pattern as extraction routing: one shared extraction baseline, route-specific overlays for review/extraction/warning/batch, mode-specific overlays for cloud/local limits, and structural guardrails after schema parse instead of prompt strings embedded in route handlers.
 - LLM evaluation should stay endpoint-aware, mode-aware, and persona-aware: score the route graph the way Sarah, Dave, Jenny, Marcus, and Janet experience it instead of relying on corpus accuracy alone.
+- Endpoint-aware eval and trace artifacts must record extraction mode alongside endpoint surface, provider, prompt profile, and guardrail policy, even when only one live mode is implemented today.
 - Shared extraction tracing should wrap the capability once and feed the route surface into the wrapper instead of duplicating trace plumbing in each handler.
 - Fixture-backed OpenAI clients are the preferred eval seam for route-aware LLM tests in this repo: they exercise the real extractor contract while keeping LangSmith traces privacy-safe and deterministic.
 - Route-aware golden evals should live beside reusable support modules (`evals/llm/support/*`) and select manifest slices by endpoint surface before any broader corpus expansion.

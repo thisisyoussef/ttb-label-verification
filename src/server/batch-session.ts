@@ -20,6 +20,7 @@ import {
 import { buildGovernmentWarningCheck } from './government-warning-validator';
 import type { LlmEndpointSurface } from './llm-policy';
 import { runTracedReviewExtraction } from './llm-trace';
+import { REVIEW_EXTRACTION_MODE } from './llm-policy';
 import {
   createReviewExtractionFailure,
   type ReviewExtractor
@@ -368,6 +369,7 @@ export class BatchSessionStore {
     try {
       const extraction = await runTracedReviewExtraction({
         surface: input.surface,
+        extractionMode: REVIEW_EXTRACTION_MODE,
         intake,
         extractor: this.extractor,
         fixtureId: input.assignment.image.id

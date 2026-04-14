@@ -3,6 +3,7 @@ import { traceable } from 'langsmith/traceable';
 import type { ReviewExtraction } from '../shared/contracts/review';
 import {
   REVIEW_EXTRACTION_GUARDRAIL_POLICY,
+  REVIEW_EXTRACTION_MODE,
   REVIEW_EXTRACTION_PROMPT_PROFILE,
   REVIEW_EXTRACTION_PROVIDER,
   type LlmEndpointSurface
@@ -12,6 +13,7 @@ import type { ReviewExtractor } from './review-extraction';
 
 type TracedReviewExtractionInput = {
   surface: LlmEndpointSurface;
+  extractionMode?: string;
   intake: NormalizedReviewIntake;
   extractor: ReviewExtractor;
   fixtureId?: string;
@@ -91,6 +93,7 @@ const tracedReviewExtraction = traceable(
   run_type: 'chain',
   processInputs: (input: TracedReviewExtractionInput) => ({
     endpointSurface: input.surface,
+    extractionMode: input.extractionMode ?? REVIEW_EXTRACTION_MODE,
     provider: input.provider ?? REVIEW_EXTRACTION_PROVIDER,
     promptProfile: input.promptProfile ?? REVIEW_EXTRACTION_PROMPT_PROFILE,
     guardrailPolicy:

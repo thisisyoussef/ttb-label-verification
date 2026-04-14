@@ -1,6 +1,6 @@
 # Active Context
 
-- Current focus: `TTB-106` and `TTB-107` are complete across both lanes; `TTB-108` is now the next ready Claude story for the mode selector, `TTB-206` is the next blocking new Codex story, cloud extraction migration continues through `TTB-207`, cloud latency hardening is planned as `TTB-208` plus `TTB-209`, the restricted-network local mode is planned as `TTB-212`, and the user-centered prompt/guardrail/eval hardening follow-ons remain `TTB-210` plus `TTB-211`.
+- Current focus: `TTB-106`, `TTB-107`, and the current OpenAI-backed `TTB-211` override slice are complete; `TTB-108` is now the next ready Claude story for the mode selector, `TTB-206` is the next blocking new Codex story, cloud extraction migration continues through `TTB-207`, cloud latency hardening is planned as `TTB-208` plus `TTB-209`, the restricted-network local mode is planned as `TTB-212`, and the remaining user-centered prompt/guardrail hardening follow-on is `TTB-210`.
 - `TTB-107` is now published from the clean branch `codex/TTB-107-auth-publish` and merged into `main`: the packet is expanded, auth regression coverage lives in `src/client/auth-state.test.tsx`, and the root auth flow uses shared helper seams for phase advancement, delay selection, and sign-out reset orchestration.
 - Final verification for the `TTB-107` publish path passed after rebasing onto `origin/main`: `npm run test`, `npm run typecheck`, `npm run build`, `npm run gate:push`, and `npm run gate:publish`.
 - GitHub repo and Railway project are now live; the checked-in deploy flow uses GitHub Actions plus Railway CLI.
@@ -40,6 +40,6 @@
 - `TTB-209` uses that timing foundation to tune the default cloud hot path down to `<= 4,000 ms` and is the only planned story allowed to flip the visible latency budget from `5000` to `4000`.
 - `TTB-212` follows `TTB-209` and adds the Ollama/Qwen restricted-network local extraction path without changing the deterministic validator pipeline.
 - `TTB-210` follows `TTB-212` and hardens the shared extraction path with persona-centered prompt policy plus endpoint-aware and mode-aware structural guardrails across `/api/review`, `/api/review/extraction`, `/api/review/warning`, and batch item processing.
-- `TTB-211` is now in progress under explicit user override: `src/server/llm-trace.ts` tags the shared extraction capability with endpoint metadata, `evals/llm/*.eval.ts` provides the route-aware LangSmith fixture gate, and CI now runs `npm run eval:golden` before staging deploy can trigger.
+- `TTB-211` is now complete under the explicit user override: `src/server/llm-trace.ts` tags the shared extraction capability with endpoint plus extraction-mode metadata, `evals/llm/*.eval.ts` provides the route-aware LangSmith fixture gate, and CI now runs `npm run eval:golden` before staging deploy can trigger.
 - Current contract anchor: `src/shared/contracts/review.ts`
 - Current progress tracker: `docs/process/SINGLE_SOURCE_OF_TRUTH.md`

@@ -123,6 +123,7 @@ Update the packet and eval result with:
 
 - LangSmith project name
 - endpoint surface
+- extraction mode
 - provider
 - prompt profile or prompt-policy version
 - guardrail policy version

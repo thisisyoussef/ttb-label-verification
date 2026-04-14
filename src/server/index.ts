@@ -23,6 +23,7 @@ import {
   readReviewExtractionConfig
 } from './openai-review-extractor';
 import { runTracedReviewExtraction } from './llm-trace';
+import { REVIEW_EXTRACTION_MODE } from './llm-policy';
 import { buildVerificationReport } from './review-report';
 import { type ReviewExtractor } from './review-extraction';
 import {
@@ -94,6 +95,7 @@ export function createApp(options: CreateAppOptions = {}) {
 
       const extraction = await runTracedReviewExtraction({
         surface: '/api/review',
+        extractionMode: REVIEW_EXTRACTION_MODE,
         intake,
         extractor: extractorResolution.extractor
       });
@@ -122,6 +124,7 @@ export function createApp(options: CreateAppOptions = {}) {
 
       const extraction = await runTracedReviewExtraction({
         surface: '/api/review/extraction',
+        extractionMode: REVIEW_EXTRACTION_MODE,
         intake,
         extractor: extractorResolution.extractor
       });
@@ -142,6 +145,7 @@ export function createApp(options: CreateAppOptions = {}) {
 
       const extraction = await runTracedReviewExtraction({
         surface: '/api/review/warning',
+        extractionMode: REVIEW_EXTRACTION_MODE,
         intake,
         extractor: extractorResolution.extractor
       });

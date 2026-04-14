@@ -38,6 +38,8 @@ Run only the smallest applicable slice:
 - `endpoint-warning` for `/api/review/warning`
 - `endpoint-batch` for `/api/batch/run` and `/api/batch/retry`
 
+For endpoint slices, also record the extraction mode used. Today every checked-in endpoint eval run is `cloud`; add `local` counterparts once `TTB-212` lands.
+
 ## Structure
 
 - `golden/manifest.json` — canonical full golden set and slice catalog

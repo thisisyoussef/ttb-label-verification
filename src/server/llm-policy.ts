@@ -1,3 +1,4 @@
+export const REVIEW_EXTRACTION_MODE = 'cloud';
 export const REVIEW_EXTRACTION_PROVIDER = 'openai';
 export const REVIEW_EXTRACTION_PROMPT_PROFILE = 'review-extraction/openai-v1';
 export const REVIEW_EXTRACTION_GUARDRAIL_POLICY = 'structured-output-zod-v1';

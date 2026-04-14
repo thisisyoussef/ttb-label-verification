@@ -9,6 +9,7 @@ import { createReviewExtractionFailure } from './review-extraction';
 
 type TraceCallInput = {
   surface: string;
+  extractionMode?: string;
   fixtureId?: string;
   intake: NormalizedReviewIntake;
   extractor: ReviewExtractor;
@@ -254,6 +255,7 @@ describe('LLM route trace surfaces', () => {
       const traceInput = runTracedReviewExtractionMock.mock.calls[0]?.[0];
 
       expect(traceInput?.surface).toBe(surface);
+      expect(traceInput?.extractionMode).toBe('cloud');
       expect(traceInput?.extractor).toBe(extractor);
       expect(traceInput?.intake.label.originalName).toBe('label.png');
       expect(traceInput?.intake.fields.brandName).toBe('Trace Brand');
@@ -320,11 +322,17 @@ describe('LLM route trace surfaces', () => {
     expect(runTracedReviewExtractionMock.mock.calls[0]?.[0]?.surface).toBe(
       '/api/batch/run'
     );
+    expect(runTracedReviewExtractionMock.mock.calls[0]?.[0]?.extractionMode).toBe(
+      'cloud'
+    );
     expect(runTracedReviewExtractionMock.mock.calls[0]?.[0]?.fixtureId).toBe(
       'image-trace-001'
     );
     expect(runTracedReviewExtractionMock.mock.calls[1]?.[0]?.surface).toBe(
       '/api/batch/retry'
+    );
+    expect(runTracedReviewExtractionMock.mock.calls[1]?.[0]?.extractionMode).toBe(
+      'cloud'
     );
     expect(runTracedReviewExtractionMock.mock.calls[1]?.[0]?.fixtureId).toBe(
       'image-trace-001'

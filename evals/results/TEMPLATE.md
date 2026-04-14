@@ -12,12 +12,15 @@
 ## Endpoint context
 
 - Endpoint surface:
+- Extraction mode:
 - Provider:
 - Prompt profile:
 - Guardrail policy:
 - Trace mode: tracked / dry-run
 - LangSmith project:
 - Trace ids:
+- Latency notes:
+- Persona-specific observations:
 
 ## Cases run
 

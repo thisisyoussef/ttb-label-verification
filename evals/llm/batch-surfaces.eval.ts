@@ -3,6 +3,7 @@ import * as ls from 'langsmith/vitest';
 
 import {
   REVIEW_EXTRACTION_GUARDRAIL_POLICY,
+  REVIEW_EXTRACTION_MODE,
   REVIEW_EXTRACTION_PROMPT_PROFILE,
   REVIEW_EXTRACTION_PROVIDER
 } from '../../src/server/llm-policy';
@@ -44,6 +45,7 @@ ls.describe('TTB batch route golden evals', () => {
       endpointSurface: '/api/batch/run',
       caseId: caseItem.caseId,
       title: caseItem.title,
+      extractionMode: REVIEW_EXTRACTION_MODE,
       provider: REVIEW_EXTRACTION_PROVIDER,
       promptProfile: REVIEW_EXTRACTION_PROMPT_PROFILE,
       guardrailPolicy: REVIEW_EXTRACTION_GUARDRAIL_POLICY,

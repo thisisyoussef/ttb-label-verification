@@ -3,6 +3,7 @@ import * as ls from 'langsmith/vitest';
 
 import {
   REVIEW_EXTRACTION_GUARDRAIL_POLICY,
+  REVIEW_EXTRACTION_MODE,
   REVIEW_EXTRACTION_PROMPT_PROFILE,
   REVIEW_EXTRACTION_PROVIDER
 } from '../../src/server/llm-policy';
@@ -27,6 +28,7 @@ import {
 } from './support/output-summaries';
 
 const FIXTURE_TRACE_CONTEXT = {
+  extractionMode: REVIEW_EXTRACTION_MODE,
   provider: REVIEW_EXTRACTION_PROVIDER,
   promptProfile: REVIEW_EXTRACTION_PROMPT_PROFILE,
   guardrailPolicy: REVIEW_EXTRACTION_GUARDRAIL_POLICY,
