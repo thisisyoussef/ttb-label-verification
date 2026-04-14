@@ -100,6 +100,8 @@ Codex must block and redirect instead of improvising outside its lane.
 - Every single-label critical-path story needs measured timing, not just a budget claim.
 - Keep the suite pyramid-shaped and hermetic. Do not compensate for weak tests with more fragile end-to-end coverage.
 - If you touch `src/client/**` from the Codex lane, preserve the UI hygiene rules from `CLAUDE.md` and `AGENTS.md`: keep files under the 300-line soft cap and 500-line hard stop, avoid barrel files and deep nesting, and do not collapse multiple concerns into one component just because the change is "small".
+- Do not treat a planned change as local until you map its blast radius. Search for dependent routes, shared contracts, fixtures, evals, packet docs, handoff docs, and adjacent user flows before implementation.
+- If a story touches client shell, navigation, results, view-state, or target-anchor surfaces, inspect the guided-help dependents as part of that blast-radius pass: `src/shared/contracts/help.ts`, `src/shared/help-fixture.ts`, `src/server/help-routes.test.ts`, `src/client/help-runtime.ts`, `src/client/helpManifest.ts`, `src/client/tourTargets.ts`, `src/client/helpReplayState.ts`, `src/client/GuidedTourSpotlight.tsx`, and any affected `data-tour-target` anchors.
 - Treat `evals/golden/manifest.json` as the canonical golden set and `evals/labels/manifest.json` as the live image-backed core-six subset. Missing binaries under `evals/labels/assets/` are only live-run blockers, not generic implementation blockers.
 - Codex owns deployment scaffolding and release automation for this repo.
 - Prefer the local `railway` CLI for Railway bootstrap, status, log inspection, and manual spot checks.
@@ -117,20 +119,23 @@ Codex must block and redirect instead of improvising outside its lane.
    - `performance-budget.md` for single-label critical-path work
    - `eval-brief.md` for AI or grading changes
    - `trace-brief.md` for prompt/model/tool-call or agentic LLM tuning work
-5. Add or update a failing test derived from acceptance criteria and, when relevant, from the eval corpus.
-6. Choose the smallest viable test layer, add contract tests for boundary changes, and add property tests for broad-input pure logic where examples alone are weak.
-7. For high-risk pure logic such as validators, severity mapping, or comparison helpers, run a targeted mutation pass before closeout or record an explicit waiver.
-8. Change the smallest contract or module that satisfies the test.
-9. Refactor only after GREEN is established.
-10. If engineering exposes a broader UI-direction gap, record it back in `docs/backlog/codex-handoffs/<story-id>.md` instead of improvising a redesign. If the change is story-scoped and aligned, make it and document it.
-11. Run the relevant eval slice, trace loop, privacy checks, and measured timing before final handoff.
-12. Verify the result with `npm run test`, `npm run typecheck`, and `npm run build`.
-13. Run `npm run gate:commit` before a reviewable commit, `npm run gate:push` before a reviewable push, and `npm run gate:publish` before any handoff or reply that claims the branch is on GitHub.
-14. If the branch is published, validated, and mergeable, merge it into `main` before calling the work complete unless the user explicitly asks to hold it or a concrete blocker exists.
-15. If the story changed visible or repeatable runtime behavior, start the local app/server and hand the exact URL plus a concrete manual test script to the user.
-16. Do not use Playwright or other browser automation as the final acceptance gate for visible Codex stories.
-17. For deployable implementation stories, follow `docs/process/DEPLOYMENT_FLOW.md` and report staging-deploy status or the exact CI/Railway blocker.
-18. Update the presearch, spec packet, rule index, eval result, backlog item, deploy note, or memory docs when durable truth changes.
+5. Build a blast-radius map before coding. Search the repo for the files, symbols, routes, selectors, state transitions, fixtures, and docs you expect to touch; identify the direct and indirect dependents.
+6. If the change touches client shell or flow surfaces, inspect dependent guided-help surfaces before implementation: help manifest or fixture sources, help runtime, replay state, guided-tour runtime, help route tests, and the affected `data-tour-target` anchors.
+7. Add or update a failing test derived from acceptance criteria and, when relevant, from the eval corpus.
+8. Choose the smallest viable test layer, add contract tests for boundary changes, and add property tests for broad-input pure logic where examples alone are weak.
+9. For high-risk pure logic such as validators, severity mapping, or comparison helpers, run a targeted mutation pass before closeout or record an explicit waiver.
+10. Change the smallest contract or module that satisfies the test.
+11. Refactor only after GREEN is established.
+12. If engineering exposes a broader UI-direction gap, record it back in `docs/backlog/codex-handoffs/<story-id>.md` instead of improvising a redesign. If the change is story-scoped and aligned, make it and document it.
+13. Verify at least one adjacent dependent flow when the blast radius includes downstream consumers; if a related surface is intentionally unaffected, record why in the packet or handoff.
+14. Run the relevant eval slice, trace loop, privacy checks, and measured timing before final handoff.
+15. Verify the result with `npm run test`, `npm run typecheck`, and `npm run build`.
+16. Run `npm run gate:commit` before a reviewable commit, `npm run gate:push` before a reviewable push, and `npm run gate:publish` before any handoff or reply that claims the branch is on GitHub.
+17. If the branch is published, validated, and mergeable, merge it into `main` before calling the work complete unless the user explicitly asks to hold it or a concrete blocker exists.
+18. If the story changed visible or repeatable runtime behavior, start the local app/server and hand the exact URL plus a concrete manual test script to the user.
+19. Do not use Playwright or other browser automation as the final acceptance gate for visible Codex stories.
+20. For deployable implementation stories, follow `docs/process/DEPLOYMENT_FLOW.md` and report staging-deploy status or the exact CI/Railway blocker.
+21. Update the presearch, spec packet, rule index, eval result, backlog item, deploy note, or memory docs when durable truth changes.
 
 When touching `src/client/**` during engineering:
 

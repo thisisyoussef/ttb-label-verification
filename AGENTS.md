@@ -93,6 +93,7 @@ Use the checked-in docs deliberately, not as background noise:
 - When the user asks to continue work or move to the next story, run `.ai/workflows/continue-next-story.md`.
 - Run `.ai/workflows/story-lookup.md` before meaningful implementation.
 - Run `.ai/workflows/story-sizing.md` to classify the task as `trivial` or `standard`.
+- Before implementation, map the blast radius for the surfaces the story will touch. Search for dependent routes, shared contracts, fixtures, evals, packet docs, handoff docs, and adjacent user flows that consume those surfaces instead of assuming the change is local.
 - Treat `docs/specs/<story-id>/` as the universal story packet for both frontend and backend work. Claude and Codex read the same packet and update the parts owned by their lane.
 - Use `docs/specs/FULL_PRODUCT_SPEC.md` plus `docs/specs/PROJECT_STORY_INDEX.md` as the full checked-in map of the product. The legacy `TTB-001` through `TTB-004` folders are umbrella packets; the `TTB-1xx`, `TTB-2xx`, `TTB-3xx`, and `TTB-4xx` stories are the executable leaf queue.
 - A planning-stage leaf story may begin as `docs/specs/<story-id>/story-packet.md`. Any agent may create or expand that compact packet into the standard artifact set when moving the story forward. Lane ownership still controls which parts of the packet, implementation, and handoff each agent may complete.
@@ -133,6 +134,8 @@ Use the checked-in docs deliberately, not as background noise:
 - Add contract tests when a route boundary, shared payload, or provider payload changes.
 - Add property tests when changing broad-input pure logic such as normalizers, comparators, parsers, or tolerance checks.
 - For high-risk pure logic such as validators, severity mapping, or comparison helpers, run a targeted mutation pass with `npm run test:mutation -- --mutate "<path>"` or record why it would not add signal.
+- Codex must map direct and indirect dependents before implementation. If a story changes a route, shared contract, selector, seeded scenario, view-state transition, or shell surface, identify the adjacent flows that consume it and treat them as in-scope for tests, docs, and handoff notes.
+- When changing UI that the guided review or contextual help layer depends on, inspect and update the affected help surfaces before handoff: `src/shared/contracts/help.ts`, `src/shared/help-fixture.ts`, `src/server/help-routes.test.ts`, `src/client/help-runtime.ts`, `src/client/helpManifest.ts`, `src/client/tourTargets.ts`, `src/client/helpReplayState.ts`, `src/client/GuidedTourSpotlight.tsx`, and any changed `data-tour-target` anchors in the UI.
 - Keep the first model pass narrow: extract structured facts from label/application inputs. Do not ask the model to decide compliance holistically.
 - For LLM or agentic tuning work, use trace-driven development alongside TDD: trace the smallest approved fixture slice, inspect LangSmith, adjust one variable at a time, and record the winning traces.
 - Run deterministic checks after extraction: government warning text, required-field presence, formatting rules, cross-field consistency, and beverage-type rules.
@@ -179,6 +182,7 @@ Refresh the smallest set needed after each story:
 - For prompt, model, tool-calling, or agentic LLM stories, run `.ai/workflows/trace-driven-development.md`, verify `npm run langsmith:smoke`, and record the trace ids or exported evidence in the packet and `evals/results/`.
 - For upload or model stories, verify `privacy-checklist.md` items explicitly, including `store: false`, no durable files, and no raw sensitive logging.
 - For visible runtime changes that depend on submitted inputs, verify with a non-default manual spot-check that the returned payload and rendered result reflect the actual entered values, not just seeded defaults.
+- When the blast radius includes downstream dependents, verify at least one adjacent dependent flow before handoff. For shell, navigation, results, or target-anchor changes, explicitly verify the guided tour, replay/help state, or other affected consumer path, or record why it is unaffected.
 - For latency-sensitive single-label stories, include measured timings against `performance-budget.md` before final handoff.
 - Run `.ai/workflows/story-handoff.md` and include the correct handoff type for the story: lane redirect, direction, Stitch prep, visual review, UI-to-Codex backlog handoff, QA-style review, or final acceptance.
 - Start the dev server when the scaffold or UI changes materially, and use that same route in the user visual-review handoff.

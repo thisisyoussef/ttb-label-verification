@@ -40,6 +40,14 @@ Use this checklist whenever Codex is the active lane owner for a story.
 - [ ] `docs/rules/README.md`, `docs/rules/RULE_SOURCE_INDEX.md`, and `evals/README.md` for validator or AI behavior work
 - [ ] `src/shared/contracts/review.ts`
 
+## Blast-radius map
+
+- [ ] Before coding, list the files, routes, contracts, selectors, fixtures, state transitions, and docs the story is expected to touch.
+- [ ] Search for each planned touchpoint with `rg` and record the direct dependents before making changes.
+- [ ] Include adjacent consumers in the blast radius: shared contracts, API routes, seeded scenarios, fixtures, evals, packet docs, backlog handoffs, and user-visible flows that rely on the changed surface.
+- [ ] If the story touches client shell, navigation, results, view-state, or target-anchor surfaces, inspect the guided-help stack: `src/shared/contracts/help.ts`, `src/shared/help-fixture.ts`, `src/server/help-routes.test.ts`, `src/client/help-runtime.ts`, `src/client/helpManifest.ts`, `src/client/tourTargets.ts`, `src/client/helpReplayState.ts`, `src/client/GuidedTourSpotlight.tsx`, plus affected `data-tour-target` anchors.
+- [ ] If a dependent surface is intentionally unchanged, note the reason in the packet or handoff instead of assuming it.
+
 ## Packet and implementation setup
 
 - [ ] Treat `docs/specs/<story-id>/` as the universal story packet and complete the engineering parts there rather than creating a separate backend-only spec.
@@ -79,6 +87,7 @@ Use this checklist whenever Codex is the active lane owner for a story.
 - [ ] Run `npm run test`.
 - [ ] Run `npm run typecheck`.
 - [ ] Run `npm run build`.
+- [ ] If the blast radius includes downstream consumers, verify at least one adjacent dependent flow before handoff and record the result.
 - [ ] For visible runtime changes that depend on submitted input, run at least one manual or route-level spot-check with non-default values and confirm the returned payload reflects those exact values.
 - [ ] If the story changed visible or repeatable runtime behavior, start the local app/server and prepare a user-facing manual test handoff with the exact local URL, steps, and expected results.
 - [ ] Do not rely on Playwright or other browser automation as the final acceptance gate for visible Codex stories; use the user handoff instead.

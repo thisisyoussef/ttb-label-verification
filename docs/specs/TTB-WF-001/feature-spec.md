@@ -16,6 +16,7 @@ The repo has a light harness, but it does not yet enforce the default gauntlet w
 - Behavior changes must run through RED -> GREEN -> REFACTOR.
 - Durable lessons survive in checked-in memory instead of chat only.
 - Review and acceptance handoffs cannot claim GitHub visibility until the story branch is actually published.
+- Codex maps dependent surfaces before implementation so related flows do not silently regress.
 
 ## Acceptance criteria
 
@@ -26,12 +27,14 @@ The repo has a light harness, but it does not yet enforce the default gauntlet w
 5. Repo-managed git hooks and a publish gate make unpublished branch state a workflow blocker instead of a reminder.
 6. The repo keeps a checked-in evaluator-facing README and submission baseline that document deliverables, approach, tools, assumptions, and evaluation framing from current checked-in truth.
 7. The repo treats “published, validated, mergeable, but still unmerged” as a workflow failure for normal story branches, with explicit exceptions for backup and maintenance refs.
+8. Story lookup and the Codex checklist require a blast-radius pass before implementation, including dependent help or tour surfaces when a change moves shell, flow, or target-anchor behavior they rely on.
 
 ## Edge cases
 
 - Small trivial edits should not require the full spec packet.
 - UI-only stories should still use the same spec flow when they are non-trivial.
 - Workflow docs must not contradict current package commands.
+- Blast-radius guidance must name concrete dependent surfaces, not vague “test more” advice.
 
 ## Out of scope
 

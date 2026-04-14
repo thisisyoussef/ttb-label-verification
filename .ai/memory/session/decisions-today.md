@@ -22,6 +22,7 @@
 - Require Claude to self-review automated Stitch output before asking the user to review it, and rerun/tweak when the generated result is obviously off-target.
 - Allow Codex to advance tracker-marked parallel-safe Codex-only stories without waiting for Claude to finish an unrelated active UI story.
 - After an initial Claude-created UI exists, allow Codex to make story-scoped UI refinements during engineering instead of restricting Codex to non-design wiring only.
+- Require Codex to perform an explicit blast-radius pass before implementation and name dependent guided-help surfaces when shell or target-anchor changes could break the tour/help layer.
 - Add checked-in branch, commit, push, and merge gates plus shared local gate commands so story work stays on story branches and deploy branches remain protected by workflow.
 - Use GitHub Actions plus Railway CLI for deploys: `main` pushes deploy staging, `production` pushes deploy production, and production promotion is explicit.
 - Do not add a database as part of the current proof-of-concept foundation; the checked-in product direction remains no DB, no queue, and no background jobs unless presearch changes.

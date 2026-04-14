@@ -62,6 +62,7 @@
 - Guided tours should resolve against live runtime state through a dedicated helper rather than assuming the happy path in component code; each step needs explicit recovery actions for missing prerequisites and a deterministic demo path when the flow must continue without live backend work.
 - When a guided-tour target triggers async work in the real app, keep "interaction advance" separate from "footer Next": target clicks should wait for the downstream state transition before advancing, and failures should recover into a deterministic demo state instead of leaving the next step without its anchor.
 - Overlay callouts that depend on spotlighted targets should measure their rendered height and clamp to viewport-safe margins instead of relying on fixed-height estimates; long procedural copy is normal in this product.
+- Codex workflow changes should force a blast-radius pass before implementation: when a story moves shell, navigation, results, view-state, selectors, or target anchors, inspect dependent guided-help surfaces instead of assuming the change is isolated.
 
 ## Documentation pattern
 
@@ -73,5 +74,6 @@
 - `docs/specs/<story-id>/` is the universal story contract shared by both lanes.
 - `.ai/workflows/story-handoff.md` is also used for lane redirects, not only review checkpoints.
 - `.ai/workflows/continue-next-story.md` is the routing algorithm for `continue` and `continue with the next story`.
+- `.ai/workflows/story-lookup.md` and `docs/process/CODEX_CHECKLIST.md` now require an explicit blast-radius map before Codex implementation.
 - `docs/process/DEPLOYMENT_FLOW.md` is the canonical post-story deploy procedure.
 - `evals/` stores the required label corpus and run records.

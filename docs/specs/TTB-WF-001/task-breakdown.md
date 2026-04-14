@@ -41,3 +41,9 @@
 - Objective: treat unmerged-but-reviewable branches as a workflow failure by updating the agent contracts and merge-gate docs
 - Dependency: `parallel`
 - Validation: `AGENTS.md`, `CLAUDE.md`, `.ai/codex.md`, `.ai/agents/claude.md`, and `docs/process/GIT_HYGIENE.md` all describe the same merge-default rule and the same `archive/*` / `rewrite/*` / `production` exceptions
+
+## Task 8
+
+- Objective: require Codex to map blast radius and dependent flows before implementation, with explicit guided-help examples for client-shell changes
+- Dependency: `parallel`
+- Validation: `AGENTS.md`, `.ai/codex.md`, `.ai/workflows/story-lookup.md`, and `docs/process/CODEX_CHECKLIST.md` all require the same blast-radius pass and name the same guided-help dependent surfaces
