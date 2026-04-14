@@ -15,6 +15,7 @@ interface ResultsProps {
   image: LabelImage;
   beverage: BeverageSelection;
   report: UIVerificationReport;
+  tourExpandedCheckId?: string | null;
   onNewReview: () => void;
   onRunFullComparison: () => void;
   onTryAnotherImage: () => void;
@@ -27,6 +28,7 @@ export function Results({
   image,
   beverage,
   report,
+  tourExpandedCheckId = null,
   onNewReview,
   onRunFullComparison,
   onTryAnotherImage,
@@ -34,7 +36,7 @@ export function Results({
   onExportResults,
   exportEnabled
 }: ResultsProps) {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(tourExpandedCheckId);
   const rowRefs = useMemo(() => new Map<string, HTMLButtonElement>(), []);
   const workingAreaRef = useRef<HTMLElement | null>(null);
 
@@ -46,6 +48,18 @@ export function Results({
   const toggleRow = useCallback((id: string) => {
     setExpandedId((previous) => (previous === id ? null : id));
   }, []);
+
+  useEffect(() => {
+    if (!tourExpandedCheckId) return;
+
+    const hasMatchingRow =
+      report.checks.some((check) => check.id === tourExpandedCheckId) ||
+      report.crossFieldChecks.some((check) => check.id === tourExpandedCheckId);
+
+    if (hasMatchingRow) {
+      setExpandedId(tourExpandedCheckId);
+    }
+  }, [report.checks, report.crossFieldChecks, tourExpandedCheckId]);
 
   const handleKeyNav = useCallback(
     (event: React.KeyboardEvent<HTMLButtonElement>, id: string) => {

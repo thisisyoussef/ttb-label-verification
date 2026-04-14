@@ -259,7 +259,7 @@
             },
             "id": "954ab6272ee242af80dd9c20ec828325",
             "name": "projects/3197911668966401642/screens/954ab6272ee242af80dd9c20ec828325",
-            "prompt": "Composition 2 — Signed-in shell header with identity. Render the existing workstation header: product title \"TTB Label Verification Assistant\", tagline \"AI-assisted compliance checking\", \"Single | Batch\" toggle, developer controls, and \"Guided review\" button. ADD a new identity block on the far right: \"Sarah Chen · ALFD\" and a bordered \"Sign out\" button (logout icon). Beneath the header, render the content from the single-label results view {{DATA:SCREEN:SCREEN_8}} to show the identity in context. Preserve the industrial-precision style and privacy footer.",
+            "prompt": "Composition 2 — Signed-in shell header with identity. Render the existing workstation header: product title \"TTB Label Verification Assistant\", tagline \"AI-assisted compliance checking\", \"Single | Batch\" toggle, developer controls, and \"Guided tour\" button. ADD a new identity block on the far right: \"Sarah Chen · ALFD\" and a bordered \"Sign out\" button (logout icon). Beneath the header, render the content from the single-label results view {{DATA:SCREEN:SCREEN_8}} to show the identity in context. Preserve the industrial-precision style and privacy footer.",
             "screenMetadata": {
               "agentType": "PRO_AGENT",
               "status": "COMPLETE"

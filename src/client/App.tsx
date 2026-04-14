@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppShell } from './AppShell';
 import { AuthScreen } from './AuthScreen';
-import type { AuthPhase } from './authState';
+import {
+  advanceAuthPhase,
+  applyMockAuthSignOutReset,
+  type AuthPhase
+} from './authState';
 import type { Mode, View } from './appTypes';
 import {
+  isTourNextDisabled,
   resolvePendingVerifyAdvanceAction,
+  resolveTourExpandedCheckId,
   resolveTourInteractionAction,
-  resolveTourNextAction,
   resolveTourStep,
   type TourRuntimeContext
 } from './help-tour-runtime';
@@ -125,6 +130,16 @@ export function App() {
     return resolvedTourSteps[index] ?? null;
   }, [help.tourStepIndex, resolvedTourSteps]);
 
+  const tourExpandedCheckId = useMemo(
+    () => (currentTourStep ? resolveTourExpandedCheckId(currentTourStep, tourContext) : null),
+    [currentTourStep, tourContext]
+  );
+
+  const tourNextDisabled = useMemo(
+    () => (currentTourStep ? isTourNextDisabled(currentTourStep, tourContext) : false),
+    [currentTourStep, tourContext]
+  );
+
   const onTourNext = useCallback(() => {
     setPendingVerifyTourAdvance(false);
 
@@ -133,17 +148,12 @@ export function App() {
       return;
     }
 
-    const next = resolveTourNextAction(currentTourStep, tourContext);
-    if (next.kind === 'advance') {
-      help.onNextTourStep();
+    if (tourNextDisabled) {
       return;
     }
 
-    onTourShowMe(next.action);
-    if (next.advance) {
-      help.onNextTourStep();
-    }
-  }, [currentTourStep, help, onTourShowMe, tourContext]);
+    help.onNextTourStep();
+  }, [currentTourStep, help, tourNextDisabled]);
 
   const onTourAdvanceInteraction = useCallback(() => {
     if (!currentTourStep) {
@@ -217,14 +227,7 @@ export function App() {
         onStartSsoForm={() => setAuthPhase('sso-form')}
         onBackFromSso={() => setAuthPhase('signed-out')}
         onSubmitSso={() => setAuthPhase('sso-loading')}
-        onPhaseComplete={() => {
-          setAuthPhase((previous) => {
-            if (previous === 'piv-loading') return 'piv-success';
-            if (previous === 'sso-loading') return 'sso-success';
-            if (previous === 'piv-success' || previous === 'sso-success') return 'signed-in';
-            return previous;
-          });
-        }}
+        onPhaseComplete={() => setAuthPhase((previous) => advanceAuthPhase(previous))}
       />
     );
   }
@@ -240,16 +243,20 @@ export function App() {
       fixtureControlsEnabled={fixtureControlsEnabled}
       single={single}
       batch={batch}
+      tourExpandedCheckId={tourExpandedCheckId}
+      tourNextDisabled={tourNextDisabled}
       onSelectMode={(next) => batch.onSelectMode(next, mode)}
-      onSignOut={() => {
-        setPendingVerifyTourAdvance(false);
-        single.reset();
-        batch.reset();
-        help.reset();
-        setMode('single');
-        setView('intake');
-        setAuthPhase('signed-out');
-      }}
+      onSignOut={() =>
+        applyMockAuthSignOutReset({
+          setPendingVerifyTourAdvance,
+          resetSingle: single.reset,
+          resetBatch: batch.reset,
+          resetHelp: help.reset,
+          setMode,
+          setView,
+          setAuthPhase
+        })
+      }
       onTourNext={onTourNext}
       onTourAdvanceInteraction={onTourAdvanceInteraction}
       onTourFinish={onTourFinish}

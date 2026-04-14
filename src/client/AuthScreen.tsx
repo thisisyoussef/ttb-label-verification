@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { AuthPhase } from './authState';
-import { AUTH_IDENTITY, AUTH_TIMINGS } from './authState';
+import { AUTH_IDENTITY, getAuthAutoAdvanceDelay } from './authState';
 
 interface AuthScreenProps {
   phase: AuthPhase;
@@ -30,15 +30,11 @@ export function AuthScreen({
   }, [phase]);
 
   useEffect(() => {
-    if (phase === 'piv-loading' || phase === 'sso-loading') {
-      const handle = window.setTimeout(onPhaseComplete, AUTH_TIMINGS.loadingMs);
-      return () => window.clearTimeout(handle);
-    }
-    if (phase === 'piv-success' || phase === 'sso-success') {
-      const handle = window.setTimeout(onPhaseComplete, AUTH_TIMINGS.successMs);
-      return () => window.clearTimeout(handle);
-    }
-    return undefined;
+    const delay = getAuthAutoAdvanceDelay(phase);
+    if (delay === null) return undefined;
+
+    const handle = window.setTimeout(onPhaseComplete, delay);
+    return () => window.clearTimeout(handle);
   }, [phase, onPhaseComplete]);
 
   const handleSsoSubmit = (event: React.FormEvent) => {

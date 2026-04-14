@@ -17,7 +17,7 @@ export function HelpLauncher({
         type="button"
         onClick={onLaunch}
         aria-pressed={active}
-        aria-label="Open guided review"
+        aria-label="Open guided tour"
         data-tour-target="tour-launcher"
         className={[
           'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-label font-bold uppercase tracking-widest transition-all focus-visible:outline-2 focus-visible:outline-offset-2 border',
@@ -29,7 +29,7 @@ export function HelpLauncher({
         <span aria-hidden="true" className="material-symbols-outlined text-[16px]">
           school
         </span>
-        Guided review
+        Guided tour
       </button>
       {showNudge ? (
         <div

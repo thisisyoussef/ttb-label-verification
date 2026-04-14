@@ -66,6 +66,15 @@ describe('help runtime', () => {
     );
   });
 
+  it('uses the plain-language warning help copy in the local fixture', () => {
+    expect(
+      getTourSteps().find((step) => step.anchorKey === 'warning-evidence')?.body,
+    ).toContain('highlights the exact wording, punctuation, or capitalization');
+    expect(findInfoPopover('warning-evidence')?.body).toContain(
+      'The text comparison below highlights the exact words, letters, or punctuation',
+    );
+  });
+
   it('falls back to the local fixture when the remote manifest payload is invalid', async () => {
     const fetcher = vi.fn(async () =>
       createJsonResponse({

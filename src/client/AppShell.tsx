@@ -26,6 +26,8 @@ interface AppShellProps {
   single: SingleReviewFlow;
   batch: BatchWorkflow;
   help: HelpTourFlow;
+  tourExpandedCheckId?: string | null;
+  tourNextDisabled?: boolean;
   onSelectMode: (next: Mode) => void;
   onSignOut: () => void;
   onTourNext: () => void;
@@ -41,6 +43,8 @@ export function AppShell({
   single,
   batch,
   help,
+  tourExpandedCheckId = null,
+  tourNextDisabled = false,
   onSelectMode,
   onSignOut,
   onTourNext,
@@ -227,6 +231,7 @@ export function AppShell({
               image={single.image}
               beverage={single.beverage}
               report={single.report}
+              tourExpandedCheckId={tourExpandedCheckId}
               onNewReview={single.onNewReview}
               onRunFullComparison={single.onRunFullComparison}
               onTryAnotherImage={single.onTryAnotherImage}
@@ -314,6 +319,7 @@ export function AppShell({
           onClose={help.onCloseTour}
           onPrevious={help.onPreviousTourStep}
           onNext={onTourNext}
+          nextDisabled={tourNextDisabled}
           onAdvanceInteraction={onTourAdvanceInteraction}
           onFinish={onTourFinish}
           onShowMe={onTourShowMe}

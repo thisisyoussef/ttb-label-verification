@@ -15,6 +15,8 @@
 - Record the local env audit and treat `OPENAI_API_KEY` as the only required live product key for the MVP path.
 - Add `npm run env:bootstrap` plus automatic server-side `.env` loading so agents stop reporting missing repo-local OpenAI config when the key already exists in the local gauntlet env inventory.
 - Wire LangSmith into the repo as an opt-in trace-driven development path: bootstrap the key from local env inventory, keep tracing off by default, verify with `npm run langsmith:smoke`, and use checked-in trace briefs plus LangSmith inspection for future LLM stories.
+- Require a checked-in `user-flow-map.md` before implementing visible or branch-heavy stories so planning explicitly covers empty, disabled, loading, failure, retry, cancel, reset, and other user-visible branches.
+- Require a checked-in `observability-plan.md` for async or state-machine-heavy stories so debugging uses sanitized step-level logs/traces and explicit correlation fields instead of screenshots and inference alone.
 - Make `STITCH_FLOW_MODE=claude-direct` the workspace default for UI work, and keep automated Stitch plus manual Comet as explicit alternate flows instead of the default.
 - Keep the automated Stitch path guarded by process-level timeouts and preserve the post-generation user review gate instead of auto-implementing from unreviewed generated refs.
 - Hardwire the canonical Stitch project id `3197911668966401642` into the local harness so smoke tests and automated story runs prefer `TTB Label Verification System` deterministically.
@@ -31,7 +33,7 @@
 - Treat earlier workflow and eval stories as hard gates before later feature pickup.
 - For `TTB-101`, Codex may make narrow `src/client/**` integration edits to stitch the approved UI into live behavior without changing design.
 - For visible Codex stories, the acceptance handoff should give the running local URL and a manual user test script instead of relying on Playwright automation.
-- Plan future onboarding/help as an optional, replayable guided-review system with typed manifests and no server-side persistence, not as a forced first-run tutorial.
+- Plan future onboarding/help as an optional, replayable guided-tour system with typed manifests and no server-side persistence, not as a forced first-run tutorial.
 - For `TTB-201`, cut the shared review contract over directly to the approved `verdict`/`counts`/`extractionQuality` results model and migrate the seed fixture in the same change.
 - For `TTB-201`, alias client fixture/report types from `src/shared/contracts/review.ts` instead of preserving a duplicate results interface tree.
 - For `TTB-202`, treat omitted or blank multipart `fields` as a valid standalone request instead of a validation failure.
@@ -65,11 +67,17 @@
 - Add `TTB-108` as the Claude-first UI story for the compact cloud/local selector, and add `TTB-212` as the Codex story for the Ollama/Qwen local extraction path.
 - Do not let explicit local mode silently fall back to cloud providers; the whole point of the mode is to prove a no-cloud path.
 - For `TTB-106`, move the canonical help manifest into shared code, serve it through a deterministic `GET /api/help/manifest` route, and keep the approved client fixture as the offline fallback rather than maintaining two divergent help content sources.
-- For `TTB-106` follow-up tour hardening, keep click-to-advance and footer `Next` as separate paths: real target clicks should only advance the tour, while footer `Next` should run state-aware recovery or skip-ahead actions when the current step is not already satisfied.
+- For `TTB-106` follow-up tour hardening, keep click-to-advance and footer `Next` as separate paths: real target clicks should only advance the tour, while footer `Next` should stay disabled on action steps until the required state exists.
 - For the `TTB-106` spotlight callout, do not position from a hardcoded height estimate; measure the rendered card and clamp it to viewport-safe margins so longer step copy cannot push the footer off-screen.
 - For the `TTB-106` tour exit path, `Finish` should leave the reviewer signed in and reset the shell to blank single-label intake rather than preserving the last demo state or returning to auth.
 - For the `TTB-106` Verify step, never advance the tour from the button click alone when the underlying control starts async work; advance only from the resulting state transition, and recover to deterministic sample results if live processing fails mid-tour.
+- When guided-tour interaction state is set from a native click listener on a real control, do not clear that pending state just because the shell briefly re-renders the pre-submit view before React finishes the actual transition.
+- For tour steps that explain evidence inside an expandable row, loading the right scenario is not enough; the tour should also materialize the expanded evidence state so the spotlight lands on the content the step is describing.
+- For fixed-position overlays, keep spotlight target geometry in viewport coordinates. Mixing in document scroll offsets will misplace the highlight on scrolled pages even if the target selection is otherwise correct.
 - Split the requested user-centered LLM hardening into two Codex-only follow-ons after the provider and latency work: `TTB-210` for prompt policy plus endpoint guardrails, then `TTB-211` for endpoint-aware eval scorecards and trace regression gates.
 - Treat "all LLM endpoints" as one shared extraction capability reused by four route families today, not as four unrelated prompt systems.
 - Under explicit user override, land the `TTB-211` route-aware eval and tracing foundation early against the current OpenAI-backed route graph rather than waiting for the normal queue to reach it.
 - Use a fixture-backed OpenAI client seam plus `langsmith/vitest` suites so CI can gate staging on endpoint behavior without requiring live label binaries or real user submissions.
+- Pick up `TTB-107` in parallel on `codex/TTB-107-auth-regression` while `TTB-106` finalizes because SSOT marks it the earliest `ready-parallel` Codex handoff.
+- Keep the `TTB-107` auth hardening inside the existing client stack by extracting pure helpers (`advanceAuthPhase`, `getAuthAutoAdvanceDelay`, `applyMockAuthSignOutReset`) instead of adding a new DOM-interaction test harness.
+- Treat the sign-out confirm `Cancel` and auto-dismiss branches as manual-QA branches for now; the repo's current client test surface remains pure/SSR rather than DOM-interaction driven.

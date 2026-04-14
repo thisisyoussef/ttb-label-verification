@@ -32,7 +32,6 @@ export function FieldRow({
 
   return (
     <article
-      data-tour-target={isWarning ? 'tour-warning-row' : undefined}
       className={[
         'bg-surface-container-lowest rounded-lg shadow-sm overflow-hidden ring-1 ring-outline-variant/15 border-l-4',
         STATUS_BORDER[check.status]

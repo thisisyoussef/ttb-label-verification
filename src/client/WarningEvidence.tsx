@@ -13,7 +13,10 @@ export function WarningEvidencePanel({ check }: WarningEvidencePanelProps) {
   if (!warning) return null;
 
   return (
-    <div className="flex flex-col gap-8 px-6 md:px-8 pt-4 pb-8">
+    <div
+      data-tour-target="tour-warning-row"
+      className="flex flex-col gap-8 px-6 md:px-8 pt-4 pb-8"
+    >
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <section className="flex flex-col gap-4">
           <h4 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant border-b border-outline-variant/20 pb-2 flex items-center gap-2">
@@ -67,7 +70,7 @@ export function WarningEvidencePanel({ check }: WarningEvidencePanelProps) {
 
       <section className="flex flex-col gap-3">
         <h4 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
-          Literal comparison
+          Text comparison
         </h4>
         <WarningDiff segments={warning.segments} />
       </section>

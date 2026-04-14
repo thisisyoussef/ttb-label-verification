@@ -32,15 +32,9 @@ export interface TourRuntimeContext {
   processingPhase?: ProcessingPhase;
 }
 
-export type TourNextAction =
-  | {
-      kind: 'advance';
-    }
-  | {
-      kind: 'show-me';
-      action: HelpShowMe;
-      advance: boolean;
-    };
+export type TourNextAction = {
+  kind: 'advance';
+};
 
 export type TourInteractionAction =
   | {
@@ -64,6 +58,53 @@ export type PendingVerifyAdvanceAction =
   | {
       kind: 'clear';
     };
+
+export function isTourNextDisabled(
+  step: TourStep,
+  context: TourRuntimeContext
+): boolean {
+  if (step.target === 'tour-drop-zone') {
+    return context.mode !== 'single' || context.view !== 'intake' || !context.hasImage;
+  }
+
+  if (step.target === 'tour-verify-button') {
+    return context.view !== 'results' || !context.hasReport;
+  }
+
+  if (step.anchorKey === 'verdict-and-checklist') {
+    return context.view !== 'results' || !context.hasReport;
+  }
+
+  if (step.anchorKey === 'warning-evidence') {
+    return (
+      context.view !== 'results' ||
+      !context.hasReport ||
+      context.scenarioId !== WARNING_TOUR_SCENARIO_ID
+    );
+  }
+
+  if (step.anchorKey === 'batch-matching') {
+    return context.mode !== 'batch';
+  }
+
+  return false;
+}
+
+export function resolveTourExpandedCheckId(
+  step: TourStep,
+  context: TourRuntimeContext
+): string | null {
+  if (
+    step.anchorKey === 'warning-evidence' &&
+    context.view === 'results' &&
+    context.hasReport &&
+    context.scenarioId === WARNING_TOUR_SCENARIO_ID
+  ) {
+    return step.requires?.expandRowId ?? null;
+  }
+
+  return null;
+}
 
 function buildLoadScenarioAction(label: string, scenarioId: string): HelpShowMe {
   return {
@@ -92,17 +133,6 @@ function buildReturnToIntakeAction(label = 'Return to intake'): HelpShowMe {
     payload: {
       mode: 'single',
       view: 'intake'
-    }
-  };
-}
-
-function buildBatchIntakeAction(label = 'Open Batch mode'): HelpShowMe {
-  return {
-    label,
-    action: 'advance-view',
-    payload: {
-      mode: 'batch',
-      view: 'batch-intake'
     }
   };
 }
@@ -154,7 +184,7 @@ export function resolveTourStep(
       return {
         ...step,
         interaction: undefined,
-        cta: 'Verification is running. Wait for results, or click Next to skip ahead.',
+        cta: 'Verification is running. Wait for results to continue.',
         showMe: undefined
       };
     }
@@ -202,9 +232,9 @@ export function resolveTourStep(
     ) {
       return {
         ...step,
-        cta: 'Load the warning-defect example to inspect the failed sub-checks and diff.',
+        cta: 'Load the failing label to review the failed checks and highlighted text.',
         showMe: buildResultsAction(
-          'Show warning defect',
+          'Load failing label',
           WARNING_TOUR_SCENARIO_ID
         )
       };
@@ -213,7 +243,7 @@ export function resolveTourStep(
     return {
       ...step,
       showMe: undefined,
-      cta: 'Open the warning row to inspect the failed sub-checks and diff.'
+      cta: 'Review the failed checks and highlighted text in the expanded warning evidence.'
     };
   }
 
@@ -230,79 +260,9 @@ export function resolveTourStep(
 }
 
 export function resolveTourNextAction(
-  step: TourStep,
-  context: TourRuntimeContext
+  _step: TourStep,
+  _context: TourRuntimeContext
 ): TourNextAction {
-  if (step.target === 'tour-drop-zone') {
-    if (context.mode !== 'single' || context.view !== 'intake' || !context.hasImage) {
-      return {
-        kind: 'show-me',
-        action: buildLoadScenarioAction('Prepare sample', DEFAULT_TOUR_SCENARIO_ID),
-        advance: true
-      };
-    }
-
-    return { kind: 'advance' };
-  }
-
-  if (step.target === 'tour-verify-button') {
-    if (context.view === 'results' && context.hasReport) {
-      return { kind: 'advance' };
-    }
-
-    return {
-      kind: 'show-me',
-      action: buildResultsAction(
-        'Show sample results',
-        context.scenarioId === 'blank'
-          ? DEFAULT_TOUR_SCENARIO_ID
-          : context.scenarioId
-      ),
-      advance: true
-    };
-  }
-
-  if (step.anchorKey === 'verdict-and-checklist') {
-    if (context.view !== 'results' || !context.hasReport) {
-      return {
-        kind: 'show-me',
-        action: buildResultsAction(
-          'Show sample results',
-          context.scenarioId === 'blank'
-            ? DEFAULT_TOUR_SCENARIO_ID
-            : context.scenarioId
-        ),
-        advance: true
-      };
-    }
-
-    return { kind: 'advance' };
-  }
-
-  if (step.anchorKey === 'warning-evidence') {
-    if (
-      context.view !== 'results' ||
-      !context.hasReport ||
-      context.scenarioId !== WARNING_TOUR_SCENARIO_ID
-    ) {
-      return {
-        kind: 'show-me',
-        action: buildResultsAction('Show warning defect', WARNING_TOUR_SCENARIO_ID),
-        advance: true
-      };
-    }
-
-    return { kind: 'advance' };
-  }
-
-  if (step.anchorKey === 'batch-matching' && context.mode !== 'batch') {
-    return {
-      kind: 'show-me',
-      action: buildBatchIntakeAction(),
-      advance: true
-    };
-  }
-
   return { kind: 'advance' };
 }
 

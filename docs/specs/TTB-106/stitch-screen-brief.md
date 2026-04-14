@@ -3,15 +3,15 @@
 ## Story
 
 - Story ID: `TTB-106`
-- Title: guided review, replayable help, and contextual info layer
+- Title: guided tour, replayable help, and contextual info layer
 - Parent: `TTB-004`
 - Lane: Claude (UI)
 
 ## 1. Screen goal
 
-Design two in-context compositions that extend the existing TTB label verification workstation with an optional, replayable guided review and a contextual info layer:
+Design two in-context compositions that extend the existing TTB label verification workstation with an optional, replayable guided tour and a contextual info layer:
 
-1. **Guided review, in context** — the workstation's existing single-label Results view is visible in the main work area, and a side panel docks to the right edge showing the active tour step (title + plain-language body + optional `Show me` action + Previous / Next / Close). The tour is not a modal; the main area stays usable behind it.
+1. **Guided tour, in context** — the workstation's existing single-label Results view is visible in the main work area, and a side panel docks to the right edge showing the active tour step (title + plain-language body + optional `Show me` action + Previous / Next / Close). The tour is not a modal; the main area stays usable behind it.
 2. **Contextual info popover, in context** — the workstation's existing single-label Results view is visible, and a small info popover is open next to the government-warning sub-check header, showing a short explanation with a title, 2–3 sentences, and a Close affordance.
 
 The tour and the info popovers are strictly opt-in. The workstation is not a kiosk; the tour is a drawer the reviewer opens at will.
@@ -30,8 +30,8 @@ Secondary: a supervisor or procurement viewer watching a short demo. They expect
 >
 > Design two compositions that extend an existing web application. The existing workstation shell and the existing single-label results surface must be visible in both compositions — you are *not* designing a new product; you are designing two in-context additions to an existing one.
 >
-> **Composition 1 — Guided review, in context.**
-> Render the existing workstation: the header (title, a `Single | Batch` toggle, a small header-resident `Guided review` launcher button), the pinned left column showing the submitted label image + filename + size + beverage type + a privacy line, and the main working area showing the approved Results view (verdict banner reading `Recommend approval` or `Recommend manual review`, a field checklist, and a cross-field checks region). On the right side, docked to the viewport edge, render a side panel ~360px wide showing the active tour step. The side panel must read as a drawer over the workstation — the work area behind it is still visible and usable, not dimmed by a modal backdrop. Each tour step has a compact header with a close button on the top-right, a step indicator reading `Step N of 8` with a thin progress bar underneath, a short plain-language title, a 2–3 sentence body, an optional `Show me` action, and `Previous` / `Next` (or `Finish` on the last step) controls at the bottom. The whole thing reads calm and instrument-like — not cheerful, not marketing, not game-like.
+> **Composition 1 — Guided tour, in context.**
+> Render the existing workstation: the header (title, a `Single | Batch` toggle, a small header-resident `Guided tour` launcher button), the pinned left column showing the submitted label image + filename + size + beverage type + a privacy line, and the main working area showing the approved Results view (verdict banner reading `Recommend approval` or `Recommend manual review`, a field checklist, and a cross-field checks region). On the right side, docked to the viewport edge, render a side panel ~360px wide showing the active tour step. The side panel must read as a drawer over the workstation — the work area behind it is still visible and usable, not dimmed by a modal backdrop. Each tour step has a compact header with a close button on the top-right, a step indicator reading `Step N of 8` with a thin progress bar underneath, a short plain-language title, a 2–3 sentence body, an optional `Show me` action, and `Previous` / `Next` (or `Finish` on the last step) controls at the bottom. The whole thing reads calm and instrument-like — not cheerful, not marketing, not game-like.
 >
 > **Composition 2 — Contextual info popover, in context.**
 > Render the same existing workstation with the Results view showing a reject verdict where the government warning row is expanded. Next to the row's sub-check header (the `Warning sub-checks` list), render a small `info` icon button. Render an info popover opened from that anchor: a small floating card (~320px wide) with a small pointing tail, showing a title (`Warning evidence`), a 2–3 sentence body in plain language explaining what the five sub-checks mean and what the character-aligned diff below shows, and a `Close` affordance. The popover is not a modal; the work area is visible beneath it.
@@ -40,13 +40,13 @@ Secondary: a supervisor or procurement viewer watching a short demo. They expect
 
 ## 4. Required functional regions
 
-**Composition 1 — Guided review in context**
+**Composition 1 — Guided tour in context**
 
 - The existing workstation frame (header + pinned left column + Results working area) visible on the left and center.
-- A persistent `Guided review` launcher button in the header's right cluster (a bordered button with a small icon and the text label).
+- A persistent `Guided tour` launcher button in the header's right cluster (a bordered button with a small icon and the text label).
 - A side panel docked to the right viewport edge, ~360px wide, with:
   - A close affordance at the top-right of the panel.
-  - A panel title reading `Guided review`.
+  - A panel title reading `Guided tour`.
   - A step indicator reading `Step N of 8` plus a thin progress bar.
   - A step title (one short sentence).
   - A step body (2–3 sentences in plain language).
@@ -69,7 +69,7 @@ Secondary: a supervisor or procurement viewer watching a short demo. They expect
 
 Render these distinct states so the returned HTML covers them. If one HTML artifact can represent more than one state via minor variation, call the variations out explicitly.
 
-**Composition 1 (Guided review):**
+**Composition 1 (Guided tour):**
 
 1. **First-run nudge visible, panel closed.** Launcher in the header, nudge chip floats below it pointing up, Results view is the visible main area. Reviewer has not opened the tour yet.
 2. **Panel open, step 3 of 8 (mid-tour).** Launcher shows an active-state treatment. Side panel is open, mid-tour step rendered. Previous and Next both prominent. Nudge is gone.
@@ -84,17 +84,17 @@ Render these distinct states so the returned HTML covers them. If one HTML artif
 
 These strings are content, not design. Render them verbatim.
 
-- Launcher button label: `Guided review`.
+- Launcher button label: `Guided tour`.
 - First-run nudge body: `New here? Take a 2-minute tour.`
 - Nudge dismiss action: `Dismiss`.
-- Panel heading: `Guided review`.
+- Panel heading: `Guided tour`.
 - Step indicator template: `Step {index} of {total}` (e.g., `Step 3 of 8`).
-- Step body for composition 1 state 2 (mid-tour on warning evidence): title `Warning evidence`, body `The government warning is the most rejection-critical element. The tool checks five sub-checks — presence, exact text, uppercase heading, continuous paragraph, legibility — and shows a character-aligned diff when anything is off.`
+- Step body for composition 1 state 2 (mid-tour on warning evidence): title `Warning evidence`, body `The government warning is one of the fastest ways a label can be rejected. The tool checks it five ways. If something is wrong, this section highlights the exact wording, punctuation, or capitalization to review. Use Load failing label to open an example.`
 - Step body for composition 1 state 3 (last step): title `You're done.`, body `Close this, or restart the tour from the launcher any time.`
 - Show me action: `Show me`.
 - Step navigation labels: `Previous`, `Next`, `Finish` (last step only), `Close`.
 - Info popover title (composition 2): `Warning evidence`.
-- Info popover body: `We check the government warning against the required wording in five sub-checks — presence, exact text, uppercase heading, continuous paragraph, legibility. The character-aligned diff below shows where a failed text check differs from the required wording.`
+- Info popover body: `We check the government warning in five ways — presence, exact text, uppercase heading, continuous paragraph, and legibility. The text comparison below highlights the exact words, letters, or punctuation that do not match the required wording.`
 - Info popover close: `Close`.
 - Info anchor accessible name (screen reader): `Learn about warning evidence`.
 - Privacy anchor (unchanged, visible in the workstation frame beneath both compositions): `Nothing is stored. Inputs and results are discarded when you leave.`
@@ -156,17 +156,17 @@ Claude will run the automated Stitch flow (`STITCH_FLOW_MODE=automated` is alrea
   16. `Discrepancies 14` sidebar badge — dropped with the sidebar.
   17. Invented `OCR Confidence Visual` with `Segment ID: TTB-992-X-WARN-01` — dropped (audit-trail-adjacent).
 
-  **Screen 1 — guided review panel copy normalized:**
+  **Screen 1 — guided tour panel copy normalized:**
 
-  18. Panel title `Guided Review` → brief verbatim `Guided review` (lowercase r).
+  18. Panel title `Guided Tour` → brief verbatim `Guided tour` (lowercase r).
   19. Step indicator template rendered `Tour Step 2 of 8` + a separate `25%` pct label — normalized to brief template `Step {n} of {total}` + progress bar without the percent text, which is redundant with the bar.
-  20. Invented tour-step title `Verify Brand Name` + body about application data vs OCR extract — reverted to brief's approved step 5 content `Warning evidence` with the verbatim five-sub-check body.
+  20. Invented tour-step title `Verify Brand Name` + body about application data vs OCR extract — reverted to brief's approved step 5 content `Warning evidence` with the plain-language warning-review body.
   21. `Next Step` button label → brief verbatim `Next`.
   22. Last step should use `Finish`; Stitch did not render that variant — implemented per brief.
 
   **Screen 2 — info popover copy normalized:**
 
-  23. Popover body rewritten to `These checks verify the specific text, formatting, and legibility required by Part 16 of the CFR. Use the diff below to inspect character-level discrepancies.` — reverted to brief verbatim: `We check the government warning against the required wording in five sub-checks — presence, exact text, uppercase heading, continuous paragraph, legibility. The character-aligned diff below shows where a failed text check differs from the required wording.`
+  23. Popover body rewritten to `These checks verify the specific text, formatting, and legibility required by Part 16 of the CFR. Use the diff below to inspect character-level discrepancies.` — reverted to brief verbatim: `We check the government warning in five ways — presence, exact text, uppercase heading, continuous paragraph, and legibility. The text comparison below highlights the exact words, letters, or punctuation that do not match the required wording.`
   24. Popover close rendered as a small text-link `Close` at top-right — preserved but sized to match the rest of the shell's button register.
 
   **Both compositions — states missing or misrendered, implemented directly:**
@@ -179,7 +179,7 @@ Claude will run the automated Stitch flow (`STITCH_FLOW_MODE=automated` is alrea
 
   **What was salvaged from Stitch:**
 
-  30. The right-docked ~360px side panel shape for guided review (Screen 1).
+  30. The right-docked ~360px side panel shape for guided tour (Screen 1).
   31. The small card-with-pointing-tail pattern for the info popover (Screen 2).
   32. The placement of the info icon immediately after a dense section heading (Screen 2).
 
@@ -198,9 +198,9 @@ Claude will run the automated Stitch flow (`STITCH_FLOW_MODE=automated` is alrea
 
 #### Generated screens
 
-1. `Guided Review Composition`
+1. `Guided Tour Composition`
    - screen id: `cc31765ca5db4bd5b49e4de66d76c68c`
-   - local HTML copy: `docs/specs/TTB-106/stitch-refs/automated/2026-04-14T00-20-07-236Z/01-guided-review-composition.html`
+   - local HTML copy: `docs/specs/TTB-106/stitch-refs/automated/2026-04-14T00-20-07-236Z/01-guided-tour-composition.html`
    - HTML source URL: https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzhiNjA1Y2VhYjdjMzRiYzk4NDhiMDQwMDYzMTA3N2E2EgsSBxCDmeS-iQEYAZIBIwoKcHJvamVjdF9pZBIVQhMzMTk3OTExNjY4OTY2NDAxNjQy&filename=&opi=96797242
    - screenshot URL: https://lh3.googleusercontent.com/aida/ADBb0ug0lbf5MTP6jRz2nJ2YRmDh01LyOq9Xs2rAGSdI3h90aVfQbYS3zi7AffiWtBtQedQ2SYDwqqcC5QBE2Z7lH0XXtl_W76DnEQnrTbN9GmLBykGs67nYFFLDr-N6LyBiP5p0nTachWk8datwYYLk6w9qK-98Mpb_L-GgXlYnrzKkfmzJ-j7Fr5HVG0M1xc-Gt6yPdw7hCBcnLqv4hLIq3y34XVesSnTEQhEvt3g-1gcGdoQuJzdG-uVxSQ
 2. `Contextual Info Composition`

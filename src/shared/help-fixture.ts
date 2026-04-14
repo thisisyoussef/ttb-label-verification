@@ -44,7 +44,7 @@ const TOUR_STEPS: TourStep[] = [
     totalSteps: 8,
     title: 'Verify the label',
     body:
-      'Clicking Verify Label runs a deterministic pipeline — read image, extract fields, detect beverage type, run checks, prepare evidence. Try clicking it now, or Next to skip ahead.',
+      'Clicking Verify Label runs a deterministic pipeline — read image, extract fields, detect beverage type, run checks, prepare evidence. Click it now to continue.',
     target: 'tour-verify-button',
     interaction: 'click-to-advance',
     cta: 'Click Verify Label to continue',
@@ -65,10 +65,11 @@ const TOUR_STEPS: TourStep[] = [
     totalSteps: 8,
     title: 'Warning evidence',
     body:
-      'The government warning is the most rejection-critical element. The tool runs five sub-checks and shows a character-aligned diff when anything is off. Use Show defect to load a failing label.',
+      'The government warning is one of the fastest ways a label can be rejected. The tool checks it five ways. If something is wrong, this section highlights the exact wording, punctuation, or capitalization to review. Use Load failing label to open an example.',
     target: 'tour-warning-row',
+    requires: { expandRowId: 'government-warning' },
     showMe: {
-      label: 'Show warning defect',
+      label: 'Load failing label',
       action: 'load-scenario',
       payload: { scenarioId: 'spirit-warning-errors' }
     }
@@ -99,7 +100,7 @@ const INFO_POPOVERS: InfoPopover[] = [
     anchorKey: 'warning-evidence',
     title: 'Warning evidence',
     body:
-      'We check the government warning against the required wording in five sub-checks — presence, exact text, uppercase heading, continuous paragraph, legibility. The character-aligned diff below shows where a failed text check differs from the required wording.'
+      'We check the government warning in five ways — presence, exact text, uppercase heading, continuous paragraph, and legibility. The text comparison below highlights the exact words, letters, or punctuation that do not match the required wording.'
   },
   {
     anchorKey: 'confidence-indicator',

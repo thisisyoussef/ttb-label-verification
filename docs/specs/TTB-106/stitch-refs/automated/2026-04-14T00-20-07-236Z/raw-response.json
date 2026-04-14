@@ -90,7 +90,7 @@
             },
             "id": "cc31765ca5db4bd5b49e4de66d76c68c",
             "name": "projects/3197911668966401642/screens/cc31765ca5db4bd5b49e4de66d76c68c",
-            "prompt": "Composition 1 — Guided review, in context. \nRender the existing TTB workstation: header with title 'TTB Label Verification Assistant', subtitle 'AI-assisted compliance checking', a 'Single | Batch' toggle (Single active), and a small 'Guided review' button. \nPinned left column: whiskey label thumbnail, 'bourbon-front.jpg', '2.4 MB', 'Distilled Spirits', and privacy line 'Nothing is stored...'.\nMain area: 'Recommend approval' verdict banner (green), field checklist, and cross-field checks.\nRight side: Docked 360px drawer for 'Guided review'. \nTour Step 2 of 8: Header with close 'X', progress bar, title 'Verify Brand Name', body 'The system compares the brand name on the label against the application. Check for consistent capitalization and spelling.', 'Show me' button, and 'Previous' / 'Next' footer actions. \nIndustrial Precision style: no backdrop, work area visible behind drawer.",
+            "prompt": "Composition 1 — Guided tour, in context. \nRender the existing TTB workstation: header with title 'TTB Label Verification Assistant', subtitle 'AI-assisted compliance checking', a 'Single | Batch' toggle (Single active), and a small 'Guided tour' button. \nPinned left column: whiskey label thumbnail, 'bourbon-front.jpg', '2.4 MB', 'Distilled Spirits', and privacy line 'Nothing is stored...'.\nMain area: 'Recommend approval' verdict banner (green), field checklist, and cross-field checks.\nRight side: Docked 360px drawer for 'Guided tour'. \nTour Step 2 of 8: Header with close 'X', progress bar, title 'Verify Brand Name', body 'The system compares the brand name on the label against the application. Check for consistent capitalization and spelling.', 'Show me' button, and 'Previous' / 'Next' footer actions. \nIndustrial Precision style: no backdrop, work area visible behind drawer.",
             "screenMetadata": {
               "agentType": "PRO_AGENT",
               "status": "COMPLETE"
@@ -169,7 +169,7 @@
               "roundness": "ROUND_FOUR",
               "spacingScale": 1
             },
-            "title": "Guided Review Composition",
+            "title": "Guided Tour Composition",
             "width": "2560"
           },
           {
@@ -346,7 +346,7 @@
       }
     },
     {
-      "text": "I've designed the two requested compositions, extending the TTB Label Verification workstation while preserving its professional, instrument-like feel.\n\n### Compositions Added:\n1.  **Guided Review Composition (Guided Review Composition):**\n    *   Features a docked, 360px-wide side drawer that guides the reviewer through the verification process.\n    *   The workstation remains visible and interactive behind the drawer, ensuring the tour feels integrated rather than intrusive.\n    *   Includes a step-by-step progress indicator, contextual instructions, and clear navigation controls.\n2.  **Contextual Info Composition (Contextual Info Composition):**\n    *   Adds an informational popover anchored to an `info` icon within the expanded Government Warning row.\n    *   The popover provides plain-language explanations for the warning sub-checks and the character-aligned diff, helping reviewers make defensible rejection decisions.\n    *   Maintains the high-density results layout and authoritative tone of the existing workstation.\n\nBoth designs strictly adhere to the **Industrial Precision** design system and the established UX architecture. How do these additions feel for the reviewer's workflow?"
+      "text": "I've designed the two requested compositions, extending the TTB Label Verification workstation while preserving its professional, instrument-like feel.\n\n### Compositions Added:\n1.  **Guided Tour Composition (Guided Tour Composition):**\n    *   Features a docked, 360px-wide side drawer that guides the reviewer through the verification process.\n    *   The workstation remains visible and interactive behind the drawer, ensuring the tour feels integrated rather than intrusive.\n    *   Includes a step-by-step progress indicator, contextual instructions, and clear navigation controls.\n2.  **Contextual Info Composition (Contextual Info Composition):**\n    *   Adds an informational popover anchored to an `info` icon within the expanded Government Warning row.\n    *   The popover provides plain-language explanations for the warning sub-checks and the character-aligned diff, helping reviewers make defensible rejection decisions.\n    *   Maintains the high-density results layout and authoritative tone of the existing workstation.\n\nBoth designs strictly adhere to the **Industrial Precision** design system and the established UX architecture. How do these additions feel for the reviewer's workflow?"
     }
   ],
   "projectId": "3197911668966401642",

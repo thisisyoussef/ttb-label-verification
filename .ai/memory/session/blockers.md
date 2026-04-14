@@ -10,3 +10,4 @@
 - Known future dependency: the restricted-network local-mode plan (`TTB-212`) still needs Ollama availability plus a usable local model footprint before it can be exercised.
 - Known future dependency: `TTB-210` still needs to replace the current hard-coded prompt-profile and guardrail identifiers with the planned shared policy module before the full hardening sequence can close cleanly.
 - Known future dependency: `TTB-401` now remains blocked on Claude/Codex completing `TTB-107`, `TTB-108`, and `TTB-211`.
+- Current workflow blocker: `TTB-107` is locally verified, but `npm run gate:publish` fails until the mixed unpublished worktree is cleaned up and `codex/TTB-107-auth-regression` has an upstream branch.

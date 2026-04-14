@@ -4,9 +4,10 @@ import { LOCAL_HELP_MANIFEST } from '../shared/help-fixture';
 import { seedScenarios } from './scenarios';
 import {
   buildTourDemoImage,
+  isTourNextDisabled,
+  resolveTourExpandedCheckId,
   resolvePendingVerifyAdvanceAction,
   resolveTourInteractionAction,
-  resolveTourNextAction,
   resolveTourDemoReviewReport,
   resolveTourStep,
 } from './help-tour-runtime';
@@ -208,9 +209,9 @@ describe('help tour runtime', () => {
       hasReport: true
     });
 
-    expect(resolved.cta).toMatch(/warning-defect example/i);
+    expect(resolved.cta).toMatch(/failing label/i);
     expect(resolved.showMe).toEqual({
-      label: 'Show warning defect',
+      label: 'Load failing label',
       action: 'advance-view',
       payload: {
         mode: 'single',
@@ -220,7 +221,7 @@ describe('help tour runtime', () => {
     });
   });
 
-  it('removes the stale Show warning defect action when the warning-defect results are already loaded', () => {
+  it('removes the stale Load failing label action when the warning-defect results are already loaded', () => {
     const resolved = resolveTourStep(step('warning-evidence'), {
       mode: 'single',
       view: 'results',
@@ -230,11 +231,11 @@ describe('help tour runtime', () => {
     });
 
     expect(resolved.showMe).toBeUndefined();
-    expect(resolved.cta).toMatch(/open the warning row/i);
+    expect(resolved.cta).toMatch(/expanded warning evidence/i);
   });
 
-  it('treats Next on the verify step as a skip-ahead action into sample results', () => {
-    const next = resolveTourNextAction(step('processing'), {
+  it('disables Next on the verify step until the reviewer actually reaches results', () => {
+    const nextDisabled = isTourNextDisabled(step('processing'), {
       mode: 'single',
       view: 'intake',
       scenarioId: 'blank',
@@ -242,47 +243,48 @@ describe('help tour runtime', () => {
       hasReport: false
     });
 
-    expect(next).toEqual({
-      kind: 'show-me',
-      action: {
-        label: 'Show sample results',
-        action: 'advance-view',
-        payload: {
-          mode: 'single',
-          view: 'results',
-          scenarioId: 'perfect-spirit-label'
-        }
-      },
-      advance: true
-    });
+    expect(nextDisabled).toBe(true);
   });
 
-  it('keeps the current scenario when Next skips ahead from Verify Label', () => {
-    const next = resolveTourNextAction(step('processing'), {
+  it('keeps Next disabled on the verify step while processing is still running', () => {
+    const nextDisabled = isTourNextDisabled(step('processing'), {
       mode: 'single',
-      view: 'intake',
+      view: 'processing',
       scenarioId: 'spirit-warning-errors',
       hasImage: true,
+      hasReport: false,
+      processingPhase: 'running'
+    });
+
+    expect(nextDisabled).toBe(true);
+  });
+
+  it('re-enables Next on the verify step once results exist', () => {
+    const nextDisabled = isTourNextDisabled(step('processing'), {
+      mode: 'single',
+      view: 'results',
+      scenarioId: 'spirit-warning-errors',
+      hasImage: true,
+      hasReport: true
+    });
+
+    expect(nextDisabled).toBe(false);
+  });
+
+  it('disables Next on the verdict step until results exist', () => {
+    const nextDisabled = isTourNextDisabled(step('verdict-and-checklist'), {
+      mode: 'single',
+      view: 'intake',
+      scenarioId: 'blank',
+      hasImage: false,
       hasReport: false
     });
 
-    expect(next).toEqual({
-      kind: 'show-me',
-      action: {
-        label: 'Show sample results',
-        action: 'advance-view',
-        payload: {
-          mode: 'single',
-          view: 'results',
-          scenarioId: 'spirit-warning-errors'
-        }
-      },
-      advance: true
-    });
+    expect(nextDisabled).toBe(true);
   });
 
-  it('switches Next on the batch step into an explicit batch recovery action', () => {
-    const next = resolveTourNextAction(step('batch-matching'), {
+  it('disables Next on the warning step until the failing warning scenario is loaded', () => {
+    const nextDisabled = isTourNextDisabled(step('warning-evidence'), {
       mode: 'single',
       view: 'results',
       scenarioId: 'perfect-spirit-label',
@@ -290,18 +292,19 @@ describe('help tour runtime', () => {
       hasReport: true
     });
 
-    expect(next).toEqual({
-      kind: 'show-me',
-      action: {
-        label: 'Open Batch mode',
-        action: 'advance-view',
-        payload: {
-          mode: 'batch',
-          view: 'batch-intake'
-        }
-      },
-      advance: true
+    expect(nextDisabled).toBe(true);
+  });
+
+  it('disables Next on the batch step until batch mode is actually open', () => {
+    const nextDisabled = isTourNextDisabled(step('batch-matching'), {
+      mode: 'single',
+      view: 'results',
+      scenarioId: 'perfect-spirit-label',
+      hasImage: true,
+      hasReport: true
     });
+
+    expect(nextDisabled).toBe(true);
   });
 
   it('waits for results instead of advancing immediately when the real Verify button is clicked', () => {
@@ -365,6 +368,32 @@ describe('help tour runtime', () => {
     });
 
     expect(action).toEqual({ kind: 'advance' });
+  });
+
+  it('requests expansion of the government warning row on the warning-evidence step', () => {
+    const expandedCheckId = resolveTourExpandedCheckId(step('warning-evidence'), {
+      mode: 'single',
+      view: 'results',
+      scenarioId: 'spirit-warning-errors',
+      hasImage: true,
+      hasReport: true,
+      processingPhase: 'terminal'
+    });
+
+    expect(expandedCheckId).toBe('government-warning');
+  });
+
+  it('does not request warning-row expansion outside the failing warning scenario', () => {
+    const expandedCheckId = resolveTourExpandedCheckId(step('warning-evidence'), {
+      mode: 'single',
+      view: 'results',
+      scenarioId: 'perfect-spirit-label',
+      hasImage: true,
+      hasReport: true,
+      processingPhase: 'terminal'
+    });
+
+    expect(expandedCheckId).toBeNull();
   });
 
   it('creates demo images and demo reports for tour-loaded scenarios', () => {

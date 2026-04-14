@@ -13,6 +13,7 @@ interface GuidedTourSpotlightProps {
   onClose: () => void;
   onPrevious: () => void;
   onNext: () => void;
+  nextDisabled: boolean;
   onAdvanceInteraction: () => void;
   onFinish: () => void;
   onShowMe: (action: HelpShowMe) => void;
@@ -23,8 +24,8 @@ const TARGET_PADDING = 8;
 function readTargetRect(element: HTMLElement): GuidedTourRect {
   const rect = element.getBoundingClientRect();
   return {
-    top: rect.top + window.scrollY - TARGET_PADDING,
-    left: rect.left + window.scrollX - TARGET_PADDING,
+    top: rect.top - TARGET_PADDING,
+    left: rect.left - TARGET_PADDING,
     width: rect.width + TARGET_PADDING * 2,
     height: rect.height + TARGET_PADDING * 2
   };
@@ -36,6 +37,7 @@ export function GuidedTourSpotlight({
   onClose,
   onPrevious,
   onNext,
+  nextDisabled,
   onAdvanceInteraction,
   onFinish,
   onShowMe
@@ -115,6 +117,7 @@ export function GuidedTourSpotlight({
         progress={progress}
         isFirst={isFirst}
         isLast={isLast}
+        nextDisabled={nextDisabled}
         onClose={onClose}
         onPrevious={onPrevious}
         onNext={onNext}
@@ -178,6 +181,7 @@ interface CalloutProps {
   progress: number;
   isFirst: boolean;
   isLast: boolean;
+  nextDisabled: boolean;
   onClose: () => void;
   onPrevious: () => void;
   onNext: () => void;
@@ -191,6 +195,7 @@ function Callout({
   progress,
   isFirst,
   isLast,
+  nextDisabled,
   onClose,
   onPrevious,
   onNext,
@@ -255,7 +260,7 @@ function Callout({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close guided review"
+            aria-label="Close guided tour"
             className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             <span aria-hidden="true" className="material-symbols-outlined text-[18px]">
@@ -276,7 +281,9 @@ function Callout({
           </p>
           {step.target && !rect ? (
             <p className="text-xs font-label text-on-surface-variant">
-              This control is not visible from the current app state or viewport. Use the recovery action below or continue to the next step.
+              {nextDisabled
+                ? 'This control is not visible from the current app state or viewport. Complete the required action on the live surface or use the recovery action below to continue.'
+                : 'This control is not visible from the current app state or viewport. Use the recovery action below or continue to the next step.'}
             </p>
           ) : null}
           {step.cta ? (
@@ -336,7 +343,13 @@ function Callout({
             <button
               type="button"
               onClick={onNext}
-              className="inline-flex items-center gap-1 px-5 py-2 rounded-lg text-[11px] font-label font-bold uppercase tracking-widest bg-gradient-to-b from-primary to-primary-dim text-on-primary shadow-ambient hover:brightness-110 active:scale-[0.98] transition-all"
+              disabled={nextDisabled}
+              className={[
+                'inline-flex items-center gap-1 px-5 py-2 rounded-lg text-[11px] font-label font-bold uppercase tracking-widest transition-all',
+                nextDisabled
+                  ? 'bg-surface-container-high text-outline-variant/80 cursor-not-allowed shadow-none'
+                  : 'bg-gradient-to-b from-primary to-primary-dim text-on-primary shadow-ambient hover:brightness-110 active:scale-[0.98]'
+              ].join(' ')}
             >
               Next
               <span aria-hidden="true" className="material-symbols-outlined text-[14px]">
@@ -355,13 +368,9 @@ function computeCalloutPosition(
 ): CSSProperties {
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1280;
   const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
-  const scrollX = typeof window !== 'undefined' ? window.scrollX : 0;
-  const scrollY = typeof window !== 'undefined' ? window.scrollY : 0;
   return resolveCalloutPosition(rect, {
     calloutHeight,
     viewportWidth,
-    viewportHeight,
-    scrollX,
-    scrollY
+    viewportHeight
   });
 }

@@ -108,6 +108,7 @@ export function DropZone({ image, disabled, onAccept, onRemove }: DropZoneProps)
     return (
       <section
         aria-label="Uploaded label image"
+        data-tour-target="tour-drop-zone"
         className="bg-surface-container-lowest shadow-ambient rounded-lg p-6 flex flex-col gap-4 border border-outline-variant/20"
       >
         <div className="flex items-start gap-5">

@@ -19,10 +19,11 @@
 - Review aggregation slice: `src/server/review-report.ts` now turns extracted fields plus the warning check into deterministic field comparisons, beverage-specific rules, cross-field checks, verdict aggregation, and the no-text fallback used by the approved results UI
 - Batch execution slice: `src/server/batch-csv.ts`, `src/server/batch-matching.ts`, and `src/server/batch-session.ts` now parse uploaded CSVs, resolve filename/order matching, keep batch sessions in memory, stream run frames, and shape dashboard/export payloads around the existing single-label report builder
 - Help-manifest slice: `src/shared/contracts/help.ts` plus `src/shared/help-fixture.ts` now define the typed tutorial/help contract and deterministic English manifest, `GET /api/help/manifest` serves that manifest from Express, and `src/client/help-runtime.ts` hydrates the approved help UI with a fixture fallback when the route is unavailable
+- Mock-auth shell slice: `src/client/App.tsx`, `src/client/AuthScreen.tsx`, `src/client/SignedInIdentity.tsx`, and `src/client/authState.ts` now model the approved TTB-107 Screen 0 as a fully client-local auth gate; `authState.ts` holds the stable transition, delay, and sign-out reset helpers that the regression suite exercises
 - Results contract: `VerificationReport` now carries verdict/counts/extraction-quality state, regular comparison evidence, warning sub-checks plus diff segments, and cross-field checks in one shared schema
 - Batch UI runtime: `src/client/batch-runtime.ts` maps live batch API payloads into the established batch upload, processing, dashboard, and drill-in view models while preserving the product's approved direction
 - Post-handoff collaboration model: Claude establishes the initial UI direction for a story, then Codex may refine `src/client/**` during engineering once a `ready-for-codex` handoff exists, as long as the result stays aligned with the story packet, master design, and handoff hard constraints
-- Planned help architecture: future guided-review and contextual-help behavior should be delivered from typed, deterministic manifests and stateless server routes rather than persisted onboarding state
+- Planned help architecture: future guided-tour and contextual-help behavior should be delivered from typed, deterministic manifests and stateless server routes rather than persisted onboarding state
 
 ## Core execution model
 

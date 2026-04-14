@@ -1,6 +1,9 @@
 # Active Context
 
 - Current focus: `TTB-106` is complete across both lanes; `TTB-107` Claude work is complete, `TTB-108` is now the next ready Claude story for the mode selector, `TTB-206` is the next blocking Codex story, cloud extraction migration continues through `TTB-207`, cloud latency hardening is planned as `TTB-208` plus `TTB-209`, the restricted-network local mode is planned as `TTB-212`, and the user-centered prompt/guardrail/eval hardening follow-ons remain `TTB-210` plus `TTB-211`.
+- `TTB-107` Codex pickup is now locally implemented on `codex/TTB-107-auth-regression`: the packet is expanded, auth regression coverage lives in `src/client/auth-state.test.tsx`, and the root auth flow now uses shared helper seams for phase advancement, delay selection, and sign-out reset orchestration.
+- Local verification for the `TTB-107` pickup passed: `npm run test`, `npm run typecheck`, `npm run build`, and `npm run gate:commit`.
+- The current `TTB-107` blocker is workflow, not code: `npm run gate:publish` fails until the mixed unpublished worktree is cleaned up and the branch gets an upstream.
 - GitHub repo and Railway project are now live; the checked-in deploy flow uses GitHub Actions plus Railway CLI.
 - `STITCH_FLOW_MODE=claude-direct` is now the workspace default for UI work; automated Stitch and manual Comet are explicit alternates when a pass actually needs generated refs.
 - The Stitch harness now hardwires the canonical local project target to `TTB Label Verification System` (`3197911668966401642`) while still keeping title fallback when `STITCH_PROJECT_ID` is unset.
@@ -8,6 +11,8 @@
 - Automated Stitch runs still require a Claude self-review pass before user handoff; raw generated refs should not go straight to the user.
 - Repo-local OpenAI runtime config can now be bootstrapped with `npm run env:bootstrap`, and the server auto-loads `.env` / `.env.local` outside tests.
 - Repo-local LangSmith trace-driven development is now wired through `npm run env:bootstrap`, `npm run langsmith:smoke`, and checked-in trace workflow docs, while tracing stays off by default.
+- The workflow now requires a checked-in `user-flow-map.md` for visible or branchy runtime stories before implementation starts, so the happy path is not the only planned path.
+- The workflow now requires an `observability-plan.md` for async, upload, model, guided-flow, or branch-heavy stories, with sanitized step-level logs/traces and a concrete verification step for at least one non-happy-path branch.
 - The workflow now allows Codex to take tracker-marked parallel-safe Codex-only stories while Claude is still working a different UI story; `TTB-202` is the current example.
 - The workflow now prefers ready approved `TTB-1xx` handoffs before later blocking `TTB-2xx+` Codex work once workflow/eval foundations are clear.
 - The workflow now treats `ready-for-codex` as an approved starting point rather than a blanket freeze: after Claude's first-pass UI exists, Codex may make story-scoped UI refinements in `src/client/**` when they help integration, usability, or maintainability.
@@ -21,9 +26,12 @@
 - The current production-build smoke route is `http://127.0.0.1:8796`; live batch preflight/run/summary/export/retry all returned `200`, but the extractor still produced structured `network` errors for the test images.
 - The latest local live `/api/review` smoke attempt on 2026-04-13 used `/tmp/ttb-205-smoke/no-text.png`; local OpenAI config resolved correctly, but the route returned the extractor's structured `network` error before a live result could be inspected.
 - Git hygiene is now explicit in `docs/process/GIT_HYGIENE.md`, wired into both lane checklists plus deployment rules, and backed by `npm run gate:commit` / `npm run gate:push`.
-- `TTB-106` is complete: the approved guided-review UI now reads from a shared typed help manifest exposed at `GET /api/help/manifest`, with the same deterministic fixture kept as the client fallback.
-- `TTB-106` follow-up hardening now resolves the live tour steps against the current shell state in `src/client/App.tsx`; `Next` is state-aware for recovery/skip-ahead branches, while click-to-advance on the real Verify and Batch controls remains a separate direct path.
+- `TTB-106` is complete: the approved guided-tour UI now reads from a shared typed help manifest exposed at `GET /api/help/manifest`, with the same deterministic fixture kept as the client fallback.
+- `TTB-106` follow-up hardening now resolves the live tour steps against the current shell state in `src/client/App.tsx`; passive steps advance normally, action steps block `Next` until the required state exists, and click-to-advance on the real Verify and Batch controls remains a separate direct path.
 - The guided tour no longer advances Step 4 on the Verify click itself: the app now waits for actual results, and if live extraction fails during the tour it auto-recovers into deterministic sample results before advancing to the verdict step.
+- The verify-tour wait logic now survives the native-click-to-React-submit transition: a same-frame intake render after clicking Verify is treated as "still waiting," not as a signal to clear the pending tour advance.
+- The warning-evidence step now auto-expands the `government-warning` row when the failing warning scenario is active, so the tour lands on the sub-check list and diff instead of a collapsed results row.
+- The guided-tour spotlight overlay now measures targets and positions callouts in viewport coordinates, not document coordinates, so the highlight stays aligned on scrolled results pages.
 - The guided-tour callout now measures its real rendered height and clamps itself within the viewport instead of relying on a fixed-height estimate; `Finish` resets the signed-in shell back to blank single-label intake.
 - `TTB-107` is now planned as a later Claude-first story: a prototype-safe mock PIV/CAC or Treasury SSO entry screen plus persistent `Sarah Chen · ALFD` shell identity and sign-out flow.
 - `TTB-108` is now the next ready Claude story and adds the small cloud/local extraction selector plus mode-aware processing copy to the signed-in shell.

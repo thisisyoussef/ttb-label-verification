@@ -4,6 +4,8 @@
 
 - Non-trivial work starts with preflight, lookup, and sizing.
 - Standard feature work produces a checked-in universal packet under `docs/specs/<story-id>/`.
+- Visible or branch-heavy stories add `user-flow-map.md` to the packet before implementation so every meaningful branch is planned, not rediscovered during debugging.
+- Async, upload, model, and guided-flow stories add `observability-plan.md` to the packet before implementation so step transitions and failure branches are diagnosable with sanitized logs/traces.
 - `docs/process/SINGLE_SOURCE_OF_TRUTH.md` is the single checked-in tracker for story ownership, status, and handoff state.
 - `docs/process/SINGLE_SOURCE_OF_TRUTH.md` also resolves `continue` and `next story`; agents do not guess queue order from chat memory.
 - Earlier workflow, eval, and other foundation stories are completed before later feature stories, even when a later story already has a `ready-for-codex` handoff.
@@ -60,8 +62,14 @@
 - Future tutorial/help work should be optional and replayable, with critical guidance inline or in accessible panels/dialogs rather than hidden in tooltip-only affordances.
 - Shared help content should follow the same contract-first pattern as review payloads: keep semantic anchor keys and manifest validation in `src/shared/contracts`, store canonical English fixture content in shared code, serve it through a stateless route, and let the client keep a local fallback instead of duplicating help copy in UI-only modules.
 - Guided tours should resolve against live runtime state through a dedicated helper rather than assuming the happy path in component code; each step needs explicit recovery actions for missing prerequisites and a deterministic demo path when the flow must continue without live backend work.
+- When a guided-tour step is meant to teach a real control or workflow transition, treat the footer `Next` button as a gate, not a skip-ahead shortcut. Recovery should be an explicit secondary action, while the main step completion comes from the live control or satisfied state.
 - When a guided-tour target triggers async work in the real app, keep "interaction advance" separate from "footer Next": target clicks should wait for the downstream state transition before advancing, and failures should recover into a deterministic demo state instead of leaving the next step without its anchor.
+- For async tour targets wired from native document listeners, preserve the pending interaction state across the click frame and the immediate pre-submit rerender; otherwise the tour can lose the user's intent before the app reaches the async state it needs to observe.
+- Tour spotlight targets must stay mounted across equivalent UI states when the region still conceptually exists; for example, an upload target should remain addressable after a file is loaded, not only in the empty drop-zone variant.
+- When a tour step describes evidence hidden behind an accordion or expandable row, the tour state should drive that region open before spotlighting it; otherwise the step and the visible UI drift apart.
 - Overlay callouts that depend on spotlighted targets should measure their rendered height and clamp to viewport-safe margins instead of relying on fixed-height estimates; long procedural copy is normal in this product.
+- Fixed-position spotlight overlays should compute target rectangles in viewport coordinates. Add scroll offsets only when the overlay itself is document-positioned; otherwise the cutout and ring will drift after scrolling.
+- For branch-heavy client-only state machines, prefer a small pure helper seam for transition and reset policy (`src/client/authState.ts`) plus SSR/pure regression tests before introducing a heavier DOM-interaction harness.
 - Codex workflow changes should force a blast-radius pass before implementation: when a story moves shell, navigation, results, view-state, selectors, or target anchors, inspect dependent guided-help surfaces instead of assuming the change is isolated.
 - New story pickup should always move onto a fresh story branch before packet or code edits; reusing the previous story branch is a workflow violation even when the branch name is otherwise valid.
 - Reviewable PRs should always describe changed surfaces, test file additions or updates, validation results, risks, and manual QA in the body; GitHub should auto-seed that structure from a checked-in template and CI should reject placeholder PR descriptions.

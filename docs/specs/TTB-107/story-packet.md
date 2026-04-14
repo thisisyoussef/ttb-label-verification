@@ -8,9 +8,9 @@
 - Lanes in scope: Claude (UI) + Codex (client-side state wiring and reset semantics)
 - Lane status:
   - Claude lane: `done` — UI approved 2026-04-14; `docs/backlog/codex-handoffs/TTB-107.md` written as `ready-for-codex`
-  - Codex lane: `ready-parallel` — regression tests + no-persistence invariant checks + timing-knob review, picked up when Codex has capacity
+  - Codex lane: `codex-in-progress` — packet expanded, auth regression tests added, and local verification passed on `codex/TTB-107-auth-regression`; publish is still blocked by the mixed unpublished worktree
 - Packet mode: expanded working packet
-- Last reconciled: 2026-04-14 at the handoff gate, against `docs/process/SINGLE_SOURCE_OF_TRUTH.md` and `docs/backlog/codex-handoffs/TTB-107.md`
+- Last reconciled: 2026-04-14 after local Codex verification, against `docs/process/SINGLE_SOURCE_OF_TRUTH.md` and `docs/backlog/codex-handoffs/TTB-107.md`
 
 ## Constitution check
 
@@ -61,7 +61,7 @@ The feature must feel authentic enough to show domain understanding, but it cann
 - Treasury identity provider integration, PIV middleware, certificate parsing, or MFA.
 - User roles, role-based feature access, or per-user data isolation.
 - Any server-side auth state, audit trail, or login logging.
-- Guided review and contextual help (`TTB-106`).
+- Guided tour and contextual help (`TTB-106`).
 - Release-gate privacy/performance/eval packaging (`TTB-401`).
 
 ## Technical plan

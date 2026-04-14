@@ -56,17 +56,17 @@ export function WarningDiff({ segments }: WarningDiffProps) {
   return (
     <div className="flex flex-col gap-3">
       <p className="sr-only" aria-live="polite">
-        Warning diff summary. {summaryText}.
+        Warning text comparison summary. {summaryText}.
       </p>
       <div className="bg-surface-container-highest rounded-lg border border-outline-variant/20 p-4 overflow-x-auto">
         <DiffRow
-          label="Required text"
+          label="Required warning"
           segments={segments}
           field="required"
         />
         <div className="h-px bg-outline-variant/20 my-3" />
         <DiffRow
-          label="Extracted from label"
+          label="Read from label"
           segments={segments}
           field="extracted"
         />

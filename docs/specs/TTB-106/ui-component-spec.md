@@ -3,7 +3,7 @@
 ## Story
 
 - Story ID: `TTB-106`
-- Title: guided review, replayable help, and contextual info layer
+- Title: guided tour, replayable help, and contextual info layer
 - Parent: `TTB-004`
 - Lane: Claude (UI) — engineering lands the typed manifest + stateless routes + demo fixtures afterward
 
@@ -11,7 +11,7 @@
 
 The integrated product is legible for an experienced TTB reviewer and completely learnable for a newer one — but between "legible" and "self-evident" sits a real cost in first-use friction. A character-aligned government-warning diff is expected in this domain; a confidence meter with amber/red thresholds is not. Batch matching ("we try filename first, then row order") is clear once explained; reviewers should not have to guess. And the "nothing is stored" guarantee is a hard compliance commitment that deserves a short plain-language explanation rather than a single sidebar line.
 
-This story adds one optional guided review flow that walks through the real product with safe seed data, plus a contextual info layer that surfaces plain-language explanations next to five dense concepts. Help is strictly opt-in, never a kiosk.
+This story adds one optional guided tour flow that walks through the real product with safe seed data, plus a contextual info layer that surfaces plain-language explanations next to five dense concepts. Help is strictly opt-in, never a kiosk.
 
 ## Users and use cases
 
@@ -34,7 +34,7 @@ Use cases covered:
 
 1. Reviewer lands on intake with no prior session. A subtle, dismissible nudge appears anchored to the launcher button: `New here? Take a 2-minute tour.`
 2. Reviewer clicks the launcher (either via the nudge or directly).
-3. Nudge disappears permanently (versioned replay-state). Guided review side panel slides in from the right edge.
+3. Nudge disappears permanently (versioned replay-state). Guided tour side panel slides in from the right edge.
 4. Step 1 reads the app title region: "This is the single-label review flow — the workstation for one label at a time. Nothing you upload is stored."
 5. Reviewer clicks `Next`. Step 2 drives a `Show me` that loads the `perfect-spirit-label` seed scenario into intake. Panel explains the form fields briefly.
 6. Reviewer clicks `Next` through the tour: processing → results → warning evidence (highlights the sub-check list + diff region) → standalone mode (switches to standalone seed) → batch intake → batch dashboard → drill-in.
@@ -46,7 +46,7 @@ Use cases covered:
 1. Reviewer dismisses the first-run nudge. Launcher remains visible.
 2. Reviewer works through a label, reaches Results with a warning failure.
 3. Next to the warning sub-check header, a small `info` icon is visible. Reviewer clicks it.
-4. A popover opens in place with a title (`Warning evidence`) and 2–3 sentences: "We check the government warning against the required wording in five sub-checks — presence, exact text, uppercase heading, continuous paragraph, legibility. The character-aligned diff below shows where a failed text check differs from the required wording."
+4. A popover opens in place with a title (`Warning evidence`) and 2–3 sentences: "We check the government warning in five ways — presence, exact text, uppercase heading, continuous paragraph, and legibility. The text comparison below highlights the exact words, letters, or punctuation that do not match the required wording."
 5. Reviewer reads and presses Escape or clicks outside. Popover closes. No state change.
 
 ### Flow 3 — Keyboard-only
@@ -68,18 +68,18 @@ Use cases covered:
 ### Launcher
 
 - Location: app-shell header, right cluster, immediately before the scenario picker / Batch seed controls.
-- Visual: a small bordered button with a `school` or `tour` icon + `Guided review` label, matching the existing `TTB-105` back-button pattern at rest.
+- Visual: a small bordered button with a `school` or `tour` icon + `Guided tour` label, matching the existing `TTB-105` back-button pattern at rest.
 - Visible from every view (intake, processing, results, batch intake, batch processing, dashboard, drill-in).
 - First-run nudge attaches to the launcher as a small floating chip with a downward-pointing tail. It dismisses on click, on the tour starting, or on the reviewer interacting with any other shell control.
 
-### Guided review side panel
+### Guided tour side panel
 
 Desktop (≥`md`):
 
 ```
 App shell header (unchanged)
 ───────────────────────────────────────────────────────────────────
-| Main work area                          | Guided review panel    |
+| Main work area                          | Guided tour panel    |
 | (intake / processing / results /        | ┌────────────────────┐ |
 |  batch / dashboard / drill-in)          | │ × Close            │ |
 |                                         | │ Step 3 of 8        │ |
@@ -133,7 +133,7 @@ Each anchor is placed as a data attribute on a sibling element, plus the `InfoAn
 - **Idle (nudge dismissed)** — launcher renders normally; no chip.
 - **Tour active** — launcher renders with a subtle active-state treatment (e.g., border highlight) so the reviewer knows the panel is open.
 
-### Guided review panel
+### Guided tour panel
 
 - **Open, step 1 of 8** — `Previous` inert, `Next` prominent.
 - **Open, mid-tour** — `Previous` and `Next` both prominent.
@@ -155,9 +155,9 @@ Each anchor is placed as a data attribute on a sibling element, plus the `InfoAn
 
 Canonical strings. Do not paraphrase.
 
-- Launcher button: `Guided review` (with `school` or `tour` material icon prefix — Stitch picks, but the label is fixed).
+- Launcher button: `Guided tour` (with `school` or `tour` material icon prefix — Stitch picks, but the label is fixed).
 - First-run nudge: `New here? Take a 2-minute tour.` + `Dismiss`.
-- Panel heading: `Guided review`.
+- Panel heading: `Guided tour`.
 - Step indicator template: `Step {index} of {total}`.
 - Step navigation: `Previous`, `Next`, `Finish` (last step only), `Close`, `Restart tour` (post-finish).
 - `Show me` action (variable per step): `Show me` (default), `Load sample` (on steps that need to seed a scenario).
@@ -174,14 +174,14 @@ Claude ships a local fixture for the tour until Codex lands the manifest route. 
 2. `intake-form`: `Start by uploading a label image and filling in the application data. The form adapts to the beverage type — wine-specific fields appear only when you select Wine.`
 3. `processing`: `When you verify, the tool runs a deterministic pipeline: read the image, extract the fields, detect the beverage type, run checks, prepare evidence. You can cancel at any time.`
 4. `verdict-and-checklist`: `The results page shows one verdict — Approve, Review, or Reject — backed by a field-by-field checklist. Every row is explainable and citable.`
-5. `warning-evidence`: `The government warning is the most rejection-critical element. The tool checks five sub-checks (presence, exact text, uppercase heading, continuous paragraph, legibility) and shows a character-aligned diff when anything is off.`
+5. `warning-evidence`: `The government warning is one of the fastest ways a label can be rejected. The tool checks it five ways. If something is wrong, this section highlights the exact wording, punctuation, or capitalization to review. Use Load failing label to open an example.`
 6. `standalone-mode`: `If you upload only an image with no application data, the tool runs standalone mode — it still extracts and checks, but it skips comparison steps and flags the result as needing a human read.`
 7. `batch-matching`: `For many labels at once, upload images and one CSV. The tool matches images to rows by filename first and row order second, and surfaces any ambiguity before the run starts.`
 8. `no-persistence`: `Nothing you do in this tool is stored. Images, forms, results, and batch sessions all live only as long as your browser tab is open. Close the tab and everything is gone.`
 
 ### Seed info popover content (English, 5 anchors)
 
-1. `warning-evidence`: title `Warning evidence`. `We check the government warning against the required wording in five sub-checks — presence, exact text, uppercase heading, continuous paragraph, legibility. The character-aligned diff below shows where a failed text check differs from the required wording.`
+1. `warning-evidence`: title `Warning evidence`. `We check the government warning in five ways — presence, exact text, uppercase heading, continuous paragraph, and legibility. The text comparison below highlights the exact words, letters, or punctuation that do not match the required wording.`
 2. `confidence-indicator`: title `Confidence`. `This bar shows how confident the extraction is for this field. Green means 90%+; amber means 70–89%; red means below 70%. Lower confidence is never a verdict — it's a signal to verify manually.`
 3. `standalone-mode`: title `Standalone mode`. `You uploaded an image without application data, so the tool is extracting and checking what it can read. Comparison checks that need the application data are skipped. Use Run Full Comparison to return and provide that data.`
 4. `batch-matching-logic`: title `How matching works`. `We try to match each image to a CSV row using the filename column first. If a row has no filename, we fall back to row order. Ambiguous matches and unmatched items appear below so you can fix them before starting.`
@@ -190,7 +190,7 @@ Claude ships a local fixture for the tour until Codex lands the manifest route. 
 ## Accessibility, privacy, performance
 
 - **Keyboard.** Launcher is Tab-reachable from the app shell header. The panel traps focus while open and returns focus on close. Info anchors are Tab-reachable; popovers are Escape-dismissible. Arrow keys on the step indicator advance steps.
-- **Screen readers.** Panel uses `role="complementary"` with `aria-label="Guided review"`. Popovers use `role="dialog"` with `aria-modal="false"` (they're not blocking) and an `aria-labelledby` pointing at the title.
+- **Screen readers.** Panel uses `role="complementary"` with `aria-label="Guided tour"`. Popovers use `role="dialog"` with `aria-modal="false"` (they're not blocking) and an `aria-labelledby` pointing at the title.
 - **Color independence.** Step indicator uses text + progress fill, not color-only. Info icons use both the icon shape and a visible label on hover/focus.
 - **Reduced motion.** Panel slide-in and popover fade respect `prefers-reduced-motion`; under reduced motion they snap instead of animating.
 - **Privacy.** No network call on help interactions once Codex lands the manifest (manifest is cached per session). No analytics. No reviewer identity sent. Replay state lives in `localStorage` only.
@@ -270,7 +270,7 @@ export const helpManifestSchema = z.object({
 1. **Tour content source of truth.** Claude seeds English content in `src/client/helpManifest.ts`. Once Codex adds the server route, the UI fetches from there. Should the client fixture stay as a fallback for offline dev, or be removed post-cutover? Default: keep as a fallback behind an env flag.
 2. **Popover content mismatch handling.** If the manifest's `body` is longer than expected (e.g., a future localization expands), should the popover scroll internally or wrap taller? Default: wrap taller; popovers have a max width but no strict max height.
 3. **`Show me` action scope.** For the POC, `Show me` covers `load-scenario` (e.g., load `perfect-spirit-label`) and `advance-view` (e.g., switch to batch mode). Cross-boundary actions (e.g., "simulate a batch run") are out of scope unless Codex wants to seed them later.
-4. **Keyboard shortcut.** Should `?` or `/` open the guided review panel? UI does not wire a shortcut in this story to avoid conflicting with browser find. Default: no shortcut for now.
+4. **Keyboard shortcut.** Should `?` or `/` open the guided tour panel? UI does not wire a shortcut in this story to avoid conflicting with browser find. Default: no shortcut for now.
 5. **Per-role help.** Supervisors vs. reviewers vs. engineering viewers might want different framings. Out of scope. The manifest contract accommodates it later via a `role` field.
 
 ## Out of scope for this spec
