@@ -43,11 +43,16 @@ If the smoke test fails, stop and fix local auth before continuing.
 
 Use LangSmith to inspect:
 
-- root traces
+- experiment sessions when the traced command is a `langsmith/vitest` eval
+- eval root runs inside that experiment
+- root surface spans versus child LLM-only spans
 - individual LLM runs
 - tool-call sequence
 - retries and fallback branches
 - schema adherence and parse failures
+- stage timing summaries for extraction and deterministic follow-on work
+
+For `langsmith/vitest` evals, the inspection path is: experiment session -> eval root run -> nested route-surface span -> stage spans.
 
 ## Step 7: Change one variable
 
@@ -74,7 +79,7 @@ Update:
 - `evals/results/`
 - packet docs and memory files when durable truth changed
 
-Record the winning trace ids and what changed.
+Record the winning experiment session ids, surface run ids, surface-span names, stage timings, and what changed.
 
 ## Exit criteria
 

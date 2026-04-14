@@ -102,7 +102,8 @@ export async function runReviewEvalCase(caseItem: ReviewEndpointCase) {
       name: caseItem.labelFilename,
       data: buildFixtureBytes(caseItem.byteSignature)
     }),
-    fields: caseItem.fields ? JSON.stringify(caseItem.fields) : null
+    fields: caseItem.fields ? JSON.stringify(caseItem.fields) : null,
+    clientTraceId: `${caseItem.caseId}:review`
   });
   const latencyMs = Math.round(performance.now() - startedAt);
 
@@ -127,7 +128,8 @@ export async function runExtractionEvalCase(caseItem: ExtractionEndpointCase) {
       name: caseItem.labelFilename,
       data: buildFixtureBytes(caseItem.byteSignature)
     }),
-    fields: caseItem.fields ? JSON.stringify(caseItem.fields) : null
+    fields: caseItem.fields ? JSON.stringify(caseItem.fields) : null,
+    clientTraceId: `${caseItem.caseId}:extraction`
   });
   const latencyMs = Math.round(performance.now() - startedAt);
 
@@ -152,7 +154,8 @@ export async function runWarningEvalCase(caseItem: WarningEndpointCase) {
       name: caseItem.labelFilename,
       data: buildFixtureBytes(caseItem.byteSignature)
     }),
-    fields: caseItem.fields ? JSON.stringify(caseItem.fields) : null
+    fields: caseItem.fields ? JSON.stringify(caseItem.fields) : null,
+    clientTraceId: `${caseItem.caseId}:warning`
   });
   const latencyMs = Math.round(performance.now() - startedAt);
 

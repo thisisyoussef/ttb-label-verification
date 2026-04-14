@@ -21,7 +21,7 @@ Turn the existing corpus-first eval setup into an endpoint-aware, mode-aware, an
 - `evals/results/TEMPLATE.md`
   - add endpoint/mode/provider/prompt-profile/guardrail/persona result sections
 - `src/server/llm-trace.ts`
-  - privacy-safe LangSmith wrappers for the shared extraction capability
+  - privacy-safe LangSmith wrappers for the shared extraction capability plus root surface traces and nested deterministic follow-on spans
 - `src/server/llm-policy.ts`
   - extraction-mode, provider, prompt-profile, guardrail-policy, and endpoint-surface identity constants
 - `docs/process/TRACE_DRIVEN_DEVELOPMENT.md`
@@ -85,3 +85,4 @@ Turn the existing corpus-first eval setup into an endpoint-aware, mode-aware, an
 - documentation diff review for new endpoint metadata and templates
 - manifest validation after any golden/live manifest changes
 - one recorded dry run using the updated template and endpoint plus mode matrix during implementation
+- targeted route tests proving the server uses the surface-level trace wrappers instead of tracing only the extractor

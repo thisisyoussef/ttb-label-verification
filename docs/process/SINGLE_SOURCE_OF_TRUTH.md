@@ -1,6 +1,6 @@
 # Single Source of Truth
 
-Last updated: 2026-04-14 (`TTB-211` is now complete on the current OpenAI-backed route graph; `TTB-206` is the next ready Codex story while `TTB-108` remains the remaining Claude-side blocker for `TTB-401`)
+Last updated: 2026-04-14 (`TTB-211` now includes route-surface trace evidence on the current OpenAI-backed route graph; `TTB-206` is the next ready Codex story while `TTB-108` remains the remaining Claude-side blocker for `TTB-401`)
 
 ## Continue resolution
 
@@ -34,7 +34,7 @@ Last updated: 2026-04-14 (`TTB-211` is now complete on the current OpenAI-backed
 - Project status: runnable scaffold plus full-product planning set with live GitHub and Railway backing
 - Runtime status: React + Express scaffold exists, the shared review contract now includes typed extraction plus warning evidence, `POST /api/review` keeps uploads in memory and now runs the integrated extraction + warning + aggregation path, `POST /api/review/seed` remains the explicit scaffold-only inspection route, `POST /api/review/extraction` runs the live extraction boundary, `POST /api/review/warning` stages the warning validator, and contracts are tested
 - Process status: lane rules, next-story routing, spec gate, TDD gate, LangSmith-backed trace-driven development, Claude-direct UI flow with automated/manual Stitch alternatives, deployment flow, repo-managed git hooks, and publish-gate handoff rules are checked in
-- Planning status: `TTB-106`, `TTB-107`, and the current OpenAI-backed `TTB-211` override slice are complete, extraction-mode routing plus cloud-provider migration is now captured as `TTB-206` plus `TTB-207`, the tightened `<= 4,000 ms` objective remains scoped to the default cloud path via `TTB-208` plus `TTB-209`, the restricted-network local-mode follow-on is captured as `TTB-212`, the reviewer-facing mode selector is captured as `TTB-108`, and the user-centered prompt/guardrail/eval hardening follow-ons remain captured as `TTB-210` plus `TTB-211`; `TTB-206` is again the next ready Codex story after the early eval/trace override closed
+- Planning status: `TTB-106`, `TTB-107`, and the current OpenAI-backed `TTB-211` override slice are complete, including route-surface trace evidence plus endpoint-aware fixture evals; extraction-mode routing plus cloud-provider migration is now captured as `TTB-206` plus `TTB-207`, the tightened `<= 4,000 ms` objective remains scoped to the default cloud path via `TTB-208` plus `TTB-209`, the restricted-network local-mode follow-on is captured as `TTB-212`, the reviewer-facing mode selector is captured as `TTB-108`, and the user-centered prompt/guardrail/eval hardening follow-ons remain captured as `TTB-210` plus `TTB-211`; `TTB-206` is again the next ready Codex story after the early eval/trace override closed
 - GitHub bootstrap status: live repo exists at `thisisyoussef/ttb-label-verification`
 - Railway bootstrap status: project, service, staging, production, public domains, and GitHub Actions token wiring are configured
 
@@ -74,7 +74,7 @@ Last updated: 2026-04-14 (`TTB-211` is now complete on the current OpenAI-backed
 | 19 | `TTB-209` | `TTB-002` | cloud/default single-label hot-path optimization to `<= 4 seconds` | Codex | `blocked-by-dependency` | use the timing data to tune the default cloud hot path, enforce deadline-aware fallback, and only then cut the visible budget to `4000` | `TTB-208` complete |
 | 20 | `TTB-212` | `TTB-002` | local extraction mode: Ollama-hosted Qwen2.5-VL with degraded-confidence guardrails | Codex | `blocked-by-dependency` | add the fully local extraction path after the cloud default is stable, with no silent cloud fallback and explicit low-confidence handling for weak visual claims | `TTB-209` complete |
 | 21 | `TTB-210` | `TTB-002` | persona-centered prompt profiles and endpoint plus mode guardrails | Codex | `blocked-by-dependency` | harden the shared extraction path with endpoint-aware and mode-aware prompt profiles plus structural guardrails after cloud and local routing settle | `TTB-212` complete |
-| 22 | `TTB-211` | `TTB-002` | LLM endpoint and mode eval matrix, persona scorecards, and trace regression gates | Codex | `done` | keep the endpoint-aware eval harness, persona scorecards, trace guidance, and CI golden gate as the record of the completed route-aware regression slice | none |
+| 22 | `TTB-211` | `TTB-002` | LLM endpoint and mode eval matrix, persona scorecards, and trace regression gates | Codex | `done` | keep the endpoint-aware eval harness, route-surface trace evidence, persona scorecards, trace guidance, and CI golden gate as the record of the completed route-aware regression slice | none |
 | 23 | `TTB-401` | `TTB-004` | final privacy, performance, eval, and submission pack | Codex | `blocked-by-dependency` | run the release gate and package the submission | `TTB-108` complete |
 
 ## Handoff points

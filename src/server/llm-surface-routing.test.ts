@@ -1,89 +1,12 @@
 import type { AddressInfo } from 'node:net';
-
 import { afterEach, describe, expect, it, vi } from 'vitest';
-
-import { reviewExtractionSchema } from '../shared/contracts/review';
+import {
+  checkReviewSchema,
+  reviewExtractionSchema,
+  verificationReportSchema
+} from '../shared/contracts/review';
 import type { NormalizedReviewIntake } from './review-intake';
 import type { ReviewExtractor } from './review-extraction';
-import { createReviewExtractionFailure } from './review-extraction';
-
-type TraceCallInput = {
-  surface: string;
-  extractionMode?: string;
-  fixtureId?: string;
-  intake: NormalizedReviewIntake;
-  extractor: ReviewExtractor;
-};
-
-const { runTracedReviewExtractionMock } = vi.hoisted(() => ({
-  runTracedReviewExtractionMock: vi.fn(
-    async (input: TraceCallInput) => input.extractor(input.intake)
-  )
-}));
-
-vi.mock('./llm-trace', () => ({
-  runTracedReviewExtraction: runTracedReviewExtractionMock
-}));
-
-import { createApp } from './index';
-
-const serversToClose: Array<{
-  close: (callback: (error?: Error | undefined) => void) => void;
-}> = [];
-
-async function startServer(options: Parameters<typeof createApp>[0] = {}) {
-  const app = createApp(options);
-
-  return await new Promise<{
-    close: (callback: (error?: Error | undefined) => void) => void;
-    address: () => AddressInfo | string | null;
-  }>((resolve, reject) => {
-    const server = app.listen(0, '127.0.0.1', () => resolve(server));
-    server.on('error', reject);
-  });
-}
-
-function serverUrl(
-  server: { address: () => AddressInfo | string | null },
-  pathname: string
-) {
-  const address = server.address();
-
-  if (!address || typeof address === 'string') {
-    throw new Error('Server address not available.');
-  }
-
-  return `http://127.0.0.1:${address.port}${pathname}`;
-}
-
-function validReviewFields() {
-  return {
-    beverageType: 'auto',
-    brandName: 'Trace Brand',
-    fancifulName: '',
-    classType: 'Vodka',
-    alcoholContent: '45% Alc./Vol.',
-    netContents: '750 mL',
-    applicantAddress: '',
-    origin: 'domestic',
-    country: '',
-    formulaId: '',
-    appellation: '',
-    vintage: '',
-    varietals: []
-  };
-}
-
-function buildLabelFile({
-  name = 'label.png',
-  type = 'image/png'
-}: {
-  name?: string;
-  type?: string;
-} = {}) {
-  return new File([new Uint8Array([1, 2, 3, 4])], name, { type });
-}
-
 function presentField(value: string, confidence = 0.96) {
   return {
     present: true,
@@ -154,9 +77,198 @@ function buildExtractionPayload(overrides: Record<string, unknown> = {}) {
   });
 }
 
+function buildWarningPayload() {
+  return checkReviewSchema.parse({
+    id: 'government-warning',
+    label: 'Government warning',
+    status: 'pass',
+    severity: 'note',
+    summary: 'Warning text and formatting look correct.',
+    details: 'All warning sub-checks passed.',
+    confidence: 0.93,
+    citations: [],
+    warning: {
+      required:
+        'GOVERNMENT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. (2) Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems.',
+      extracted:
+        'GOVERNMENT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. (2) Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems.',
+      segments: [],
+      subChecks: [
+        {
+          id: 'present',
+          label: 'Warning text is present',
+          status: 'pass',
+          reason: 'Warning text was detected on the label.'
+        },
+        {
+          id: 'exact-text',
+          label: 'Warning text matches required wording',
+          status: 'pass',
+          reason: 'Warning text matches the canonical wording.'
+        },
+        {
+          id: 'uppercase-bold-heading',
+          label: 'Warning heading is uppercase and bold',
+          status: 'pass',
+          reason: 'Heading format is correct.'
+        },
+        {
+          id: 'continuous-paragraph',
+          label: 'Warning is shown as a continuous paragraph',
+          status: 'pass',
+          reason: 'Paragraph continuity is intact.'
+        },
+        {
+          id: 'legibility',
+          label: 'Warning is legible and separate from other content',
+          status: 'pass',
+          reason: 'Warning text remains readable and visually distinct.'
+        }
+      ]
+    }
+  });
+}
+
+function buildReviewPayload(overrides: Record<string, unknown> = {}) {
+  return verificationReportSchema.parse({
+    id: 'trace-report-001',
+    mode: 'single-label',
+    beverageType: 'distilled-spirits',
+    verdict: 'approve',
+    verdictSecondary: 'Clear extraction and deterministic checks support approval.',
+    standalone: false,
+    extractionQuality: {
+      globalConfidence: 0.95,
+      state: 'ok',
+      note: 'Extraction quality is high.'
+    },
+    counts: {
+      pass: 3,
+      review: 0,
+      fail: 0
+    },
+    checks: [buildWarningPayload()],
+    crossFieldChecks: [],
+    latencyBudgetMs: 5000,
+    noPersistence: true,
+    summary: 'Trace review passed all deterministic checks.',
+    ...overrides
+  });
+}
+
+type ReviewSurfaceCallInput = {
+  surface: string;
+  extractionMode?: string;
+  clientTraceId?: string;
+  fixtureId?: string;
+  reportId?: string;
+  intake: NormalizedReviewIntake;
+  extractor: ReviewExtractor;
+};
+
+type ExtractionSurfaceCallInput = {
+  surface: string;
+  extractionMode?: string;
+  clientTraceId?: string;
+  fixtureId?: string;
+  intake: NormalizedReviewIntake;
+  extractor: ReviewExtractor;
+};
+
+type WarningSurfaceCallInput = {
+  surface: string;
+  extractionMode?: string;
+  clientTraceId?: string;
+  fixtureId?: string;
+  intake: NormalizedReviewIntake;
+  extractor: ReviewExtractor;
+};
+
+const {
+  runTracedReviewSurfaceMock,
+  runTracedExtractionSurfaceMock,
+  runTracedWarningSurfaceMock
+} = vi.hoisted(() => ({
+  runTracedReviewSurfaceMock: vi.fn(async () => buildReviewPayload()),
+  runTracedExtractionSurfaceMock: vi.fn(async (input: ExtractionSurfaceCallInput) =>
+    input.extractor(input.intake)
+  ),
+  runTracedWarningSurfaceMock: vi.fn(async () => buildWarningPayload())
+}));
+
+vi.mock('./llm-trace', () => ({
+  runTracedReviewSurface: runTracedReviewSurfaceMock,
+  runTracedExtractionSurface: runTracedExtractionSurfaceMock,
+  runTracedWarningSurface: runTracedWarningSurfaceMock
+}));
+
+import { createApp } from './index';
+
+const serversToClose: Array<{
+  close: (callback: (error?: Error | undefined) => void) => void;
+}> = [];
+async function startServer(options: Parameters<typeof createApp>[0] = {}) {
+  const app = createApp(options);
+
+  return await new Promise<{
+    close: (callback: (error?: Error | undefined) => void) => void;
+    address: () => AddressInfo | string | null;
+  }>((resolve, reject) => {
+    const server = app.listen(0, '127.0.0.1', () => resolve(server));
+    server.on('error', reject);
+  });
+}
+
+function serverUrl(
+  server: { address: () => AddressInfo | string | null },
+  pathname: string
+) {
+  const address = server.address();
+
+  if (!address || typeof address === 'string') {
+    throw new Error('Server address not available.');
+  }
+
+  return `http://127.0.0.1:${address.port}${pathname}`;
+}
+
+function readCallInput<T>(mockFn: unknown, index = 0) {
+  const calls = (mockFn as { mock: { calls: Array<[T]> } }).mock.calls;
+  return calls[index]?.[0];
+}
+
+function validReviewFields() {
+  return {
+    beverageType: 'auto',
+    brandName: 'Trace Brand',
+    fancifulName: '',
+    classType: 'Vodka',
+    alcoholContent: '45% Alc./Vol.',
+    netContents: '750 mL',
+    applicantAddress: '',
+    origin: 'domestic',
+    country: '',
+    formulaId: '',
+    appellation: '',
+    vintage: '',
+    varietals: []
+  };
+}
+
+function buildLabelFile({
+  name = 'label.png',
+  type = 'image/png'
+}: {
+  name?: string;
+  type?: string;
+} = {}) {
+  return new File([new Uint8Array([1, 2, 3, 4])], name, { type });
+}
+
 async function postReviewRoute(
   server: { address: () => AddressInfo | string | null },
-  pathname: '/api/review' | '/api/review/extraction' | '/api/review/warning'
+  pathname: '/api/review' | '/api/review/extraction' | '/api/review/warning',
+  traceId = 'trace-client-001'
 ) {
   const form = new FormData();
   form.append('label', buildLabelFile());
@@ -164,6 +276,9 @@ async function postReviewRoute(
 
   return await fetch(serverUrl(server, pathname), {
     method: 'POST',
+    headers: {
+      'x-review-client-id': traceId
+    },
     body: form
   });
 }
@@ -216,7 +331,9 @@ async function postBatchPreflight(
 }
 
 afterEach(async () => {
-  runTracedReviewExtractionMock.mockClear();
+  runTracedReviewSurfaceMock.mockClear();
+  runTracedExtractionSurfaceMock.mockClear();
+  runTracedWarningSurfaceMock.mockClear();
 
   await Promise.all(
     serversToClose.splice(0).map(
@@ -236,49 +353,88 @@ afterEach(async () => {
 });
 
 describe('LLM route trace surfaces', () => {
-  it.each([
-    ['/api/review', '/api/review'],
-    ['/api/review/extraction', '/api/review/extraction'],
-    ['/api/review/warning', '/api/review/warning']
-  ] as const)(
-    'routes %s through the traced extraction surface',
-    async (pathname, surface) => {
-      const extractor = vi.fn().mockResolvedValue(buildExtractionPayload());
-      const server = await startServer({ extractor });
-      serversToClose.push(server);
-
-      const response = await postReviewRoute(server, pathname);
-
-      expect(response.status).toBe(200);
-      expect(runTracedReviewExtractionMock).toHaveBeenCalledTimes(1);
-
-      const traceInput = runTracedReviewExtractionMock.mock.calls[0]?.[0];
-
-      expect(traceInput?.surface).toBe(surface);
-      expect(traceInput?.extractionMode).toBe('cloud');
-      expect(traceInput?.extractor).toBe(extractor);
-      expect(traceInput?.intake.label.originalName).toBe('label.png');
-      expect(traceInput?.intake.fields.brandName).toBe('Trace Brand');
-    }
-  );
-
-  it('routes batch run and retry through their own traced extraction surfaces', async () => {
-    const extractor = vi.fn(async (intake) => {
-      if (intake.label.originalName === 'retry-trace.png' && extractor.mock.calls.length === 1) {
-        throw createReviewExtractionFailure({
-          status: 503,
-          kind: 'network',
-          message: 'We could not reach the extraction service right now.',
-          retryable: true
-        });
-      }
-
-      return buildExtractionPayload({
-        id: `trace-${intake.label.originalName}`
-      });
-    });
-
+  it('routes /api/review through the integrated traced review surface', async () => {
+    const extractor = vi.fn().mockResolvedValue(buildExtractionPayload());
     const server = await startServer({ extractor });
+    serversToClose.push(server);
+
+    const response = await postReviewRoute(server, '/api/review', 'trace-review-001');
+
+    expect(response.status).toBe(200);
+    expect(runTracedReviewSurfaceMock).toHaveBeenCalledTimes(1);
+
+    const traceInput = readCallInput<ReviewSurfaceCallInput>(
+      runTracedReviewSurfaceMock
+    );
+
+    expect(traceInput?.surface).toBe('/api/review');
+    expect(traceInput?.extractionMode).toBe('cloud');
+    expect(traceInput?.clientTraceId).toBe('trace-review-001');
+    expect(traceInput?.extractor).toBe(extractor);
+    expect(traceInput?.intake.label.originalName).toBe('label.png');
+    expect(traceInput?.intake.fields.brandName).toBe('Trace Brand');
+  });
+
+  it('routes /api/review/extraction through the traced extraction surface', async () => {
+    const extractor = vi.fn().mockResolvedValue(buildExtractionPayload());
+    const server = await startServer({ extractor });
+    serversToClose.push(server);
+
+    const response = await postReviewRoute(
+      server,
+      '/api/review/extraction',
+      'trace-extraction-001'
+    );
+
+    expect(response.status).toBe(200);
+    expect(runTracedExtractionSurfaceMock).toHaveBeenCalledTimes(1);
+
+    const traceInput = readCallInput<ExtractionSurfaceCallInput>(
+      runTracedExtractionSurfaceMock
+    );
+
+    expect(traceInput?.surface).toBe('/api/review/extraction');
+    expect(traceInput?.extractionMode).toBe('cloud');
+    expect(traceInput?.clientTraceId).toBe('trace-extraction-001');
+    expect(traceInput?.extractor).toBe(extractor);
+    expect(traceInput?.intake.label.originalName).toBe('label.png');
+    expect(traceInput?.intake.fields.brandName).toBe('Trace Brand');
+  });
+
+  it('routes /api/review/warning through the traced warning surface', async () => {
+    const extractor = vi.fn().mockResolvedValue(buildExtractionPayload());
+    const server = await startServer({ extractor });
+    serversToClose.push(server);
+
+    const response = await postReviewRoute(
+      server,
+      '/api/review/warning',
+      'trace-warning-001'
+    );
+
+    expect(response.status).toBe(200);
+    expect(runTracedWarningSurfaceMock).toHaveBeenCalledTimes(1);
+
+    const traceInput = readCallInput<WarningSurfaceCallInput>(
+      runTracedWarningSurfaceMock
+    );
+
+    expect(traceInput?.surface).toBe('/api/review/warning');
+    expect(traceInput?.extractionMode).toBe('cloud');
+    expect(traceInput?.clientTraceId).toBe('trace-warning-001');
+    expect(traceInput?.extractor).toBe(extractor);
+    expect(traceInput?.intake.label.originalName).toBe('label.png');
+    expect(traceInput?.intake.fields.brandName).toBe('Trace Brand');
+  });
+
+  it('routes batch run and retry through their own traced review surfaces', async () => {
+    runTracedReviewSurfaceMock
+      .mockImplementationOnce(async () => {
+        throw new Error('Trace review failed on the first batch attempt.');
+      })
+      .mockImplementationOnce(async () => buildReviewPayload());
+
+    const server = await startServer({ extractor: vi.fn() });
     serversToClose.push(server);
 
     const preflightResponse = await postBatchPreflight(server, 'retry-trace.png');
@@ -318,24 +474,25 @@ describe('LLM route trace surfaces', () => {
     );
 
     expect(retryResponse.status).toBe(200);
-    expect(runTracedReviewExtractionMock).toHaveBeenCalledTimes(2);
-    expect(runTracedReviewExtractionMock.mock.calls[0]?.[0]?.surface).toBe(
-      '/api/batch/run'
+    expect(runTracedReviewSurfaceMock).toHaveBeenCalledTimes(2);
+    const batchRunTrace = readCallInput<ReviewSurfaceCallInput>(
+      runTracedReviewSurfaceMock,
+      0
     );
-    expect(runTracedReviewExtractionMock.mock.calls[0]?.[0]?.extractionMode).toBe(
-      'cloud'
+    const batchRetryTrace = readCallInput<ReviewSurfaceCallInput>(
+      runTracedReviewSurfaceMock,
+      1
     );
-    expect(runTracedReviewExtractionMock.mock.calls[0]?.[0]?.fixtureId).toBe(
-      'image-trace-001'
-    );
-    expect(runTracedReviewExtractionMock.mock.calls[1]?.[0]?.surface).toBe(
-      '/api/batch/retry'
-    );
-    expect(runTracedReviewExtractionMock.mock.calls[1]?.[0]?.extractionMode).toBe(
-      'cloud'
-    );
-    expect(runTracedReviewExtractionMock.mock.calls[1]?.[0]?.fixtureId).toBe(
-      'image-trace-001'
+
+    expect(batchRunTrace?.surface).toBe('/api/batch/run');
+    expect(batchRunTrace?.extractionMode).toBe('cloud');
+    expect(batchRunTrace?.fixtureId).toBe('image-trace-001');
+    expect(batchRunTrace?.clientTraceId).toBe('/api/batch/run:image-trace-001');
+    expect(batchRetryTrace?.surface).toBe('/api/batch/retry');
+    expect(batchRetryTrace?.extractionMode).toBe('cloud');
+    expect(batchRetryTrace?.fixtureId).toBe('image-trace-001');
+    expect(batchRetryTrace?.clientTraceId).toBe(
+      '/api/batch/retry:image-trace-001'
     );
   });
 });

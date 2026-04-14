@@ -211,10 +211,12 @@ export async function postReview(
   server: { address: () => AddressInfo | string | null },
   {
     file = buildLabelFile(),
-    fields = JSON.stringify(validReviewFields())
+    fields = JSON.stringify(validReviewFields()),
+    clientTraceId
   }: {
     file?: File | null;
     fields?: string | null;
+    clientTraceId?: string;
   } = {}
 ) {
   const form = new FormData();
@@ -229,6 +231,7 @@ export async function postReview(
 
   return await fetch(serverUrl(server, '/api/review'), {
     method: 'POST',
+    headers: clientTraceId ? { 'x-review-client-id': clientTraceId } : undefined,
     body: form
   });
 }
@@ -237,10 +240,12 @@ export async function postReviewExtraction(
   server: { address: () => AddressInfo | string | null },
   {
     file = buildLabelFile(),
-    fields = JSON.stringify(validReviewFields())
+    fields = JSON.stringify(validReviewFields()),
+    clientTraceId
   }: {
     file?: File | null;
     fields?: string | null;
+    clientTraceId?: string;
   } = {}
 ) {
   const form = new FormData();
@@ -255,6 +260,7 @@ export async function postReviewExtraction(
 
   return await fetch(serverUrl(server, '/api/review/extraction'), {
     method: 'POST',
+    headers: clientTraceId ? { 'x-review-client-id': clientTraceId } : undefined,
     body: form
   });
 }
@@ -263,10 +269,12 @@ export async function postReviewWarning(
   server: { address: () => AddressInfo | string | null },
   {
     file = buildLabelFile(),
-    fields = JSON.stringify(validReviewFields())
+    fields = JSON.stringify(validReviewFields()),
+    clientTraceId
   }: {
     file?: File | null;
     fields?: string | null;
+    clientTraceId?: string;
   } = {}
 ) {
   const form = new FormData();
@@ -281,6 +289,7 @@ export async function postReviewWarning(
 
   return await fetch(serverUrl(server, '/api/review/warning'), {
     method: 'POST',
+    headers: clientTraceId ? { 'x-review-client-id': clientTraceId } : undefined,
     body: form
   });
 }

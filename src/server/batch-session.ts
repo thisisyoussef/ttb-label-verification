@@ -7,16 +7,14 @@ import {
   batchStreamFrameSchema,
   type BatchStartRequest,
 } from '../shared/contracts/review';
-import { buildGovernmentWarningCheck } from './government-warning-validator';
 import type { LlmEndpointSurface } from './llm-policy';
-import { runTracedReviewExtraction } from './llm-trace';
 import { REVIEW_EXTRACTION_MODE } from './llm-policy';
+import { runTracedReviewSurface } from './llm-trace';
 import {
   createReviewExtractionFailure,
   type ReviewExtractor
 } from './review-extraction';
 import { createNormalizedReviewIntake } from './review-intake';
-import { buildVerificationReport } from './review-report';
 import {
   buildDashboardRow,
   buildErroredRow,
@@ -241,18 +239,14 @@ export class BatchSessionStore {
     });
 
     try {
-      const extraction = await runTracedReviewExtraction({
+      const report = await runTracedReviewSurface({
         surface: input.surface,
         extractionMode: REVIEW_EXTRACTION_MODE,
+        clientTraceId: [input.surface, input.assignment.image.id].join(':'),
         intake,
         extractor: this.extractor,
-        fixtureId: input.assignment.image.id
-      });
-      const report = buildVerificationReport({
-        intake,
-        extraction,
-        warningCheck: buildGovernmentWarningCheck(extraction),
-        id: randomUUID()
+        fixtureId: input.assignment.image.id,
+        reportId: randomUUID()
       });
 
       return {
