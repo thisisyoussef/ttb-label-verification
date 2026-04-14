@@ -32,7 +32,7 @@ if (!repoRoot) {
   process.exit(0);
 }
 
-const hookFiles = ["pre-commit", "pre-push"];
+const hookFiles = ["pre-commit", "pre-push", "commit-msg"];
 
 for (const hookFile of hookFiles) {
   const hookPath = join(repoRoot, ".githooks", hookFile);

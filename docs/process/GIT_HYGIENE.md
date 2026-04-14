@@ -38,6 +38,7 @@ Rules:
 - Do not mix unrelated stories in one branch unless the tracker explicitly treats them as one coupled unit.
 - If the worktree already contains unrelated changes, do not revert them. Stage only the files for the story you are committing.
 - When the active story changes, prefer a new branch instead of repurposing the old one.
+- Repo gates enforce branch naming. Normal work must use `claude/<story-id>-<summary>`, `codex/<story-id>-<summary>`, or `chore/<story-id>-<summary>`. `archive/` and `rewrite/` branches are exceptional maintenance paths only.
 
 ## Commit gate
 
@@ -71,6 +72,7 @@ Rules:
 - Do not hide unrelated cleanup inside a story commit.
 - Do not combine refactor-only edits with new behavior unless the diff is still clearly one change.
 - WIP commits are allowed on local branches, but reviewable history should be cleaned before merge when practical.
+- Repo-managed `commit-msg` hooks now enforce conventional-commit subjects and require the branch story id in each normal story commit.
 
 ## Push gate
 
@@ -112,6 +114,7 @@ Current managed hooks:
 
 - `pre-commit` -> `npm run gate:commit`
 - `pre-push` -> `npm run gate:push`
+- `commit-msg` -> `npm run gate:commit-msg -- <message-file>`
 
 These hooks do not replace the publish gate. They enforce commit and push checks automatically, while `npm run gate:publish` verifies that the branch is actually on GitHub before handoff.
 
@@ -123,6 +126,9 @@ Reviewable merge gate:
 - the packet and tracker are current
 - required local validation passed
 - no stray debug logs, temporary files, or unrelated diffs remain
+- GitHub now allows only rebase merges into `main`; squash merges and merge commits are disabled so story commits stay visible in the mainline history.
+- GitHub deletes merged branches automatically after merge.
+- GitHub Actions now auto-update clean story PR branches when `main` moves and auto-merge eligible story PRs after green CI. Branches with real conflicts stay open for manual resolution.
 
 Deployment branch rules:
 

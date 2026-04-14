@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:mutation": "stryker run",
     "typecheck": "tsc --noEmit",
+    "gate:commit-msg": "tsx scripts/git-commit-msg-gate.ts",
     "gate:commit": "tsx scripts/git-story-gate.ts commit",
     "gate:push": "tsx scripts/git-story-gate.ts push",
     "gate:publish": "tsx scripts/git-story-gate.ts publish",

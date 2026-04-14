@@ -6,6 +6,10 @@ type PublishStatus = {
   behind: number;
 };
 
+const STORY_BRANCH_PATTERN =
+  /^(claude|codex|chore)\/(TTB(?:-[A-Z]+)?-[0-9]+)(?:-.+)?$/;
+const EXCEPTION_BRANCH_PATTERN = /^(archive|rewrite)\/.+$/;
+
 function runGit(args: string[], options?: { allowFailure?: boolean }): string {
   try {
     return execFileSync("git", args, {
@@ -76,6 +80,12 @@ if (branch === "HEAD") {
 if (branch === "main" || branch === "production") {
   fail(
     `Direct ${mode} work on '${branch}' is blocked. Create or switch to a story branch first, for example: git switch -c chore/<story-id>-<summary>`,
+  );
+}
+
+if (!STORY_BRANCH_PATTERN.test(branch) && !EXCEPTION_BRANCH_PATTERN.test(branch)) {
+  fail(
+    `Branch '${branch}' does not follow repo branch naming. Use claude/<story-id>-<summary>, codex/<story-id>-<summary>, chore/<story-id>-<summary>, or an explicit archive/rewrite branch for exceptional maintenance.`,
   );
 }
 
