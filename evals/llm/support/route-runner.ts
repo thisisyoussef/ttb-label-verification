@@ -23,6 +23,7 @@ import {
   serverUrl,
   startServer
 } from '../../../src/server/index.test-helpers';
+import type { ReviewLatencySummary } from '../../../src/server/review-latency';
 import type {
   BatchEndpointCase,
   ExtractionEndpointCase,
@@ -93,7 +94,11 @@ export async function runReviewEvalCase(caseItem: ReviewEndpointCase) {
     byteSignature: caseItem.byteSignature,
     steps: [{ type: 'output', output: caseItem.modelOutput }]
   });
-  const server = await startServer({ extractor });
+  const latencySummaries: ReviewLatencySummary[] = [];
+  const server = await startServer({
+    extractor,
+    latencyObserver: (summary) => latencySummaries.push(summary)
+  });
   registerServer(server);
 
   const startedAt = performance.now();
@@ -109,6 +114,7 @@ export async function runReviewEvalCase(caseItem: ReviewEndpointCase) {
 
   return {
     latencyMs,
+    latencySummary: latencySummaries.at(-1),
     payload: verificationReportSchema.parse(await response.json())
   };
 }
@@ -119,7 +125,11 @@ export async function runExtractionEvalCase(caseItem: ExtractionEndpointCase) {
     byteSignature: caseItem.byteSignature,
     steps: [{ type: 'output', output: caseItem.modelOutput }]
   });
-  const server = await startServer({ extractor });
+  const latencySummaries: ReviewLatencySummary[] = [];
+  const server = await startServer({
+    extractor,
+    latencyObserver: (summary) => latencySummaries.push(summary)
+  });
   registerServer(server);
 
   const startedAt = performance.now();
@@ -135,6 +145,7 @@ export async function runExtractionEvalCase(caseItem: ExtractionEndpointCase) {
 
   return {
     latencyMs,
+    latencySummary: latencySummaries.at(-1),
     payload: reviewExtractionSchema.parse(await response.json())
   };
 }
@@ -145,7 +156,11 @@ export async function runWarningEvalCase(caseItem: WarningEndpointCase) {
     byteSignature: caseItem.byteSignature,
     steps: [{ type: 'output', output: caseItem.modelOutput }]
   });
-  const server = await startServer({ extractor });
+  const latencySummaries: ReviewLatencySummary[] = [];
+  const server = await startServer({
+    extractor,
+    latencyObserver: (summary) => latencySummaries.push(summary)
+  });
   registerServer(server);
 
   const startedAt = performance.now();
@@ -161,6 +176,7 @@ export async function runWarningEvalCase(caseItem: WarningEndpointCase) {
 
   return {
     latencyMs,
+    latencySummary: latencySummaries.at(-1),
     payload: checkReviewSchema.parse(await response.json())
   };
 }
@@ -178,7 +194,11 @@ export async function runBatchEvalCase(caseItem: BatchEndpointCase) {
         : step
     )
   });
-  const server = await startServer({ extractor });
+  const latencySummaries: ReviewLatencySummary[] = [];
+  const server = await startServer({
+    extractor,
+    latencyObserver: (summary) => latencySummaries.push(summary)
+  });
   registerServer(server);
 
   const imageId = 'batch-image-001';
@@ -244,7 +264,8 @@ export async function runBatchEvalCase(caseItem: BatchEndpointCase) {
     retryLatencyMs,
     runFrames,
     runSummary,
-    retrySummary
+    retrySummary,
+    latencySummaries
   };
 }
 

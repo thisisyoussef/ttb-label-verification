@@ -99,3 +99,7 @@
 - For `TTB-108`, keep the guided tour opinionated on branching steps: block forward progress until the required live action completes, replace `Next` with the recovery action when recovery is the only valid forward path, and always teach warning evidence from the deterministic failing example rather than the reviewer’s current result.
 - For `TTB-108`, restore the first-run guided-tour nudge as a dismissible dialog near the launcher, and delay the spotlight border until the target geometry settles so the frame does not flash in the wrong place during animated transitions.
 - For `TTB-107`, keep manual sign-out inline in the header, but move inactivity handling to a dedicated timeout-warning modal with explicit `Stay signed in` and `Sign out` actions.
+- For `TTB-208`, keep latency observability behind one internal `ReviewLatencyCapture` plus observer seam instead of expanding the public route contract with per-stage timing fields.
+- For `TTB-208`, record route and batch timing as bounded spans plus outcome-path classification, and gate console emission behind `TTB_DEBUG_LATENCY=1`.
+- Use the Gemini-generated PNGs under `evals/labels/assets/` as internal smoke fixtures only; do not treat them as authoritative compliance-source media.
+- Leave the visible `latencyBudgetMs` contract at `5000` until `TTB-209` proves the optimized cloud path and the cutover to `4000`.

@@ -79,6 +79,7 @@ Use the checked-in docs deliberately, not as background noise:
 ## Continue and next-story resolution
 
 - When the user says `continue`, `continue the story`, or `continue with the next story`, the active agent must resolve that request from `docs/process/SINGLE_SOURCE_OF_TRUTH.md`, not from chat memory.
+- Before advancing to a different story on `continue`, the active agent must check whether the current story is already completed locally but still uncommitted, unpublished, or unmerged. If it is mergeable, finish the publish and merge flow first unless the user explicitly asks to hold it or a concrete blocker exists.
 - If the current lane already has an active in-progress story, continue that story first.
 - For Codex, distinguish workflow/eval foundations from executable UI handoff work. If any earlier workflow or eval foundation leaf story is still `ready` or `in progress`, finish that foundation item first.
 - After workflow/eval foundations are clear, tracker-marked approved `TTB-1xx` UI handoffs that remain `ready-for-codex` in backlog docs take priority over later blocking `TTB-2xx+` engineering work. Finish those ready `TTB-1xx` Codex handoffs first unless another story is already active or the user explicitly picks a different story.

@@ -60,41 +60,122 @@ const uploadBatchAssets = batchUpload.fields([
   { name: 'csv', maxCount: 1 }
 ]);
 
+export type PreparedReviewUpload = {
+  success: true;
+  intake: NormalizedReviewIntake;
+  parse: {
+    outcome: 'success';
+    durationMs: number;
+  };
+  normalization: {
+    outcome: 'success';
+    durationMs: number;
+  };
+} | {
+  success: false;
+  parse: {
+    outcome: 'success' | 'fast-fail';
+    durationMs: number;
+  };
+  normalization: {
+    outcome: 'success' | 'fast-fail' | 'skipped';
+    durationMs: number;
+  };
+};
+
+export async function prepareReviewUpload(
+  request: express.Request,
+  response: express.Response
+): Promise<PreparedReviewUpload> {
+  const parseStartedAt = performance.now();
+
+  try {
+    await runReviewUpload(request, response);
+  } catch (error) {
+    respondToReviewUploadError(error, response);
+    return {
+      success: false,
+      parse: {
+        outcome: 'fast-fail',
+        durationMs: performance.now() - parseStartedAt
+      },
+      normalization: {
+        outcome: 'skipped',
+        durationMs: 0
+      }
+    };
+  }
+
+  const parseDurationMs = performance.now() - parseStartedAt;
+  if (!request.file) {
+    sendReviewError(response, 400, {
+      kind: 'validation',
+      message: 'Add one label image before starting the review.',
+      retryable: false
+    });
+    return {
+      success: false,
+      parse: {
+        outcome: 'success',
+        durationMs: parseDurationMs
+      },
+      normalization: {
+        outcome: 'skipped',
+        durationMs: 0
+      }
+    };
+  }
+
+  const normalizationStartedAt = performance.now();
+  const parsedFields = parseOptionalReviewFields(request.body.fields);
+  if (!parsedFields.success) {
+    sendReviewError(response, parsedFields.status, parsedFields.error);
+    return {
+      success: false,
+      parse: {
+        outcome: 'success',
+        durationMs: parseDurationMs
+      },
+      normalization: {
+        outcome: 'fast-fail',
+        durationMs: performance.now() - normalizationStartedAt
+      }
+    };
+  }
+
+  return {
+    success: true,
+    intake: createNormalizedReviewIntake({
+      file: request.file,
+      fields: parsedFields.value
+    }),
+    parse: {
+      outcome: 'success',
+      durationMs: parseDurationMs
+    },
+    normalization: {
+      outcome: 'success',
+      durationMs: performance.now() - normalizationStartedAt
+    }
+  };
+}
+
 export function handleReviewUpload(
   request: express.Request,
   response: express.Response,
   onReady: (intake: NormalizedReviewIntake) => Promise<void>
 ) {
-  uploadReviewLabel(request, response, (error) => {
-    if (error) {
-      respondToReviewUploadError(error, response);
-      return;
-    }
+  void prepareReviewUpload(request, response)
+    .then((prepared) => {
+      if (!prepared.success) {
+        return;
+      }
 
-    if (!request.file) {
-      sendReviewError(response, 400, {
-        kind: 'validation',
-        message: 'Add one label image before starting the review.',
-        retryable: false
-      });
-      return;
-    }
-
-    const parsedFields = parseOptionalReviewFields(request.body.fields);
-    if (!parsedFields.success) {
-      sendReviewError(response, parsedFields.status, parsedFields.error);
-      return;
-    }
-
-    void onReady(
-      createNormalizedReviewIntake({
-        file: request.file,
-        fields: parsedFields.value
-      })
-    ).catch((handlerError) => {
+      return onReady(prepared.intake);
+    })
+    .catch((handlerError) => {
       respondToReviewExecutionError(handlerError, response);
     });
-  });
 }
 
 export function handleBatchUpload(
@@ -247,7 +328,7 @@ function parseBatchManifest(rawManifest: unknown):
   }
 }
 
-function respondToReviewExecutionError(
+export function respondToReviewExecutionError(
   error: unknown,
   response: express.Response
 ) {
@@ -281,4 +362,20 @@ function isReviewExtractionFailureLike(
     'error' in error &&
     reviewErrorSchema.safeParse(error.error).success
   );
+}
+
+function runReviewUpload(
+  request: express.Request,
+  response: express.Response
+) {
+  return new Promise<void>((resolve, reject) => {
+    uploadReviewLabel(request, response, (error) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+
+      resolve();
+    });
+  });
 }

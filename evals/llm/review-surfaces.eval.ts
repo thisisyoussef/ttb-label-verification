@@ -106,7 +106,7 @@ ls.describe('TTB review route golden evals', () => {
   )('$caseKey $title', async ({ inputs }) => {
     const caseItem = requireReviewCase(inputs.caseId);
     const { expected, personas, personaObservation } = caseItem;
-    const { payload, latencyMs } = await runReviewEvalCase(caseItem);
+    const { payload, latencyMs, latencySummary } = await runReviewEvalCase(caseItem);
     const summary = summarizeReviewPayload(payload);
 
     ls.logOutputs({
@@ -115,6 +115,7 @@ ls.describe('TTB review route golden evals', () => {
       caseId: caseItem.caseId,
       title: caseItem.title,
       latencyMs,
+      latencySummary,
       personas,
       personaObservation,
       actual: summary
@@ -171,7 +172,7 @@ ls.describe('TTB extraction route golden evals', () => {
   )('$caseKey $title', async ({ inputs }) => {
     const caseItem = requireExtractionCase(inputs.caseId);
     const { expected, personas, personaObservation } = caseItem;
-    const { payload, latencyMs } = await runExtractionEvalCase(caseItem);
+    const { payload, latencyMs, latencySummary } = await runExtractionEvalCase(caseItem);
     const summary = summarizeExtractionPayload(payload);
 
     ls.logOutputs({
@@ -180,6 +181,7 @@ ls.describe('TTB extraction route golden evals', () => {
       caseId: caseItem.caseId,
       title: caseItem.title,
       latencyMs,
+      latencySummary,
       personas,
       personaObservation,
       actual: summary
@@ -218,7 +220,7 @@ ls.describe('TTB warning route golden evals', () => {
   )('$caseKey $title', async ({ inputs }) => {
     const caseItem = requireWarningCase(inputs.caseId);
     const { expected, personas, personaObservation } = caseItem;
-    const { payload, latencyMs } = await runWarningEvalCase(caseItem);
+    const { payload, latencyMs, latencySummary } = await runWarningEvalCase(caseItem);
     const summary = summarizeWarningPayload(payload);
 
     ls.logOutputs({
@@ -227,6 +229,7 @@ ls.describe('TTB warning route golden evals', () => {
       caseId: caseItem.caseId,
       title: caseItem.title,
       latencyMs,
+      latencySummary,
       personas,
       personaObservation,
       actual: summary

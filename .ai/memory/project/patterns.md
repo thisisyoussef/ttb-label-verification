@@ -48,6 +48,8 @@
 - Gemini multimodal extraction should use the native Google GenAI path with inline image/PDF bytes plus structured JSON output, not the Gemini Files API and not the OpenAI-compat layer for the core extraction path.
 - Cross-provider extraction adapters should share one API-facing schema, prompt text, and normalization seam so Gemini and OpenAI stay contract-aligned without duplicating downstream logic.
 - Latency tuning should follow a two-step pattern: instrument stage timing first, then optimize the measured hot leg, and only after proof cut the visible `latencyBudgetMs` contract to the tighter target.
+- Stage timing should stay behind one typed capture seam (`src/server/review-latency.ts`) that records bounded spans, provider order, fallback classification, and total duration, then emits through an observer so route handlers and evals can inspect latency without expanding the public response contract.
+- Debug timing visibility should stay environment-gated (`TTB_DEBUG_LATENCY=1`) and feed console or eval observers rather than becoming a stable reviewer-facing API surface.
 - Prompt hardening should follow the same central-policy pattern as extraction routing: one shared extraction baseline, route-specific overlays for review/extraction/warning/batch, mode-specific overlays for cloud/local limits, and structural guardrails after schema parse instead of prompt strings embedded in route handlers.
 - LLM evaluation should stay endpoint-aware, mode-aware, and persona-aware: score the route graph the way Sarah, Dave, Jenny, Marcus, and Janet experience it instead of relying on corpus accuracy alone.
 - Endpoint-aware eval and trace artifacts must record extraction mode alongside endpoint surface, provider, prompt profile, and guardrail policy, even when only one live mode is implemented today.
@@ -62,6 +64,7 @@
 - The golden eval set is part of the product contract, not optional test garnish. The core-six live subset is only the first slice, not the whole corpus.
 - LangSmith tracing is a local engineering tool, not runtime product behavior; it should only capture approved fixtures or sanitized inputs and should never be left on for staging or production traffic.
 - When the live core-six assets are missing, use sanitized locally generated media with traced extraction surfaces as the temporary provider-comparison seam, and record an explicit rollback condition instead of guessing production readiness.
+- Synthetic internal label assets generated from the manifest are acceptable for smoke testing and harness validation, but they must be clearly labeled as non-authoritative fixtures and not promoted as compliance-source evidence.
 - Every compliance rule should be traceable through `docs/rules/RULE_SOURCE_INDEX.md`.
 - Deterministic validation runs after extraction, not instead of it.
 - Warning text comparison should normalize whitespace only, keep punctuation/case literal, and shape phrase-level diff segments to match the approved UI evidence contract.

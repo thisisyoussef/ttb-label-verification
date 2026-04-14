@@ -1,14 +1,12 @@
 import type { ReviewError, ReviewExtraction } from '../shared/contracts/review';
 import {
-  fallbackAllowedForProviderFailure,
   providerMode,
   readExtractionRoutingPolicy,
   resolveExtractionMode,
   resolveProviderOrder,
   type AiCapability,
   type AiProvider,
-  type ExtractionMode,
-  type ProviderFailureReason
+  type ExtractionMode
 } from './ai-provider-policy';
 import {
   createGeminiReviewExtractor,
@@ -20,54 +18,27 @@ import {
 } from './openai-review-extractor';
 import type { NormalizedReviewIntake } from './review-intake';
 import {
-  ReviewExtractionFailure,
-  isReviewExtractionFailure,
-  type ReviewExtractor
+  type ReviewExtractor,
+  type ReviewExtractorContext
 } from './review-extraction';
+import {
+  ReviewProviderFailure,
+  createReviewProviderFailure,
+  createUnavailableProviderFailure,
+  fallbackWindowStillOpen,
+  formatProviderName,
+  normalizeProviderRuntimeFailure
+} from './review-provider-failure';
 
 const DEFAULT_MAX_RETRYABLE_FALLBACK_ELAPSED_MS = 2000;
-
-export interface ReviewProviderFailureMetadata {
-  provider: AiProvider;
-  mode: ExtractionMode;
-  capability: AiCapability;
-  reason: ProviderFailureReason;
-  fallbackAllowed: boolean;
-}
-
-export class ReviewProviderFailure extends ReviewExtractionFailure {
-  readonly metadata: ReviewProviderFailureMetadata;
-
-  constructor(input: {
-    status: number;
-    error: ReviewError;
-    provider: AiProvider;
-    mode: ExtractionMode;
-    capability: AiCapability;
-    reason: ProviderFailureReason;
-    fallbackAllowed?: boolean;
-  }) {
-    super(input.status, input.error);
-    this.name = 'ReviewProviderFailure';
-    this.metadata = {
-      provider: input.provider,
-      mode: input.mode,
-      capability: input.capability,
-      reason: input.reason,
-      fallbackAllowed:
-        input.fallbackAllowed ??
-        fallbackAllowedForProviderFailure({
-          kind: input.error.kind,
-          reason: input.reason
-        })
-    };
-  }
-}
 
 export interface ReviewExtractorProvider {
   provider: AiProvider;
   supports: (capability: AiCapability) => boolean;
-  execute: (intake: NormalizedReviewIntake) => Promise<ReviewExtraction>;
+  execute: (
+    intake: NormalizedReviewIntake,
+    context?: ReviewExtractorContext
+  ) => Promise<ReviewExtraction>;
 }
 
 type ProviderFactorySuccess = {
@@ -113,6 +84,9 @@ const DEFAULT_PROVIDER_FACTORIES: ReviewExtractorProviderFactories = {
   gemini: createGeminiReviewExtractorProvider,
   openai: createOpenAiReviewExtractorProvider
 };
+
+export { ReviewProviderFailure } from './review-provider-failure';
+export type { ReviewProviderFailureMetadata } from './review-provider-failure';
 
 export function createConfiguredReviewExtractor(input: {
   env: Record<string, string | undefined>;
@@ -197,14 +171,44 @@ export function createConfiguredReviewExtractor(input: {
   return {
     success: true,
     value: {
-      extractor: async (intake) => {
+      extractor: async (intake, context) => {
+        const latencyCapture = context?.latencyCapture;
+        latencyCapture?.setProviderOrder(
+          availableProviders.map((provider) => provider.provider)
+        );
+        latencyCapture?.recordSpan({
+          stage: 'provider-selection',
+          outcome: 'success',
+          durationMs: 0
+        });
+
         let lastProviderFailure: ReviewProviderFailure | undefined;
 
-        for (const provider of availableProviders) {
-          const startedAt = Date.now();
+        for (const [index, provider] of availableProviders.entries()) {
+          const attempt = index === 0 ? 'primary' : 'fallback';
+          const attemptStartedAt = performance.now();
 
           try {
-            return await provider.execute(intake);
+            const extraction = await provider.execute(intake, {
+              ...context,
+              latencyCapture,
+              latencyAttempt: attempt
+            });
+
+            if (attempt === 'primary') {
+              latencyCapture?.recordSpan({
+                stage: 'fallback-handoff',
+                provider: availableProviders[1]?.provider,
+                attempt: 'fallback',
+                outcome: 'skipped',
+                durationMs: 0
+              });
+              latencyCapture?.setOutcomePath('primary-success');
+            } else {
+              latencyCapture?.setOutcomePath('fast-fail-fallback-success');
+            }
+
+            return extraction;
           } catch (error) {
             const providerFailure = normalizeProviderRuntimeFailure({
               error,
@@ -214,22 +218,54 @@ export function createConfiguredReviewExtractor(input: {
             });
 
             lastProviderFailure = providerFailure;
-            if (
-              !providerFailure.metadata.fallbackAllowed ||
-              !fallbackWindowStillOpen({
-                startedAt,
-                maxRetryableFallbackElapsedMs
-              })
-            ) {
+            const nextProvider = availableProviders[index + 1]?.provider;
+            const fallbackWindowOpen = fallbackWindowStillOpen({
+              startedAt: attemptStartedAt,
+              maxRetryableFallbackElapsedMs
+            });
+
+            if (!providerFailure.metadata.fallbackAllowed || !nextProvider) {
+              latencyCapture?.recordSpan({
+                stage: 'fallback-handoff',
+                provider: nextProvider,
+                attempt: 'fallback',
+                outcome: 'skipped',
+                durationMs: 0
+              });
+              latencyCapture?.setOutcomePath(
+                attempt === 'primary' ? 'primary-hard-fail' : 'fallback-failure'
+              );
               throw providerFailure;
             }
+
+            if (!fallbackWindowOpen) {
+              latencyCapture?.recordSpan({
+                stage: 'fallback-handoff',
+                provider: nextProvider,
+                attempt: 'fallback',
+                outcome: 'late-fail',
+                durationMs: 0
+              });
+              latencyCapture?.setOutcomePath('late-fail-retryable');
+              throw providerFailure;
+            }
+
+            latencyCapture?.recordSpan({
+              stage: 'fallback-handoff',
+              provider: nextProvider,
+              attempt: 'fallback',
+              outcome: 'success',
+              durationMs: 0
+            });
           }
         }
 
         if (lastProviderFailure) {
+          latencyCapture?.setOutcomePath('fallback-failure');
           throw lastProviderFailure;
         }
 
+        latencyCapture?.setOutcomePath('pre-provider-failure');
         throw createUnavailableProviderFailure({
           provider: availableProviders[0]?.provider ?? 'openai',
           capability
@@ -239,12 +275,6 @@ export function createConfiguredReviewExtractor(input: {
       providers: availableProviders.map((provider) => provider.provider)
     }
   };
-}
-
-export function isReviewProviderFailure(
-  error: unknown
-): error is ReviewProviderFailure {
-  return error instanceof ReviewProviderFailure;
 }
 
 function resolveConfiguredProvider(input: {
@@ -321,7 +351,7 @@ function createGeminiReviewExtractorProvider(input: {
     provider: {
       provider: 'gemini',
       supports: (capability) => capability === 'label-extraction',
-      execute: (intake) => extractor(intake)
+      execute: (intake, context) => extractor(intake, context)
     }
   };
 }
@@ -354,44 +384,9 @@ function createOpenAiReviewExtractorProvider(input: {
     provider: {
       provider: 'openai',
       supports: (capability) => capability === 'label-extraction',
-      execute: (intake) => extractor(intake)
+      execute: (intake, context) => extractor(intake, context)
     }
   };
-}
-
-function normalizeProviderRuntimeFailure(input: {
-  error: unknown;
-  provider: AiProvider;
-  mode: ExtractionMode;
-  capability: AiCapability;
-}) {
-  if (isReviewProviderFailure(input.error)) {
-    return input.error;
-  }
-
-  if (isReviewExtractionFailure(input.error)) {
-    return createReviewProviderFailure({
-      status: input.error.status,
-      error: input.error.error,
-      provider: input.provider,
-      mode: input.mode,
-      capability: input.capability,
-      reason: classifyRuntimeFailureReason(input.error.error.kind)
-    });
-  }
-
-  return createReviewProviderFailure({
-    status: 500,
-    error: {
-      kind: 'unknown',
-      message: 'We could not extract label fields from this upload.',
-      retryable: true
-    },
-    provider: input.provider,
-    mode: input.mode,
-    capability: input.capability,
-    reason: 'response-parse'
-  });
 }
 
 function classifyGeminiConfigFailure(env: Record<string, string | undefined>) {
@@ -415,70 +410,4 @@ function classifyOpenAiConfigFailure(env: Record<string, string | undefined>) {
   }
 
   return 'invalid-provider-config' as const;
-}
-
-function classifyRuntimeFailureReason(kind: ReviewError['kind']): ProviderFailureReason {
-  switch (kind) {
-    case 'network':
-      return 'network-unreachable';
-    case 'timeout':
-      return 'provider-timeout';
-    case 'adapter':
-      return 'response-parse';
-    default:
-      return 'invalid-provider-config';
-  }
-}
-
-function createUnavailableProviderFailure(input: {
-  provider: AiProvider;
-  capability: AiCapability;
-}) {
-  const mode = providerMode(input.provider);
-
-  return createReviewProviderFailure({
-    status: 503,
-    error: {
-      kind: 'adapter',
-      message:
-        mode === 'local'
-          ? 'Local extraction is not configured for this environment.'
-          : `${formatProviderName(input.provider)} extraction is not configured for this environment.`,
-      retryable: false
-    },
-    provider: input.provider,
-    mode,
-    capability: input.capability,
-    reason: 'provider-not-implemented'
-  });
-}
-
-function createReviewProviderFailure(input: {
-  status: number;
-  error: ReviewError;
-  provider: AiProvider;
-  mode: ExtractionMode;
-  capability: AiCapability;
-  reason: ProviderFailureReason;
-  fallbackAllowed?: boolean;
-}) {
-  return new ReviewProviderFailure(input);
-}
-
-function fallbackWindowStillOpen(input: {
-  startedAt: number;
-  maxRetryableFallbackElapsedMs: number;
-}) {
-  return Date.now() - input.startedAt <= input.maxRetryableFallbackElapsedMs;
-}
-
-function formatProviderName(provider: AiProvider) {
-  switch (provider) {
-    case 'openai':
-      return 'OpenAI';
-    case 'gemini':
-      return 'Gemini';
-    case 'ollama':
-      return 'Ollama';
-  }
 }

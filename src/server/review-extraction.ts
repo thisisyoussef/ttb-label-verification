@@ -12,6 +12,7 @@ import {
   type ReviewIntakeBeverage,
   type WarningVisualSignals
 } from '../shared/contracts/review';
+import type { ReviewLatencyAttempt, ReviewLatencyCapture } from './review-latency';
 import type { NormalizedReviewIntake } from './review-intake';
 
 export interface RawImageQualityAssessment {
@@ -34,8 +35,14 @@ export interface ReviewBeverageResolution {
   source: BeverageTypeSource;
 }
 
+export interface ReviewExtractorContext {
+  latencyAttempt?: ReviewLatencyAttempt;
+  latencyCapture?: ReviewLatencyCapture;
+}
+
 export type ReviewExtractor = (
-  intake: NormalizedReviewIntake
+  intake: NormalizedReviewIntake,
+  context?: ReviewExtractorContext
 ) => Promise<ReviewExtraction>;
 
 export class ReviewExtractionFailure extends Error {

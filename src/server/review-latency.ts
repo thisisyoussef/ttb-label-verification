@@ -1,0 +1,165 @@
+import type { AiProvider } from './ai-provider-policy';
+import type { LlmEndpointSurface } from './llm-policy';
+
+export type ReviewLatencyStage =
+  | 'intake-parse'
+  | 'intake-normalization'
+  | 'provider-selection'
+  | 'request-assembly'
+  | 'provider-wait'
+  | 'fallback-handoff'
+  | 'deterministic-validation'
+  | 'report-shaping';
+
+export type ReviewLatencyStageOutcome =
+  | 'success'
+  | 'fast-fail'
+  | 'late-fail'
+  | 'skipped';
+
+export type ReviewLatencyAttempt = 'primary' | 'fallback';
+
+export type ReviewLatencyPath =
+  | 'primary-success'
+  | 'fast-fail-fallback-success'
+  | 'late-fail-retryable'
+  | 'primary-hard-fail'
+  | 'pre-provider-failure'
+  | 'fallback-failure';
+
+export type ReviewLatencySpan = {
+  stage: ReviewLatencyStage;
+  outcome: ReviewLatencyStageOutcome;
+  durationMs: number;
+  provider?: AiProvider;
+  attempt?: ReviewLatencyAttempt;
+};
+
+export type ReviewLatencySummary = {
+  surface: LlmEndpointSurface;
+  outcomePath: ReviewLatencyPath;
+  totalDurationMs: number;
+  spans: ReviewLatencySpan[];
+  providerOrder: AiProvider[];
+  fallbackAttempted: boolean;
+  clientTraceId?: string;
+  fixtureId?: string;
+};
+
+export type ReviewLatencyObserver = (summary: ReviewLatencySummary) => void;
+
+export class ReviewLatencyCapture {
+  private readonly startedAt = performance.now();
+  private readonly spans: ReviewLatencySpan[] = [];
+  private providerOrder: AiProvider[] = [];
+  private outcomePath?: ReviewLatencyPath;
+  private finalized?: ReviewLatencySummary;
+
+  constructor(
+    private readonly metadata: {
+      surface: LlmEndpointSurface;
+      clientTraceId?: string;
+      fixtureId?: string;
+    }
+  ) {}
+
+  setProviderOrder(providerOrder: AiProvider[]) {
+    this.providerOrder = [...providerOrder];
+  }
+
+  setOutcomePath(outcomePath: ReviewLatencyPath) {
+    this.outcomePath = outcomePath;
+  }
+
+  getOutcomePath() {
+    return this.outcomePath;
+  }
+
+  hasFallbackAttempt() {
+    return this.spans.some(
+      (span) => span.stage === 'fallback-handoff' && span.outcome === 'success'
+    );
+  }
+
+  recordSpan(span: ReviewLatencySpan) {
+    if (this.finalized) {
+      return;
+    }
+
+    this.spans.push({
+      ...span,
+      durationMs: normalizeDuration(span.durationMs)
+    });
+  }
+
+  finalize() {
+    if (this.finalized) {
+      return this.finalized;
+    }
+
+    this.finalized = {
+      surface: this.metadata.surface,
+      outcomePath: this.outcomePath ?? 'primary-hard-fail',
+      totalDurationMs: normalizeDuration(performance.now() - this.startedAt),
+      spans: [...this.spans],
+      providerOrder: [...this.providerOrder],
+      fallbackAttempted: this.hasFallbackAttempt(),
+      clientTraceId: this.metadata.clientTraceId,
+      fixtureId: this.metadata.fixtureId
+    };
+
+    return this.finalized;
+  }
+}
+
+export function createReviewLatencyCapture(input: {
+  surface: LlmEndpointSurface;
+  clientTraceId?: string;
+  fixtureId?: string;
+}) {
+  return new ReviewLatencyCapture(input);
+}
+
+export function mergeReviewLatencyObservers(
+  ...observers: Array<ReviewLatencyObserver | undefined>
+) {
+  const activeObservers = observers.filter(
+    (observer): observer is ReviewLatencyObserver => Boolean(observer)
+  );
+  if (activeObservers.length === 0) {
+    return undefined;
+  }
+
+  return (summary: ReviewLatencySummary) => {
+    for (const observer of activeObservers) {
+      observer(summary);
+    }
+  };
+}
+
+export function createConsoleReviewLatencyObserver(): ReviewLatencyObserver {
+  return (summary) => {
+    console.info('[ttb-latency] ' + JSON.stringify(summary));
+  };
+}
+
+export function emitReviewLatencySummary(
+  capture: ReviewLatencyCapture,
+  observer?: ReviewLatencyObserver
+) {
+  if (!observer) {
+    return capture.finalize();
+  }
+
+  const summary = capture.finalize();
+  observer(summary);
+  return summary;
+}
+
+function normalizeDuration(durationMs: number) {
+  if (!Number.isFinite(durationMs) || durationMs < 0) {
+    return 0;
+  }
+
+  return Math.round(durationMs);
+}

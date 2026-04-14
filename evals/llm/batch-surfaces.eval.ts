@@ -52,6 +52,7 @@ ls.describe('TTB batch route golden evals', () => {
       fixtureMode: 'golden-fixture',
       runLatencyMs: result.runLatencyMs,
       retryLatencyMs: result.retryLatencyMs,
+      latencySummaries: result.latencySummaries,
       personas,
       personaObservation,
       actual: {

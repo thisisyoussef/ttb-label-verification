@@ -42,8 +42,10 @@
 - Letting an explicit `local` mode selection silently hop back to Gemini or OpenAI after a failure
 - Flipping `latencyBudgetMs` from `5000` to `4000` before the optimized path is actually measured against the approved fixture slice
 - Treating explicit provider caching or raw timing logs as acceptable shortcuts to a faster path
+- Exposing internal latency summaries as a stable public route contract or including user-bearing content in those summaries
 - Embedding route-specific prompt strings directly in `/api/review`, `/api/review/extraction`, `/api/review/warning`, or batch code instead of routing through one shared prompt-policy module
 - Treating local mode as just another reviewer default instead of an explicit deployment-readiness path with a slower, more conservative posture
 - Treating a generic corpus pass as enough proof for all model-backed endpoints without checking the distinct promises made to Sarah, Dave, Jenny, Marcus, and Janet
 - Recording raw label content, prompt bodies, or unsanitized model outputs in LangSmith when fixture ids and bounded summaries are enough for comparison
+- Treating Gemini-generated synthetic label fixtures as authoritative legal or production-eval evidence instead of bounded internal smoke media
 - Letting the staging deploy run on CI success without first passing the fixture-backed endpoint eval gate

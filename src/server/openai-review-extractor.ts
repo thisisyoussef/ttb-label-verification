@@ -12,7 +12,8 @@ import {
 import {
   createReviewExtractionFailure,
   finalizeReviewExtraction,
-  type ReviewExtractor
+  type ReviewExtractor,
+  type ReviewExtractorContext
 } from './review-extraction';
 
 const MODEL_OUTPUT_SCHEMA_NAME = 'ttb_label_extraction';
@@ -131,17 +132,29 @@ export function createOpenAIReviewExtractor(input: {
       } satisfies ResponsesParseClient;
     })();
 
-  return async (intake) => {
+  return async (intake, context) => {
+    const requestAssemblyStartedAt = performance.now();
+    let request: ResponsesParseRequest;
+
+    try {
+      request = buildReviewExtractionRequest({
+        intake,
+        config: input.config
+      });
+    } catch (error) {
+      recordOpenAiLatency(context, 'request-assembly', 'fast-fail', requestAssemblyStartedAt);
+      throw error;
+    }
+
+    recordOpenAiLatency(context, 'request-assembly', 'success', requestAssemblyStartedAt);
+
+    const providerWaitStartedAt = performance.now();
     let response: { output_parsed?: unknown };
 
     try {
-      response = await client.parse(
-        buildReviewExtractionRequest({
-          intake,
-          config: input.config
-        })
-      );
+      response = await client.parse(request);
     } catch {
+      recordOpenAiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
       throw createReviewExtractionFailure({
         status: 502,
         kind: 'network',
@@ -154,6 +167,7 @@ export function createOpenAIReviewExtractor(input: {
       response.output_parsed
     );
     if (!parsedOutput.success) {
+      recordOpenAiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
       throw createReviewExtractionFailure({
         status: 502,
         kind: 'adapter',
@@ -162,11 +176,23 @@ export function createOpenAIReviewExtractor(input: {
       });
     }
 
-    return finalizeReviewExtraction({
-      intake,
-      model: input.config.visionModel,
-      extracted: normalizeReviewExtractionModelOutput(parsedOutput.data)
-    });
+    try {
+      const extraction = finalizeReviewExtraction({
+        intake,
+        model: input.config.visionModel,
+        extracted: normalizeReviewExtractionModelOutput(parsedOutput.data)
+      });
+      recordOpenAiLatency(context, 'provider-wait', 'success', providerWaitStartedAt);
+      return extraction;
+    } catch {
+      recordOpenAiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
+      throw createReviewExtractionFailure({
+        status: 500,
+        kind: 'adapter',
+        message: 'We could not normalize the OpenAI extraction output.',
+        retryable: false
+      });
+    }
   };
 }
 
@@ -186,4 +212,19 @@ function buildLabelInputContent(intake: NormalizedReviewIntake) {
     detail: 'high' as const,
     image_url: `data:${intake.label.mimeType};base64,${base64Data}`
   };
+}
+
+function recordOpenAiLatency(
+  context: ReviewExtractorContext | undefined,
+  stage: 'request-assembly' | 'provider-wait',
+  outcome: 'success' | 'fast-fail',
+  startedAt: number
+) {
+  context?.latencyCapture?.recordSpan({
+    stage,
+    provider: 'openai',
+    attempt: context.latencyAttempt,
+    outcome,
+    durationMs: performance.now() - startedAt
+  });
 }

@@ -1,4 +1,4 @@
-import { getCurrentRunTree, traceable } from 'langsmith/traceable';
+import { traceable } from 'langsmith/traceable';
 
 import type {
   CheckReview,
@@ -6,30 +6,44 @@ import type {
   VerificationReport
 } from '../shared/contracts/review';
 import { buildGovernmentWarningCheck } from './government-warning-validator';
+import { type LlmEndpointSurface } from './llm-policy';
 import {
-  REVIEW_EXTRACTION_GUARDRAIL_POLICY,
-  REVIEW_EXTRACTION_MODE,
-  REVIEW_EXTRACTION_PROMPT_PROFILE,
-  REVIEW_EXTRACTION_PROVIDER,
-  type LlmEndpointSurface
-} from './llm-policy';
+  annotateCurrentRun,
+  finalizeFailureLatency,
+  inferProviderFromModel,
+  measureStage,
+  resolveLatencyCapture,
+  resolveSuccessLatencyPath,
+  resolveTraceMetadata,
+  summarizeApplicationFields,
+  summarizeExtraction,
+  summarizeLabel,
+  summarizeLatencySummary,
+  summarizeStageTimings,
+  summarizeVerificationReport,
+  summarizeWarningCheck,
+  type TraceMetadataInput as BaseTraceMetadataInput,
+  type TraceStageTimings
+} from './llm-trace-support';
 import type { NormalizedReviewIntake } from './review-intake';
 import { buildVerificationReport } from './review-report';
+import {
+  emitReviewLatencySummary,
+  type ReviewLatencyCapture,
+  type ReviewLatencyObserver,
+  type ReviewLatencySummary
+} from './review-latency';
 import type { ReviewExtractor } from './review-extraction';
 
-type TraceMetadataInput = {
+type TraceMetadataInput = BaseTraceMetadataInput & {
   surface: LlmEndpointSurface;
-  extractionMode?: string;
-  clientTraceId?: string;
-  fixtureId?: string;
-  provider?: string;
-  promptProfile?: string;
-  guardrailPolicy?: string;
 };
 
 export type TracedReviewExtractionInput = TraceMetadataInput & {
   intake: NormalizedReviewIntake;
   extractor: ReviewExtractor;
+  latencyCapture?: ReviewLatencyCapture;
+  latencyObserver?: ReviewLatencyObserver;
 };
 
 type TracedWarningValidationInput = TraceMetadataInput & {
@@ -51,227 +65,32 @@ export type TracedExtractionSurfaceInput = TracedReviewExtractionInput;
 
 export type TracedWarningSurfaceInput = TracedReviewExtractionInput;
 
-type TraceStageTimings = {
-  extraction: number;
-  warning?: number;
-  report?: number;
-  total: number;
-};
-
 type ReviewSurfaceTraceResult = {
   report: VerificationReport;
   warningCheck: CheckReview;
   stageTimingsMs: TraceStageTimings;
+  latencySummary: ReviewLatencySummary;
 };
 
 type ExtractionSurfaceTraceResult = {
   extraction: ReviewExtraction;
   stageTimingsMs: TraceStageTimings;
+  latencySummary: ReviewLatencySummary;
 };
 
 type WarningSurfaceTraceResult = {
   extraction: ReviewExtraction;
   warningCheck: CheckReview;
   stageTimingsMs: TraceStageTimings;
+  latencySummary: ReviewLatencySummary;
 };
-
-function resolveTraceMetadata(input: TraceMetadataInput) {
-  return {
-    surface: input.surface,
-    extractionMode: input.extractionMode ?? REVIEW_EXTRACTION_MODE,
-    provider: input.provider ?? REVIEW_EXTRACTION_PROVIDER,
-    promptProfile: input.promptProfile ?? REVIEW_EXTRACTION_PROMPT_PROFILE,
-    guardrailPolicy:
-      input.guardrailPolicy ?? REVIEW_EXTRACTION_GUARDRAIL_POLICY,
-    clientTraceId: input.clientTraceId ?? null,
-    fixtureId: input.fixtureId ?? null
-  };
-}
-
-function annotateCurrentRun(input: TraceMetadataInput) {
-  const runTree = getCurrentRunTree(true);
-  if (!runTree) {
-    return;
-  }
-
-  const metadata = resolveTraceMetadata(input);
-  runTree.metadata = {
-    ...runTree.metadata,
-    endpointSurface: metadata.surface,
-    extractionMode: metadata.extractionMode,
-    provider: metadata.provider,
-    promptProfile: metadata.promptProfile,
-    guardrailPolicy: metadata.guardrailPolicy,
-    clientTraceId: metadata.clientTraceId,
-    fixtureId: metadata.fixtureId,
-    noPersistence: true
-  };
-  runTree.tags = [
-    ...new Set([
-      ...(runTree.tags ?? []),
-      'privacy-safe',
-      `surface:${metadata.surface}`,
-      `mode:${metadata.extractionMode}`,
-      `provider:${metadata.provider}`
-    ])
-  ];
-}
-
-function inferProviderFromModel(model: string) {
-  const normalizedModel = model.trim().toLowerCase();
-
-  if (normalizedModel.startsWith('gemini')) {
-    return 'gemini';
-  }
-
-  if (normalizedModel.startsWith('gpt-') || normalizedModel.includes('openai')) {
-    return 'openai';
-  }
-
-  if (normalizedModel.includes('qwen') || normalizedModel.includes('ollama')) {
-    return 'ollama';
-  }
-
-  return undefined;
-}
-
-function summarizeApplicationFields(intake: NormalizedReviewIntake) {
-  const fieldEntries: Array<[string, string | undefined]> = [
-    ['brandName', intake.fields.brandName],
-    ['fancifulName', intake.fields.fancifulName],
-    ['classType', intake.fields.classType],
-    ['alcoholContent', intake.fields.alcoholContent],
-    ['netContents', intake.fields.netContents],
-    ['applicantAddress', intake.fields.applicantAddress],
-    ['country', intake.fields.country],
-    ['formulaId', intake.fields.formulaId],
-    ['appellation', intake.fields.appellation],
-    ['vintage', intake.fields.vintage]
-  ];
-
-  return {
-    hasApplicationData: intake.hasApplicationData,
-    standalone: intake.standalone,
-    beverageTypeHint: intake.fields.beverageTypeHint,
-    origin: intake.fields.origin,
-    populatedFieldIds: fieldEntries
-      .filter(([, value]) => Boolean(value && value.trim().length > 0))
-      .map(([fieldId]) => fieldId)
-      .sort(),
-    varietalCount: intake.fields.varietals.length
-  };
-}
-
-function summarizeLabel(intake: NormalizedReviewIntake) {
-  return {
-    mimeType: intake.label.mimeType,
-    bytes: intake.label.bytes,
-    isPdf: intake.label.mimeType === 'application/pdf'
-  };
-}
-
-function summarizeExtraction(extraction: ReviewExtraction) {
-  const presentFieldIds = Object.entries(extraction.fields)
-    .filter(([fieldId, value]) => {
-      if (Array.isArray(value)) {
-        return fieldId === 'varietals' && value.length > 0;
-      }
-
-      return value.present;
-    })
-    .map(([fieldId]) => fieldId)
-    .sort();
-
-  return {
-    id: extraction.id,
-    model: extraction.model,
-    beverageType: extraction.beverageType,
-    beverageTypeSource: extraction.beverageTypeSource,
-    modelBeverageTypeHint: extraction.modelBeverageTypeHint ?? 'unknown',
-    standalone: extraction.standalone,
-    hasApplicationData: extraction.hasApplicationData,
-    noPersistence: extraction.noPersistence,
-    imageQualityState: extraction.imageQuality.state,
-    imageQualityScore: extraction.imageQuality.score,
-    imageIssueCount: extraction.imageQuality.issues.length,
-    presentFieldIds,
-    varietalCount: extraction.fields.varietals.length,
-    warningSignalStatuses: {
-      prefixAllCaps: extraction.warningSignals.prefixAllCaps.status,
-      prefixBold: extraction.warningSignals.prefixBold.status,
-      continuousParagraph: extraction.warningSignals.continuousParagraph.status,
-      separateFromOtherContent:
-        extraction.warningSignals.separateFromOtherContent.status
-    }
-  };
-}
-
-function summarizeWarningCheck(warningCheck: CheckReview) {
-  const failingSubCheckIds =
-    warningCheck.warning?.subChecks
-      .filter((subCheck) => subCheck.status !== 'pass')
-      .map((subCheck) => subCheck.id) ?? [];
-
-  return {
-    id: warningCheck.id,
-    status: warningCheck.status,
-    severity: warningCheck.severity,
-    confidence: warningCheck.confidence,
-    failingSubCheckIds
-  };
-}
-
-function summarizeVerificationReport(report: VerificationReport) {
-  const reviewCheckIds = [...report.checks, ...report.crossFieldChecks]
-    .filter((check) => check.status === 'review')
-    .map((check) => check.id)
-    .sort();
-  const failCheckIds = [...report.checks, ...report.crossFieldChecks]
-    .filter((check) => check.status === 'fail')
-    .map((check) => check.id)
-    .sort();
-
-  return {
-    id: report.id,
-    mode: report.mode,
-    verdict: report.verdict,
-    verdictSecondary: report.verdictSecondary ?? null,
-    beverageType: report.beverageType,
-    standalone: report.standalone,
-    extractionQualityState: report.extractionQuality.state,
-    counts: report.counts,
-    warningStatus:
-      report.checks.find((check) => check.id === 'government-warning')?.status ??
-      null,
-    reviewCheckIds,
-    failCheckIds,
-    noPersistence: report.noPersistence
-  };
-}
-
-function summarizeStageTimings(stageTimingsMs: TraceStageTimings) {
-  return {
-    extraction: stageTimingsMs.extraction,
-    warning: stageTimingsMs.warning ?? null,
-    report: stageTimingsMs.report ?? null,
-    total: stageTimingsMs.total
-  };
-}
-
-async function measureStage<T>(runner: () => Promise<T>) {
-  const startedAt = performance.now();
-  const result = await runner();
-
-  return {
-    result,
-    elapsedMs: Math.round(performance.now() - startedAt)
-  };
-}
 
 const tracedReviewExtraction = traceable(
   async (input: TracedReviewExtractionInput) => {
     annotateCurrentRun(input);
-    const extraction = await input.extractor(input.intake);
+    const extraction = await input.extractor(input.intake, {
+      latencyCapture: input.latencyCapture
+    });
     const actualProvider = inferProviderFromModel(extraction.model);
 
     if (actualProvider) {
@@ -345,14 +164,25 @@ const tracedReviewReport = traceable(
 const tracedReviewSurface = traceable(
   async (input: TracedReviewSurfaceInput): Promise<ReviewSurfaceTraceResult> => {
     annotateCurrentRun(input);
+    const latencyCapture = resolveLatencyCapture(input);
     const startedAt = performance.now();
-    const extractionStage = await measureStage(() => runTracedReviewExtraction(input));
+    const extractionStage = await measureStage(() =>
+      runTracedReviewExtraction({
+        ...input,
+        latencyCapture
+      })
+    );
     const warningStage = await measureStage(() =>
       tracedWarningValidation({
         ...input,
         extraction: extractionStage.result
       })
     );
+    latencyCapture.recordSpan({
+      stage: 'deterministic-validation',
+      outcome: 'success',
+      durationMs: warningStage.elapsedMs
+    });
     const reportStage = await measureStage(() =>
       tracedReviewReport({
         ...input,
@@ -361,6 +191,12 @@ const tracedReviewSurface = traceable(
         reportId: input.reportId
       })
     );
+    latencyCapture.recordSpan({
+      stage: 'report-shaping',
+      outcome: 'success',
+      durationMs: reportStage.elapsedMs
+    });
+    latencyCapture.setOutcomePath(resolveSuccessLatencyPath(latencyCapture));
 
     return {
       report: reportStage.result,
@@ -370,7 +206,8 @@ const tracedReviewSurface = traceable(
         warning: warningStage.elapsedMs,
         report: reportStage.elapsedMs,
         total: Math.round(performance.now() - startedAt)
-      }
+      },
+      latencySummary: latencyCapture.finalize()
     };
   },
   {
@@ -387,6 +224,7 @@ const tracedReviewSurface = traceable(
       report: summarizeVerificationReport(output.report),
       warningCheck: summarizeWarningCheck(output.warningCheck),
       stageTimingsMs: summarizeStageTimings(output.stageTimingsMs),
+      latencySummary: summarizeLatencySummary(output.latencySummary),
       noPersistence: true
     }),
     tags: ['ttb', 'llm', 'review-surface', 'privacy-safe']
@@ -398,15 +236,34 @@ const tracedExtractionSurface = traceable(
     input: TracedExtractionSurfaceInput
   ): Promise<ExtractionSurfaceTraceResult> => {
     annotateCurrentRun(input);
+    const latencyCapture = resolveLatencyCapture(input);
     const startedAt = performance.now();
-    const extractionStage = await measureStage(() => runTracedReviewExtraction(input));
+    const extractionStage = await measureStage(() =>
+      runTracedReviewExtraction({
+        ...input,
+        latencyCapture
+      })
+    );
+
+    latencyCapture.recordSpan({
+      stage: 'deterministic-validation',
+      outcome: 'skipped',
+      durationMs: 0
+    });
+    latencyCapture.recordSpan({
+      stage: 'report-shaping',
+      outcome: 'skipped',
+      durationMs: 0
+    });
+    latencyCapture.setOutcomePath(resolveSuccessLatencyPath(latencyCapture));
 
     return {
       extraction: extractionStage.result,
       stageTimingsMs: {
         extraction: extractionStage.elapsedMs,
         total: Math.round(performance.now() - startedAt)
-      }
+      },
+      latencySummary: latencyCapture.finalize()
     };
   },
   {
@@ -421,6 +278,7 @@ const tracedExtractionSurface = traceable(
     processOutputs: (output: ExtractionSurfaceTraceResult) => ({
       extraction: summarizeExtraction(output.extraction),
       stageTimingsMs: summarizeStageTimings(output.stageTimingsMs),
+      latencySummary: summarizeLatencySummary(output.latencySummary),
       noPersistence: true
     }),
     tags: ['ttb', 'llm', 'extraction-surface', 'privacy-safe']
@@ -430,14 +288,31 @@ const tracedExtractionSurface = traceable(
 const tracedWarningSurface = traceable(
   async (input: TracedWarningSurfaceInput): Promise<WarningSurfaceTraceResult> => {
     annotateCurrentRun(input);
+    const latencyCapture = resolveLatencyCapture(input);
     const startedAt = performance.now();
-    const extractionStage = await measureStage(() => runTracedReviewExtraction(input));
+    const extractionStage = await measureStage(() =>
+      runTracedReviewExtraction({
+        ...input,
+        latencyCapture
+      })
+    );
     const warningStage = await measureStage(() =>
       tracedWarningValidation({
         ...input,
         extraction: extractionStage.result
       })
     );
+    latencyCapture.recordSpan({
+      stage: 'deterministic-validation',
+      outcome: 'success',
+      durationMs: warningStage.elapsedMs
+    });
+    latencyCapture.recordSpan({
+      stage: 'report-shaping',
+      outcome: 'skipped',
+      durationMs: 0
+    });
+    latencyCapture.setOutcomePath(resolveSuccessLatencyPath(latencyCapture));
 
     return {
       extraction: extractionStage.result,
@@ -446,7 +321,8 @@ const tracedWarningSurface = traceable(
         extraction: extractionStage.elapsedMs,
         warning: warningStage.elapsedMs,
         total: Math.round(performance.now() - startedAt)
-      }
+      },
+      latencySummary: latencyCapture.finalize()
     };
   },
   {
@@ -462,6 +338,7 @@ const tracedWarningSurface = traceable(
       extraction: summarizeExtraction(output.extraction),
       warningCheck: summarizeWarningCheck(output.warningCheck),
       stageTimingsMs: summarizeStageTimings(output.stageTimingsMs),
+      latencySummary: summarizeLatencySummary(output.latencySummary),
       noPersistence: true
     }),
     tags: ['ttb', 'llm', 'warning-surface', 'privacy-safe']
@@ -475,18 +352,60 @@ export async function runTracedReviewExtraction(
 }
 
 export async function runTracedReviewSurface(input: TracedReviewSurfaceInput) {
-  const result = await tracedReviewSurface(input);
-  return result.report;
+  const latencyCapture = resolveLatencyCapture(input);
+
+  try {
+    const result = await tracedReviewSurface({
+      ...input,
+      latencyCapture
+    });
+    emitReviewLatencySummary(latencyCapture, input.latencyObserver);
+    return result.report;
+  } catch (error) {
+    finalizeFailureLatency({
+      ...input,
+      latencyCapture
+    });
+    throw error;
+  }
 }
 
 export async function runTracedExtractionSurface(
   input: TracedExtractionSurfaceInput
 ) {
-  const result = await tracedExtractionSurface(input);
-  return result.extraction;
+  const latencyCapture = resolveLatencyCapture(input);
+
+  try {
+    const result = await tracedExtractionSurface({
+      ...input,
+      latencyCapture
+    });
+    emitReviewLatencySummary(latencyCapture, input.latencyObserver);
+    return result.extraction;
+  } catch (error) {
+    finalizeFailureLatency({
+      ...input,
+      latencyCapture
+    });
+    throw error;
+  }
 }
 
 export async function runTracedWarningSurface(input: TracedWarningSurfaceInput) {
-  const result = await tracedWarningSurface(input);
-  return result.warningCheck;
+  const latencyCapture = resolveLatencyCapture(input);
+
+  try {
+    const result = await tracedWarningSurface({
+      ...input,
+      latencyCapture
+    });
+    emitReviewLatencySummary(latencyCapture, input.latencyObserver);
+    return result.warningCheck;
+  } catch (error) {
+    finalizeFailureLatency({
+      ...input,
+      latencyCapture
+    });
+    throw error;
+  }
 }
