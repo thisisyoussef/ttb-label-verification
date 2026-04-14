@@ -1,0 +1,282 @@
+import { describe, expect, it, vi } from 'vitest';
+
+import { reviewExtractionSchema } from '../shared/contracts/review';
+import type { NormalizedReviewIntake } from './review-intake';
+import {
+  buildGeminiReviewExtractionRequest,
+  createGeminiReviewExtractor,
+  readGeminiReviewExtractionConfig
+} from './gemini-review-extractor';
+
+function buildIntake(
+  overrides: Partial<NormalizedReviewIntake> = {}
+): NormalizedReviewIntake {
+  return {
+    label: {
+      originalName: 'label.png',
+      mimeType: 'image/png',
+      bytes: 4,
+      buffer: Buffer.from([1, 2, 3, 4])
+    },
+    fields: {
+      beverageTypeHint: 'auto',
+      origin: 'domestic',
+      varietals: []
+    },
+    hasApplicationData: false,
+    standalone: true,
+    ...overrides
+  };
+}
+
+function buildModelOutput() {
+  return {
+    beverageTypeHint: 'wine',
+    fields: {
+      brandName: {
+        present: true,
+        value: 'Heritage Hill',
+        confidence: 0.96,
+        note: null
+      },
+      fancifulName: {
+        present: false,
+        value: null,
+        confidence: 0.18,
+        note: null
+      },
+      classType: {
+        present: true,
+        value: 'Red Wine',
+        confidence: 0.94,
+        note: null
+      },
+      alcoholContent: {
+        present: true,
+        value: '13.5% Alc./Vol.',
+        confidence: 0.88,
+        note: null
+      },
+      netContents: {
+        present: true,
+        value: '750 mL',
+        confidence: 0.91,
+        note: null
+      },
+      applicantAddress: {
+        present: true,
+        value: 'Heritage Hill Cellars, Napa, CA',
+        confidence: 0.84,
+        note: null
+      },
+      countryOfOrigin: {
+        present: false,
+        value: null,
+        confidence: 0.14,
+        note: null
+      },
+      ageStatement: {
+        present: false,
+        value: null,
+        confidence: 0.1,
+        note: null
+      },
+      sulfiteDeclaration: {
+        present: false,
+        value: null,
+        confidence: 0.12,
+        note: null
+      },
+      appellation: {
+        present: true,
+        value: 'Napa Valley',
+        confidence: 0.79,
+        note: null
+      },
+      vintage: {
+        present: true,
+        value: '2021',
+        confidence: 0.74,
+        note: null
+      },
+      governmentWarning: {
+        present: true,
+        value: 'GOVERNMENT WARNING: ...',
+        confidence: 0.66,
+        note: null
+      },
+      varietals: [
+        {
+          name: 'Cabernet Sauvignon',
+          percentage: '75%',
+          confidence: 0.7,
+          note: null
+        }
+      ]
+    },
+    warningSignals: {
+      prefixAllCaps: {
+        status: 'yes',
+        confidence: 0.94,
+        note: null
+      },
+      prefixBold: {
+        status: 'uncertain',
+        confidence: 0.43,
+        note: null
+      },
+      continuousParagraph: {
+        status: 'yes',
+        confidence: 0.86,
+        note: null
+      },
+      separateFromOtherContent: {
+        status: 'yes',
+        confidence: 0.78,
+        note: null
+      }
+    },
+    imageQuality: {
+      score: 0.81,
+      issues: [],
+      noTextDetected: false,
+      note: null
+    },
+    summary: 'Structured extraction completed successfully.'
+  };
+}
+
+describe('Gemini review extractor', () => {
+  it('fails config loading when the API key is missing', () => {
+    const result = readGeminiReviewExtractionConfig({
+      GEMINI_API_KEY: '',
+      GEMINI_VISION_MODEL: 'gemini-2.5-flash-lite'
+    });
+
+    expect(result.success).toBe(false);
+    if (result.success) {
+      throw new Error('Expected config loading to fail.');
+    }
+
+    expect(result.error.kind).toBe('adapter');
+    expect(result.status).toBe(503);
+  });
+
+  it('defaults to the PDF-capable Gemini vision model', () => {
+    const result = readGeminiReviewExtractionConfig({
+      GEMINI_API_KEY: 'test-key'
+    });
+
+    expect(result.success).toBe(true);
+    if (!result.success) {
+      throw new Error('Expected config loading to succeed.');
+    }
+
+    expect(result.value.visionModel).toBe('gemini-2.5-flash-lite');
+  });
+
+  it('builds an image extraction request with inline image bytes and structured output config', () => {
+    const request = buildGeminiReviewExtractionRequest({
+      intake: buildIntake(),
+      config: {
+        apiKey: 'test-key',
+        visionModel: 'gemini-2.5-flash-lite'
+      }
+    });
+
+    expect(request.model).toBe('gemini-2.5-flash-lite');
+    expect(request.config).toMatchObject({
+      responseMimeType: 'application/json'
+    });
+    const contents = Array.isArray(request.contents)
+      ? request.contents
+      : [request.contents];
+    expect(contents[1]).toMatchObject({
+      inlineData: {
+        mimeType: 'image/png'
+      }
+    });
+  });
+
+  it('builds a pdf extraction request without durable uploads', () => {
+    const request = buildGeminiReviewExtractionRequest({
+      intake: buildIntake({
+        label: {
+          originalName: 'label.pdf',
+          mimeType: 'application/pdf',
+          bytes: 4,
+          buffer: Buffer.from('%PDF')
+        }
+      }),
+      config: {
+        apiKey: 'test-key',
+        visionModel: 'gemini-2.5-flash-lite'
+      }
+    });
+
+    const contents = Array.isArray(request.contents)
+      ? request.contents
+      : [request.contents];
+    expect(contents[1]).toMatchObject({
+      inlineData: {
+        mimeType: 'application/pdf'
+      }
+    });
+  });
+
+  it('parses the model output and resolves the final beverage type', async () => {
+    const client = {
+      generateContent: vi.fn().mockResolvedValue({
+        text: JSON.stringify(buildModelOutput())
+      })
+    };
+
+    const extractor = createGeminiReviewExtractor({
+      client,
+      config: {
+        apiKey: 'test-key',
+        visionModel: 'gemini-2.5-flash-lite'
+      }
+    });
+
+    const payload = await extractor(
+      buildIntake({
+        fields: {
+          beverageTypeHint: 'auto',
+          origin: 'domestic',
+          varietals: []
+        }
+      })
+    );
+
+    expect(client.generateContent).toHaveBeenCalledTimes(1);
+    expect(payload.beverageType).toBe('wine');
+    expect(payload.beverageTypeSource).toBe('class-type');
+    expect(payload.model).toBe('gemini-2.5-flash-lite');
+    expect(reviewExtractionSchema.parse(payload).summary).toContain('Structured extraction');
+  });
+
+  it('treats malformed JSON as a retryable adapter failure', async () => {
+    const client = {
+      generateContent: vi.fn().mockResolvedValue({
+        text: '{not-json'
+      })
+    };
+
+    const extractor = createGeminiReviewExtractor({
+      client,
+      config: {
+        apiKey: 'test-key',
+        visionModel: 'gemini-2.5-flash-lite'
+      }
+    });
+
+    await expect(extractor(buildIntake())).rejects.toMatchObject({
+      status: 502,
+      error: {
+        kind: 'adapter',
+        retryable: true
+      }
+    });
+  });
+});

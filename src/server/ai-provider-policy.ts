@@ -15,7 +15,7 @@ export type AiProvider = (typeof AI_PROVIDERS)[number];
 export const DEFAULT_EXTRACTION_MODE: ExtractionMode = 'cloud';
 
 const DEFAULT_CLOUD_PROVIDER_ORDER: readonly AiProvider[] = ['openai', 'gemini'];
-const DEFAULT_LABEL_EXTRACTION_PROVIDER_ORDER: readonly AiProvider[] = ['openai'];
+const DEFAULT_LABEL_EXTRACTION_PROVIDER_ORDER: readonly AiProvider[] = ['gemini', 'openai'];
 const DEFAULT_LOCAL_PROVIDER_ORDER: readonly AiProvider[] = ['ollama'];
 const TRUTHY_VALUES = new Set(['1', 'true', 'yes', 'on']);
 const FALSY_VALUES = new Set(['0', 'false', 'no', 'off']);
@@ -59,7 +59,8 @@ export function fallbackAllowedForProviderFailure(input: {
   if (
     input.reason === 'missing-configuration' ||
     input.reason === 'network-unreachable' ||
-    input.reason === 'provider-timeout'
+    input.reason === 'provider-timeout' ||
+    input.reason === 'response-parse'
   ) {
     return true;
   }

@@ -7,7 +7,7 @@ import {
   batchStreamFrameSchema,
   type BatchStartRequest
 } from '../shared/contracts/review';
-import { type ExtractionMode } from './ai-provider-policy';
+import { type AiProvider, type ExtractionMode } from './ai-provider-policy';
 import type { LlmEndpointSurface } from './llm-policy';
 import { runTracedReviewSurface } from './llm-trace';
 import {
@@ -38,13 +38,16 @@ export class BatchSessionStore {
   private readonly sessions = new Map<string, BatchSession>();
   private readonly extractor: ReviewExtractor;
   private readonly extractionMode: ExtractionMode;
+  private readonly providers: AiProvider[];
 
   constructor(input: {
     extractor: ReviewExtractor;
     extractionMode: ExtractionMode;
+    providers: AiProvider[];
   }) {
     this.extractor = input.extractor;
     this.extractionMode = input.extractionMode;
+    this.providers = input.providers;
   }
 
   createPreflight(input: {
@@ -250,6 +253,7 @@ export class BatchSessionStore {
       const report = await runTracedReviewSurface({
         surface: input.surface,
         extractionMode: this.extractionMode,
+        provider: this.providers.join(',') || undefined,
         clientTraceId: [input.surface, input.assignment.image.id].join(':'),
         intake,
         extractor: this.extractor,

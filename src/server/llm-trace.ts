@@ -117,6 +117,24 @@ function annotateCurrentRun(input: TraceMetadataInput) {
   ];
 }
 
+function inferProviderFromModel(model: string) {
+  const normalizedModel = model.trim().toLowerCase();
+
+  if (normalizedModel.startsWith('gemini')) {
+    return 'gemini';
+  }
+
+  if (normalizedModel.startsWith('gpt-') || normalizedModel.includes('openai')) {
+    return 'openai';
+  }
+
+  if (normalizedModel.includes('qwen') || normalizedModel.includes('ollama')) {
+    return 'ollama';
+  }
+
+  return undefined;
+}
+
 function summarizeApplicationFields(intake: NormalizedReviewIntake) {
   const fieldEntries: Array<[string, string | undefined]> = [
     ['brandName', intake.fields.brandName],
@@ -253,7 +271,17 @@ async function measureStage<T>(runner: () => Promise<T>) {
 const tracedReviewExtraction = traceable(
   async (input: TracedReviewExtractionInput) => {
     annotateCurrentRun(input);
-    return await input.extractor(input.intake);
+    const extraction = await input.extractor(input.intake);
+    const actualProvider = inferProviderFromModel(extraction.model);
+
+    if (actualProvider) {
+      annotateCurrentRun({
+        ...input,
+        provider: actualProvider
+      });
+    }
+
+    return extraction;
   },
   {
     name: 'ttb.review_extraction.stage',

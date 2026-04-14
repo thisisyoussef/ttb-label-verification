@@ -19,6 +19,7 @@ import { LOCAL_HELP_MANIFEST } from '../shared/help-fixture';
 import { BatchSessionStore } from './batch-session';
 import {
   DEFAULT_EXTRACTION_MODE,
+  type AiProvider,
   type ExtractionMode
 } from './ai-provider-policy';
 import {
@@ -26,7 +27,10 @@ import {
   runTracedReviewSurface,
   runTracedWarningSurface
 } from './llm-trace';
-import { createConfiguredReviewExtractor } from './review-extractor-factory';
+import {
+  createConfiguredReviewExtractor,
+  type ReviewExtractorProviderFactories
+} from './review-extractor-factory';
 import { type ReviewExtractor } from './review-extraction';
 import {
   handleBatchUpload,
@@ -46,6 +50,8 @@ type CreateAppOptions = {
   clientDistDir?: string;
   extractor?: ReviewExtractor;
   extractionMode?: ExtractionMode;
+  providerFactories?: ReviewExtractorProviderFactories;
+  maxRetryableFallbackElapsedMs?: number;
 };
 
 function readClientTraceId(request: express.Request) {
@@ -65,7 +71,8 @@ export function createApp(options: CreateAppOptions = {}) {
       (async () => {
         throw new Error('Extractor unavailable.');
       }),
-    extractionMode: extractorResolution.extractionMode
+    extractionMode: extractorResolution.extractionMode,
+    providers: extractorResolution.providers
   });
 
   app.use(express.json({ limit: '1mb' }));
@@ -107,6 +114,7 @@ export function createApp(options: CreateAppOptions = {}) {
         await runTracedReviewSurface({
           surface: '/api/review',
           extractionMode: extractorResolution.extractionMode,
+          provider: extractorResolution.providers.join(',') || undefined,
           clientTraceId: readClientTraceId(request),
           intake,
           extractor: extractorResolution.extractor
@@ -129,6 +137,7 @@ export function createApp(options: CreateAppOptions = {}) {
       const extraction = await runTracedExtractionSurface({
         surface: '/api/review/extraction',
         extractionMode: extractorResolution.extractionMode,
+        provider: extractorResolution.providers.join(',') || undefined,
         clientTraceId: readClientTraceId(request),
         intake,
         extractor: extractorResolution.extractor
@@ -151,6 +160,7 @@ export function createApp(options: CreateAppOptions = {}) {
       const warningCheck = await runTracedWarningSurface({
         surface: '/api/review/warning',
         extractionMode: extractorResolution.extractionMode,
+        provider: extractorResolution.providers.join(',') || undefined,
         clientTraceId: readClientTraceId(request),
         intake,
         extractor: extractorResolution.extractor
@@ -298,35 +308,42 @@ function resolveExtractor(options: CreateAppOptions):
   | {
       extractor: ReviewExtractor;
       extractionMode: ExtractionMode;
+      providers: AiProvider[];
     }
   | {
       extractor?: undefined;
       extractionMode: ExtractionMode;
       status: number;
       error: ReviewError;
+      providers: AiProvider[];
     } {
   if (options.extractor) {
     return {
       extractor: options.extractor,
-      extractionMode: options.extractionMode ?? DEFAULT_EXTRACTION_MODE
+      extractionMode: options.extractionMode ?? DEFAULT_EXTRACTION_MODE,
+      providers: []
     };
   }
 
   const resolution = createConfiguredReviewExtractor({
     env: process.env,
-    requestedMode: options.extractionMode
+    requestedMode: options.extractionMode,
+    providers: options.providerFactories,
+    maxRetryableFallbackElapsedMs: options.maxRetryableFallbackElapsedMs
   });
   if (!resolution.success) {
     return {
       extractor: undefined,
       extractionMode: resolution.extractionMode ?? DEFAULT_EXTRACTION_MODE,
       status: resolution.status,
-      error: resolution.error
+      error: resolution.error,
+      providers: []
     };
   }
 
   return {
     extractor: resolution.value.extractor,
-    extractionMode: resolution.value.extractionMode
+    extractionMode: resolution.value.extractionMode,
+    providers: resolution.value.providers
   };
 }

@@ -46,6 +46,7 @@
 - Batch mode should follow the same pattern: keep parsing/matching/session orchestration in focused server modules, and let `src/server/index.ts` remain a thin route composition layer.
 - Extraction routing should split mode from provider: planned `TTB-206` resolves `cloud` vs `local` first, planned `TTB-207` gives cloud label extraction its own `gemini,openai` order, and planned `TTB-212` adds a local Ollama/Qwen path without cross-mode fallback.
 - Gemini multimodal extraction should use the native Google GenAI path with inline image/PDF bytes plus structured JSON output, not the Gemini Files API and not the OpenAI-compat layer for the core extraction path.
+- Cross-provider extraction adapters should share one API-facing schema, prompt text, and normalization seam so Gemini and OpenAI stay contract-aligned without duplicating downstream logic.
 - Latency tuning should follow a two-step pattern: instrument stage timing first, then optimize the measured hot leg, and only after proof cut the visible `latencyBudgetMs` contract to the tighter target.
 - Prompt hardening should follow the same central-policy pattern as extraction routing: one shared extraction baseline, route-specific overlays for review/extraction/warning/batch, mode-specific overlays for cloud/local limits, and structural guardrails after schema parse instead of prompt strings embedded in route handlers.
 - LLM evaluation should stay endpoint-aware, mode-aware, and persona-aware: score the route graph the way Sarah, Dave, Jenny, Marcus, and Janet experience it instead of relying on corpus accuracy alone.
@@ -60,6 +61,7 @@
 - For established UI shells that need live wiring, add a pure client runtime adapter (`src/client/batch-runtime.ts`) so API-to-view-model mapping stays testable outside React components.
 - The golden eval set is part of the product contract, not optional test garnish. The core-six live subset is only the first slice, not the whole corpus.
 - LangSmith tracing is a local engineering tool, not runtime product behavior; it should only capture approved fixtures or sanitized inputs and should never be left on for staging or production traffic.
+- When the live core-six assets are missing, use sanitized locally generated media with traced extraction surfaces as the temporary provider-comparison seam, and record an explicit rollback condition instead of guessing production readiness.
 - Every compliance rule should be traceable through `docs/rules/RULE_SOURCE_INDEX.md`.
 - Deterministic validation runs after extraction, not instead of it.
 - Warning text comparison should normalize whitespace only, keep punctuation/case literal, and shape phrase-level diff segments to match the approved UI evidence contract.

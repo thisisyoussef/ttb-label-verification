@@ -25,7 +25,7 @@ describe('AI provider policy', () => {
         mode: 'cloud',
         capability: 'label-extraction'
       })
-    ).toEqual(['openai']);
+    ).toEqual(['gemini', 'openai']);
     expect(
       resolveProviderOrder({
         policy: result.value,
@@ -113,7 +113,13 @@ describe('AI provider policy', () => {
     });
   });
 
-  it('fails closed for privacy and unsupported-capability errors, but allows network fallback', () => {
+  it('allows fast-fail config, network, timeout, and response-parse fallback but fails closed for privacy and unsupported capability errors', () => {
+    expect(
+      fallbackAllowedForProviderFailure({
+        kind: 'adapter',
+        reason: 'missing-configuration'
+      })
+    ).toBe(true);
     expect(
       fallbackAllowedForProviderFailure({
         kind: 'network',
@@ -124,6 +130,12 @@ describe('AI provider policy', () => {
       fallbackAllowedForProviderFailure({
         kind: 'timeout',
         reason: 'provider-timeout'
+      })
+    ).toBe(true);
+    expect(
+      fallbackAllowedForProviderFailure({
+        kind: 'adapter',
+        reason: 'response-parse'
       })
     ).toBe(true);
     expect(
