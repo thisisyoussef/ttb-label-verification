@@ -44,6 +44,7 @@ Add the checked-in workflow layer under `docs/process/` and `.ai/`, then connect
 - Workflow contract requires a fresh story branch whenever a new feature or story begins
 - Workflow contract requires production-grade PR descriptions, backed by a checked-in template and CI validation on pull requests
 - Workflow contract requires story branches to open and merge through GitHub PRs, with CI guarding `main` and `production` against direct ref updates
+- Workflow contract explicitly uses the authenticated `gh` CLI for GitHub PR inspection, editing, checks, and merge actions when it is available
 - Submission-facing documentation should stay grounded in the current checked-in prototype rather than roadmap-only claims
 - Reviewable story branches should merge promptly to `main`, with explicit exceptions only for backup, maintenance, and deployment-control refs
 
