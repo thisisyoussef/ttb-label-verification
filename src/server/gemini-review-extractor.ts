@@ -11,7 +11,8 @@ import {
 import {
   createReviewExtractionFailure,
   finalizeReviewExtraction,
-  type ReviewExtractor
+  type ReviewExtractor,
+  type ReviewExtractorContext
 } from './review-extraction';
 
 const DEFAULT_GEMINI_VISION_MODEL = 'gemini-2.5-flash-lite';
@@ -111,19 +112,31 @@ export function createGeminiReviewExtractor(input: {
       } satisfies GenerateContentClient;
     })();
 
-  return async (intake) => {
+  return async (intake, context) => {
+    const requestAssemblyStartedAt = performance.now();
+    let request: GenerateContentParameters;
+
+    try {
+      request = buildGeminiReviewExtractionRequest({
+        intake,
+        config: input.config
+      });
+    } catch (error) {
+      recordGeminiLatency(context, 'request-assembly', 'fast-fail', requestAssemblyStartedAt);
+      throw error;
+    }
+
+    recordGeminiLatency(context, 'request-assembly', 'success', requestAssemblyStartedAt);
+
     const controller = new AbortController();
     const timeout = setTimeout(
       () => controller.abort(),
       input.config.timeoutMs ?? DEFAULT_GEMINI_TIMEOUT_MS
     );
 
+    const providerWaitStartedAt = performance.now();
     let response: { text?: string; modelVersion?: string };
     try {
-      const request = buildGeminiReviewExtractionRequest({
-        intake,
-        config: input.config
-      });
       response = await client.generateContent({
         ...request,
         config: {
@@ -133,12 +146,14 @@ export function createGeminiReviewExtractor(input: {
       });
     } catch (error) {
       clearTimeout(timeout);
+      recordGeminiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
       throw normalizeGeminiRuntimeFailure(error);
     }
     clearTimeout(timeout);
 
     const responseText = response.text?.trim();
     if (!responseText) {
+      recordGeminiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
       throw createReviewExtractionFailure({
         status: 502,
         kind: 'adapter',
@@ -151,6 +166,7 @@ export function createGeminiReviewExtractor(input: {
     try {
       parsedOutput = JSON.parse(responseText);
     } catch {
+      recordGeminiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
       throw createReviewExtractionFailure({
         status: 502,
         kind: 'adapter',
@@ -161,6 +177,7 @@ export function createGeminiReviewExtractor(input: {
 
     const normalizedOutput = reviewExtractionModelOutputSchema.safeParse(parsedOutput);
     if (!normalizedOutput.success) {
+      recordGeminiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
       throw createReviewExtractionFailure({
         status: 502,
         kind: 'adapter',
@@ -170,12 +187,15 @@ export function createGeminiReviewExtractor(input: {
     }
 
     try {
-      return finalizeReviewExtraction({
+      const extraction = finalizeReviewExtraction({
         intake,
         model: response.modelVersion ?? input.config.visionModel,
         extracted: normalizeReviewExtractionModelOutput(normalizedOutput.data)
       });
+      recordGeminiLatency(context, 'provider-wait', 'success', providerWaitStartedAt);
+      return extraction;
     } catch {
+      recordGeminiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
       throw createReviewExtractionFailure({
         status: 500,
         kind: 'adapter',
@@ -247,4 +267,19 @@ function isAbortLikeError(error: unknown) {
     'name' in error &&
     error.name === 'AbortError'
   );
+}
+
+function recordGeminiLatency(
+  context: ReviewExtractorContext | undefined,
+  stage: 'request-assembly' | 'provider-wait',
+  outcome: 'success' | 'fast-fail',
+  startedAt: number
+) {
+  context?.latencyCapture?.recordSpan({
+    stage,
+    provider: 'gemini',
+    attempt: context.latencyAttempt,
+    outcome,
+    durationMs: performance.now() - startedAt
+  });
 }

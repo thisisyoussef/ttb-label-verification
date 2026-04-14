@@ -14,20 +14,22 @@ Resolve `continue` and `continue with the next story` from checked-in project st
 ## Steps
 
 1. Read `docs/process/SINGLE_SOURCE_OF_TRUTH.md` first.
-2. If the current agent already owns an in-progress story in that tracker, continue that story.
-3. If the current agent is Codex, scan the tracker and queue for any earlier workflow or eval foundation story that is still `ready` or `in progress`. If one exists, finish that foundation story first.
-4. If the current agent is Claude, ignore pending Codex-only work and select the tracker's `Next ready for Claude` entry.
-5. If the current agent is Codex, look next for tracker-marked approved `TTB-1xx` UI handoffs whose backlog doc is still `ready-for-codex`. If one exists, select the earliest such story before any later blocking `TTB-2xx+` engineering item.
-6. If no ready `TTB-1xx` Codex handoff remains, select the tracker's `Next blocking for Codex` entry.
-7. Claude does not block just because the global next engineering work belongs to Codex. Codex may still block on missing Claude handoffs or earlier engineering prerequisites for the specific story it is trying to execute.
-8. If the next step for the active agent is a manual user action, such as returning Stitch assets or providing visual approval, block and ask for that exact action instead of skipping ahead.
-9. Before any implementation edits, confirm the current git branch is story-scoped for the selected story. If the worktree is on `main` or `production`, or if the current branch belongs to a different story, immediately switch to a fresh story branch such as `codex/<story-id>-<summary>` or `claude/<story-id>-<summary>` before touching packet or code files.
-10. Read the selected story packet and expand `story-packet.md` into the standard working docs if the story is moving from planning into implementation.
-11. Update `docs/process/SINGLE_SOURCE_OF_TRUTH.md` when the active story, owner, or gate changes.
+2. Before selecting a different story, check whether the current branch already contains a completed mergeable story that is still uncommitted, unpublished, or unmerged. If it does, finish the git flow first: commit, run the required gates, push, publish, merge to `main`, fast-forward local `main`, and switch to a fresh branch for the next story unless the user explicitly asked to hold the branch or a concrete blocker prevents merge.
+3. If the current agent already owns an in-progress story in that tracker, continue that story.
+4. If the current agent is Codex, scan the tracker and queue for any earlier workflow or eval foundation story that is still `ready` or `in progress`. If one exists, finish that foundation story first.
+5. If the current agent is Claude, ignore pending Codex-only work and select the tracker's `Next ready for Claude` entry.
+6. If the current agent is Codex, look next for tracker-marked approved `TTB-1xx` UI handoffs whose backlog doc is still `ready-for-codex`. If one exists, select the earliest such story before any later blocking `TTB-2xx+` engineering item.
+7. If no ready `TTB-1xx` Codex handoff remains, select the tracker's `Next blocking for Codex` entry.
+8. Claude does not block just because the global next engineering work belongs to Codex. Codex may still block on missing Claude handoffs or earlier engineering prerequisites for the specific story it is trying to execute.
+9. If the next step for the active agent is a manual user action, such as returning Stitch assets or providing visual approval, block and ask for that exact action instead of skipping ahead.
+10. Before any implementation edits, confirm the current git branch is story-scoped for the selected story. If the worktree is on `main` or `production`, or if the current branch belongs to a different story, immediately switch to a fresh story branch such as `codex/<story-id>-<summary>` or `claude/<story-id>-<summary>` before touching packet or code files.
+11. Read the selected story packet and expand `story-packet.md` into the standard working docs if the story is moving from planning into implementation.
+12. Update `docs/process/SINGLE_SOURCE_OF_TRUTH.md` when the active story, owner, or gate changes.
 
 ## Exit criteria
 
 - The active story was selected from checked-in docs.
+- Any already-completed mergeable story on the current branch was finalized through commit, publish, and merge before the next story was selected, unless an explicit hold or blocker was recorded.
 - No earlier unfinished workflow/eval foundation story was skipped by Codex.
 - The chosen story is actually ready for the current lane, and any ready `TTB-1xx` Codex handoffs were preferred before later blocking `TTB-2xx+` work.
 - The user is redirected instead of skipped past a manual or lane gate only when that gate applies to the active agent.

@@ -34,10 +34,20 @@ import {
 import { type ReviewExtractor } from './review-extraction';
 import {
   handleBatchUpload,
-  handleReviewUpload,
+  prepareReviewUpload,
+  respondToReviewExecutionError,
   sendBatchError,
-  sendReviewError
+  sendReviewError,
+  type PreparedReviewUpload
 } from './request-handlers';
+import {
+  createConsoleReviewLatencyObserver,
+  createReviewLatencyCapture,
+  emitReviewLatencySummary,
+  mergeReviewLatencyObservers,
+  type ReviewLatencyCapture,
+  type ReviewLatencyObserver
+} from './review-latency';
 
 if (process.env.NODE_ENV !== 'test') {
   loadLocalEnv();
@@ -52,6 +62,7 @@ type CreateAppOptions = {
   extractionMode?: ExtractionMode;
   providerFactories?: ReviewExtractorProviderFactories;
   maxRetryableFallbackElapsedMs?: number;
+  latencyObserver?: ReviewLatencyObserver;
 };
 
 function readClientTraceId(request: express.Request) {
@@ -59,9 +70,46 @@ function readClientTraceId(request: express.Request) {
   return raw && raw.length > 0 ? raw : undefined;
 }
 
+function recordPreparedReviewLatency(
+  latencyCapture: ReviewLatencyCapture,
+  prepared: PreparedReviewUpload
+) {
+  latencyCapture.recordSpan({
+    stage: 'intake-parse',
+    outcome: prepared.parse.outcome,
+    durationMs: prepared.parse.durationMs
+  });
+  latencyCapture.recordSpan({
+    stage: 'intake-normalization',
+    outcome: prepared.normalization.outcome,
+    durationMs: prepared.normalization.durationMs
+  });
+}
+
+function emitPreProviderLatencySummary(input: {
+  latencyCapture: ReviewLatencyCapture;
+  observer?: ReviewLatencyObserver;
+  providers: AiProvider[];
+}) {
+  input.latencyCapture.setProviderOrder(input.providers);
+  input.latencyCapture.recordSpan({
+    stage: 'provider-selection',
+    outcome: 'skipped',
+    durationMs: 0
+  });
+  input.latencyCapture.setOutcomePath('pre-provider-failure');
+  emitReviewLatencySummary(input.latencyCapture, input.observer);
+}
+
 export function createApp(options: CreateAppOptions = {}) {
   const app = express();
   const clientDistDir = options.clientDistDir ?? defaultClientDistDir;
+  const latencyObserver = mergeReviewLatencyObservers(
+    options.latencyObserver,
+    process.env.TTB_DEBUG_LATENCY === '1'
+      ? createConsoleReviewLatencyObserver()
+      : undefined
+  );
   const clientIndexPath = path.join(clientDistDir, 'index.html');
   const hasBuiltClient = existsSync(clientIndexPath);
   const extractorResolution = resolveExtractor(options);
@@ -72,7 +120,8 @@ export function createApp(options: CreateAppOptions = {}) {
         throw new Error('Extractor unavailable.');
       }),
     extractionMode: extractorResolution.extractionMode,
-    providers: extractorResolution.providers
+    providers: extractorResolution.providers,
+    latencyObserver
   });
 
   app.use(express.json({ limit: '1mb' }));
@@ -99,74 +148,119 @@ export function createApp(options: CreateAppOptions = {}) {
     response.json(helpManifestSchema.parse(LOCAL_HELP_MANIFEST));
   });
 
-  app.post('/api/review', (request, response) => {
-    handleReviewUpload(request, response, async (intake) => {
-      if (!extractorResolution.extractor) {
-        sendReviewError(
-          response,
-          extractorResolution.status,
-          extractorResolution.error
-        );
-        return;
-      }
+  async function handleSingleLabelRoute<T>(
+    surface: '/api/review' | '/api/review/extraction' | '/api/review/warning',
+    request: express.Request,
+    response: express.Response,
+    runner: (input: {
+      intake: Parameters<NonNullable<typeof extractorResolution.extractor>>[0];
+      clientTraceId?: string;
+      latencyCapture: ReviewLatencyCapture;
+    }) => Promise<T>
+  ) {
+    const clientTraceId = readClientTraceId(request);
+    const latencyCapture = createReviewLatencyCapture({
+      surface,
+      clientTraceId
+    });
+    const prepared = await prepareReviewUpload(request, response);
+    recordPreparedReviewLatency(latencyCapture, prepared);
 
+    if (!prepared.success) {
+      emitPreProviderLatencySummary({
+        latencyCapture,
+        observer: latencyObserver,
+        providers: extractorResolution.providers
+      });
+      return;
+    }
+
+    if (!extractorResolution.extractor) {
+      emitPreProviderLatencySummary({
+        latencyCapture,
+        observer: latencyObserver,
+        providers: extractorResolution.providers
+      });
+      sendReviewError(
+        response,
+        extractorResolution.status,
+        extractorResolution.error
+      );
+      return;
+    }
+
+    try {
       response.json(
-        await runTracedReviewSurface({
-          surface: '/api/review',
-          extractionMode: extractorResolution.extractionMode,
-          provider: extractorResolution.providers.join(',') || undefined,
-          clientTraceId: readClientTraceId(request),
-          intake,
-          extractor: extractorResolution.extractor
+        await runner({
+          intake: prepared.intake,
+          clientTraceId,
+          latencyCapture
         })
       );
-    });
+    } catch (error) {
+      respondToReviewExecutionError(error, response);
+    }
+  }
+
+  app.post('/api/review', (request, response) => {
+    void handleSingleLabelRoute('/api/review', request, response, async ({
+      intake,
+      clientTraceId,
+      latencyCapture
+    }) =>
+      await runTracedReviewSurface({
+        surface: '/api/review',
+        extractionMode: extractorResolution.extractionMode,
+        provider: extractorResolution.providers.join(',') || undefined,
+        clientTraceId,
+        intake,
+        extractor: extractorResolution.extractor as ReviewExtractor,
+        latencyCapture,
+        latencyObserver
+      })
+    );
   });
 
   app.post('/api/review/extraction', (request, response) => {
-    handleReviewUpload(request, response, async (intake) => {
-      if (!extractorResolution.extractor) {
-        sendReviewError(
-          response,
-          extractorResolution.status,
-          extractorResolution.error
-        );
-        return;
+    void handleSingleLabelRoute(
+      '/api/review/extraction',
+      request,
+      response,
+      async ({ intake, clientTraceId, latencyCapture }) => {
+        const extraction = await runTracedExtractionSurface({
+          surface: '/api/review/extraction',
+          extractionMode: extractorResolution.extractionMode,
+          provider: extractorResolution.providers.join(',') || undefined,
+          clientTraceId,
+          intake,
+          extractor: extractorResolution.extractor as ReviewExtractor,
+          latencyCapture,
+          latencyObserver
+        });
+        return reviewExtractionSchema.parse(extraction);
       }
-
-      const extraction = await runTracedExtractionSurface({
-        surface: '/api/review/extraction',
-        extractionMode: extractorResolution.extractionMode,
-        provider: extractorResolution.providers.join(',') || undefined,
-        clientTraceId: readClientTraceId(request),
-        intake,
-        extractor: extractorResolution.extractor
-      });
-      response.json(reviewExtractionSchema.parse(extraction));
-    });
+    );
   });
 
   app.post('/api/review/warning', (request, response) => {
-    handleReviewUpload(request, response, async (intake) => {
-      if (!extractorResolution.extractor) {
-        sendReviewError(
-          response,
-          extractorResolution.status,
-          extractorResolution.error
-        );
-        return;
+    void handleSingleLabelRoute(
+      '/api/review/warning',
+      request,
+      response,
+      async ({ intake, clientTraceId, latencyCapture }) => {
+        const warningCheck = await runTracedWarningSurface({
+          surface: '/api/review/warning',
+          extractionMode: extractorResolution.extractionMode,
+          provider: extractorResolution.providers.join(',') || undefined,
+          clientTraceId,
+          intake,
+          extractor: extractorResolution.extractor as ReviewExtractor,
+          latencyCapture,
+          latencyObserver
+        });
+        return checkReviewSchema.parse(warningCheck);
       }
-
-      const warningCheck = await runTracedWarningSurface({
-        surface: '/api/review/warning',
-        extractionMode: extractorResolution.extractionMode,
-        provider: extractorResolution.providers.join(',') || undefined,
-        clientTraceId: readClientTraceId(request),
-        intake,
-        extractor: extractorResolution.extractor
-      });
-      response.json(checkReviewSchema.parse(warningCheck));
-    });
+    );
   });
 
   app.post('/api/batch/preflight', (request, response) => {

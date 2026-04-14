@@ -75,7 +75,8 @@ describe('LLM trace surfaces', () => {
       reportId: 'trace-report-custom-001'
     });
 
-    expect(extractor).toHaveBeenCalledWith(intake);
+    expect(extractor).toHaveBeenCalledTimes(1);
+    expect(extractor.mock.calls[0]?.[0]).toBe(intake);
     expect(report.id).toBe('trace-report-custom-001');
     expect(report.verdict).toBe('review');
     expect(report.noPersistence).toBe(true);

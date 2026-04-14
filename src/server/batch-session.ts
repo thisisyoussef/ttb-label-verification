@@ -11,6 +11,11 @@ import { type AiProvider, type ExtractionMode } from './ai-provider-policy';
 import type { LlmEndpointSurface } from './llm-policy';
 import { runTracedReviewSurface } from './llm-trace';
 import {
+  createReviewLatencyCapture,
+  emitReviewLatencySummary,
+  type ReviewLatencyObserver
+} from './review-latency';
+import {
   createReviewExtractionFailure,
   type ReviewExtractor
 } from './review-extraction';
@@ -39,15 +44,18 @@ export class BatchSessionStore {
   private readonly extractor: ReviewExtractor;
   private readonly extractionMode: ExtractionMode;
   private readonly providers: AiProvider[];
+  private readonly latencyObserver?: ReviewLatencyObserver;
 
   constructor(input: {
     extractor: ReviewExtractor;
     extractionMode: ExtractionMode;
     providers: AiProvider[];
+    latencyObserver?: ReviewLatencyObserver;
   }) {
     this.extractor = input.extractor;
     this.extractionMode = input.extractionMode;
     this.providers = input.providers;
+    this.latencyObserver = input.latencyObserver;
   }
 
   createPreflight(input: {
@@ -243,13 +251,30 @@ export class BatchSessionStore {
     completedOrder: number;
     surface: LlmEndpointSurface;
   }) {
-    const parsedFields = buildParsedReviewFields(input.assignment.row);
-    const intake = createNormalizedReviewIntake({
-      file: toMemoryUploadedLabel(input.assignment.image),
-      fields: parsedFields
+    const latencyCapture = createReviewLatencyCapture({
+      surface: input.surface,
+      clientTraceId: [input.surface, input.assignment.image.id].join(':'),
+      fixtureId: input.assignment.image.id
+    });
+    latencyCapture.recordSpan({
+      stage: 'intake-parse',
+      outcome: 'skipped',
+      durationMs: 0
     });
 
     try {
+      const normalizationStartedAt = performance.now();
+      const parsedFields = buildParsedReviewFields(input.assignment.row);
+      const intake = createNormalizedReviewIntake({
+        file: toMemoryUploadedLabel(input.assignment.image),
+        fields: parsedFields
+      });
+      latencyCapture.recordSpan({
+        stage: 'intake-normalization',
+        outcome: 'success',
+        durationMs: performance.now() - normalizationStartedAt
+      });
+
       const report = await runTracedReviewSurface({
         surface: input.surface,
         extractionMode: this.extractionMode,
@@ -258,7 +283,9 @@ export class BatchSessionStore {
         intake,
         extractor: this.extractor,
         fixtureId: input.assignment.image.id,
-        reportId: randomUUID()
+        reportId: randomUUID(),
+        latencyCapture,
+        latencyObserver: this.latencyObserver
       });
 
       return {
@@ -270,6 +297,11 @@ export class BatchSessionStore {
         report
       };
     } catch (error) {
+      if (!latencyCapture.getOutcomePath()) {
+        latencyCapture.setOutcomePath('pre-provider-failure');
+        emitReviewLatencySummary(latencyCapture, this.latencyObserver);
+      }
+
       const reviewError = normalizeProcessingError(error);
 
       return {
