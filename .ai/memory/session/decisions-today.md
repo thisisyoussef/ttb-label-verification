@@ -81,3 +81,4 @@
 - Pick up `TTB-107` in parallel on `codex/TTB-107-auth-regression` while `TTB-106` finalizes because SSOT marks it the earliest `ready-parallel` Codex handoff.
 - Keep the `TTB-107` auth hardening inside the existing client stack by extracting pure helpers (`advanceAuthPhase`, `getAuthAutoAdvanceDelay`, `applyMockAuthSignOutReset`) instead of adding a new DOM-interaction test harness.
 - Treat the sign-out confirm `Cancel` and auto-dismiss branches as manual-QA branches for now; the repo's current client test surface remains pure/SSR rather than DOM-interaction driven.
+- Close `TTB-107` from a clean sibling publish worktree instead of the mixed development branch: rebase the story-scoped diff onto `origin/main`, publish `codex/TTB-107-auth-publish`, then fast-forward local `main` before advancing SSOT back to the active `TTB-211` override.

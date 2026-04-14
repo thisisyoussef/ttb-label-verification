@@ -8,9 +8,9 @@
 - Lanes in scope: Claude (UI) + Codex (client-side state wiring and reset semantics)
 - Lane status:
   - Claude lane: `done` — UI approved 2026-04-14; `docs/backlog/codex-handoffs/TTB-107.md` written as `ready-for-codex`
-  - Codex lane: `codex-in-progress` — packet expanded, auth regression tests added, and local verification passed on `codex/TTB-107-auth-regression`; publish is still blocked by the mixed unpublished worktree
+  - Codex lane: `done` — packet expanded, auth regression tests/helpers landed, the clean publish branch passed the git gates, and the story was merged into `main`
 - Packet mode: expanded working packet
-- Last reconciled: 2026-04-14 after local Codex verification, against `docs/process/SINGLE_SOURCE_OF_TRUTH.md` and `docs/backlog/codex-handoffs/TTB-107.md`
+- Last reconciled: 2026-04-14 after publish and merge, against `docs/process/SINGLE_SOURCE_OF_TRUTH.md` and `docs/backlog/codex-handoffs/TTB-107.md`
 
 ## Constitution check
 
@@ -43,7 +43,7 @@ The feature must feel authentic enough to show domain understanding, but it cann
 ### Acceptance criteria
 
 1. The first screen on app load is a mock internal entry screen on a plain light-gray background with a centered government-style login card.
-2. A government website banner appears above the card with the standard "An official website of the United States government" framing and a `Here's how you know` disclosure treatment.
+2. A prototype-safe government-style banner appears above the card, explicitly stating the surface is not an official U.S. government website and offering a `What would appear here` disclosure that explains the real banner is intentionally not reproduced.
 3. The login card includes text-only Treasury/TTB references, the heading `TTB Label Verification System`, and the subtitle `Alcohol Labeling and Formulation Division — Internal Use Only.`
 4. The card presents two sign-in options:
    - `Sign in with PIV / CAC Card`

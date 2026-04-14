@@ -1,9 +1,8 @@
 # Active Context
 
-- Current focus: `TTB-106` is complete across both lanes; `TTB-107` Claude work is complete, `TTB-108` is now the next ready Claude story for the mode selector, `TTB-206` is the next blocking Codex story, cloud extraction migration continues through `TTB-207`, cloud latency hardening is planned as `TTB-208` plus `TTB-209`, the restricted-network local mode is planned as `TTB-212`, and the user-centered prompt/guardrail/eval hardening follow-ons remain `TTB-210` plus `TTB-211`.
-- `TTB-107` Codex pickup is now locally implemented on `codex/TTB-107-auth-regression`: the packet is expanded, auth regression coverage lives in `src/client/auth-state.test.tsx`, and the root auth flow now uses shared helper seams for phase advancement, delay selection, and sign-out reset orchestration.
-- Local verification for the `TTB-107` pickup passed: `npm run test`, `npm run typecheck`, `npm run build`, and `npm run gate:commit`.
-- The current `TTB-107` blocker is workflow, not code: `npm run gate:publish` fails until the mixed unpublished worktree is cleaned up and the branch gets an upstream.
+- Current focus: `TTB-106` and `TTB-107` are complete across both lanes; `TTB-108` is now the next ready Claude story for the mode selector, `TTB-206` is the next blocking new Codex story, cloud extraction migration continues through `TTB-207`, cloud latency hardening is planned as `TTB-208` plus `TTB-209`, the restricted-network local mode is planned as `TTB-212`, and the user-centered prompt/guardrail/eval hardening follow-ons remain `TTB-210` plus `TTB-211`.
+- `TTB-107` is now published from the clean branch `codex/TTB-107-auth-publish` and merged into `main`: the packet is expanded, auth regression coverage lives in `src/client/auth-state.test.tsx`, and the root auth flow uses shared helper seams for phase advancement, delay selection, and sign-out reset orchestration.
+- Final verification for the `TTB-107` publish path passed after rebasing onto `origin/main`: `npm run test`, `npm run typecheck`, `npm run build`, `npm run gate:push`, and `npm run gate:publish`.
 - GitHub repo and Railway project are now live; the checked-in deploy flow uses GitHub Actions plus Railway CLI.
 - `STITCH_FLOW_MODE=claude-direct` is now the workspace default for UI work; automated Stitch and manual Comet are explicit alternates when a pass actually needs generated refs.
 - The Stitch harness now hardwires the canonical local project target to `TTB Label Verification System` (`3197911668966401642`) while still keeping title fallback when `STITCH_PROJECT_ID` is unset.
@@ -33,7 +32,6 @@
 - The warning-evidence step now auto-expands the `government-warning` row when the failing warning scenario is active, so the tour lands on the sub-check list and diff instead of a collapsed results row.
 - The guided-tour spotlight overlay now measures targets and positions callouts in viewport coordinates, not document coordinates, so the highlight stays aligned on scrolled results pages.
 - The guided-tour callout now measures its real rendered height and clamps itself within the viewport instead of relying on a fixed-height estimate; `Finish` resets the signed-in shell back to blank single-label intake.
-- `TTB-107` is now planned as a later Claude-first story: a prototype-safe mock PIV/CAC or Treasury SSO entry screen plus persistent `Sarah Chen · ALFD` shell identity and sign-out flow.
 - `TTB-108` is now the next ready Claude story and adds the small cloud/local extraction selector plus mode-aware processing copy to the signed-in shell.
 - `TTB-206` is now the next blocking Codex planning and implementation story; it defines extraction-mode routing and cloud/local privacy-safe policy.
 - `TTB-207` follows `TTB-206` and is the actual Gemini-primary cloud extraction cutover, including trace, eval, privacy, and timing proof before any default flip.

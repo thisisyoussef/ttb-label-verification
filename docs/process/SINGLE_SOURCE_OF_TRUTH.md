@@ -1,6 +1,6 @@
 # Single Source of Truth
 
-Last updated: 2026-04-14 (`TTB-107` Codex pickup is now locally implemented and verified on `codex/TTB-107-auth-regression`, but the publish gate is blocked by the mixed unpublished worktree; `TTB-211` still remains in progress under explicit user override against the current OpenAI-backed route graph)
+Last updated: 2026-04-14 (`TTB-107` is now complete across both lanes and merged into `main`; `TTB-211` remains the active Codex override story against the current OpenAI-backed route graph)
 
 ## Continue resolution
 
@@ -34,17 +34,17 @@ Last updated: 2026-04-14 (`TTB-107` Codex pickup is now locally implemented and 
 - Project status: runnable scaffold plus full-product planning set with live GitHub and Railway backing
 - Runtime status: React + Express scaffold exists, the shared review contract now includes typed extraction plus warning evidence, `POST /api/review` keeps uploads in memory and now runs the integrated extraction + warning + aggregation path, `POST /api/review/seed` remains the explicit scaffold-only inspection route, `POST /api/review/extraction` runs the live extraction boundary, `POST /api/review/warning` stages the warning validator, and contracts are tested
 - Process status: lane rules, next-story routing, spec gate, TDD gate, LangSmith-backed trace-driven development, Claude-direct UI flow with automated/manual Stitch alternatives, deployment flow, repo-managed git hooks, and publish-gate handoff rules are checked in
-- Planning status: `TTB-106` is complete across both lanes, `TTB-107` Claude work is complete and the Codex auth-regression follow-through is now locally verified but not yet publishable, extraction-mode routing plus cloud-provider migration is now captured as `TTB-206` plus `TTB-207`, the tightened `<= 4,000 ms` objective remains scoped to the default cloud path via `TTB-208` plus `TTB-209`, the restricted-network local-mode follow-on is captured as `TTB-212`, the reviewer-facing mode selector is captured as `TTB-108`, and the user-centered prompt/guardrail/eval hardening follow-ons remain captured as `TTB-210` plus `TTB-211`; `TTB-211` is still being executed early by explicit user override against the current OpenAI-backed route graph
+- Planning status: `TTB-106` and `TTB-107` are complete across both lanes, extraction-mode routing plus cloud-provider migration is now captured as `TTB-206` plus `TTB-207`, the tightened `<= 4,000 ms` objective remains scoped to the default cloud path via `TTB-208` plus `TTB-209`, the restricted-network local-mode follow-on is captured as `TTB-212`, the reviewer-facing mode selector is captured as `TTB-108`, and the user-centered prompt/guardrail/eval hardening follow-ons remain captured as `TTB-210` plus `TTB-211`; `TTB-211` is still being executed early by explicit user override against the current OpenAI-backed route graph
 - GitHub bootstrap status: live repo exists at `thisisyoussef/ttb-label-verification`
 - Railway bootstrap status: project, service, staging, production, public domains, and GitHub Actions token wiring are configured
 
 ## Active pointers
 
 - Active Claude story: none in progress (`TTB-107` Claude lane complete and approved 2026-04-14)
-- Active Codex story: `TTB-107` in progress — auth regression coverage, packet expansion, and no-persistence verification are complete locally on `codex/TTB-107-auth-regression`, but publish is blocked by the mixed unpublished worktree; `TTB-211` remains in-progress-user-override on its separate branch/context
+- Active Codex story: `TTB-211` in progress-user-override — continue the route-aware eval harness, LangSmith surface tracing, persona docs, and CI golden gate against the current OpenAI-backed route graph; `TTB-107` is complete and merged
 - Next ready for Claude: `TTB-108` — extraction mode selector and mode-aware processing states for the dual-mode extraction plan
-- Next preferred for Codex: `TTB-107` (`codex-in-progress`) — clear the publish blocker, then merge the auth regression slice; `TTB-206` remains the next blocking Codex story after the approved UI handoff queue clears
-- Next blocking for Codex: `TTB-206` — extraction mode routing foundation and privacy-safe cloud/local provider policy; `TTB-207`, `TTB-208`, `TTB-209`, `TTB-212`, `TTB-210`, and `TTB-211` follow it, and `TTB-401` now waits on `TTB-107`, `TTB-108`, and `TTB-211`
+- Next preferred for Codex: `TTB-211` (`in-progress-user-override`) — continue the explicit override route-aware eval harness; `TTB-206` remains the next blocking new Codex story once the override closes
+- Next blocking for Codex: `TTB-206` — extraction mode routing foundation and privacy-safe cloud/local provider policy; `TTB-207`, `TTB-208`, `TTB-209`, `TTB-212`, `TTB-210`, and `TTB-211` follow it, and `TTB-401` now waits on `TTB-108` and `TTB-211`
 - Current blocker owner: none
 - Current manual user action: none
 
@@ -66,8 +66,8 @@ Last updated: 2026-04-14 (`TTB-107` Codex pickup is now locally implemented and 
 | 11 | `TTB-301` | `TTB-003` | batch parser, matcher, orchestration, and session export | Codex | `done` | keep the packet, eval note, and live smoke record as the proof that the approved batch shells now run against the real session-scoped engine | none |
 | 12 | `TTB-105` | `TTB-004` | accessibility, trust copy, and final UI polish | Codex | `ready-parallel` | preserve the approved polish (single-label Results `Back to Intake` breadcrumb, promoted Processing `Cancel review`) as frozen release-gate input for `TTB-401` | none |
 | 13 | `TTB-106` | `TTB-004` | guided tour, replayable help, and contextual info layer | Codex | `done` | keep the packet, help contract, manifest route, fallback runtime bridge, and enforced action-step gating as the record of the completed help-layer cutover | none |
-| 14 | `TTB-107` | `TTB-004` | mock Treasury auth entry and signed-in shell identity | Codex | `codex-in-progress` | clear the mixed-worktree publish blocker, then publish and merge the locally verified auth regression slice | none |
-| 15 | `TTB-108` | `TTB-004` | extraction mode selector and mode-aware processing states | Claude | `ready` | design the secondary cloud/local selector, processing copy, and failure states so the workstation can expose dual-mode extraction without visual churn | `TTB-107` approved |
+| 14 | `TTB-107` | `TTB-004` | mock Treasury auth entry and signed-in shell identity | Codex | `done` | keep the packet, handoff, and auth regression suite as the record of the completed mock-auth shell hardening | none |
+| 15 | `TTB-108` | `TTB-004` | extraction mode selector and mode-aware processing states | Claude | `ready` | design the secondary cloud/local selector, processing copy, and failure states so the workstation can expose dual-mode extraction without visual churn | none |
 | 16 | `TTB-206` | `TTB-002` | extraction mode routing foundation and privacy-safe cloud/local provider policy | Codex | `ready` | implement the extraction-mode resolver, provider policy, env/bootstrap surface, and no-persistence guardrails from the updated packet | none |
 | 17 | `TTB-207` | `TTB-002` | cloud extraction mode: Gemini-primary with OpenAI fallback and cross-provider validation | Codex | `blocked-by-dependency` | implement cloud-mode Gemini-primary extraction after `TTB-206`, then run trace, eval, privacy, and performance gates before any default flip | `TTB-206` complete |
 | 18 | `TTB-208` | `TTB-002` | cloud/default latency observability and sub-4-second budget framing | Codex | `blocked-by-dependency` | add stage timing, budget math, and privacy-safe measurement on the real default cloud path without yet flipping the visible contract target | `TTB-207` complete |
@@ -75,7 +75,7 @@ Last updated: 2026-04-14 (`TTB-107` Codex pickup is now locally implemented and 
 | 20 | `TTB-212` | `TTB-002` | local extraction mode: Ollama-hosted Qwen2.5-VL with degraded-confidence guardrails | Codex | `blocked-by-dependency` | add the fully local extraction path after the cloud default is stable, with no silent cloud fallback and explicit low-confidence handling for weak visual claims | `TTB-209` complete |
 | 21 | `TTB-210` | `TTB-002` | persona-centered prompt profiles and endpoint plus mode guardrails | Codex | `blocked-by-dependency` | harden the shared extraction path with endpoint-aware and mode-aware prompt profiles plus structural guardrails after cloud and local routing settle | `TTB-212` complete |
 | 22 | `TTB-211` | `TTB-002` | LLM endpoint and mode eval matrix, persona scorecards, and trace regression gates | Codex | `in-progress-user-override` | finish the route-aware eval harness, LangSmith surface tracing, persona docs, and CI golden gate against the current OpenAI-backed route graph; extend the release gate to cover cloud/local mode evidence once `TTB-212` and `TTB-210` land | explicit user override of the normal `TTB-210` dependency |
-| 23 | `TTB-401` | `TTB-004` | final privacy, performance, eval, and submission pack | Codex | `blocked-by-dependency` | run the release gate and package the submission | `TTB-107` Codex work complete, `TTB-108` complete, and `TTB-211` complete |
+| 23 | `TTB-401` | `TTB-004` | final privacy, performance, eval, and submission pack | Codex | `blocked-by-dependency` | run the release gate and package the submission | `TTB-108` complete and `TTB-211` complete |
 
 ## Handoff points
 
