@@ -1,6 +1,6 @@
 # Single Source of Truth
 
-Last updated: 2026-04-14 (`TTB-206` is now complete on the current OpenAI-backed route graph; `TTB-207` is the next ready Codex story while `TTB-108` remains the remaining Claude-side blocker for `TTB-401` and `TTB-211` stays complete as the route-aware eval foundation)
+Last updated: 2026-04-14 (`TTB-207` is complete with Gemini-primary cloud routing, sanitized LangSmith comparison traces, and a recorded non-production-ready latency note; `TTB-208` is now the next ready Codex story while `TTB-108` remains the remaining Claude-side blocker for `TTB-401` and `TTB-211` stays complete as the route-aware eval foundation)
 
 ## Continue resolution
 
@@ -34,17 +34,17 @@ Last updated: 2026-04-14 (`TTB-206` is now complete on the current OpenAI-backed
 - Project status: runnable scaffold plus full-product planning set with live GitHub and Railway backing
 - Runtime status: React + Express scaffold exists, the shared review contract now includes typed extraction plus warning evidence, `POST /api/review` keeps uploads in memory and now runs the integrated extraction + warning + aggregation path, `POST /api/review/seed` remains the explicit scaffold-only inspection route, `POST /api/review/extraction` runs the live extraction boundary, `POST /api/review/warning` stages the warning validator, and contracts are tested
 - Process status: lane rules, next-story routing, spec gate, TDD gate, LangSmith-backed trace-driven development, Claude-direct UI flow with automated/manual Stitch alternatives, deployment flow, repo-managed git hooks, and publish-gate handoff rules are checked in
-- Planning status: `TTB-106`, `TTB-107`, `TTB-206`, and the current OpenAI-backed `TTB-211` override slice are complete, including route-surface trace evidence plus endpoint-aware fixture evals; `TTB-206` now provides the extraction-mode resolver, privacy-safe provider policy, and shared extractor factory that `TTB-207` will build on, the tightened `<= 4,000 ms` objective remains scoped to the default cloud path via `TTB-208` plus `TTB-209`, the restricted-network local-mode follow-on is captured as `TTB-212`, the reviewer-facing mode selector is captured as `TTB-108`, and the user-centered prompt/guardrail/eval hardening follow-ons remain captured as `TTB-210` plus `TTB-211`; `TTB-207` is now the next ready Codex story
+- Planning status: `TTB-106`, `TTB-107`, `TTB-206`, `TTB-207`, and the current OpenAI-backed `TTB-211` override slice are complete, including route-surface trace evidence plus endpoint-aware fixture evals; `TTB-207` now provides the native Gemini adapter, shared cross-provider schema/prompt layer, Gemini-primary cloud routing, and sanitized LangSmith comparison traces. Those traces favored `gemini-2.5-flash-lite` over `gpt-5.4` on the generated PDF slice, but the current `GEMINI_TIMEOUT_MS=3000` default still timed out on sanitized clean media, so `TTB-208` plus `TTB-209` remain the path to production-ready latency framing and hot-path tuning. The restricted-network local-mode follow-on remains `TTB-212`, the reviewer-facing mode selector remains `TTB-108`, and the user-centered prompt/guardrail hardening follow-ons remain `TTB-210` plus `TTB-211`; `TTB-208` is now the next ready Codex story
 - GitHub bootstrap status: live repo exists at `thisisyoussef/ttb-label-verification`
 - Railway bootstrap status: project, service, staging, production, public domains, and GitHub Actions token wiring are configured
 
 ## Active pointers
 
 - Active Claude story: none in progress (`TTB-107` Claude lane complete and approved 2026-04-14)
-- Active Codex story: none in progress (`TTB-206` is complete on the current OpenAI-backed route graph; `TTB-207` is now the next ready Codex pickup)
+- Active Codex story: none in progress (`TTB-207` is complete; `TTB-208` is now the next ready Codex pickup)
 - Next ready for Claude: `TTB-108` — extraction mode selector and mode-aware processing states for the dual-mode extraction plan
-- Next preferred for Codex: `TTB-207` — cloud extraction mode: Gemini-primary with OpenAI fallback and cross-provider validation is now the earliest remaining ready Codex story
-- Next blocking for Codex: `TTB-207` — cloud extraction mode: Gemini-primary with OpenAI fallback and cross-provider validation; `TTB-208`, `TTB-209`, `TTB-212`, and `TTB-210` follow it, and `TTB-401` now waits on `TTB-108`
+- Next preferred for Codex: `TTB-208` — cloud/default latency observability and sub-4-second budget framing is now the earliest remaining ready Codex story
+- Next blocking for Codex: `TTB-208` — cloud/default latency observability and sub-4-second budget framing; `TTB-209`, `TTB-212`, and `TTB-210` follow it, and `TTB-401` still waits on `TTB-108`
 - Current blocker owner: none
 - Current manual user action: none
 
@@ -69,8 +69,8 @@ Last updated: 2026-04-14 (`TTB-206` is now complete on the current OpenAI-backed
 | 14 | `TTB-107` | `TTB-004` | mock Treasury auth entry and signed-in shell identity | Codex | `done` | keep the packet, handoff, and auth regression suite as the record of the completed mock-auth shell hardening | none |
 | 15 | `TTB-108` | `TTB-004` | extraction mode selector and mode-aware processing states | Claude | `ready` | design the secondary cloud/local selector, processing copy, and failure states so the workstation can expose dual-mode extraction without visual churn | none |
 | 16 | `TTB-206` | `TTB-002` | extraction mode routing foundation and privacy-safe cloud/local provider policy | Codex | `done` | keep the packet, provider-policy module, extractor factory, env/bootstrap surface, and privacy guardrails as the record of the completed routing foundation | none |
-| 17 | `TTB-207` | `TTB-002` | cloud extraction mode: Gemini-primary with OpenAI fallback and cross-provider validation | Codex | `ready` | implement Gemini as the cloud label-extraction provider through the completed extractor factory, then run trace, eval, privacy, and performance gates before any default flip | none |
-| 18 | `TTB-208` | `TTB-002` | cloud/default latency observability and sub-4-second budget framing | Codex | `blocked-by-dependency` | add stage timing, budget math, and privacy-safe measurement on the real default cloud path without yet flipping the visible contract target | `TTB-207` complete |
+| 17 | `TTB-207` | `TTB-002` | cloud extraction mode: Gemini-primary with OpenAI fallback and cross-provider validation | Codex | `done` | keep the packet, sanitized LangSmith comparison traces, and manual AI Studio logging-verification note as the record of the Gemini-primary cloud cutover | none |
+| 18 | `TTB-208` | `TTB-002` | cloud/default latency observability and sub-4-second budget framing | Codex | `ready` | add stage timing, budget math, and privacy-safe measurement on the real Gemini/OpenAI cloud path without yet flipping the visible contract target | none |
 | 19 | `TTB-209` | `TTB-002` | cloud/default single-label hot-path optimization to `<= 4 seconds` | Codex | `blocked-by-dependency` | use the timing data to tune the default cloud hot path, enforce deadline-aware fallback, and only then cut the visible budget to `4000` | `TTB-208` complete |
 | 20 | `TTB-212` | `TTB-002` | local extraction mode: Ollama-hosted Qwen2.5-VL with degraded-confidence guardrails | Codex | `blocked-by-dependency` | add the fully local extraction path after the cloud default is stable, with no silent cloud fallback and explicit low-confidence handling for weak visual claims | `TTB-209` complete |
 | 21 | `TTB-210` | `TTB-002` | persona-centered prompt profiles and endpoint plus mode guardrails | Codex | `blocked-by-dependency` | harden the shared extraction path with endpoint-aware and mode-aware prompt profiles plus structural guardrails after cloud and local routing settle | `TTB-212` complete |

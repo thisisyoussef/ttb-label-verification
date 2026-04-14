@@ -36,6 +36,7 @@
 - Reusing shared optional-field Zod schemas directly for Responses structured outputs instead of adapting them into required-plus-nullable API schemas
 - Letting the warning diff collapse into overly broad case-mismatch spans that stop matching the approved UI evidence semantics
 - Adding Gemini through the Files API or any other provider-managed durable upload surface inside a no-persistence product
+- Declaring the Gemini default production-ready without recorded live or sanitized trace evidence, timeout behavior, and a manual verification note for AI Studio logging/dataset-sharing settings
 - Treating provider fallback as a route-local try/catch instead of a typed capability policy with explicit retry and privacy classification
 - Instantiating the OpenAI extractor directly in routes or batch orchestration instead of going through the shared extractor factory
 - Letting an explicit `local` mode selection silently hop back to Gemini or OpenAI after a failure

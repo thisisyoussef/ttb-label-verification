@@ -88,3 +88,9 @@
 - For `TTB-206`, treat explicit local mode as fail-closed until a real Ollama adapter exists; do not silently hop back into cloud providers.
 - Keep the Gemini and Ollama env keys present in the bootstrapped repo-local `.env`, but leave model values empty until the live provider stories (`TTB-207`, `TTB-212`) supply concrete adapters and deployment choices.
 - Record the attempted `ai-provider-policy.ts` mutation run as a waiver note in the packet because the current Stryker harness expanded it to 201 mutants with repeated timeouts before producing a useful score.
+
+- For `TTB-207`, implement Gemini through the native `@google/genai` SDK, but keep OpenAI as the bounded cloud fallback inside the shared provider factory instead of forking route-local logic.
+- For `TTB-207`, extract the API-facing extraction schema, prompt text, JSON-schema conversion, and normalization into one shared module so Gemini and OpenAI stay contract-aligned.
+- Freeze the repo default Gemini model to `gemini-2.5-flash-lite` because Google's official docs listed PDF support there while `gemini-2.5-flash` did not list PDF support at implementation time.
+- When the live core-six assets are unavailable, use sanitized locally generated media plus traced extraction surfaces as the provider-comparison seam instead of guessing from docs or unit tests alone.
+- Record `TTB-207` as implemented but not yet production-ready: sanitized traces favored Gemini Flash-Lite over OpenAI on PDFs, but the current `GEMINI_TIMEOUT_MS=3000` default still times out on sanitized clean media and AI Studio logging verification remains manual.

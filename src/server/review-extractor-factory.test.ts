@@ -1,9 +1,10 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { reviewExtractionSchema } from '../shared/contracts/review';
 import type { NormalizedReviewIntake } from './review-intake';
 import { createReviewExtractionFailure } from './review-extraction';
 import {
+  ReviewProviderFailure,
   createConfiguredReviewExtractor,
   type ReviewExtractorProvider,
   type ReviewExtractorProviderFactories
@@ -30,10 +31,10 @@ function buildIntake(
   };
 }
 
-function buildExtractionPayload() {
+function buildExtractionPayload(model = 'gpt-5.4') {
   return reviewExtractionSchema.parse({
     id: 'extract-factory-001',
-    model: 'gpt-5.4',
+    model,
     beverageType: 'distilled-spirits',
     beverageTypeSource: 'class-type',
     modelBeverageTypeHint: 'distilled-spirits',
@@ -135,39 +136,84 @@ function provider(input: {
   };
 }
 
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
+});
+
 describe('review extractor factory', () => {
-  it('falls back within cloud mode when the first provider has a retryable network failure', async () => {
-    const openAiExecute = vi.fn().mockRejectedValue(
-      createReviewExtractionFailure({
-        status: 502,
-        kind: 'network',
-        message: 'OpenAI is temporarily unavailable.',
-        retryable: true
-      })
-    );
-    const geminiExecute = vi.fn().mockResolvedValue(buildExtractionPayload());
+  it('uses Gemini first by default in cloud mode when both providers are available', async () => {
+    const geminiExecute = vi
+      .fn()
+      .mockResolvedValue(buildExtractionPayload('gemini-2.5-flash-lite'));
+    const openAiExecute = vi.fn().mockResolvedValue(buildExtractionPayload());
 
     const providers: ReviewExtractorProviderFactories = {
-      openai: () => ({
-        success: true,
-        provider: provider({
-          provider: 'openai',
-          execute: openAiExecute
-        })
-      }),
       gemini: () => ({
         success: true,
         provider: provider({
           provider: 'gemini',
           execute: geminiExecute
         })
+      }),
+      openai: () => ({
+        success: true,
+        provider: provider({
+          provider: 'openai',
+          execute: openAiExecute
+        })
       })
     };
 
     const resolution = createConfiguredReviewExtractor({
-      env: {
-        AI_CAPABILITY_LABEL_EXTRACTION_ORDER: 'openai,gemini'
-      },
+      env: {},
+      providers
+    });
+
+    expect(resolution.success).toBe(true);
+    if (!resolution.success) {
+      throw new Error('Expected extractor resolution to succeed.');
+    }
+
+    expect(resolution.value.providers).toEqual(['gemini', 'openai']);
+
+    const extraction = await resolution.value.extractor(buildIntake());
+
+    expect(geminiExecute).toHaveBeenCalledTimes(1);
+    expect(openAiExecute).not.toHaveBeenCalled();
+    expect(extraction.model).toBe('gemini-2.5-flash-lite');
+  });
+
+  it('falls back within cloud mode when Gemini has a retryable network failure', async () => {
+    const geminiExecute = vi.fn().mockRejectedValue(
+      createReviewExtractionFailure({
+        status: 502,
+        kind: 'network',
+        message: 'Gemini is temporarily unavailable.',
+        retryable: true
+      })
+    );
+    const openAiExecute = vi.fn().mockResolvedValue(buildExtractionPayload());
+
+    const providers: ReviewExtractorProviderFactories = {
+      gemini: () => ({
+        success: true,
+        provider: provider({
+          provider: 'gemini',
+          execute: geminiExecute
+        })
+      }),
+      openai: () => ({
+        success: true,
+        provider: provider({
+          provider: 'openai',
+          execute: openAiExecute
+        })
+      })
+    };
+
+    const resolution = createConfiguredReviewExtractor({
+      env: {},
       providers
     });
 
@@ -178,9 +224,154 @@ describe('review extractor factory', () => {
 
     const extraction = await resolution.value.extractor(buildIntake());
 
-    expect(openAiExecute).toHaveBeenCalledTimes(1);
     expect(geminiExecute).toHaveBeenCalledTimes(1);
+    expect(openAiExecute).toHaveBeenCalledTimes(1);
     expect(extraction.id).toBe('extract-factory-001');
+  });
+
+  it('falls back within cloud mode when Gemini has a retryable response-parse failure', async () => {
+    const geminiExecute = vi.fn().mockRejectedValue(
+      createReviewExtractionFailure({
+        status: 502,
+        kind: 'adapter',
+        message: 'Gemini returned malformed structured output.',
+        retryable: true
+      })
+    );
+    const openAiExecute = vi.fn().mockResolvedValue(buildExtractionPayload());
+
+    const providers: ReviewExtractorProviderFactories = {
+      gemini: () => ({
+        success: true,
+        provider: provider({
+          provider: 'gemini',
+          execute: geminiExecute
+        })
+      }),
+      openai: () => ({
+        success: true,
+        provider: provider({
+          provider: 'openai',
+          execute: openAiExecute
+        })
+      })
+    };
+
+    const resolution = createConfiguredReviewExtractor({
+      env: {},
+      providers
+    });
+
+    expect(resolution.success).toBe(true);
+    if (!resolution.success) {
+      throw new Error('Expected extractor resolution to succeed.');
+    }
+
+    const extraction = await resolution.value.extractor(buildIntake());
+
+    expect(geminiExecute).toHaveBeenCalledTimes(1);
+    expect(openAiExecute).toHaveBeenCalledTimes(1);
+    expect(extraction.id).toBe('extract-factory-001');
+  });
+
+  it('keeps OpenAI available when Gemini is missing configuration under the default cloud order', async () => {
+    const openAiExecute = vi.fn().mockResolvedValue(buildExtractionPayload());
+
+    const providers: ReviewExtractorProviderFactories = {
+      gemini: () => ({
+        success: false,
+        failure: new ReviewProviderFailure({
+          status: 503,
+          error: {
+            kind: 'adapter',
+            message: 'Gemini extraction is not configured for this environment.',
+            retryable: false
+          },
+          provider: 'gemini',
+          mode: 'cloud',
+          capability: 'label-extraction',
+          reason: 'missing-configuration'
+        })
+      }),
+      openai: () => ({
+        success: true,
+        provider: provider({
+          provider: 'openai',
+          execute: openAiExecute
+        })
+      })
+    };
+
+    const resolution = createConfiguredReviewExtractor({
+      env: {},
+      providers
+    });
+
+    expect(resolution.success).toBe(true);
+    if (!resolution.success) {
+      throw new Error('Expected extractor resolution to succeed.');
+    }
+
+    expect(resolution.value.providers).toEqual(['openai']);
+    await resolution.value.extractor(buildIntake());
+    expect(openAiExecute).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not fall back after a late provider timeout once the retry budget is spent', async () => {
+    vi.useFakeTimers();
+
+    const geminiExecute = vi.fn().mockImplementation(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 101));
+      throw createReviewExtractionFailure({
+        status: 504,
+        kind: 'timeout',
+        message: 'Gemini timed out.',
+        retryable: true
+      });
+    });
+    const openAiExecute = vi.fn().mockResolvedValue(buildExtractionPayload());
+
+    const providers: ReviewExtractorProviderFactories = {
+      gemini: () => ({
+        success: true,
+        provider: provider({
+          provider: 'gemini',
+          execute: geminiExecute
+        })
+      }),
+      openai: () => ({
+        success: true,
+        provider: provider({
+          provider: 'openai',
+          execute: openAiExecute
+        })
+      })
+    };
+
+    const resolution = createConfiguredReviewExtractor({
+      env: {},
+      providers,
+      maxRetryableFallbackElapsedMs: 100
+    });
+
+    expect(resolution.success).toBe(true);
+    if (!resolution.success) {
+      throw new Error('Expected extractor resolution to succeed.');
+    }
+
+    const extractionPromise = resolution.value.extractor(buildIntake());
+    const rejection = expect(extractionPromise).rejects.toMatchObject({
+      status: 504,
+      error: {
+        kind: 'timeout',
+        retryable: true
+      }
+    });
+
+    await vi.advanceTimersByTimeAsync(101);
+    await rejection;
+    expect(geminiExecute).toHaveBeenCalledTimes(1);
+    expect(openAiExecute).not.toHaveBeenCalled();
   });
 
   it('fails closed when local mode is explicitly selected and no local provider is available', () => {
@@ -201,32 +392,5 @@ describe('review extractor factory', () => {
     expect(resolution.status).toBe(503);
     expect(resolution.error.kind).toBe('adapter');
     expect(resolution.error.message).toContain('Local extraction');
-  });
-
-  it('keeps the current OpenAI-first live path when later cloud fallbacks are unavailable', () => {
-    const openAiExecute = vi.fn().mockResolvedValue(buildExtractionPayload());
-    const providers: ReviewExtractorProviderFactories = {
-      openai: () => ({
-        success: true,
-        provider: provider({
-          provider: 'openai',
-          execute: openAiExecute
-        })
-      })
-    };
-
-    const resolution = createConfiguredReviewExtractor({
-      env: {
-        AI_CAPABILITY_LABEL_EXTRACTION_ORDER: 'openai,gemini'
-      },
-      providers
-    });
-
-    expect(resolution.success).toBe(true);
-    if (!resolution.success) {
-      throw new Error('Expected extractor resolution to succeed.');
-    }
-
-    expect(resolution.value.providers).toEqual(['openai']);
   });
 });

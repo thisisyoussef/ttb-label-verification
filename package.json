@@ -30,6 +30,7 @@
     "stitch:story": "tsx scripts/stitch-story.ts"
   },
   "dependencies": {
+    "@google/genai": "^1.50.0",
     "@google/stitch-sdk": "^0.1.0",
     "@types/multer": "^2.1.0",
     "express": "^4.21.2",

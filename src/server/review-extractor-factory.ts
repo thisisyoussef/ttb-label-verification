@@ -11,6 +11,10 @@ import {
   type ProviderFailureReason
 } from './ai-provider-policy';
 import {
+  createGeminiReviewExtractor,
+  readGeminiReviewExtractionConfig
+} from './gemini-review-extractor';
+import {
   createOpenAIReviewExtractor,
   readReviewExtractionConfig
 } from './openai-review-extractor';
@@ -20,6 +24,8 @@ import {
   isReviewExtractionFailure,
   type ReviewExtractor
 } from './review-extraction';
+
+const DEFAULT_MAX_RETRYABLE_FALLBACK_ELAPSED_MS = 2000;
 
 export interface ReviewProviderFailureMetadata {
   provider: AiProvider;
@@ -104,6 +110,7 @@ export type ConfiguredReviewExtractorResult =
   | ConfiguredExtractorFailure;
 
 const DEFAULT_PROVIDER_FACTORIES: ReviewExtractorProviderFactories = {
+  gemini: createGeminiReviewExtractorProvider,
   openai: createOpenAiReviewExtractorProvider
 };
 
@@ -112,8 +119,12 @@ export function createConfiguredReviewExtractor(input: {
   capability?: AiCapability;
   requestedMode?: ExtractionMode;
   providers?: ReviewExtractorProviderFactories;
+  maxRetryableFallbackElapsedMs?: number;
 }): ConfiguredReviewExtractorResult {
   const capability = input.capability ?? 'label-extraction';
+  const maxRetryableFallbackElapsedMs =
+    input.maxRetryableFallbackElapsedMs ??
+    DEFAULT_MAX_RETRYABLE_FALLBACK_ELAPSED_MS;
   const policyResult = readExtractionRoutingPolicy(input.env);
   if (!policyResult.success) {
     return policyResult;
@@ -190,6 +201,8 @@ export function createConfiguredReviewExtractor(input: {
         let lastProviderFailure: ReviewProviderFailure | undefined;
 
         for (const provider of availableProviders) {
+          const startedAt = Date.now();
+
           try {
             return await provider.execute(intake);
           } catch (error) {
@@ -201,7 +214,13 @@ export function createConfiguredReviewExtractor(input: {
             });
 
             lastProviderFailure = providerFailure;
-            if (!providerFailure.metadata.fallbackAllowed) {
+            if (
+              !providerFailure.metadata.fallbackAllowed ||
+              !fallbackWindowStillOpen({
+                startedAt,
+                maxRetryableFallbackElapsedMs
+              })
+            ) {
               throw providerFailure;
             }
           }
@@ -274,6 +293,39 @@ function resolveConfiguredProvider(input: {
   return providerResult;
 }
 
+function createGeminiReviewExtractorProvider(input: {
+  env: Record<string, string | undefined>;
+  capability: AiCapability;
+}): ProviderFactorySuccess | ProviderFactoryFailure {
+  const configResult = readGeminiReviewExtractionConfig(input.env);
+  if (!configResult.success) {
+    return {
+      success: false,
+      failure: createReviewProviderFailure({
+        status: configResult.status,
+        error: configResult.error,
+        provider: 'gemini',
+        mode: 'cloud',
+        capability: input.capability,
+        reason: classifyGeminiConfigFailure(input.env)
+      })
+    };
+  }
+
+  const extractor = createGeminiReviewExtractor({
+    config: configResult.value
+  });
+
+  return {
+    success: true,
+    provider: {
+      provider: 'gemini',
+      supports: (capability) => capability === 'label-extraction',
+      execute: (intake) => extractor(intake)
+    }
+  };
+}
+
 function createOpenAiReviewExtractorProvider(input: {
   env: Record<string, string | undefined>;
   capability: AiCapability;
@@ -342,6 +394,15 @@ function normalizeProviderRuntimeFailure(input: {
   });
 }
 
+function classifyGeminiConfigFailure(env: Record<string, string | undefined>) {
+  const apiKey = env.GEMINI_API_KEY?.trim();
+  if (!apiKey) {
+    return 'missing-configuration' as const;
+  }
+
+  return 'invalid-provider-config' as const;
+}
+
 function classifyOpenAiConfigFailure(env: Record<string, string | undefined>) {
   const apiKey = env.OPENAI_API_KEY?.trim();
   if (!apiKey) {
@@ -402,6 +463,13 @@ function createReviewProviderFailure(input: {
   fallbackAllowed?: boolean;
 }) {
   return new ReviewProviderFailure(input);
+}
+
+function fallbackWindowStillOpen(input: {
+  startedAt: number;
+  maxRetryableFallbackElapsedMs: number;
+}) {
+  return Date.now() - input.startedAt <= input.maxRetryableFallbackElapsedMs;
 }
 
 function formatProviderName(provider: AiProvider) {
