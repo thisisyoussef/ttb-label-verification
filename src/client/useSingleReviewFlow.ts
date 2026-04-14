@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { DEFAULT_FAILURE_MESSAGE } from './appReviewApi';
 import {
   buildLowQualityCautionReport,
   emptyIntake,
@@ -8,6 +7,7 @@ import {
 } from './appSingleState';
 import type { View } from './appTypes';
 import { buildTourDemoImage, resolveTourDemoReviewReport } from './help-tour-runtime';
+import { DEFAULT_FAILURE_MESSAGE } from './reviewFailureMessage';
 import { logReviewClientEvent } from './review-observability';
 import { resolveResultReport } from './review-runtime';
 import type { SeedScenario } from './scenarios';

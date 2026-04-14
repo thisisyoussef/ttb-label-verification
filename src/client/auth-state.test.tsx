@@ -18,10 +18,11 @@ describe('auth state helpers', () => {
   it('advances the transient auth phases toward signed-in', () => {
     expect(advanceAuthPhase('signed-out')).toBe('signed-out');
     expect(advanceAuthPhase('piv-loading')).toBe('piv-success');
-    expect(advanceAuthPhase('piv-success')).toBe('signed-in');
+    expect(advanceAuthPhase('piv-success')).toBe('mode-select');
     expect(advanceAuthPhase('sso-form')).toBe('sso-form');
     expect(advanceAuthPhase('sso-loading')).toBe('sso-success');
-    expect(advanceAuthPhase('sso-success')).toBe('signed-in');
+    expect(advanceAuthPhase('sso-success')).toBe('mode-select');
+    expect(advanceAuthPhase('mode-select')).toBe('signed-in');
     expect(advanceAuthPhase('signed-in')).toBe('signed-in');
   });
 
@@ -82,6 +83,8 @@ describe('AuthScreen', () => {
     const html = renderToStaticMarkup(
       <AuthScreen
         phase="signed-out"
+        extractionMode="local"
+        onExtractionModeChange={vi.fn()}
         onStartPiv={vi.fn()}
         onStartSsoForm={vi.fn()}
         onBackFromSso={vi.fn()}
@@ -101,6 +104,8 @@ describe('AuthScreen', () => {
     const html = renderToStaticMarkup(
       <AuthScreen
         phase="sso-form"
+        extractionMode="local"
+        onExtractionModeChange={vi.fn()}
         onStartPiv={vi.fn()}
         onStartSsoForm={vi.fn()}
         onBackFromSso={vi.fn()}
@@ -119,6 +124,8 @@ describe('AuthScreen', () => {
     const pivHtml = renderToStaticMarkup(
       <AuthScreen
         phase="piv-success"
+        extractionMode="local"
+        onExtractionModeChange={vi.fn()}
         onStartPiv={vi.fn()}
         onStartSsoForm={vi.fn()}
         onBackFromSso={vi.fn()}
@@ -129,6 +136,8 @@ describe('AuthScreen', () => {
     const ssoHtml = renderToStaticMarkup(
       <AuthScreen
         phase="sso-success"
+        extractionMode="local"
+        onExtractionModeChange={vi.fn()}
         onStartPiv={vi.fn()}
         onStartSsoForm={vi.fn()}
         onBackFromSso={vi.fn()}

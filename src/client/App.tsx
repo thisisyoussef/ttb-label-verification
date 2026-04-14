@@ -9,7 +9,7 @@ import {
   SESSION_TIMEOUTS,
   type AuthPhase
 } from './authState';
-import type { Mode, View } from './appTypes';
+import type { ExtractionMode, Mode, View } from './appTypes';
 import {
   isTourNextDisabled,
   resolvePendingVerifyAdvanceAction,
@@ -33,6 +33,7 @@ export function App() {
   const [mode, setMode] = useState<Mode>('single');
   const [view, setView] = useState<View>('intake');
   const [authPhase, setAuthPhase] = useState<AuthPhase>('signed-out');
+  const [extractionMode, setExtractionMode] = useState<ExtractionMode>('local');
   const [sessionRemainingMs, setSessionRemainingMs] = useState<number>(
     SESSION_TIMEOUTS.inactivityMs
   );
@@ -161,6 +162,14 @@ export function App() {
     help.onNextTourStep();
   }, [currentTourStep, help, tourNextDisabled]);
 
+  const onTourShowMeAndContinue = useCallback(
+    (action: HelpShowMe) => {
+      onTourShowMe(action);
+      help.onNextTourStep();
+    },
+    [help, onTourShowMe]
+  );
+
   const onTourAdvanceInteraction = useCallback(() => {
     if (!currentTourStep) {
       setPendingVerifyTourAdvance(false);
@@ -226,6 +235,7 @@ export function App() {
   }, [batch, help, single]);
 
   const performSignOut = useCallback(() => {
+    setExtractionMode('local');
     setSessionRemainingMs(SESSION_TIMEOUTS.inactivityMs);
     applyMockAuthSignOutReset({
       setPendingVerifyTourAdvance,
@@ -236,7 +246,7 @@ export function App() {
       setView,
       setAuthPhase
     });
-  }, [batch, help, single]);
+  }, [batch, help.reset, setAuthPhase, single.reset]);
 
   const resetSessionTimeout = useCallback(() => {
     setSessionRemainingMs(SESSION_TIMEOUTS.inactivityMs);
@@ -256,8 +266,13 @@ export function App() {
   }, [authPhase]);
 
   useEffect(() => {
-    if (authPhase !== 'signed-in') return;
-    if (sessionRemainingMs <= SESSION_TIMEOUTS.warningMs) return;
+    if (authPhase !== 'signed-in') {
+      return;
+    }
+
+    if (sessionRemainingMs <= SESSION_TIMEOUTS.warningMs) {
+      return;
+    }
 
     const onActivity = () => {
       setSessionRemainingMs(SESSION_TIMEOUTS.inactivityMs);
@@ -282,7 +297,10 @@ export function App() {
   }, [authPhase, sessionRemainingMs]);
 
   useEffect(() => {
-    if (authPhase !== 'signed-in' || sessionRemainingMs > 0) return;
+    if (authPhase !== 'signed-in' || sessionRemainingMs > 0) {
+      return;
+    }
+
     performSignOut();
   }, [authPhase, performSignOut, sessionRemainingMs]);
 
@@ -294,6 +312,8 @@ export function App() {
     return (
       <AuthScreen
         phase={authPhase}
+        extractionMode={extractionMode}
+        onExtractionModeChange={setExtractionMode}
         onStartPiv={() => setAuthPhase('piv-loading')}
         onStartSsoForm={() => setAuthPhase('sso-form')}
         onBackFromSso={() => setAuthPhase('signed-out')}
@@ -314,17 +334,21 @@ export function App() {
       fixtureControlsEnabled={fixtureControlsEnabled}
       single={single}
       batch={batch}
-      sessionTimeoutOpen={sessionTimeoutOpen}
-      sessionTimeoutRemainingSeconds={sessionTimeoutRemainingSeconds}
       tourExpandedCheckId={tourExpandedCheckId}
       tourNextDisabled={tourNextDisabled}
       onSelectMode={(next) => batch.onSelectMode(next, mode)}
+      extractionMode={extractionMode}
+      extractionModeDisabled={view === 'processing' || view === 'batch-processing'}
+      sessionTimeoutOpen={sessionTimeoutOpen}
+      sessionTimeoutRemainingSeconds={sessionTimeoutRemainingSeconds}
+      onExtractionModeChange={setExtractionMode}
       onSignOut={performSignOut}
       onStaySignedIn={resetSessionTimeout}
       onTourNext={onTourNext}
       onTourAdvanceInteraction={onTourAdvanceInteraction}
       onTourFinish={onTourFinish}
       onTourShowMe={onTourShowMe}
+      onTourShowMeAndContinue={onTourShowMeAndContinue}
     />
   );
 }

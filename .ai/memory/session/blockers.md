@@ -7,5 +7,5 @@
 - Known future dependency: the tighter `<= 4,000 ms` target cannot be claimed until `TTB-208` and `TTB-209` add real stage timing and optimize the hot path against the approved fixture slice.
 - Known future dependency: the restricted-network local-mode plan (`TTB-212`) still needs Ollama availability plus a usable local model footprint before it can be exercised.
 - Known future dependency: `TTB-210` still needs to replace the current hard-coded prompt-profile and guardrail identifiers with the planned shared policy module before the full hardening sequence can close cleanly.
-- Known future dependency: `TTB-401` still remains blocked on Claude completing `TTB-108`.
+- Known future dependency: `TTB-401` still remains blocked on the remaining extraction-mode hardening chain (`TTB-208`, `TTB-209`, `TTB-212`, and `TTB-210`) before the final submission pack can close.
 - Current tooling blocker: targeted mutation testing for `src/server/ai-provider-policy.ts` is still noisy under the current Stryker config; the attempted run on 2026-04-14 reached 41% with 16 timeouts before it was aborted.

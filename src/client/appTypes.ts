@@ -8,3 +8,5 @@ export type View =
   | 'batch-result';
 
 export type Mode = 'single' | 'batch';
+
+export type ExtractionMode = 'cloud' | 'local';

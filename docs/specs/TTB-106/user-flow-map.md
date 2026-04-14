@@ -15,7 +15,7 @@ Guided tour and contextual help for the signed-in workstation. This map is the e
 5. Step 4 verify: reviewer clicks the real `Verify Label` button.
 6. Processing runs, then results render.
 7. Step 5 verdict banner: `Next`.
-8. Step 6 warning evidence: reviewer loads the failing warning scenario when needed.
+8. Step 6 warning evidence: reviewer is always taken to the failing warning scenario for this teaching step.
 9. Step 7 batch mode: reviewer clicks the real `Batch` tab.
 10. Step 8 privacy: `Finish`.
 
@@ -29,6 +29,8 @@ Guided tour and contextual help for the signed-in workstation. This map is the e
   - Step 4 after real Verify click: tour stays on the step while the shell moves through `processing`.
 - Success:
   - Step 4 advances only after real results render.
+- Step 6 simplification:
+  - The tour always teaches warning evidence from the deterministic failing warning example instead of branching on the reviewer's current result.
 - Failure:
   - Step 4 failed live extraction: deterministic sample results are materialized and the tour advances.
 - Retry:

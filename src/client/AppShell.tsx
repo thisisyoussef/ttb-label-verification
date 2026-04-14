@@ -12,10 +12,11 @@ import { Intake } from './Intake';
 import { Processing } from './Processing';
 import { Results } from './Results';
 import { ScenarioPicker } from './ScenarioPicker';
+import { ExtractionModeSelector } from './ExtractionModeSelector';
 import { SessionTimeoutModal } from './SessionTimeoutModal';
 import { SignedInIdentity } from './SignedInIdentity';
 import { type HelpShowMe } from './helpManifest';
-import type { Mode, View } from './appTypes';
+import type { ExtractionMode, Mode, View } from './appTypes';
 import type { BatchWorkflow } from './useBatchWorkflow';
 import type { HelpTourFlow } from './useHelpTourState';
 import type { SingleReviewFlow } from './useSingleReviewFlow';
@@ -27,17 +28,21 @@ interface AppShellProps {
   single: SingleReviewFlow;
   batch: BatchWorkflow;
   help: HelpTourFlow;
+  extractionMode: ExtractionMode;
+  extractionModeDisabled: boolean;
   sessionTimeoutOpen: boolean;
   sessionTimeoutRemainingSeconds: number;
   tourExpandedCheckId?: string | null;
   tourNextDisabled?: boolean;
   onSelectMode: (next: Mode) => void;
+  onExtractionModeChange: (mode: ExtractionMode) => void;
   onSignOut: () => void;
   onStaySignedIn: () => void;
   onTourNext: () => void;
   onTourAdvanceInteraction: () => void;
   onTourFinish: () => void;
   onTourShowMe: (action: HelpShowMe) => void;
+  onTourShowMeAndContinue: (action: HelpShowMe) => void;
 }
 
 export function AppShell({
@@ -47,17 +52,21 @@ export function AppShell({
   single,
   batch,
   help,
+  extractionMode,
+  extractionModeDisabled,
   sessionTimeoutOpen,
   sessionTimeoutRemainingSeconds,
   tourExpandedCheckId = null,
   tourNextDisabled = false,
   onSelectMode,
+  onExtractionModeChange,
   onSignOut,
   onStaySignedIn,
   onTourNext,
   onTourAdvanceInteraction,
   onTourFinish,
-  onTourShowMe
+  onTourShowMe,
+  onTourShowMeAndContinue
 }: AppShellProps) {
   return (
     <div className="min-h-full flex flex-col bg-background">
@@ -115,6 +124,11 @@ export function AppShell({
             </nav>
           </div>
           <div className="flex items-center gap-4 flex-wrap">
+            <ExtractionModeSelector
+              mode={extractionMode}
+              disabled={extractionModeDisabled}
+              onChange={onExtractionModeChange}
+            />
             {mode === 'single' ? (
               fixtureControlsEnabled ? (
                 <>
@@ -226,12 +240,18 @@ export function AppShell({
           <Processing
             image={single.image}
             beverage={single.beverage}
+            extractionMode={extractionMode}
             steps={single.steps}
             phase={single.phase}
             failureMessage={single.failureMessage}
+            localUnavailable={extractionMode === 'local' && single.phase === 'failed'}
             onCancel={single.onCancel}
             onRetry={single.onRetry}
             onBackToIntake={single.onBackToIntake}
+            onSwitchToCloud={() => {
+              onExtractionModeChange('cloud');
+              single.onRetry();
+            }}
           />
         ) : view === 'results' && single.image && single.report ? (
           <>
@@ -336,6 +356,7 @@ export function AppShell({
           onAdvanceInteraction={onTourAdvanceInteraction}
           onFinish={onTourFinish}
           onShowMe={onTourShowMe}
+          onShowMeAndContinue={onTourShowMeAndContinue}
         />
       ) : null}
     </div>
