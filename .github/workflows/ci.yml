@@ -2,6 +2,12 @@ name: ci
 
 on:
   pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+      - ready_for_review
   push:
     branches:
       - main
@@ -12,8 +18,48 @@ permissions:
   pull-requests: read
 
 jobs:
+  push-via-pr:
+    if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production') }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Require merged PR for protected branch updates
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const targetBranch = context.ref.replace('refs/heads/', '');
+            const commitSha = context.sha;
+            const { data: pulls } = await github.request(
+              'GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls',
+              {
+                owner,
+                repo,
+                commit_sha: commitSha,
+                headers: {
+                  'X-GitHub-Api-Version': '2022-11-28',
+                },
+              },
+            );
+
+            const mergedPull = pulls.find(
+              (pull) => pull.base?.ref === targetBranch && Boolean(pull.merged_at),
+            );
+
+            if (!mergedPull) {
+              core.setFailed(
+                `Push to '${targetBranch}' at ${commitSha} is not associated with a merged pull request. This repo requires merges via GitHub PRs, not direct ref updates.`,
+              );
+              return;
+            }
+
+            core.notice(
+              `Commit ${commitSha} reached '${targetBranch}' via merged PR #${mergedPull.number}.`,
+            );
+
   pr-description:
-    if: ${{ github.event_name == 'pull_request' }}
+    if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
 
     steps:

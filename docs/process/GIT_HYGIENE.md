@@ -107,6 +107,24 @@ Rules:
 - If `npm run gate:publish` fails, the branch is not considered handoff-ready, even if local tests pass.
 - `ready-for-codex`, QA-style review, and final acceptance handoffs are blocked until the publish gate passes.
 
+## GitHub PR path
+
+For normal story branches after publish:
+
+1. Push the story branch to GitHub.
+2. Let GitHub Actions auto-open a draft PR to `main` if one does not already exist.
+3. Replace the template body with a production-grade PR description before marking the PR ready for review.
+4. Let `ci` pass on the GitHub PR.
+5. Merge the branch through the GitHub PR using the repo's rebase-only merge path.
+
+Rules:
+
+- Do not update `main` or `production` by pushing `<branch>:main`, `<branch>:production`, or any other direct ref update.
+- Native GitHub branch protection and rulesets are unavailable on the current private-repo plan, so this repo enforces the PR path through checked-in GitHub Actions instead.
+- `.github/workflows/auto-open-story-prs.yml` opens a draft PR on first publish for normal story branches when no PR already exists.
+- `.github/workflows/ci.yml` rejects `main` and `production` updates that are not associated with a merged pull request.
+- Because deploys ride successful `ci`, a bypass push no longer stays on the green deploy path.
+
 ## Repo-managed hooks
 
 This repo now installs local git hooks from `.githooks/` through `npm run hooks:install` (triggered by `postinstall`).
@@ -133,8 +151,10 @@ When a story branch is opened as a GitHub pull request:
 Rules:
 
 - Production-grade PR descriptions are required for reviewable story branches.
+- Story branch pushes auto-open a draft PR to `main` when no PR exists yet.
+- Draft PRs may temporarily keep the raw template body, but ready reviewable PRs must replace placeholders with real content.
 - A PR description that omits tests, validation, risk, or follow-up context is not review-ready.
-- The `ci` workflow validates PR descriptions on `pull_request` events, so incomplete PR bodies block the same green path that story auto-merge relies on.
+- The `ci` workflow validates PR descriptions on non-draft `pull_request` events, so incomplete ready PR bodies block the same green path that story auto-merge relies on.
 - Use `docs/process/PR_DESCRIPTION_STANDARD.md` as the canonical content standard.
 
 ## Merge and deploy gate
@@ -148,7 +168,7 @@ Reviewable merge gate:
 - any open PR has a complete description that matches the real diff, test coverage, and validation status
 - GitHub now allows only rebase merges into `main`; squash merges and merge commits are disabled so story commits stay visible in the mainline history.
 - GitHub deletes merged branches automatically after merge.
-- GitHub Actions now auto-update clean story PR branches when `main` moves and auto-merge eligible story PRs after green CI. Branches with real conflicts stay open for manual resolution.
+- GitHub Actions now auto-open draft story PRs on first push, auto-update clean story PR branches when `main` moves, and auto-merge eligible story PRs after green CI. Branches with real conflicts stay open for manual resolution.
 - A published, validated, mergeable story branch should be merged promptly. Leaving reviewable work unmerged is a workflow failure unless the user explicitly asks to hold it or a concrete blocker exists.
 - Do not apply that rule to `archive/*`, `rewrite/*`, or long-lived environment rails like `production`; those refs exist for backup, maintenance, or deployment control, not for feature-history consolidation.
 

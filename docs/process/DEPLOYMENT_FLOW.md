@@ -27,8 +27,9 @@ Why this model:
 ## Git gates around deploys
 
 - Normal story work happens on story branches, not directly on `main` or `production`.
-- Merge reviewed story branches into `main` to trigger staging deploys.
+- Merge reviewed story branches into `main` through their GitHub PRs to trigger staging deploys.
 - Do not push directly to `production` for routine work; production promotion stays explicit through the checked-in promotion workflow.
+- Direct ref updates to `main` or `production` that are not associated with merged PRs now fail the GitHub-side CI guard and do not remain on the green deploy path.
 - Follow `docs/process/GIT_HYGIENE.md` before any push that is meant to be merged or deployed. The local gate commands for that are `npm run gate:push`, followed by `npm run gate:publish` before any handoff that claims the branch is available on GitHub.
 
 ## Live external state
@@ -108,6 +109,9 @@ Do not store app data, uploads, or results in Railway volumes or attached databa
 
 - `.github/workflows/ci.yml`
   - runs tests, typecheck, and build on PRs and on pushes to `main` and `production`
+  - rejects `main` and `production` updates that are not associated with a merged pull request
+- `.github/workflows/auto-open-story-prs.yml`
+  - opens a draft PR to `main` when a normal story branch is first published and no PR already exists
 - `.github/workflows/railway-post-deploy.yml`
   - listens for successful `ci` runs triggered by branch pushes
   - uses Railway CLI with `RAILWAY_API_TOKEN`
@@ -123,7 +127,7 @@ Do not store app data, uploads, or results in Railway volumes or attached databa
 ### After a deployable implementation story is complete
 
 1. Finish the story packet and handoff normally.
-2. Merge the story into `main`.
+2. Merge the story into `main` through its GitHub PR, not by direct ref update.
 3. Let CI pass.
 4. The `railway-deploy` workflow runs `railway up` against `staging`.
 5. The deploy workflow verifies `/api/health`.
