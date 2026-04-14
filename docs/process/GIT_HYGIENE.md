@@ -35,9 +35,10 @@ Rules:
 
 - Never do story work directly on `main` or `production`.
 - If you realize the worktree is already carrying story work on `main` or `production`, cut a story branch immediately with `git switch -c <lane>/<story-id>-<summary>` before the next commit.
+- Starting a new feature, story, or tightly-coupled workflow item means opening a fresh branch is the first action before packet or code edits.
 - Do not mix unrelated stories in one branch unless the tracker explicitly treats them as one coupled unit.
 - If the worktree already contains unrelated changes, do not revert them. Stage only the files for the story you are committing.
-- When the active story changes, prefer a new branch instead of repurposing the old one.
+- When the active story changes, create or switch to a fresh branch for that story immediately. Do not repurpose the old story branch, even if it is otherwise valid.
 - Repo gates enforce branch naming. Normal work must use `claude/<story-id>-<summary>`, `codex/<story-id>-<summary>`, or `chore/<story-id>-<summary>`. `archive/` and `rewrite/` branches are exceptional maintenance paths only.
 
 ## Commit gate

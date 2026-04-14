@@ -47,3 +47,9 @@
 - Objective: require Codex to map blast radius and dependent flows before implementation, with explicit guided-help examples for client-shell changes
 - Dependency: `parallel`
 - Validation: `AGENTS.md`, `.ai/codex.md`, `.ai/workflows/story-lookup.md`, and `docs/process/CODEX_CHECKLIST.md` all require the same blast-radius pass and name the same guided-help dependent surfaces
+
+## Task 9
+
+- Objective: require every new story or feature to start on a fresh branch instead of reusing the previous story branch
+- Dependency: `parallel`
+- Validation: `AGENTS.md`, `CLAUDE.md`, `.ai/codex.md`, `.ai/agents/claude.md`, `.ai/workflows/continue-next-story.md`, `.ai/workflows/story-lookup.md`, `docs/process/GIT_HYGIENE.md`, `docs/process/UI_CLAUDE_CHECKLIST.md`, and `docs/process/CODEX_CHECKLIST.md` all require a fresh branch when the selected story changes

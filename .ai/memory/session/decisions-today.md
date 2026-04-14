@@ -23,6 +23,7 @@
 - Allow Codex to advance tracker-marked parallel-safe Codex-only stories without waiting for Claude to finish an unrelated active UI story.
 - After an initial Claude-created UI exists, allow Codex to make story-scoped UI refinements during engineering instead of restricting Codex to non-design wiring only.
 - Require Codex to perform an explicit blast-radius pass before implementation and name dependent guided-help surfaces when shell or target-anchor changes could break the tour/help layer.
+- Require every new story or feature pickup to start on a fresh story branch before packet or code edits, even when the current branch is another valid story branch.
 - Add checked-in branch, commit, push, and merge gates plus shared local gate commands so story work stays on story branches and deploy branches remain protected by workflow.
 - Use GitHub Actions plus Railway CLI for deploys: `main` pushes deploy staging, `production` pushes deploy production, and production promotion is explicit.
 - Do not add a database as part of the current proof-of-concept foundation; the checked-in product direction remains no DB, no queue, and no background jobs unless presearch changes.

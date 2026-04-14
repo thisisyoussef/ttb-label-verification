@@ -63,6 +63,7 @@
 - When a guided-tour target triggers async work in the real app, keep "interaction advance" separate from "footer Next": target clicks should wait for the downstream state transition before advancing, and failures should recover into a deterministic demo state instead of leaving the next step without its anchor.
 - Overlay callouts that depend on spotlighted targets should measure their rendered height and clamp to viewport-safe margins instead of relying on fixed-height estimates; long procedural copy is normal in this product.
 - Codex workflow changes should force a blast-radius pass before implementation: when a story moves shell, navigation, results, view-state, selectors, or target anchors, inspect dependent guided-help surfaces instead of assuming the change is isolated.
+- New story pickup should always move onto a fresh story branch before packet or code edits; reusing the previous story branch is a workflow violation even when the branch name is otherwise valid.
 
 ## Documentation pattern
 

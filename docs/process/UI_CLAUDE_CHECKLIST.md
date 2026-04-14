@@ -7,6 +7,7 @@ Use this checklist whenever Claude is the active lane owner for a story.
 - [ ] If the user said `continue` or `continue with the next story`, resolve the current story through `docs/process/SINGLE_SOURCE_OF_TRUTH.md` and `.ai/workflows/continue-next-story.md`.
 - [ ] Confirm `docs/process/SINGLE_SOURCE_OF_TRUTH.md` shows the story as Claude-owned or Claude-first.
 - [ ] Confirm the work is UI design and interaction work, not backend or shared-contract engineering.
+- [ ] Before packet or code edits, confirm the current branch already belongs to this story. If the worktree is on `main`, `production`, or another story branch, switch immediately to a fresh `claude/<story-id>-<summary>` branch.
 - [ ] Confirm the universal story packet exists under `docs/specs/<story-id>/`, or create the packet folder and the needed UI-facing docs.
 - [ ] If the story only has `story-packet.md`, expand it into the working UI docs before implementation begins.
 - [ ] **Reconcile the packet with the live tracker.** When expanding a compact packet, rewrite it so its metadata, constitution check, task breakdown, and working-artifacts list agree with `docs/process/SINGLE_SOURCE_OF_TRUTH.md`. Constitution-check rules must be written lane-scoped (Claude-lane vs. Codex-lane), not story-scoped, whenever both lanes are in scope. If the packet, the SSOT, and any existing Codex handoff disagree, the SSOT and handoff win — update the packet, and tell the user in chat what was reconciled.

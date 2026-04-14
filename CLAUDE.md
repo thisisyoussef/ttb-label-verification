@@ -47,6 +47,7 @@ Claude should actively reference these docs while working:
 - After the runnable full-screen set exists, stop for user visual review.
 - After feedback is incorporated and the UI direction is approved, write `docs/backlog/codex-handoffs/<story-id>.md` so Codex can finish the engineering and full spec packet.
 - Follow `docs/process/GIT_HYGIENE.md` for branch, commit, and push behavior. Run `npm run gate:commit` before reviewable commits, `npm run gate:push` before reviewable pushes, and `npm run gate:publish` before any handoff or reply that claims the branch is on GitHub. Claude may push draft UI work before approval, but must not present the branch as `ready-for-codex` until the user approved the UI direction and the publish gate passes.
+- Starting a new story or feature in Claude means opening a fresh `claude/<story-id>-<summary>` branch before packet or code edits. Do not reuse the previous story branch just because it is already valid.
 - Once a Claude-owned branch is approved, published, validated, and mergeable, do not leave it hanging. Merge it into `main` before treating the work as complete unless the user explicitly asks to hold it or a concrete blocker exists. `archive/*`, `rewrite/*`, and `production` are exceptions.
 
 ## Blocking behavior
@@ -218,18 +219,19 @@ ttb-label-verification/
 5. Read `evals/labels/README.md` and the label scenario manifest before inventing seeded result states.
 6. If the active leaf story only has `story-packet.md`, expand it into the working docs you need before UI implementation.
 7. Create or update `docs/specs/<story-id>/ui-component-spec.md`, and create or update `docs/specs/<story-id>/stitch-screen-brief.md` only when the selected pass uses Stitch.
-8. Default path: keep `STITCH_FLOW_MODE=claude-direct` and implement directly from the checked-in design context.
-9. If this pass is explicitly switched to `STITCH_FLOW_MODE=automated`, run `npm run stitch:story -- <story-id>` to generate and record Stitch output directly, then review the generated Stitch output yourself against the packet and master design before showing it to the user. If it is clearly off, revise the brief and rerun.
-10. If this pass is explicitly switched to `STITCH_FLOW_MODE=manual`, stop for a manual Stitch prep handoff in Comet instead.
-11. When a Stitch-assisted pass is in play, stop for user review of the generated Stitch output before implementation using `.ai/workflows/story-handoff.md`.
-12. Implement the screens in `src/client/**` directly in Claude-direct mode or against the approved Stitch references in automated/manual modes. Use mock data or no data where possible until Codex wires live behavior.
-13. Before handing off for visual review, start the dev server yourself and open the app in Comet:
+8. If the current branch does not already belong to the selected story, create or switch to a fresh `claude/<story-id>-<summary>` branch before packet or code edits. Do this even when the current branch is another valid story branch.
+9. Default path: keep `STITCH_FLOW_MODE=claude-direct` and implement directly from the checked-in design context.
+10. If this pass is explicitly switched to `STITCH_FLOW_MODE=automated`, run `npm run stitch:story -- <story-id>` to generate and record Stitch output directly, then review the generated Stitch output yourself against the packet and master design before showing it to the user. If it is clearly off, revise the brief and rerun.
+11. If this pass is explicitly switched to `STITCH_FLOW_MODE=manual`, stop for a manual Stitch prep handoff in Comet instead.
+12. When a Stitch-assisted pass is in play, stop for user review of the generated Stitch output before implementation using `.ai/workflows/story-handoff.md`.
+13. Implement the screens in `src/client/**` directly in Claude-direct mode or against the approved Stitch references in automated/manual modes. Use mock data or no data where possible until Codex wires live behavior.
+14. Before handing off for visual review, start the dev server yourself and open the app in Comet:
    - run `npm run dev` in the background (Vite on 5176, API on 8787; Vite auto-bumps the port if 5176 is occupied — read the background log for the actual URL)
    - open the resolved URL in Comet via `open -a "Comet" "<url>"`
    - confirm `/api/health` responds with `store: false` through the proxy before handing off
    - include the live URL, the seed scenarios to cycle through, and the specific states to inspect in the handoff message
-13. Stop for user visual review using `.ai/workflows/story-handoff.md`.
-14. After approval, write `docs/backlog/codex-handoffs/<story-id>.md` with:
+15. Stop for user visual review using `.ai/workflows/story-handoff.md`.
+16. After approval, write `docs/backlog/codex-handoffs/<story-id>.md` with:
    - Stitch image reference and Stitch HTML/code reference used for implementation
    - approved screens and routes
    - files touched in `src/client/**`

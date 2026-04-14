@@ -52,14 +52,15 @@ Before edits:
 5. Read and follow `docs/process/CODEX_CHECKLIST.md`.
 6. Run `.ai/workflows/story-lookup.md`.
 7. Run `.ai/workflows/story-sizing.md`.
-8. If the active story only has `story-packet.md`, expand it into the standard working docs before implementation.
-9. If the story has material UI scope, do not start implementation until the approved UI handoff exists; then run `.ai/workflows/codex-from-ui-handoff.md`.
-10. If the task is a `standard` non-UI-first feature, run `.ai/workflows/spec-driven-delivery.md`.
-11. If the task changes AI behavior, validators, extraction quality, or evidence payloads, run `.ai/workflows/eval-gate.md`.
-12. If the task changes prompt/model/tool-call or agentic LLM behavior, run `.ai/workflows/trace-driven-development.md`.
-13. If the task changes behavior, run `.ai/workflows/tdd-pipeline.md`.
-14. Use `.ai/workflows/story-handoff.md` before asking for QA review or closing the story.
-15. Before declaring missing local OpenAI runtime config, run `npm run env:bootstrap`.
+8. If the current branch does not already belong to the selected story, create or switch to a fresh `codex/<story-id>-<summary>` or `chore/<story-id>-<summary>` branch before packet or code edits. Do this even when the current branch is another valid story branch.
+9. If the active story only has `story-packet.md`, expand it into the standard working docs before implementation.
+10. If the story has material UI scope, do not start implementation until the approved UI handoff exists; then run `.ai/workflows/codex-from-ui-handoff.md`.
+11. If the task is a `standard` non-UI-first feature, run `.ai/workflows/spec-driven-delivery.md`.
+12. If the task changes AI behavior, validators, extraction quality, or evidence payloads, run `.ai/workflows/eval-gate.md`.
+13. If the task changes prompt/model/tool-call or agentic LLM behavior, run `.ai/workflows/trace-driven-development.md`.
+14. If the task changes behavior, run `.ai/workflows/tdd-pipeline.md`.
+15. Use `.ai/workflows/story-handoff.md` before asking for QA review or closing the story.
+16. Before declaring missing local OpenAI runtime config, run `npm run env:bootstrap`.
 
 ## Blocking behavior
 

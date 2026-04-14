@@ -93,6 +93,7 @@ Use the checked-in docs deliberately, not as background noise:
 - When the user asks to continue work or move to the next story, run `.ai/workflows/continue-next-story.md`.
 - Run `.ai/workflows/story-lookup.md` before meaningful implementation.
 - Run `.ai/workflows/story-sizing.md` to classify the task as `trivial` or `standard`.
+- Starting any new story, feature, or tightly-coupled workflow item requires creating or switching to a fresh story-scoped branch before packet or code edits, even if the current branch is another valid story branch.
 - Before implementation, map the blast radius for the surfaces the story will touch. Search for dependent routes, shared contracts, fixtures, evals, packet docs, handoff docs, and adjacent user flows that consume those surfaces instead of assuming the change is local.
 - Treat `docs/specs/<story-id>/` as the universal story packet for both frontend and backend work. Claude and Codex read the same packet and update the parts owned by their lane.
 - Use `docs/specs/FULL_PRODUCT_SPEC.md` plus `docs/specs/PROJECT_STORY_INDEX.md` as the full checked-in map of the product. The legacy `TTB-001` through `TTB-004` folders are umbrella packets; the `TTB-1xx`, `TTB-2xx`, `TTB-3xx`, and `TTB-4xx` stories are the executable leaf queue.
