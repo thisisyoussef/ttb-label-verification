@@ -59,8 +59,8 @@
 
 1. Reviewer opens the sign-out confirmation.
 2. Reviewer takes no action.
-3. After the idle window, the confirmation auto-dismisses.
-4. Reviewer remains signed in.
+3. Reviewer stays signed in unless they confirm sign-out.
+4. Separate inactivity handling now uses a timeout-warning modal instead of header countdown behavior.
 
 ## Disabled or bounded states
 

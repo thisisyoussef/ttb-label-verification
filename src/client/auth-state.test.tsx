@@ -3,11 +3,14 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 
 import { AuthScreen } from './AuthScreen';
+import { SessionTimeoutModal } from './SessionTimeoutModal';
 import { SignedInIdentity } from './SignedInIdentity';
 import {
   AUTH_TIMINGS,
   advanceAuthPhase,
+  advanceSessionTimeoutCountdown,
   applyMockAuthSignOutReset,
+  getSessionTimeoutSeconds,
   getAuthAutoAdvanceDelay
 } from './authState';
 
@@ -30,6 +33,19 @@ describe('auth state helpers', () => {
     expect(getAuthAutoAdvanceDelay('sso-loading')).toBe(AUTH_TIMINGS.loadingMs);
     expect(getAuthAutoAdvanceDelay('sso-success')).toBe(AUTH_TIMINGS.successMs);
     expect(getAuthAutoAdvanceDelay('signed-in')).toBeNull();
+  });
+
+  it('advances the inactivity timeout countdown in one-second steps', () => {
+    expect(advanceSessionTimeoutCountdown(120000)).toBe(119000);
+    expect(advanceSessionTimeoutCountdown(500)).toBe(0);
+  });
+
+  it('rounds timeout warning copy up to the visible remaining second', () => {
+    expect(getSessionTimeoutSeconds(60000)).toBe(60);
+    expect(getSessionTimeoutSeconds(59001)).toBe(60);
+    expect(getSessionTimeoutSeconds(59000)).toBe(59);
+    expect(getSessionTimeoutSeconds(1)).toBe(1);
+    expect(getSessionTimeoutSeconds(0)).toBe(1);
   });
 
   it('orchestrates the full app reset on sign out', () => {
@@ -135,12 +151,31 @@ describe('SignedInIdentity', () => {
   });
 });
 
+describe('SessionTimeoutModal', () => {
+  it('renders the government-style timeout warning copy', () => {
+    const html = renderToStaticMarkup(
+      <SessionTimeoutModal
+        open={true}
+        remainingSeconds={60}
+        onStaySignedIn={vi.fn()}
+        onSignOut={vi.fn()}
+      />
+    );
+
+    expect(html).toContain('Your session is about to timeout');
+    expect(html).toContain('15 minutes of inactivity');
+    expect(html).toContain('You will be signed out in 60 seconds');
+    expect(html).toContain('Stay signed in');
+  });
+});
+
 describe('auth privacy invariants', () => {
   it('keeps the auth files free of durable storage, cookie, and network auth surfaces', () => {
     const combinedSource = [
       readFileSync(new URL('./App.tsx', import.meta.url), 'utf8'),
       readFileSync(new URL('./AuthScreen.tsx', import.meta.url), 'utf8'),
       readFileSync(new URL('./SignedInIdentity.tsx', import.meta.url), 'utf8'),
+      readFileSync(new URL('./SessionTimeoutModal.tsx', import.meta.url), 'utf8'),
       readFileSync(new URL('./authState.ts', import.meta.url), 'utf8')
     ].join('\n');
 

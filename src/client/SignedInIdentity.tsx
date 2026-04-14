@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { AUTH_IDENTITY } from './authState';
 
 interface SignedInIdentityProps {
@@ -7,12 +7,6 @@ interface SignedInIdentityProps {
 
 export function SignedInIdentity({ onSignOut }: SignedInIdentityProps) {
   const [confirming, setConfirming] = useState(false);
-
-  useEffect(() => {
-    if (!confirming) return;
-    const handle = window.setTimeout(() => setConfirming(false), 4500);
-    return () => window.clearTimeout(handle);
-  }, [confirming]);
 
   return (
     <div className="flex items-center gap-3">
