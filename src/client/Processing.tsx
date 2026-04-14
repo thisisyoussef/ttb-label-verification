@@ -1,3 +1,4 @@
+import type { ExtractionMode } from './appTypes';
 import type { BeverageSelection, LabelImage, ProcessingPhase, ProcessingStep } from './types';
 
 const BEVERAGE_LABELS: Record<BeverageSelection, string> = {
@@ -11,23 +12,29 @@ const BEVERAGE_LABELS: Record<BeverageSelection, string> = {
 interface ProcessingProps {
   image: LabelImage;
   beverage: BeverageSelection;
+  extractionMode: ExtractionMode;
   steps: ProcessingStep[];
   phase: ProcessingPhase;
   failureMessage: string;
+  localUnavailable: boolean;
   onCancel: () => void;
   onRetry: () => void;
   onBackToIntake: () => void;
+  onSwitchToCloud: () => void;
 }
 
 export function Processing({
   image,
   beverage,
+  extractionMode,
   steps,
   phase,
   failureMessage,
+  localUnavailable,
   onCancel,
   onRetry,
-  onBackToIntake
+  onBackToIntake,
+  onSwitchToCloud
 }: ProcessingProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 min-h-[calc(100vh-56px)]">
@@ -75,6 +82,22 @@ export function Processing({
               </span>
             </dd>
           </div>
+          <div className="flex flex-col gap-1">
+            <dt className="font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
+              Extraction mode
+            </dt>
+            <dd className="flex items-center gap-2">
+              <span
+                className="material-symbols-outlined text-[16px] text-on-surface-variant"
+                aria-hidden="true"
+              >
+                {extractionMode === 'cloud' ? 'cloud' : 'hard_drive'}
+              </span>
+              <span className="font-body text-sm font-semibold text-on-surface">
+                {extractionMode === 'cloud' ? 'Cloud' : 'Local (offline)'}
+              </span>
+            </dd>
+          </div>
         </dl>
 
         <div className="mt-auto pt-6 border-t border-outline-variant/15">
@@ -96,9 +119,14 @@ export function Processing({
         <header>
           <h1 className="font-headline text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight">
             Reviewing this label
+            {extractionMode === 'local' ? (
+              <span className="text-on-surface-variant font-semibold"> — local extraction</span>
+            ) : null}
           </h1>
           <p className="mt-2 text-on-surface-variant font-body">
-            The system is running a deterministic extraction and compliance pipeline.
+            {extractionMode === 'local'
+              ? 'Running extraction locally. This may take longer than cloud mode and may produce more Review outcomes on layout and formatting checks.'
+              : 'The system is running a deterministic extraction and compliance pipeline.'}
           </p>
         </header>
 
@@ -110,7 +138,51 @@ export function Processing({
           ))}
         </ol>
 
-        {phase === 'failed' ? (
+        {localUnavailable ? (
+          <div
+            role="alert"
+            className="max-w-3xl bg-surface-container-low border-l-4 border-caution rounded-lg p-6 md:p-8 flex flex-col gap-4 shadow-ambient"
+          >
+            <div className="flex items-start gap-3">
+              <span
+                className="material-symbols-outlined text-2xl text-caution mt-0.5"
+                aria-hidden="true"
+              >
+                cloud_off
+              </span>
+              <div className="flex flex-col gap-2">
+                <h2 className="font-headline text-xl font-extrabold text-on-surface">
+                  Local extraction is not available
+                </h2>
+                <p className="text-on-surface-variant font-body leading-relaxed max-w-lg">
+                  Local extraction is not available on this workstation. Switch to Cloud mode to
+                  continue.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={onSwitchToCloud}
+                className="bg-gradient-to-b from-primary to-primary-dim text-on-primary font-semibold py-2.5 px-6 rounded-lg shadow-ambient hover:brightness-110 transition-all"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[18px]" aria-hidden="true">
+                    cloud
+                  </span>
+                  Switch to Cloud
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={onBackToIntake}
+                className="bg-surface-container-high text-on-surface font-semibold py-2.5 px-6 rounded-lg hover:bg-surface-container-highest transition-all"
+              >
+                Back to intake
+              </button>
+            </div>
+          </div>
+        ) : phase === 'failed' ? (
           <div
             role="alert"
             className="max-w-3xl bg-surface-container-low border-l-4 border-error rounded-lg p-6 md:p-8 flex flex-col gap-4 shadow-ambient"

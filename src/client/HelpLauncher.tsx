@@ -33,16 +33,31 @@ export function HelpLauncher({
       </button>
       {showNudge ? (
         <div
-          role="status"
-          className="absolute top-[calc(100%+10px)] right-0 z-30 w-64 bg-surface-container-lowest border border-outline-variant/30 rounded-lg shadow-ambient p-3 flex flex-col gap-2"
+          role="dialog"
+          aria-modal="false"
+          aria-label="Guided tour introduction"
+          className="absolute top-[calc(100%+12px)] right-0 z-30 w-72 bg-surface-container-lowest border border-outline-variant/30 rounded-lg shadow-ambient p-4 flex flex-col gap-3"
         >
           <span
             aria-hidden="true"
             className="absolute -top-1.5 right-6 w-3 h-3 bg-surface-container-lowest border-l border-t border-outline-variant/30 rotate-45"
           />
-          <p className="text-sm text-on-surface font-body">
-            New here? Take a 2-minute tour.
-          </p>
+          <div className="flex items-start gap-3">
+            <span
+              aria-hidden="true"
+              className="material-symbols-outlined text-primary text-[18px] mt-0.5"
+            >
+              school
+            </span>
+            <div className="flex flex-col gap-1">
+              <p className="text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant">
+                First time here?
+              </p>
+              <p className="text-sm text-on-surface font-body leading-relaxed">
+                Start with the guided tour. It points out the main review flow and the evidence views in about 2 minutes.
+              </p>
+            </div>
+          </div>
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
@@ -54,9 +69,12 @@ export function HelpLauncher({
             <button
               type="button"
               onClick={onLaunch}
-              className="text-[11px] font-label font-bold uppercase tracking-widest text-primary hover:underline"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-label font-bold uppercase tracking-widest bg-gradient-to-b from-primary to-primary-dim text-on-primary shadow-ambient hover:brightness-110 transition-all"
             >
               Take the tour
+              <span aria-hidden="true" className="material-symbols-outlined text-[14px]">
+                chevron_right
+              </span>
             </button>
           </div>
         </div>

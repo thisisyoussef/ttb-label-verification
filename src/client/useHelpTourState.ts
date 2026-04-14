@@ -48,7 +48,7 @@ export function useHelpTourState(): HelpTourFlow {
   const persistReplay = useCallback(
     (nudgeDismissed: boolean, completed: boolean) => {
       saveHelpReplayState({
-        version: 1,
+        version: 2,
         firstRunNudgeDismissed: nudgeDismissed,
         tourCompleted: completed
       });

@@ -7,6 +7,7 @@ export type AuthPhase =
   | 'sso-form'
   | 'sso-loading'
   | 'sso-success'
+  | 'mode-select'
   | 'signed-in';
 
 export interface AuthIdentity {
@@ -33,7 +34,8 @@ export const SESSION_TIMEOUTS = {
 export function advanceAuthPhase(phase: AuthPhase): AuthPhase {
   if (phase === 'piv-loading') return 'piv-success';
   if (phase === 'sso-loading') return 'sso-success';
-  if (phase === 'piv-success' || phase === 'sso-success') return 'signed-in';
+  if (phase === 'piv-success' || phase === 'sso-success') return 'mode-select';
+  if (phase === 'mode-select') return 'signed-in';
   return phase;
 }
 

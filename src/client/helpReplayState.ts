@@ -1,5 +1,5 @@
 const STORAGE_KEY = 'ttb-help:replay-state';
-const CURRENT_VERSION = 1;
+const CURRENT_VERSION = 2;
 
 export interface HelpReplayState {
   version: number;

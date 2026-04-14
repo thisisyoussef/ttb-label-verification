@@ -24,6 +24,8 @@ interface ResultsProps {
   exportEnabled: boolean;
 }
 
+const TOUR_ROW_EXPAND_DELAY_MS = 220;
+
 export function Results({
   image,
   beverage,
@@ -39,6 +41,7 @@ export function Results({
   const [expandedId, setExpandedId] = useState<string | null>(tourExpandedCheckId);
   const rowRefs = useMemo(() => new Map<string, HTMLButtonElement>(), []);
   const workingAreaRef = useRef<HTMLElement | null>(null);
+  const tourExpandTimeoutRef = useRef<number | null>(null);
 
   const rowOrder = useMemo(
     () => [...report.checks.map((c) => c.id), ...report.crossFieldChecks.map((c) => c.id)],
@@ -50,16 +53,45 @@ export function Results({
   }, []);
 
   useEffect(() => {
+    return () => {
+      if (tourExpandTimeoutRef.current !== null) {
+        window.clearTimeout(tourExpandTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (tourExpandTimeoutRef.current !== null) {
+      window.clearTimeout(tourExpandTimeoutRef.current);
+      tourExpandTimeoutRef.current = null;
+    }
+
     if (!tourExpandedCheckId) return;
 
     const hasMatchingRow =
       report.checks.some((check) => check.id === tourExpandedCheckId) ||
       report.crossFieldChecks.some((check) => check.id === tourExpandedCheckId);
 
-    if (hasMatchingRow) {
-      setExpandedId(tourExpandedCheckId);
+    if (!hasMatchingRow) {
+      return;
     }
-  }, [report.checks, report.crossFieldChecks, tourExpandedCheckId]);
+
+    const row = rowRefs.get(tourExpandedCheckId);
+    setExpandedId(null);
+
+    if (row) {
+      row.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest'
+      });
+    }
+
+    tourExpandTimeoutRef.current = window.setTimeout(() => {
+      setExpandedId(tourExpandedCheckId);
+      tourExpandTimeoutRef.current = null;
+    }, TOUR_ROW_EXPAND_DELAY_MS);
+  }, [report.checks, report.crossFieldChecks, rowRefs, tourExpandedCheckId]);
 
   const handleKeyNav = useCallback(
     (event: React.KeyboardEvent<HTMLButtonElement>, id: string) => {

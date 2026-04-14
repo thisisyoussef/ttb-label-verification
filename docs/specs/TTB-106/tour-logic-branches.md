@@ -29,6 +29,7 @@ This file records the meaningful runtime branches for the `TTB-106` guided tour 
 - `single` + `intake` + no image: remove click-to-advance and offer `Prepare sample`.
 - Any other mode/view: remove click-to-advance and offer `Return to intake`.
 - `Next` stays disabled for this step. The reviewer must use the real Verify button; failure recovery still auto-loads deterministic sample results only after that real click path has been attempted.
+- If that failure branch leaves the verify target unavailable and the only valid way forward is deterministic recovery, replace the footer `Next` with the recovery action itself so the reviewer gets one clear forward path.
 
 ## Step 5 — Verdict and checklist
 
@@ -38,6 +39,7 @@ This file records the meaningful runtime branches for the `TTB-106` guided tour 
 
 ## Step 6 — Warning evidence
 
+- Always pivot this step to the deterministic `spirit-warning-errors` scenario. Do not branch on the reviewer's current live result for this teaching step.
 - `results` + report present + `spirit-warning-errors` scenario: spotlight the warning row with the row already expanded so the sub-checks and diff are visible.
 - Any other results state: offer `Load failing label`.
 - No results yet: offer `Load failing label`, which also materializes a safe demo result.

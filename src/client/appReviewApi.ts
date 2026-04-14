@@ -13,9 +13,7 @@ import type {
   IntakeFields,
   LabelImage
 } from './types';
-
-export const DEFAULT_FAILURE_MESSAGE =
-  'The connection dropped while reading the label. Your label and inputs are still here — nothing was saved.';
+import { DEFAULT_FAILURE_MESSAGE } from './reviewFailureMessage';
 
 function normalizeReviewBeverage(
   beverage: BeverageSelection

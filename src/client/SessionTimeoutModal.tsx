@@ -11,7 +11,9 @@ export function SessionTimeoutModal({
   onStaySignedIn,
   onSignOut
 }: SessionTimeoutModalProps) {
-  if (!open) return null;
+  if (!open) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 px-4">

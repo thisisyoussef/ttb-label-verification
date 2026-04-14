@@ -1,8 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { buildInitialSteps, STEP_ADVANCE_MS } from './appSingleState';
-import { DEFAULT_FAILURE_MESSAGE, submitReview } from './appReviewApi';
+import { submitReview } from './appReviewApi';
 import type { View } from './appTypes';
+import {
+  DEFAULT_FAILURE_MESSAGE,
+  GENERIC_FAILURE_MESSAGE,
+  resolveReviewFailureMessage
+} from './reviewFailureMessage';
 import type {
   BeverageSelection,
   IntakeFields,
@@ -219,18 +224,27 @@ export function useSingleReviewPipeline(
         return;
       }
 
+      const activeStep =
+        steps.find((step) => step.status === 'active') ??
+        steps.find((step) => step.status === 'failed') ??
+        null;
+      const resolvedMessage = resolveReviewFailureMessage(
+        message,
+        activeStep?.id ?? null
+      );
+
       options.onEvent?.({
         type: 'review.pipeline.failed',
         traceId: traceIdRef.current,
         requestId,
         scenarioId: options.scenarioId,
         phase,
-        message
+        message: resolvedMessage
       });
 
       clearPipelineTimer();
       abortControllerRef.current = null;
-      setFailureMessage(message);
+      setFailureMessage(resolvedMessage);
       setSteps((previous) => {
         const next = previous.map((step) => ({ ...step }));
         const activeIndex = next.findIndex((step) => step.status === 'active');
@@ -244,7 +258,19 @@ export function useSingleReviewPipeline(
       });
       setPhase('failed');
     },
-    [clearPipelineTimer, options, phase]
+    [clearPipelineTimer, options, phase, steps]
+  );
+
+  const resolveCurrentFailureMessage = useCallback(
+    (message: string) => {
+      const activeStep =
+        steps.find((step) => step.status === 'active') ??
+        steps.find((step) => step.status === 'failed') ??
+        null;
+
+      return resolveReviewFailureMessage(message, activeStep?.id ?? null);
+    },
+    [steps]
   );
 
   const startPipeline = useCallback(
@@ -367,14 +393,16 @@ export function useSingleReviewPipeline(
           return;
         }
 
+        const resolvedMessage = resolveCurrentFailureMessage(result.message);
+
         options.onEvent?.({
           type: 'review.submit.response-error',
           traceId: clientRequestId,
           requestId,
           scenarioId: options.scenarioId,
-          message: result.message
+          message: resolvedMessage
         });
-        failPipeline(requestId, result.message);
+        failPipeline(requestId, resolvedMessage);
       } catch (error) {
         if (controller.signal.aborted) {
           options.onEvent?.({
@@ -389,7 +417,9 @@ export function useSingleReviewPipeline(
         const message =
           error instanceof Error && error.name === 'AbortError'
             ? DEFAULT_FAILURE_MESSAGE
-            : 'We could not finish this review. Your label and inputs are still here - nothing was saved.';
+            : GENERIC_FAILURE_MESSAGE;
+
+        const resolvedMessage = resolveCurrentFailureMessage(message);
 
         options.onEvent?.({
           type: 'review.submit.exception',
@@ -397,13 +427,13 @@ export function useSingleReviewPipeline(
           requestId,
           scenarioId: options.scenarioId,
           errorName: error instanceof Error ? error.name : 'unknown',
-          message
+          message: resolvedMessage
         });
 
-        failPipeline(requestId, message);
+        failPipeline(requestId, resolvedMessage);
       }
     },
-    [completePipeline, failPipeline, options, startPipeline]
+    [completePipeline, failPipeline, options, resolveCurrentFailureMessage, startPipeline]
   );
 
   const abandonInFlightReview = useCallback(() => {

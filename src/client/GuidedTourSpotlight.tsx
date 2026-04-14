@@ -17,9 +17,12 @@ interface GuidedTourSpotlightProps {
   onAdvanceInteraction: () => void;
   onFinish: () => void;
   onShowMe: (action: HelpShowMe) => void;
+  onShowMeAndContinue: (action: HelpShowMe) => void;
 }
 
 const TARGET_PADDING = 8;
+const VIEWPORT_PADDING = 16;
+const HIGHLIGHT_SETTLE_DELAY_MS = 140;
 
 function readTargetRect(element: HTMLElement): GuidedTourRect {
   const rect = element.getBoundingClientRect();
@@ -31,6 +34,19 @@ function readTargetRect(element: HTMLElement): GuidedTourRect {
   };
 }
 
+function isTargetVisible(element: HTMLElement): boolean {
+  const rect = element.getBoundingClientRect();
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+
+  return (
+    rect.top >= VIEWPORT_PADDING &&
+    rect.left >= VIEWPORT_PADDING &&
+    rect.bottom <= viewportHeight - VIEWPORT_PADDING &&
+    rect.right <= viewportWidth - VIEWPORT_PADDING
+  );
+}
+
 export function GuidedTourSpotlight({
   steps,
   currentIndex,
@@ -40,27 +56,42 @@ export function GuidedTourSpotlight({
   nextDisabled,
   onAdvanceInteraction,
   onFinish,
-  onShowMe
+  onShowMe,
+  onShowMeAndContinue
 }: GuidedTourSpotlightProps) {
   const step = steps[Math.min(Math.max(currentIndex, 0), steps.length - 1)];
   const [rect, setRect] = useState<GuidedTourRect | null>(null);
+  const [highlightVisible, setHighlightVisible] = useState(false);
+  const scrolledTargetRef = useRef<TourStep['target'] | null>(null);
+  const highlightTimerRef = useRef<number | null>(null);
 
   useLayoutEffect(() => {
     if (!step?.target) {
+      scrolledTargetRef.current = null;
       setRect(null);
       return;
     }
+
+    if (scrolledTargetRef.current !== step.target) {
+      scrolledTargetRef.current = null;
+    }
+
     const update = () => {
       const element = findTourTarget(step.target!);
       if (!element) {
         setRect(null);
         return;
       }
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-        inline: 'nearest'
-      });
+
+      if (!isTargetVisible(element) && scrolledTargetRef.current !== step.target) {
+        scrolledTargetRef.current = step.target;
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        });
+      }
+
       setRect(readTargetRect(element));
     };
     update();
@@ -75,6 +106,31 @@ export function GuidedTourSpotlight({
       window.removeEventListener('scroll', update, true);
     };
   }, [step?.target, currentIndex]);
+
+  useEffect(() => {
+    if (highlightTimerRef.current !== null) {
+      window.clearTimeout(highlightTimerRef.current);
+      highlightTimerRef.current = null;
+    }
+
+    if (!rect) {
+      setHighlightVisible(false);
+      return;
+    }
+
+    setHighlightVisible(false);
+    highlightTimerRef.current = window.setTimeout(() => {
+      setHighlightVisible(true);
+      highlightTimerRef.current = null;
+    }, HIGHLIGHT_SETTLE_DELAY_MS);
+
+    return () => {
+      if (highlightTimerRef.current !== null) {
+        window.clearTimeout(highlightTimerRef.current);
+        highlightTimerRef.current = null;
+      }
+    };
+  }, [currentIndex, rect?.top, rect?.left, rect?.width, rect?.height]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -110,7 +166,7 @@ export function GuidedTourSpotlight({
   return (
     <div className="fixed inset-0 z-[45] pointer-events-none">
       <DimLayer rect={rect} />
-      {rect ? <HighlightRing rect={rect} /> : null}
+      {rect ? <HighlightRing rect={rect} visible={highlightVisible} /> : null}
       <Callout
         step={step}
         rect={rect}
@@ -123,6 +179,7 @@ export function GuidedTourSpotlight({
         onNext={onNext}
         onFinish={onFinish}
         onShowMe={onShowMe}
+        onShowMeAndContinue={onShowMeAndContinue}
       />
     </div>
   );
@@ -160,11 +217,20 @@ function DimLayer({ rect }: { rect: GuidedTourRect | null }) {
   );
 }
 
-function HighlightRing({ rect }: { rect: GuidedTourRect }) {
+function HighlightRing({
+  rect,
+  visible
+}: {
+  rect: GuidedTourRect;
+  visible: boolean;
+}) {
   return (
     <div
       aria-hidden="true"
-      className="absolute rounded-lg border-2 border-primary shadow-[0_0_0_4px_rgba(84,96,103,0.35)] pointer-events-none transition-all duration-200 motion-reduce:transition-none"
+      className={[
+        'absolute rounded-lg border-2 border-primary shadow-[0_0_0_4px_rgba(84,96,103,0.35)] pointer-events-none transition-all duration-200 motion-reduce:transition-none',
+        visible ? 'opacity-100' : 'opacity-0'
+      ].join(' ')}
       style={{
         top: rect.top,
         left: rect.left,
@@ -187,6 +253,7 @@ interface CalloutProps {
   onNext: () => void;
   onFinish: () => void;
   onShowMe: (action: HelpShowMe) => void;
+  onShowMeAndContinue: (action: HelpShowMe) => void;
 }
 
 function Callout({
@@ -200,7 +267,8 @@ function Callout({
   onPrevious,
   onNext,
   onFinish,
-  onShowMe
+  onShowMe,
+  onShowMeAndContinue
 }: CalloutProps) {
   const calloutRef = useRef<HTMLDivElement | null>(null);
   const [calloutHeight, setCalloutHeight] = useState(320);
@@ -226,6 +294,7 @@ function Callout({
   }, [rect, step.body, step.cta, step.showMe?.label, step.stepIndex, step.title]);
 
   const position = computeCalloutPosition(rect, calloutHeight);
+  const replaceNextWithRecovery = !isLast && !rect && Boolean(step.showMe) && !nextDisabled;
 
   return (
     <div
@@ -283,7 +352,9 @@ function Callout({
             <p className="text-xs font-label text-on-surface-variant">
               {nextDisabled
                 ? 'This control is not visible from the current app state or viewport. Complete the required action on the live surface or use the recovery action below to continue.'
-                : 'This control is not visible from the current app state or viewport. Use the recovery action below or continue to the next step.'}
+                : replaceNextWithRecovery
+                  ? 'This control is not visible from the current app state or viewport. Use the primary action below to continue.'
+                  : 'This control is not visible from the current app state or viewport. Use the recovery action below or continue to the next step.'}
             </p>
           ) : null}
           {step.cta ? (
@@ -297,7 +368,7 @@ function Callout({
               {step.cta}
             </p>
           ) : null}
-          {step.showMe ? (
+          {step.showMe && !replaceNextWithRecovery ? (
             <button
               type="button"
               onClick={() => step.showMe && onShowMe(step.showMe)}
@@ -337,6 +408,17 @@ function Callout({
               Finish
               <span aria-hidden="true" className="material-symbols-outlined text-[14px]">
                 check
+              </span>
+            </button>
+          ) : replaceNextWithRecovery && step.showMe ? (
+            <button
+              type="button"
+              onClick={() => onShowMeAndContinue(step.showMe!)}
+              className="inline-flex items-center gap-1 px-5 py-2 rounded-lg text-[11px] font-label font-bold uppercase tracking-widest bg-gradient-to-b from-primary to-primary-dim text-on-primary shadow-ambient hover:brightness-110 active:scale-[0.98] transition-all"
+            >
+              {step.showMe.label}
+              <span aria-hidden="true" className="material-symbols-outlined text-[14px]">
+                chevron_right
               </span>
             </button>
           ) : (

@@ -36,14 +36,6 @@ function resolveFallbackScenarioId(context: TourRuntimeContext): string {
   return DEFAULT_TOUR_SCENARIO_ID;
 }
 
-function hasWarningIssue(context: TourRuntimeContext): boolean {
-  return (
-    context.warningStatus === 'review' ||
-    context.warningStatus === 'fail' ||
-    (context.warningStatus == null && context.scenarioId === WARNING_TOUR_SCENARIO_ID)
-  );
-}
-
 function buildFallbackResultsAction(
   label: string,
   context: TourRuntimeContext
@@ -84,7 +76,7 @@ export function isTourNextDisabled(
   }
 
   if (step.anchorKey === 'warning-evidence') {
-    return context.view !== 'results' || !context.hasReport || !hasWarningIssue(context);
+    return context.view !== 'results' || !context.hasReport || context.scenarioId !== WARNING_TOUR_SCENARIO_ID;
   }
 
   if (step.anchorKey === 'batch-matching') {
@@ -102,7 +94,7 @@ export function resolveTourExpandedCheckId(
     step.anchorKey === 'warning-evidence' &&
     context.view === 'results' &&
     context.hasReport &&
-    hasWarningIssue(context)
+    context.scenarioId === WARNING_TOUR_SCENARIO_ID
   ) {
     return step.requires?.expandRowId ?? null;
   }
@@ -196,29 +188,11 @@ export function resolveTourStep(
   }
 
   if (step.anchorKey === 'warning-evidence') {
-    if (context.view !== 'results' || !context.hasReport) {
-      return {
-        ...step,
-        cta: 'Load the failing label to review the failed checks and highlighted text.',
-        showMe: buildResultsAction('Load failing label', WARNING_TOUR_SCENARIO_ID)
-      };
-    }
-
-    if (hasWarningIssue(context)) {
+    if (context.view === 'results' && context.hasReport && context.scenarioId === WARNING_TOUR_SCENARIO_ID) {
       return {
         ...step,
         showMe: undefined,
-        cta: isUsingDemoResult(context)
-          ? 'Review the failed checks and highlighted text in the expanded warning evidence.'
-          : 'Your uploaded label already shows a warning issue. Review the failed checks and highlighted text in the expanded warning evidence.'
-      };
-    }
-
-    if (!isUsingDemoResult(context)) {
-      return {
-        ...step,
-        cta: 'Your uploaded label cleared the warning checks. Use Compare failing example to see how the issue evidence looks when something is wrong.',
-        showMe: buildResultsAction('Compare failing example', WARNING_TOUR_SCENARIO_ID)
+        cta: 'Review the failed checks and highlighted text in the expanded warning evidence.'
       };
     }
 

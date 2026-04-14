@@ -200,8 +200,8 @@ describe('help tour runtime', () => {
     expect(resolved.cta).toMatch(/already in batch/i);
   });
 
-  it('forces the warning step onto the defect scenario when the current results are not the failing case', () => {
-    const resolved = resolveTourStep(step('warning-evidence'), {
+  it('always pivots the warning step to the failing warning scenario until that exact scenario is loaded', () => {
+    const liveResolved = resolveTourStep(step('warning-evidence'), {
       mode: 'single',
       view: 'results',
       scenarioId: 'perfect-spirit-label',
@@ -209,8 +209,27 @@ describe('help tour runtime', () => {
       hasReport: true
     });
 
-    expect(resolved.cta).toMatch(/failing label/i);
-    expect(resolved.showMe).toEqual({
+    const otherWarningResolved = resolveTourStep(step('warning-evidence'), {
+      mode: 'single',
+      view: 'results',
+      scenarioId: 'custom-warning-case',
+      hasImage: true,
+      hasReport: true,
+      warningStatus: 'review'
+    });
+
+    expect(liveResolved.cta).toMatch(/failing label/i);
+    expect(liveResolved.showMe).toEqual({
+      label: 'Load failing label',
+      action: 'advance-view',
+      payload: {
+        mode: 'single',
+        view: 'results',
+        scenarioId: 'spirit-warning-errors'
+      }
+    });
+    expect(otherWarningResolved.cta).toMatch(/failing label/i);
+    expect(otherWarningResolved.showMe).toEqual({
       label: 'Load failing label',
       action: 'advance-view',
       payload: {
