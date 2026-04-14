@@ -196,7 +196,7 @@ ttb-label-verification/
 - Prefer simple component composition over clever abstractions.
 - Update `ui-component-spec.md` when screens, flows, or evidence presentation change materially.
 - Update `stitch-screen-brief.md` when the requested screen direction changes or when Stitch image/HTML references are returned.
-- Keep `ui-component-spec.md` concrete enough that Codex can implement the backend contract behind it without redesigning the frontend.
+- Keep `ui-component-spec.md` concrete enough that Codex can implement the backend contract behind it and make scoped follow-on refinements without needing a second Claude pass for every adjustment.
 - Hand the approved UI to Codex through `docs/backlog/codex-handoffs/<story-id>.md`.
 - Use direct imports and Prettier-default formatting.
 
@@ -233,7 +233,8 @@ ttb-label-verification/
    - Stitch image reference and Stitch HTML/code reference used for implementation
    - approved screens and routes
    - files touched in `src/client/**`
-   - frozen layout, copy, and interaction constraints Codex must preserve
+   - hard constraints / non-negotiables Codex must preserve
+   - flexible areas Codex may adjust during engineering
    - relevant eval scenarios the UI demonstrates
    - required data fields, API behavior, validation behavior, and error/loading states Codex must support
    - privacy and latency constraints the backend must preserve
@@ -251,5 +252,5 @@ ttb-label-verification/
 ## Collaboration contract
 
 - Claude owns frontend design in `src/client/**`.
-- Codex consumes the approved UI as fixed input, may wire `src/client/**` to real behavior when needed, and should not redesign it.
-- If the engineering work exposes a UI change, that change goes back to Claude through the backlog, not through direct Codex redesign.
+- Codex starts from the approved UI, may wire `src/client/**` to real behavior, and may make scoped UI refinements when that helps the story land cleanly.
+- If engineering exposes a broader redesign, a new screen concept, or a fresh Stitch/user-review need, that change goes back to Claude through the backlog.

@@ -102,6 +102,7 @@ This story adds an optional, replayable guided review plus a contextual info lay
 - `docs/specs/TTB-106/ui-component-spec.md` — per-feature UI spec.
 - `docs/specs/TTB-106/stitch-screen-brief.md` — Stitch brief + returned-reference record.
 - `docs/specs/TTB-106/stitch-refs/` — created on Stitch return.
+- `docs/specs/TTB-106/tour-logic-branches.md` — branch-aware tour handling for non-happy-path runtime states.
 - `docs/backlog/codex-handoffs/TTB-106.md` — created after UI approval.
 - `src/shared/contracts/help.ts` — canonical help manifest and anchor schemas.
 - `src/shared/help-fixture.ts` — deterministic English help manifest fixture.
@@ -114,8 +115,14 @@ This story adds an optional, replayable guided review plus a contextual info lay
 - Moved the approved English help content verbatim into `src/shared/help-fixture.ts` so client and server read the same source of truth.
 - Added `GET /api/help/manifest` in `src/server/index.ts` with `Cache-Control: public, max-age=300`; the route is deterministic and does not touch OpenAI, persistence, or logs.
 - Replaced the client-only fixture binding with a small runtime bridge: `src/client/help-runtime.ts` fetches the remote manifest at startup, validates it, and falls back to the local fixture if the route is unavailable.
+- Hardened the tour runtime so prerequisite gaps are explicit instead of silent: the verify step now offers `Prepare sample` when no image is loaded, results-driven steps offer `Show sample results` or `Show warning defect` when the reviewer skipped ahead, and tour-loaded sample labels now use a safe client-side demo image/report path rather than depending on live extraction.
+- Wired the approved spotlight UI to that runtime: the app now resolves the live tour steps against the current shell state, `Next` runs state-aware recovery or skip actions instead of blindly incrementing, and click-to-advance on the real Verify and Batch controls remains a direct interaction path.
+- Tightened the Verify interaction path so the tour does not advance on the click event alone: Step 4 now waits for live results, and if extraction fails during the tour it recovers into deterministic sample results before moving to the verdict step.
+- Finishing the tour now returns the shell to a clean signed-in single-label intake instead of leaving the user in the last demo state.
+- Checked in the branch model behind that hardening in `docs/specs/TTB-106/tour-logic-branches.md` so each step's recovery behavior is explicit and reviewable.
 - Removed the unused `src/client/GuidedReviewPanel.tsx` file from the rejected first-pass side-panel implementation so the approved spotlight flow is the only active help path.
 - Verification added in `src/shared/contracts/help.test.ts`, `src/server/help-routes.test.ts`, and `src/client/help-runtime.test.ts`.
+- Additional tour-hardening verification added in `src/client/help-tour-runtime.test.ts`.
 - Mutation testing waived for this story: the changed logic is schema validation plus route/runtime plumbing, not a high-risk pure validator or comparison helper where mutation score would add signal.
 
 ## Reconciliation notes (2026-04-13)

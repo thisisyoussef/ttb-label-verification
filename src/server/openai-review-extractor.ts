@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import { zodTextFormat } from 'openai/helpers/zod';
 import { z } from 'zod';
+import { wrapOpenAI } from 'langsmith/wrappers';
 
 import {
   beverageTypeSchema,
@@ -186,12 +187,15 @@ export function createOpenAIReviewExtractor(input: {
   const client =
     input.client ??
     (() => {
-      const liveClient = new OpenAI({
-        apiKey: input.config.apiKey
-      }).responses;
+      const liveClient = wrapOpenAI(
+        new OpenAI({
+          apiKey: input.config.apiKey
+        })
+      ) as OpenAI;
+      const responses = liveClient.responses;
 
       return {
-        parse: liveClient.parse.bind(liveClient)
+        parse: responses.parse.bind(responses)
       } satisfies ResponsesParseClient;
     })();
 

@@ -3,7 +3,7 @@
 ## Story
 
 - Story ID: `TTB-206`
-- Title: provider routing foundation and privacy-safe Gemini/OpenAI capability policy
+- Title: extraction mode routing foundation and privacy-safe cloud/local provider policy
 - Lane: Codex-only
 
 ## Non-negotiables

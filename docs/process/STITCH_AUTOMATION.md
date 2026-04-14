@@ -182,9 +182,9 @@ Rules:
 
 ### Codex lane
 
-1. Preserve the approved Stitch-derived UI.
+1. Start from the approved Stitch-derived UI or Claude-direct UI and refine it when story-scoped engineering work benefits from doing so.
 2. Use Stitch tooling only for harness work, read-only verification, or reference inspection when needed.
-3. Redirect back to Claude if engineering exposes a required UI change or new Stitch pass.
+3. Redirect back to Claude only if engineering needs a new UI direction, broader redesign, or new Stitch pass.
 
 ## Blocking rules
 
@@ -192,4 +192,4 @@ Rules:
 - If `stitch-screen-brief.md` is ready and the current pass is automated, Claude should run the repo automation, self-review the result, and only then hand it to the user.
 - If the automated Stitch path is expected for the current pass but neither env-based auth nor the local Stitch MCP config is available, Claude stops and asks the user to either restore the Stitch config or explicitly switch the pass to `STITCH_FLOW_MODE=manual` for a Comet fallback or `STITCH_FLOW_MODE=claude-direct` for direct implementation.
 - If the current pass is manual, Claude stays blocked until the user returns the requested Stitch assets.
-- If Codex needs a new UI direction or a fresh Stitch pass, Codex stops and redirects to Claude.
+- If Codex needs a new UI direction, broader redesign, or a fresh Stitch pass, Codex stops and redirects to Claude.

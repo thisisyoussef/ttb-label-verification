@@ -1,5 +1,9 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
+import {
+  resolveCalloutPosition,
+  type GuidedTourRect
+} from './guided-tour-position';
 import type { HelpShowMe, TourStep } from './helpManifest';
 import { findTourTarget } from './tourTargets';
 
@@ -9,20 +13,14 @@ interface GuidedTourSpotlightProps {
   onClose: () => void;
   onPrevious: () => void;
   onNext: () => void;
+  onAdvanceInteraction: () => void;
   onFinish: () => void;
   onShowMe: (action: HelpShowMe) => void;
 }
 
-interface TargetRect {
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-}
-
 const TARGET_PADDING = 8;
 
-function readTargetRect(element: HTMLElement): TargetRect {
+function readTargetRect(element: HTMLElement): GuidedTourRect {
   const rect = element.getBoundingClientRect();
   return {
     top: rect.top + window.scrollY - TARGET_PADDING,
@@ -38,11 +36,12 @@ export function GuidedTourSpotlight({
   onClose,
   onPrevious,
   onNext,
+  onAdvanceInteraction,
   onFinish,
   onShowMe
 }: GuidedTourSpotlightProps) {
   const step = steps[Math.min(Math.max(currentIndex, 0), steps.length - 1)];
-  const [rect, setRect] = useState<TargetRect | null>(null);
+  const [rect, setRect] = useState<GuidedTourRect | null>(null);
 
   useLayoutEffect(() => {
     if (!step?.target) {
@@ -93,12 +92,12 @@ export function GuidedTourSpotlight({
       if (!element) return;
       const target = event.target as Node;
       if (element === target || element.contains(target)) {
-        onNext();
+        onAdvanceInteraction();
       }
     };
     document.addEventListener('click', onClick, true);
     return () => document.removeEventListener('click', onClick, true);
-  }, [step, onNext]);
+  }, [onAdvanceInteraction, step]);
 
   if (!step) return null;
 
@@ -126,7 +125,7 @@ export function GuidedTourSpotlight({
   );
 }
 
-function DimLayer({ rect }: { rect: TargetRect | null }) {
+function DimLayer({ rect }: { rect: GuidedTourRect | null }) {
   if (!rect) {
     return (
       <div
@@ -158,7 +157,7 @@ function DimLayer({ rect }: { rect: TargetRect | null }) {
   );
 }
 
-function HighlightRing({ rect }: { rect: TargetRect }) {
+function HighlightRing({ rect }: { rect: GuidedTourRect }) {
   return (
     <div
       aria-hidden="true"
@@ -175,7 +174,7 @@ function HighlightRing({ rect }: { rect: TargetRect }) {
 
 interface CalloutProps {
   step: TourStep;
-  rect: TargetRect | null;
+  rect: GuidedTourRect | null;
   progress: number;
   isFirst: boolean;
   isLast: boolean;
@@ -198,15 +197,42 @@ function Callout({
   onFinish,
   onShowMe
 }: CalloutProps) {
-  const position = computeCalloutPosition(rect);
+  const calloutRef = useRef<HTMLDivElement | null>(null);
+  const [calloutHeight, setCalloutHeight] = useState(320);
+  const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+
+  useLayoutEffect(() => {
+    const node = calloutRef.current;
+    if (!node) return;
+
+    const update = () => {
+      setCalloutHeight(node.getBoundingClientRect().height);
+    };
+
+    update();
+
+    if (typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    const observer = new ResizeObserver(update);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [rect, step.body, step.cta, step.showMe?.label, step.stepIndex, step.title]);
+
+  const position = computeCalloutPosition(rect, calloutHeight);
 
   return (
     <div
+      ref={calloutRef}
       role="dialog"
         aria-modal="false"
         aria-labelledby="tour-step-title"
-        className="absolute pointer-events-auto w-[min(420px,92vw)] bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-[0_20px_48px_rgba(45,52,51,0.24)] flex flex-col"
-        style={position}
+        className="absolute pointer-events-auto w-[min(420px,92vw)] max-h-[calc(100vh-32px)] overflow-y-auto bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-[0_20px_48px_rgba(45,52,51,0.24)] flex flex-col"
+        style={{
+          ...position,
+          maxHeight: viewportHeight - 32
+        }}
       >
         <header className="flex items-center justify-between px-5 pt-4 pb-2 border-b border-outline-variant/15">
           <div className="flex flex-col gap-1 min-w-0">
@@ -248,6 +274,11 @@ function Callout({
           <p className="font-body text-sm text-on-surface-variant leading-relaxed">
             {step.body}
           </p>
+          {step.target && !rect ? (
+            <p className="text-xs font-label text-on-surface-variant">
+              This control is not visible from the current app state or viewport. Use the recovery action below or continue to the next step.
+            </p>
+          ) : null}
           {step.cta ? (
             <p className="inline-flex items-center gap-2 text-xs font-label font-bold uppercase tracking-widest text-primary">
               <span
@@ -318,75 +349,19 @@ function Callout({
   );
 }
 
-function computeCalloutPosition(rect: TargetRect | null): CSSProperties {
-  if (!rect) {
-    return {
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)'
-    };
-  }
+function computeCalloutPosition(
+  rect: GuidedTourRect | null,
+  calloutHeight: number
+): CSSProperties {
   const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1280;
   const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
   const scrollX = typeof window !== 'undefined' ? window.scrollX : 0;
   const scrollY = typeof window !== 'undefined' ? window.scrollY : 0;
-  const calloutWidth = Math.min(420, viewportWidth * 0.92);
-  const calloutHeight = 260; // estimated; the element will still render correctly if shorter
-  const gap = 16;
-
-  const targetViewportTop = rect.top - scrollY;
-  const targetViewportBottom = rect.top + rect.height - scrollY;
-  const targetViewportLeft = rect.left - scrollX;
-  const targetViewportRight = rect.left + rect.width - scrollX;
-  const targetViewportCenterX = (targetViewportLeft + targetViewportRight) / 2;
-
-  const spaceBelow = viewportHeight - targetViewportBottom - gap;
-  const spaceAbove = targetViewportTop - gap;
-  const spaceRight = viewportWidth - targetViewportRight - gap;
-  const spaceLeft = targetViewportLeft - gap;
-
-  let top: number;
-  let left: number;
-
-  if (spaceBelow >= calloutHeight) {
-    top = rect.top + rect.height + gap;
-    left = clamp(
-      rect.left + rect.width / 2 - calloutWidth / 2,
-      scrollX + 16,
-      scrollX + viewportWidth - calloutWidth - 16
-    );
-  } else if (spaceAbove >= calloutHeight) {
-    top = rect.top - calloutHeight - gap;
-    left = clamp(
-      rect.left + rect.width / 2 - calloutWidth / 2,
-      scrollX + 16,
-      scrollX + viewportWidth - calloutWidth - 16
-    );
-  } else if (spaceRight >= calloutWidth) {
-    top = clamp(
-      rect.top + rect.height / 2 - calloutHeight / 2,
-      scrollY + 16,
-      scrollY + viewportHeight - calloutHeight - 16
-    );
-    left = rect.left + rect.width + gap;
-  } else if (spaceLeft >= calloutWidth) {
-    top = clamp(
-      rect.top + rect.height / 2 - calloutHeight / 2,
-      scrollY + 16,
-      scrollY + viewportHeight - calloutHeight - 16
-    );
-    left = rect.left - calloutWidth - gap;
-  } else {
-    top = scrollY + viewportHeight - calloutHeight - 24;
-    left = scrollX + viewportWidth / 2 - calloutWidth / 2;
-  }
-
-  // Prefer horizontally centered on the target when space permits
-  void targetViewportCenterX;
-
-  return { top, left, width: calloutWidth };
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
+  return resolveCalloutPosition(rect, {
+    calloutHeight,
+    viewportWidth,
+    viewportHeight,
+    scrollX,
+    scrollY
+  });
 }

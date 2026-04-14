@@ -18,6 +18,8 @@ import {
   normalizeFilenameForComparison
 } from '../shared/batch-file-meta';
 import { buildGovernmentWarningCheck } from './government-warning-validator';
+import type { LlmEndpointSurface } from './llm-policy';
+import { runTracedReviewExtraction } from './llm-trace';
 import {
   createReviewExtractionFailure,
   type ReviewExtractor
@@ -217,7 +219,8 @@ export class BatchSessionStore {
       completedOrder += 1;
       const result = await this.processAssignment({
         assignment,
-        completedOrder
+        completedOrder,
+        surface: '/api/batch/run'
       });
       totalDurationMs += Date.now() - startedAt;
 
@@ -335,7 +338,8 @@ export class BatchSessionStore {
 
     const result = await this.processAssignment({
       assignment,
-      completedOrder: existing.row.completedOrder
+      completedOrder: existing.row.completedOrder,
+      surface: '/api/batch/retry'
     });
 
     session.results.set(imageId, {
@@ -353,6 +357,7 @@ export class BatchSessionStore {
   private async processAssignment(input: {
     assignment: StoredBatchAssignment;
     completedOrder: number;
+    surface: LlmEndpointSurface;
   }) {
     const parsedFields = buildParsedReviewFields(input.assignment.row);
     const intake = createNormalizedReviewIntake({
@@ -361,7 +366,12 @@ export class BatchSessionStore {
     });
 
     try {
-      const extraction = await this.extractor(intake);
+      const extraction = await runTracedReviewExtraction({
+        surface: input.surface,
+        intake,
+        extractor: this.extractor,
+        fixtureId: input.assignment.image.id
+      });
       const report = buildVerificationReport({
         intake,
         extraction,

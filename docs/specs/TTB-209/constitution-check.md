@@ -3,7 +3,7 @@
 ## Story
 
 - Story ID: `TTB-209`
-- Title: single-label hot-path optimization to `<= 4 seconds`
+- Title: cloud/default single-label hot-path optimization to `<= 4 seconds`
 - Parent: `TTB-002`
 - Primary lane: Codex
 - Packet mode: standard

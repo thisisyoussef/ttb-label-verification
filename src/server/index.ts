@@ -22,6 +22,7 @@ import {
   createOpenAIReviewExtractor,
   readReviewExtractionConfig
 } from './openai-review-extractor';
+import { runTracedReviewExtraction } from './llm-trace';
 import { buildVerificationReport } from './review-report';
 import { type ReviewExtractor } from './review-extraction';
 import {
@@ -91,7 +92,11 @@ export function createApp(options: CreateAppOptions = {}) {
         return;
       }
 
-      const extraction = await extractorResolution.extractor(intake);
+      const extraction = await runTracedReviewExtraction({
+        surface: '/api/review',
+        intake,
+        extractor: extractorResolution.extractor
+      });
       const warningCheck = buildGovernmentWarningCheck(extraction);
 
       response.json(
@@ -115,7 +120,11 @@ export function createApp(options: CreateAppOptions = {}) {
         return;
       }
 
-      const extraction = await extractorResolution.extractor(intake);
+      const extraction = await runTracedReviewExtraction({
+        surface: '/api/review/extraction',
+        intake,
+        extractor: extractorResolution.extractor
+      });
       response.json(reviewExtractionSchema.parse(extraction));
     });
   });
@@ -131,7 +140,11 @@ export function createApp(options: CreateAppOptions = {}) {
         return;
       }
 
-      const extraction = await extractorResolution.extractor(intake);
+      const extraction = await runTracedReviewExtraction({
+        surface: '/api/review/warning',
+        intake,
+        extractor: extractorResolution.extractor
+      });
       response.json(checkReviewSchema.parse(buildGovernmentWarningCheck(extraction)));
     });
   });

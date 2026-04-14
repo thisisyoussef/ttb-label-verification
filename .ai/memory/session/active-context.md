@@ -1,6 +1,6 @@
 # Active Context
 
-- Current focus: `TTB-106` is complete across both lanes; `TTB-107` is the next queued Claude story, `TTB-206` is the next ready Codex story, provider migration continues through `TTB-207`, and latency hardening is planned as `TTB-208` plus `TTB-209`.
+- Current focus: `TTB-106` is complete across both lanes; `TTB-107` Claude work is complete, `TTB-108` is now the next ready Claude story for the mode selector, `TTB-206` is the next blocking Codex story, cloud extraction migration continues through `TTB-207`, cloud latency hardening is planned as `TTB-208` plus `TTB-209`, the restricted-network local mode is planned as `TTB-212`, and the user-centered prompt/guardrail/eval hardening follow-ons remain `TTB-210` plus `TTB-211`.
 - GitHub repo and Railway project are now live; the checked-in deploy flow uses GitHub Actions plus Railway CLI.
 - `STITCH_FLOW_MODE=claude-direct` is now the workspace default for UI work; automated Stitch and manual Comet are explicit alternates when a pass actually needs generated refs.
 - The Stitch harness now hardwires the canonical local project target to `TTB Label Verification System` (`3197911668966401642`) while still keeping title fallback when `STITCH_PROJECT_ID` is unset.
@@ -10,6 +10,7 @@
 - Repo-local LangSmith trace-driven development is now wired through `npm run env:bootstrap`, `npm run langsmith:smoke`, and checked-in trace workflow docs, while tracing stays off by default.
 - The workflow now allows Codex to take tracker-marked parallel-safe Codex-only stories while Claude is still working a different UI story; `TTB-202` is the current example.
 - The workflow now prefers ready approved `TTB-1xx` handoffs before later blocking `TTB-2xx+` Codex work once workflow/eval foundations are clear.
+- The workflow now treats `ready-for-codex` as an approved starting point rather than a blanket freeze: after Claude's first-pass UI exists, Codex may make story-scoped UI refinements in `src/client/**` when they help integration, usability, or maintainability.
 - `TTB-201` through `TTB-205` are complete: the shared review contract matches the approved TTB-102 results model, request intake is normalized and ephemeral, the extraction slice is live behind `POST /api/review/extraction`, the warning validator is staged behind `POST /api/review/warning`, and `POST /api/review` now returns the integrated comparison/recommendation report from `src/server/review-report.ts`.
 - `src/client/App.tsx` now renders the `VerificationReport` returned by `POST /api/review`, and `src/client/review-runtime.ts` explicitly gates fixture-only result controls instead of silently overriding the live runtime path.
 - `TTB-103` story-local Codex cleanup is complete: the approved batch shell stays mounted, but batch seed controls are only visible when fixture mode is enabled. Real batch execution remains a `TTB-301` concern after `TTB-205` and approved `TTB-104`.
@@ -18,10 +19,17 @@
 - The latest local live `/api/review` smoke attempt on 2026-04-13 used `/tmp/ttb-205-smoke/no-text.png`; local OpenAI config resolved correctly, but the route returned the extractor's structured `network` error before a live result could be inspected.
 - Git hygiene is now explicit in `docs/process/GIT_HYGIENE.md`, wired into both lane checklists plus deployment rules, and backed by `npm run gate:commit` / `npm run gate:push`.
 - `TTB-106` is complete: the approved guided-review UI now reads from a shared typed help manifest exposed at `GET /api/help/manifest`, with the same deterministic fixture kept as the client fallback.
+- `TTB-106` follow-up hardening now resolves the live tour steps against the current shell state in `src/client/App.tsx`; `Next` is state-aware for recovery/skip-ahead branches, while click-to-advance on the real Verify and Batch controls remains a separate direct path.
+- The guided tour no longer advances Step 4 on the Verify click itself: the app now waits for actual results, and if live extraction fails during the tour it auto-recovers into deterministic sample results before advancing to the verdict step.
+- The guided-tour callout now measures its real rendered height and clamps itself within the viewport instead of relying on a fixed-height estimate; `Finish` resets the signed-in shell back to blank single-label intake.
 - `TTB-107` is now planned as a later Claude-first story: a prototype-safe mock PIV/CAC or Treasury SSO entry screen plus persistent `Sarah Chen · ALFD` shell identity and sign-out flow.
-- `TTB-206` is now the next Codex-only engine-planning story; it defines capability routing and Gemini/OpenAI privacy-safe fallback policy.
-- `TTB-207` follows `TTB-206` and is the actual Gemini-primary extraction cutover, including trace, eval, privacy, and timing proof before any default flip.
-- `TTB-208` follows `TTB-207` and adds stage-level timing plus sub-4-second budget framing on the real route.
-- `TTB-209` uses that timing foundation to tune the hot path down to `<= 4,000 ms` and is the only planned story allowed to flip the visible latency budget from `5000` to `4000`.
+- `TTB-108` is now the next ready Claude story and adds the small cloud/local extraction selector plus mode-aware processing copy to the signed-in shell.
+- `TTB-206` is now the next blocking Codex planning and implementation story; it defines extraction-mode routing and cloud/local privacy-safe policy.
+- `TTB-207` follows `TTB-206` and is the actual Gemini-primary cloud extraction cutover, including trace, eval, privacy, and timing proof before any default flip.
+- `TTB-208` follows `TTB-207` and adds stage-level timing plus sub-4-second budget framing on the default cloud route.
+- `TTB-209` uses that timing foundation to tune the default cloud hot path down to `<= 4,000 ms` and is the only planned story allowed to flip the visible latency budget from `5000` to `4000`.
+- `TTB-212` follows `TTB-209` and adds the Ollama/Qwen restricted-network local extraction path without changing the deterministic validator pipeline.
+- `TTB-210` follows `TTB-212` and hardens the shared extraction path with persona-centered prompt policy plus endpoint-aware and mode-aware structural guardrails across `/api/review`, `/api/review/extraction`, `/api/review/warning`, and batch item processing.
+- `TTB-211` is now in progress under explicit user override: `src/server/llm-trace.ts` tags the shared extraction capability with endpoint metadata, `evals/llm/*.eval.ts` provides the route-aware LangSmith fixture gate, and CI now runs `npm run eval:golden` before staging deploy can trigger.
 - Current contract anchor: `src/shared/contracts/review.ts`
 - Current progress tracker: `docs/process/SINGLE_SOURCE_OF_TRUTH.md`

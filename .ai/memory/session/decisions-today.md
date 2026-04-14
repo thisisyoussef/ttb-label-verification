@@ -21,6 +21,7 @@
 - Let the repo Stitch scripts reuse the local ignored MCP config so Claude's project-local Stitch setup doubles as harness auth instead of requiring a separate exported shell key.
 - Require Claude to self-review automated Stitch output before asking the user to review it, and rerun/tweak when the generated result is obviously off-target.
 - Allow Codex to advance tracker-marked parallel-safe Codex-only stories without waiting for Claude to finish an unrelated active UI story.
+- After an initial Claude-created UI exists, allow Codex to make story-scoped UI refinements during engineering instead of restricting Codex to non-design wiring only.
 - Add checked-in branch, commit, push, and merge gates plus shared local gate commands so story work stays on story branches and deploy branches remain protected by workflow.
 - Use GitHub Actions plus Railway CLI for deploys: `main` pushes deploy staging, `production` pushes deploy production, and production promotion is explicit.
 - Do not add a database as part of the current proof-of-concept foundation; the checked-in product direction remains no DB, no queue, and no background jobs unless presearch changes.
@@ -56,4 +57,16 @@
 - Split the tighter latency objective into two more Codex-only stories: `TTB-208` for latency observability/budget framing and `TTB-209` for the actual `<= 4,000 ms` optimization cutover.
 - Keep the current checked-in `<= 5,000 ms` contract as the live invariant until `TTB-209` proves the faster path and updates the shared contract explicitly.
 - Treat priority tiers and cache-friendly prefix structuring as optional tuning levers, not default assumptions, and keep explicit provider caching out of bounds for user-bearing requests.
+- Adapt the consultant's dual-mode recommendation to this repo as `cloud` vs `local` extraction above the provider layer, not as a replacement for the existing Gemini/OpenAI cloud plan.
+- Keep cloud mode as the default reviewer path and the only path bound to the headline sub-5-second UX promise; local mode is a deployment-readiness path for Marcus with a slower, explicit budget.
+- Add `TTB-108` as the Claude-first UI story for the compact cloud/local selector, and add `TTB-212` as the Codex story for the Ollama/Qwen local extraction path.
+- Do not let explicit local mode silently fall back to cloud providers; the whole point of the mode is to prove a no-cloud path.
 - For `TTB-106`, move the canonical help manifest into shared code, serve it through a deterministic `GET /api/help/manifest` route, and keep the approved client fixture as the offline fallback rather than maintaining two divergent help content sources.
+- For `TTB-106` follow-up tour hardening, keep click-to-advance and footer `Next` as separate paths: real target clicks should only advance the tour, while footer `Next` should run state-aware recovery or skip-ahead actions when the current step is not already satisfied.
+- For the `TTB-106` spotlight callout, do not position from a hardcoded height estimate; measure the rendered card and clamp it to viewport-safe margins so longer step copy cannot push the footer off-screen.
+- For the `TTB-106` tour exit path, `Finish` should leave the reviewer signed in and reset the shell to blank single-label intake rather than preserving the last demo state or returning to auth.
+- For the `TTB-106` Verify step, never advance the tour from the button click alone when the underlying control starts async work; advance only from the resulting state transition, and recover to deterministic sample results if live processing fails mid-tour.
+- Split the requested user-centered LLM hardening into two Codex-only follow-ons after the provider and latency work: `TTB-210` for prompt policy plus endpoint guardrails, then `TTB-211` for endpoint-aware eval scorecards and trace regression gates.
+- Treat "all LLM endpoints" as one shared extraction capability reused by four route families today, not as four unrelated prompt systems.
+- Under explicit user override, land the `TTB-211` route-aware eval and tracing foundation early against the current OpenAI-backed route graph rather than waiting for the normal queue to reach it.
+- Use a fixture-backed OpenAI client seam plus `langsmith/vitest` suites so CI can gate staging on endpoint behavior without requiring live label binaries or real user submissions.

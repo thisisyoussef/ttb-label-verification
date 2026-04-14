@@ -20,5 +20,5 @@ Use one of these statuses in handoff docs:
 ## Review model
 
 - Claude stops at visual review and then writes the Codex handoff.
-- Codex picks up only `ready-for-codex` handoffs, but the live tracker still decides whether a handoff is the blocking next story or an executable non-blocking parallel item.
+- Codex picks up only `ready-for-codex` handoffs, but the live tracker still decides whether a handoff is the blocking next story or an executable non-blocking parallel item. After pickup, Codex may still make story-scoped UI refinements instead of treating the handoff as a total client freeze.
 - QA-style review and final acceptance happen after Codex completes the engineering story.
