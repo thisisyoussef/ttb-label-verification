@@ -10,14 +10,17 @@ Add the checked-in workflow layer under `docs/process/` and `.ai/`, then connect
 - Update `CLAUDE.md`
 - Update `.ai/codex.md`
 - Update `.ai/agents/claude.md`
+- Add `.github/pull_request_template.md`
 - Update `scripts/git-story-gate.ts`
 - Add `scripts/install-git-hooks.ts`
 - Add `.githooks/pre-commit`
 - Add `.githooks/pre-push`
 - Update `package.json`
+- Update `.github/workflows/ci.yml`
 - Add `docs/process/SINGLE_SOURCE_OF_TRUTH.md`
 - Add `docs/process/UI_CLAUDE_CHECKLIST.md`
 - Add `docs/process/CODEX_CHECKLIST.md`
+- Add `docs/process/PR_DESCRIPTION_STANDARD.md`
 - Tighten story-start workflow docs so a selected new story always moves onto a fresh branch before packet or code edits
 - Tighten Codex lookup and checklist docs so blast-radius mapping is explicit before implementation
 - Update `README.md`
@@ -37,6 +40,7 @@ Add the checked-in workflow layer under `docs/process/` and `.ai/`, then connect
 - Workflow contract becomes checked-in and explicit
 - Workflow contract requires a blast-radius map before implementation so dependent surfaces get checked intentionally
 - Workflow contract requires a fresh story branch whenever a new feature or story begins
+- Workflow contract requires production-grade PR descriptions, backed by a checked-in template and CI validation on pull requests
 - Submission-facing documentation should stay grounded in the current checked-in prototype rather than roadmap-only claims
 - Reviewable story branches should merge promptly to `main`, with explicit exceptions only for backup, maintenance, and deployment-control refs
 

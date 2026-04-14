@@ -53,3 +53,9 @@
 - Objective: require every new story or feature to start on a fresh branch instead of reusing the previous story branch
 - Dependency: `parallel`
 - Validation: `AGENTS.md`, `CLAUDE.md`, `.ai/codex.md`, `.ai/agents/claude.md`, `.ai/workflows/continue-next-story.md`, `.ai/workflows/story-lookup.md`, `docs/process/GIT_HYGIENE.md`, `docs/process/UI_CLAUDE_CHECKLIST.md`, and `docs/process/CODEX_CHECKLIST.md` all require a fresh branch when the selected story changes
+
+## Task 10
+
+- Objective: require production-grade PR descriptions that explicitly call out changed surfaces, tests added or updated, and validation status
+- Dependency: `parallel`
+- Validation: `.github/pull_request_template.md` exists, `ci.yml` fails incomplete PR bodies on `pull_request`, and repo workflow docs require the same PR description standard

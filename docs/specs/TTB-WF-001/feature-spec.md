@@ -18,6 +18,7 @@ The repo has a light harness, but it does not yet enforce the default gauntlet w
 - Review and acceptance handoffs cannot claim GitHub visibility until the story branch is actually published.
 - Codex maps dependent surfaces before implementation so related flows do not silently regress.
 - Agents open a fresh branch whenever a new feature or story begins instead of reusing the previous story branch.
+- PR descriptions are production-grade, template-backed, and explicit about tests added or updated plus validation results.
 
 ## Acceptance criteria
 
@@ -30,6 +31,7 @@ The repo has a light harness, but it does not yet enforce the default gauntlet w
 7. The repo treats “published, validated, mergeable, but still unmerged” as a workflow failure for normal story branches, with explicit exceptions for backup and maintenance refs.
 8. Story lookup and the Codex checklist require a blast-radius pass before implementation, including dependent help or tour surfaces when a change moves shell, flow, or target-anchor behavior they rely on.
 9. Story-start workflows and lane checklists require a fresh story branch whenever a new feature or story begins, even if the current branch is another valid story branch.
+10. Pull requests use a checked-in template and CI blocks incomplete PR descriptions, including cases where test files changed but the PR body does not acknowledge them.
 
 ## Edge cases
 

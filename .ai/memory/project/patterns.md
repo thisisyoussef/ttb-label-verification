@@ -64,6 +64,7 @@
 - Overlay callouts that depend on spotlighted targets should measure their rendered height and clamp to viewport-safe margins instead of relying on fixed-height estimates; long procedural copy is normal in this product.
 - Codex workflow changes should force a blast-radius pass before implementation: when a story moves shell, navigation, results, view-state, selectors, or target anchors, inspect dependent guided-help surfaces instead of assuming the change is isolated.
 - New story pickup should always move onto a fresh story branch before packet or code edits; reusing the previous story branch is a workflow violation even when the branch name is otherwise valid.
+- Reviewable PRs should always describe changed surfaces, test file additions or updates, validation results, risks, and manual QA in the body; GitHub should auto-seed that structure from a checked-in template and CI should reject placeholder PR descriptions.
 
 ## Documentation pattern
 

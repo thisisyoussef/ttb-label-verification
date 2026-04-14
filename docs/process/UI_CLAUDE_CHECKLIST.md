@@ -86,4 +86,5 @@ Use this checklist whenever Claude is the active lane owner for a story.
 - [ ] Push to a story branch, never directly to `main` or `production`.
 - [ ] Before a reviewable push, run `npm run gate:push`.
 - [ ] Before marking a handoff `ready-for-codex` or telling the user the branch is on GitHub, run `npm run gate:publish`.
+- [ ] If a PR exists or is being prepared, update the PR description with `.github/pull_request_template.md` and make sure tests added or updated, validation results, risks, screenshots or manual QA, and follow-ups match the real diff.
 - [ ] If the branch is only draft UI work, do not label the handoff `ready-for-codex` and do not imply engineering readiness in the push.

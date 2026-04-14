@@ -101,6 +101,7 @@ Use the checked-in docs deliberately, not as background noise:
 - Deployment scaffolding lives in repo code and process docs: `.github/workflows/`, `railway.toml`, `scripts/bootstrap-github-repo.sh`, and `docs/process/DEPLOYMENT_FLOW.md`.
 - Use the local `railway` CLI for Railway bootstrap, status, logs, and manual spot checks. Do not treat ad hoc dashboard clicks as the harness source of truth.
 - Follow `docs/process/GIT_HYGIENE.md` before committing, pushing, or merging. Use `npm run gate:commit` before reviewable commits, `npm run gate:push` before reviewable pushes, and `npm run gate:publish` before any handoff or final response that claims the branch is available on GitHub. Story work happens on story-scoped branches, not directly on `main` or `production`.
+- If a story branch is opened as a PR, the PR description must use `.github/pull_request_template.md` and stay production-grade: list changed surfaces, tests added or updated, exact validation run, risks, screenshots or manual QA, and follow-ups with no placeholder sections.
 - `main` history is intentionally linear and story-shaped. Story branches merge to `main` via rebase only; do not squash story work or rely on merge commits if you want GitHub history to stay truthful.
 - A published, validated, reviewable story branch is not considered done while it remains unmerged. Merge it into `main` before final handoff unless the user explicitly asks to hold it or a concrete blocker exists such as failing CI or unresolved conflicts. `archive/*`, `rewrite/*`, and long-lived deployment rails like `production` are explicit exceptions and must not be swept into `main` as if they were story branches.
 - For `standard` non-UI-first work, run `.ai/workflows/spec-driven-delivery.md` and write the artifact set under `docs/specs/<story-id>/` using the conventions in `docs/specs/README.md` and `.ai/docs/SPEC_CREATION_METHODOLOGY.md`.
@@ -175,6 +176,7 @@ Refresh the smallest set needed after each story:
 - `npm run gate:commit`
 - `npm run gate:push` before any reviewable or deploy-triggering push
 - `npm run gate:publish` before any QA-style handoff, final acceptance handoff, or claim that the branch is published on GitHub
+- For any open PR, verify the description still matches the real diff, test coverage, and validation status before handoff.
 - For mergeable story branches, verify they are actually merged to `main` before calling the work complete. If not merged, report the exact blocker.
 - `npm run test:mutation -- --mutate "<path>"` for changed high-risk pure modules, or an explicit waiver in the handoff
 - Re-read `docs/process/SINGLE_SOURCE_OF_TRUTH.md` when story ownership, handoff state, or queue status changes during the work.

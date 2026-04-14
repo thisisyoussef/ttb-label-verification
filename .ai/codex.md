@@ -103,6 +103,7 @@ Codex must block and redirect instead of improvising outside its lane.
 - If you touch `src/client/**` from the Codex lane, preserve the UI hygiene rules from `CLAUDE.md` and `AGENTS.md`: keep files under the 300-line soft cap and 500-line hard stop, avoid barrel files and deep nesting, and do not collapse multiple concerns into one component just because the change is "small".
 - Do not treat a planned change as local until you map its blast radius. Search for dependent routes, shared contracts, fixtures, evals, packet docs, handoff docs, and adjacent user flows before implementation.
 - If a story touches client shell, navigation, results, view-state, or target-anchor surfaces, inspect the guided-help dependents as part of that blast-radius pass: `src/shared/contracts/help.ts`, `src/shared/help-fixture.ts`, `src/server/help-routes.test.ts`, `src/client/help-runtime.ts`, `src/client/helpManifest.ts`, `src/client/tourTargets.ts`, `src/client/helpReplayState.ts`, `src/client/GuidedTourSpotlight.tsx`, and any affected `data-tour-target` anchors.
+- If a story branch is opened as a PR, keep the description production-grade and synced with the diff. Use `.github/pull_request_template.md` and explicitly list changed surfaces, tests added or updated, validation run, risks, screenshots or manual QA, and follow-ups.
 - Treat `evals/golden/manifest.json` as the canonical golden set and `evals/labels/manifest.json` as the live image-backed core-six subset. Missing binaries under `evals/labels/assets/` are only live-run blockers, not generic implementation blockers.
 - Codex owns deployment scaffolding and release automation for this repo.
 - Prefer the local `railway` CLI for Railway bootstrap, status, log inspection, and manual spot checks.
@@ -132,11 +133,12 @@ Codex must block and redirect instead of improvising outside its lane.
 14. Run the relevant eval slice, trace loop, privacy checks, and measured timing before final handoff.
 15. Verify the result with `npm run test`, `npm run typecheck`, and `npm run build`.
 16. Run `npm run gate:commit` before a reviewable commit, `npm run gate:push` before a reviewable push, and `npm run gate:publish` before any handoff or reply that claims the branch is on GitHub.
-17. If the branch is published, validated, and mergeable, merge it into `main` before calling the work complete unless the user explicitly asks to hold it or a concrete blocker exists.
-18. If the story changed visible or repeatable runtime behavior, start the local app/server and hand the exact URL plus a concrete manual test script to the user.
-19. Do not use Playwright or other browser automation as the final acceptance gate for visible Codex stories.
-20. For deployable implementation stories, follow `docs/process/DEPLOYMENT_FLOW.md` and report staging-deploy status or the exact CI/Railway blocker.
-21. Update the presearch, spec packet, rule index, eval result, backlog item, deploy note, or memory docs when durable truth changes.
+17. If a PR exists for the branch, update the PR description so it truthfully reflects the final diff, test coverage, validation status, and remaining risks before handoff.
+18. If the branch is published, validated, and mergeable, merge it into `main` before calling the work complete unless the user explicitly asks to hold it or a concrete blocker exists.
+19. If the story changed visible or repeatable runtime behavior, start the local app/server and hand the exact URL plus a concrete manual test script to the user.
+20. Do not use Playwright or other browser automation as the final acceptance gate for visible Codex stories.
+21. For deployable implementation stories, follow `docs/process/DEPLOYMENT_FLOW.md` and report staging-deploy status or the exact CI/Railway blocker.
+22. Update the presearch, spec packet, rule index, eval result, backlog item, deploy note, or memory docs when durable truth changes.
 
 When touching `src/client/**` during engineering:
 

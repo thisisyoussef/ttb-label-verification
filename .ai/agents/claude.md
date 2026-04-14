@@ -16,6 +16,7 @@ Start with `AGENTS.md` and `CLAUDE.md`. This file is only a working mirror.
 - Read `docs/process/STITCH_AUTOMATION.md` when the story uses Stitch or the local Stitch workflow is being configured.
 - Read `docs/process/GIT_HYGIENE.md` before committing, pushing, or preparing a reviewable UI branch. Use `npm run gate:commit` before reviewable commits, `npm run gate:push` before reviewable pushes, and `npm run gate:publish` before any handoff that claims the branch is on GitHub or marks a UI story ready for Codex.
 - Starting a new UI story means creating or switching to a fresh `claude/<story-id>-<summary>` branch before packet or code edits, even if the current branch is another valid story branch.
+- If a UI branch is opened as a PR, keep the description synced and production-grade with `.github/pull_request_template.md`, including changed surfaces, tests added or updated, validation run, risks, screenshots or manual QA, and follow-ups.
 - Once a reviewable UI branch is approved, published, validated, and mergeable, merge it into `main` instead of leaving it hanging, unless the user explicitly asks to hold it or a concrete blocker exists. `archive/*`, `rewrite/*`, and `production` are exceptions.
 - For non-trivial UI stories, read `docs/process/SINGLE_SOURCE_OF_TRUTH.md`, `docs/process/UI_CLAUDE_CHECKLIST.md`, and the active `docs/specs/<story-id>/` packet before editing code.
 - If the user says `continue` or `next story`, resolve the next valid Claude-owned item through `.ai/workflows/continue-next-story.md`.

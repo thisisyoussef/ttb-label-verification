@@ -119,6 +119,24 @@ Current managed hooks:
 
 These hooks do not replace the publish gate. They enforce commit and push checks automatically, while `npm run gate:publish` verifies that the branch is actually on GitHub before handoff.
 
+## PR description gate
+
+When a story branch is opened as a GitHub pull request:
+
+1. Use `.github/pull_request_template.md`.
+2. Fill every required section with real content, not placeholders.
+3. Keep the PR body synced with the actual diff as the branch changes.
+4. In `Tests Added or Updated`, list the exact new or changed test files and what they cover, or explicitly say no test files changed and why.
+5. In `Validation`, list the exact commands or checks run and whether they passed.
+6. For visible behavior changes, include screenshots or a concrete manual QA script unless there is a real reason not to.
+
+Rules:
+
+- Production-grade PR descriptions are required for reviewable story branches.
+- A PR description that omits tests, validation, risk, or follow-up context is not review-ready.
+- The `ci` workflow validates PR descriptions on `pull_request` events, so incomplete PR bodies block the same green path that story auto-merge relies on.
+- Use `docs/process/PR_DESCRIPTION_STANDARD.md` as the canonical content standard.
+
 ## Merge and deploy gate
 
 Reviewable merge gate:
@@ -127,6 +145,7 @@ Reviewable merge gate:
 - the packet and tracker are current
 - required local validation passed
 - no stray debug logs, temporary files, or unrelated diffs remain
+- any open PR has a complete description that matches the real diff, test coverage, and validation status
 - GitHub now allows only rebase merges into `main`; squash merges and merge commits are disabled so story commits stay visible in the mainline history.
 - GitHub deletes merged branches automatically after merge.
 - GitHub Actions now auto-update clean story PR branches when `main` moves and auto-merge eligible story PRs after green CI. Branches with real conflicts stay open for manual resolution.

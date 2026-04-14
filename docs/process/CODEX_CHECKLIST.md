@@ -110,3 +110,4 @@ Use this checklist whenever Codex is the active lane owner for a story.
 - [ ] Push to a story branch, never directly to `main` or `production`.
 - [ ] Before a reviewable push, run `npm run gate:push` and re-run the required local validation for the changed surface.
 - [ ] Before any QA-style handoff, final acceptance handoff, or claim that the branch is on GitHub, run `npm run gate:publish`.
+- [ ] If a PR exists or is being prepared, update the PR description with `.github/pull_request_template.md` and make sure tests added or updated, validation results, risks, screenshots or manual QA, and follow-ups match the real diff.

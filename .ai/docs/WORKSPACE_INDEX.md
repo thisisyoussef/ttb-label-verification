@@ -9,6 +9,7 @@
 - `docs/process/STITCH_AUTOMATION.md` — Claude-direct default UI flow plus automated/manual Stitch alternatives
 - `docs/process/DEPLOYMENT_FLOW.md` — GitHub repo bootstrap, Railway staging/prod flow, and story-to-deploy rules
 - `docs/process/GIT_HYGIENE.md` — branch, commit, push, and merge gates for story work
+- `docs/process/PR_DESCRIPTION_STANDARD.md` — required PR body sections and content rules for reviewable story branches
 - `scripts/bootstrap-local-env.ts` — creates or refreshes an ignored repo `.env` from the local gauntlet env inventory without printing secrets
 - `scripts/langsmith-smoke-test.ts` — read-only LangSmith connectivity check through the repo-local env bootstrap
 - `stryker.config.mjs` — targeted mutation-testing configuration for high-risk pure logic
@@ -17,6 +18,8 @@
 - `scripts/install-git-hooks.ts` — installs repo-managed git hooks by setting `core.hooksPath=.githooks`
 - `.githooks/pre-commit` — automatically runs `npm run gate:commit`
 - `.githooks/pre-push` — automatically runs `npm run gate:push`
+- `.github/pull_request_template.md` — default production-grade PR body template
+- `.github/workflows/ci.yml` — verification workflow plus PR description validation on pull requests
 - `docs/process/UI_CLAUDE_CHECKLIST.md` — Claude UI lane checklist for full-screen mock/no-data delivery and approval handoff
 - `docs/process/CODEX_CHECKLIST.md` — Codex engineering lane checklist for packet completion, TDD, and verification
 - `.ai/docs/SINGLE_SOURCE_OF_TRUTH.md` — compatibility mirror pointing back to the canonical process tracker
