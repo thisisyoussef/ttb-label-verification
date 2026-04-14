@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TTB Label Verification Assistant - Auth</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&amp;family=Work+Sans:wght@300;400;500;600&amp;family=Inter:wght@400;600;700&amp;family=IBM+Plex+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#354147",
+                        "on-tertiary-fixed-variant": "#12661e",
+                        "outline-variant": "#adb3b2",
+                        "on-primary-fixed-variant": "#515d64",
+                        "tertiary-container": "#9df197",
+                        "on-secondary-fixed-variant": "#455f6b",
+                        "on-error-container": "#752121",
+                        "surface-dim": "#d4dcda",
+                        "surface-bright": "#f9f9f8",
+                        "on-secondary-fixed": "#29434e",
+                        "primary-container": "#d7e4ec",
+                        "on-primary": "#f0f9ff",
+                        "secondary-container": "#cbe7f5",
+                        "tertiary-dim": "#096119",
+                        "on-tertiary-container": "#005c15",
+                        "on-background": "#2d3433",
+                        "surface-tint": "#546067",
+                        "primary-dim": "#48545b",
+                        "on-primary-container": "#47545a",
+                        "secondary": "#49636f",
+                        "surface-variant": "#dee4e2",
+                        "surface-container-low": "#f2f4f3",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#5a6060",
+                        "background": "#f9f9f8",
+                        "outline": "#767c7b",
+                        "inverse-on-surface": "#9c9d9c",
+                        "tertiary-fixed": "#9df197",
+                        "primary-fixed": "#d7e4ec",
+                        "on-tertiary-fixed": "#00460e",
+                        "secondary-fixed-dim": "#bdd9e6",
+                        "tertiary": "#1c6d25",
+                        "error-dim": "#4e0309",
+                        "primary": "#546067",
+                        "error-container": "#fe8983",
+                        "tertiary-fixed-dim": "#90e28a",
+                        "secondary-dim": "#3d5762",
+                        "secondary-fixed": "#cbe7f5",
+                        "primary-fixed-dim": "#c9d6de",
+                        "error": "#9f403d",
+                        "on-secondary": "#f2faff",
+                        "inverse-surface": "#0c0f0e",
+                        "on-surface": "#2d3433",
+                        "surface-container": "#ebeeed",
+                        "surface-container-high": "#e5e9e8",
+                        "on-error": "#fff7f6",
+                        "on-secondary-container": "#3c5561",
+                        "surface-container-highest": "#dee4e2",
+                        "inverse-primary": "#e6f3fb",
+                        "surface": "#f9f9f8",
+                        "on-tertiary": "#eaffe2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Public Sans"],
+                        "body": ["Work Sans"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body min-h-screen flex flex-col">
+<!-- Government Banner -->
+<section class="w-full bg-surface-container-low py-1.5 px-6 flex items-center gap-2 z-50">
+<div class="flex items-center gap-1.5">
+<span class="w-4 h-3 bg-[#005288] relative overflow-hidden" title="US Flag">
+<div class="absolute top-0 left-0 w-2 h-1.5 bg-[#002664]"></div>
+<div class="absolute top-0 right-0 w-full h-[0.2rem] bg-white opacity-20"></div>
+</span>
+<p class="font-label text-[10px] text-on-surface-variant font-medium tracking-tight">
+                An official website of the United States government
+            </p>
+</div>
+<button class="font-label text-[10px] text-primary font-semibold hover:underline flex items-center gap-0.5">
+            Here's how you know
+            <span class="material-symbols-outlined text-[12px]">expand_more</span>
+</button>
+</section>
+<!-- Main Entry Canvas -->
+<main class="flex-1 flex items-center justify-center p-6 bg-surface-container-low">
+<!-- Login Card (440px wide) -->
+<article class="w-[440px] bg-surface-container-lowest p-10 flex flex-col shadow-[0px_4px_20px_rgba(45,52,51,0.06)] rounded-lg">
+<!-- Branding/Identity -->
+<header class="mb-8">
+<h1 class="font-headline text-2xl font-extrabold text-on-surface tracking-tight mb-2">
+                    TTB Label Verification System
+                </h1>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">
+                    Alcohol Labeling and Formulation Division — Internal Use Only.
+                </p>
+</header>
+<!-- Semantic Tonal Divider -->
+<div class="h-px w-full bg-outline-variant/15 mb-8"></div>
+<!-- Action Cluster -->
+<div class="flex flex-col gap-3">
+<!-- PIV Login Button -->
+<button class="group flex items-center justify-center gap-3 w-full py-3.5 px-6 bg-gradient-to-r from-primary to-primary-dim text-on-primary rounded-lg font-headline font-semibold text-sm transition-all hover:brightness-110 active:opacity-80">
+<span class="material-symbols-outlined text-[20px]" data-icon="badge">badge</span>
+                    Sign in with PIV / CAC Card
+                </button>
+<!-- SSO Login Button -->
+<button class="group flex items-center justify-center gap-3 w-full py-3.5 px-6 bg-surface-container-high text-on-surface rounded-lg font-headline font-semibold text-sm transition-all hover:bg-surface-container-highest active:opacity-80">
+<span class="material-symbols-outlined text-[20px]" data-icon="key">key</span>
+                    Sign in with Treasury SSO
+                </button>
+</div>
+<!-- Institutional Disclaimer -->
+<footer class="mt-10 pt-6 border-t border-outline-variant/15">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-[18px] mt-0.5" data-icon="info">info</span>
+<p class="font-body text-xs text-on-surface-variant leading-normal italic">
+                        This is a prototype. It is not a production Treasury system. Unauthorized access is prohibited and subject to monitoring.
+                    </p>
+</div>
+</footer>
+</article>
+</main>
+<!-- Footer - Suppressed Shared Component (Transactional/Login Focus) -->
+<!-- Applying manual version of the Footer as per hierarchy rules for focused screens -->
+<footer class="w-full py-6 px-8 flex flex-col items-center gap-3 bg-surface-container-low border-t border-outline-variant/15">
+<p class="font-['Work_Sans'] text-[10px] uppercase tracking-widest text-on-surface-variant text-center">
+            Nothing is stored. Inputs and results are discarded when you leave.
+        </p>
+<div class="flex gap-6">
+<a class="font-['Work_Sans'] text-[10px] uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="font-['Work_Sans'] text-[10px] uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,35 @@
+{
+  "storyId": "TTB-107",
+  "generatedAt": "2026-04-14T15:42:34.535Z",
+  "flowMode": "automated",
+  "reviewRequired": true,
+  "project": {
+    "id": "3197911668966401642",
+    "title": "TTB Label Verification System",
+    "wasCreated": false
+  },
+  "modelId": "GEMINI_3_1_PRO",
+  "deviceType": "DESKTOP",
+  "promptSource": "docs/specs/TTB-107/stitch-screen-brief.md",
+  "runDir": "docs/specs/TTB-107/stitch-refs/automated/2026-04-14T15-42-34-534Z",
+  "screens": [
+    {
+      "id": "fd1b3fd54c5c4dc9b726520ff8e6981b",
+      "name": "projects/3197911668966401642/screens/fd1b3fd54c5c4dc9b726520ff8e6981b",
+      "title": "Auth Entry (Screen 0)",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sX2NlNThlMjdiYWE4MzRjYjc4MTY4YmEwNWFiZmM5ZGIyEgsSBxCDmeS-iQEYAZIBIwoKcHJvamVjdF9pZBIVQhMzMTk3OTExNjY4OTY2NDAxNjQy&filename=&opi=96797242",
+      "screenshotUrl": "https://lh3.googleusercontent.com/aida/ADBb0ugCJwJ_q0SGL3-pFXA4oRU17z0d5PohpqG5oNNc9H7uACgZOwwhgHqBwaaESVR33gXak5UinCU94fhucLusBmEHnCTxeMWPUdFdxCiT2zRVwjD3aaK6LXR9ol2pMw7O-uh7a12b65h5k-HkpiWfZkUwxfZai-FRNTPYgPo1aDOc1quNVUKC3y2eU5JVFR1HJnKyMr8pfjWs5NmTd3G-_WdX54mfUGPj9Y8VVJAgdM9yiHMrZhdE-fyJGzM",
+      "localHtmlPath": "docs/specs/TTB-107/stitch-refs/automated/2026-04-14T15-42-34-534Z/01-auth-entry-screen-0.html",
+      "htmlFetchError": null
+    },
+    {
+      "id": "954ab6272ee242af80dd9c20ec828325",
+      "name": "projects/3197911668966401642/screens/954ab6272ee242af80dd9c20ec828325",
+      "title": "Signed-in Results View",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzdmNzU5NmM5Y2JiMjQzOTRiMDMyNDcxNzJiODc0YTJlEgsSBxCDmeS-iQEYAZIBIwoKcHJvamVjdF9pZBIVQhMzMTk3OTExNjY4OTY2NDAxNjQy&filename=&opi=96797242",
+      "screenshotUrl": "https://lh3.googleusercontent.com/aida/ADBb0ugBlUcbzdLaWdsDw7nhSQqp7jBvPnN8DvJ_aV2o61oS6phRGS1jPX6ZmCMJyQ-RikNj7se-TonuwDvdS83OzAxfU8iNEFYW-gggCH_nNNXbLFyC9evVLas86tplHZPBilYDgiZBWHmHJ-MSccwYL1GY3spghLHQUV29sLC8ZLWfTkjq457FwBOBnGbteNkbYzL8_hXmJJNIbXmMyAYdMbyePHLJyPYUeY7bLMSKhhCq5pWUoLsO_7V4D6U",
+      "localHtmlPath": "docs/specs/TTB-107/stitch-refs/automated/2026-04-14T15-42-34-534Z/02-signed-in-results-view.html",
+      "htmlFetchError": null
+    }
+  ]
+}

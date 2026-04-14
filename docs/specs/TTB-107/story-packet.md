@@ -7,10 +7,10 @@
 - Parent: `TTB-004`
 - Lanes in scope: Claude (UI) + Codex (client-side state wiring and reset semantics)
 - Lane status:
-  - Claude lane: `blocked-by-dependency` — queued after `TTB-106`; planning is captured without changing the existing story sequence
+  - Claude lane: `in-progress` — UI spec drafted (`docs/specs/TTB-107/ui-component-spec.md`); Stitch brief + automated Stitch + implementation pending
   - Codex lane: `blocked-by-dependency` — Codex starts after Claude's UI direction is approved and the handoff is `ready-for-codex`
 - Packet mode: expanded working packet
-- Last reconciled: 2026-04-13 against `docs/process/SINGLE_SOURCE_OF_TRUTH.md`, `docs/specs/FULL_PRODUCT_SPEC.md`, `docs/specs/PROJECT_STORY_INDEX.md`, `docs/specs/TTB-105/story-packet.md`, and `docs/reference/product-docs/ttb-user-personas.md`
+- Last reconciled: 2026-04-14 at the active-pickup gate, against `docs/process/SINGLE_SOURCE_OF_TRUTH.md`, `docs/backlog/codex-handoffs/TTB-106.md`, and `docs/reference/product-docs/ttb-user-personas.md`
 
 ## Constitution check
 

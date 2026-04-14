@@ -7,10 +7,11 @@
 - Parent: `TTB-004`
 - Lanes in scope: Claude (UI) + Codex (typed help contracts + manifest routes + demo fixtures)
 - Lane status:
-  - Claude lane: `ready` — guided-review + info-layer design remains the next queued UI story
-  - Codex lane: `blocked-by-dependency` — Codex starts after Claude's UI direction is approved and the handoff is `ready-for-codex`
+  - Claude lane: `done` — UI approved 2026-04-14; `docs/backlog/codex-handoffs/TTB-106.md` written as `ready-for-codex`
+  - Codex lane: `ready-parallel` — typed help contract + stateless manifest route + optional demo-fixture wiring, available for Codex pickup
+  - Note: the packet was earlier edited to claim this story was blocked by `TTB-107`. The user explicitly overrode that gate ("nah finish 106 first"); `TTB-106` landed first. `TTB-107` is now the next ready Claude story.
 - Packet mode: expanded working packet
-- Last reconciled: 2026-04-13 against `docs/process/SINGLE_SOURCE_OF_TRUTH.md` and the completed Codex integration in `TTB-205` + `TTB-301`
+- Last reconciled: 2026-04-14 at the handoff gate, against `docs/process/SINGLE_SOURCE_OF_TRUTH.md`, the completed Codex integration in `TTB-205` + `TTB-301`, and `docs/backlog/codex-handoffs/TTB-106.md`
 
 ## Constitution check
 

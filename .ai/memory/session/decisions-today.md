@@ -50,3 +50,6 @@
 - For `TTB-301`, preserve submitted CSV identity values in dashboard rows and export payloads even when extraction text differs.
 - For `TTB-301`, keep fixture-mode batch seeds intact in dev, but wire the production/non-fixture runtime through the real batch endpoints.
 - Plan `TTB-107` as a separate follow-on UI story without changing the existing `TTB-106` sequence.
+- Split Gemini provider migration into two Codex-only stories: `TTB-206` for provider routing/privacy policy and `TTB-207` for Gemini-primary extraction cutover.
+- Keep provider preference capability-specific: planned label extraction order is `gemini,openai`, while other model-backed capabilities default to `openai,gemini`.
+- Use the native Google GenAI path for Gemini multimodal extraction instead of the OpenAI-compat layer, and keep Gemini requests inline-only with provider logging/data-sharing disabled.
