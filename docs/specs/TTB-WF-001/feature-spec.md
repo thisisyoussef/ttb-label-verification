@@ -24,6 +24,7 @@ The repo has a light harness, but it does not yet enforce the default gauntlet w
 3. `AGENTS.md` and `.ai/codex.md` enforce the new workflow.
 4. The repo has reusable spec templates for future stories.
 5. Repo-managed git hooks and a publish gate make unpublished branch state a workflow blocker instead of a reminder.
+6. The repo keeps a checked-in evaluator-facing README and submission baseline that document deliverables, approach, tools, assumptions, and evaluation framing from current checked-in truth.
 
 ## Edge cases
 

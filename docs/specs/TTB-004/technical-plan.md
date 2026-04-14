@@ -10,6 +10,7 @@ Finish the proof of concept for evaluation: polish the reviewer-facing experienc
 - `docs/specs/TTB-004/privacy-checklist.md` — final no-persistence gate.
 - `docs/specs/TTB-004/performance-budget.md` — final measured timing gate.
 - `README.md` — project overview, setup, assumptions, test label guide, and known limitations.
+- `docs/reference/submission-baseline.md` — current deliverables, approach, tools, assumptions, and evaluation-criteria map.
 - optional supporting docs under `docs/` for architecture or submission notes as needed.
 - `evals/results/` — final smoke-test and evaluation records.
 
@@ -21,6 +22,8 @@ Finish the proof of concept for evaluation: polish the reviewer-facing experienc
   - what the tool does
   - what it does not do
   - how privacy is handled
+  - which deployed URL is the reviewable prototype today
+  - which assumptions were filled independently
   - which six labels are used and why
   - where confidence/uncertainty still requires human review
 

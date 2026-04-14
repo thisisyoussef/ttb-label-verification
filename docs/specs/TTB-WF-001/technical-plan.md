@@ -18,6 +18,8 @@ Add the checked-in workflow layer under `docs/process/` and `.ai/`, then connect
 - Add `docs/process/SINGLE_SOURCE_OF_TRUTH.md`
 - Add `docs/process/UI_CLAUDE_CHECKLIST.md`
 - Add `docs/process/CODEX_CHECKLIST.md`
+- Update `README.md`
+- Add `docs/reference/submission-baseline.md`
 - Update `.ai/docs/WORKSPACE_INDEX.md`
 - Update `.ai/docs/SINGLE_SOURCE_OF_TRUTH.md`
 - Add `.ai/memory/**`
@@ -30,6 +32,7 @@ Add the checked-in workflow layer under `docs/process/` and `.ai/`, then connect
 
 - No runtime API or UI contract changes
 - Workflow contract becomes checked-in and explicit
+- Submission-facing documentation should stay grounded in the current checked-in prototype rather than roadmap-only claims
 
 ## Risks and fallback
 

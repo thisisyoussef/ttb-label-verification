@@ -29,3 +29,9 @@
 - Objective: enforce local commit/push hooks and add a publish gate for GitHub-facing handoffs
 - Dependency: `must-have`
 - Validation: `.githooks/` exists, `package.json` exposes the install/publish commands, and the workflow docs treat unpublished branches as blocked
+
+## Task 6
+
+- Objective: keep evaluator-facing delivery docs checked in by upgrading the top-level README and maintaining a submission baseline for deliverables, tools, assumptions, and evaluation criteria
+- Dependency: `parallel`
+- Validation: `README.md` and `docs/reference/submission-baseline.md` match the current checked-in build and verified deployed review URL

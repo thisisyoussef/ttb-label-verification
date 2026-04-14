@@ -31,7 +31,7 @@ The product is not done when the features exist. It is done when the finished sy
 ## Technical plan
 
 - Use the parent hardening packet plus real implementation evidence from prior stories.
-- Update `README.md`, `evals/results/`, and any supporting architecture notes.
+- Update `README.md`, `docs/reference/submission-baseline.md`, `evals/results/`, and any supporting architecture notes.
 - Close remaining rule-source, privacy, and performance gaps before final handoff, including the tightened latency target once `TTB-208` and `TTB-209` are complete.
 
 ## Task breakdown
@@ -39,5 +39,5 @@ The product is not done when the features exist. It is done when the finished sy
 1. Re-run privacy checks against the finished system.
 2. Measure the single-label path and record timings.
 3. Run final evals and record the results.
-4. Write or update submission docs and README.
+4. Write or update submission docs and README, using `docs/reference/submission-baseline.md` as the checked-in source for deliverables, assumptions, and evaluation mapping.
 5. Prepare QA-style and final acceptance handoffs.
