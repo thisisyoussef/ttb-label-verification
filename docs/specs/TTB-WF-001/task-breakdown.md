@@ -65,3 +65,9 @@
 - Objective: enforce the GitHub PR path by auto-opening story PRs and rejecting integration-branch updates that bypass merged pull requests
 - Dependency: `parallel`
 - Validation: `.github/workflows/auto-open-story-prs.yml` opens draft story PRs on first publish, and `.github/workflows/ci.yml` fails `main` or `production` updates that are not associated with merged PRs
+
+## Task 12
+
+- Objective: require agent workflow instructions to use the authenticated `gh` CLI explicitly for GitHub PR inspection, editing, checks, and merge actions
+- Dependency: `parallel`
+- Validation: `AGENTS.md`, `.ai/codex.md`, `CLAUDE.md`, `.ai/agents/claude.md`, and `docs/process/GIT_HYGIENE.md` all call for the authenticated `gh` CLI when performing GitHub PR actions

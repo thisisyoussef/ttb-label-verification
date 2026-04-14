@@ -20,6 +20,7 @@ The repo has a light harness, but it does not yet enforce the default gauntlet w
 - Agents open a fresh branch whenever a new feature or story begins instead of reusing the previous story branch.
 - PR descriptions are production-grade, template-backed, and explicit about tests added or updated plus validation results.
 - Story branches that reach GitHub auto-open PRs and must merge to `main` or `production` through GitHub PRs rather than direct ref updates.
+- Agent instructions explicitly call for the authenticated `gh` CLI when performing GitHub PR inspection, editing, checks, and merge actions.
 
 ## Acceptance criteria
 
@@ -34,6 +35,7 @@ The repo has a light harness, but it does not yet enforce the default gauntlet w
 9. Story-start workflows and lane checklists require a fresh story branch whenever a new feature or story begins, even if the current branch is another valid story branch.
 10. Pull requests use a checked-in template and CI blocks incomplete PR descriptions, including cases where test files changed but the PR body does not acknowledge them.
 11. Story branches auto-open GitHub PRs on first publish, and `main` or `production` updates that bypass merged PRs fail the GitHub-side CI guard.
+12. Agent workflow instructions explicitly use the authenticated `gh` CLI for GitHub PR inspection, editing, checks, and merge actions when it is available.
 
 ## Edge cases
 

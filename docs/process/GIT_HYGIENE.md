@@ -122,6 +122,7 @@ Rules:
 - Do not update `main` or `production` by pushing `<branch>:main`, `<branch>:production`, or any other direct ref update.
 - Native GitHub branch protection and rulesets are unavailable on the current private-repo plan, so this repo enforces the PR path through checked-in GitHub Actions instead.
 - `.github/workflows/auto-open-story-prs.yml` opens a draft PR on first publish for normal story branches when no PR already exists.
+- Use the `gh` CLI explicitly for PR inspection, body updates, readiness changes, checks, and merges whenever GitHub auth is available in the workspace.
 - `.github/workflows/ci.yml` rejects `main` and `production` updates that are not associated with a merged pull request.
 - Because deploys ride successful `ci`, a bypass push no longer stays on the green deploy path.
 
