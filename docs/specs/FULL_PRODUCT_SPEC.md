@@ -15,10 +15,12 @@ Build a standalone web application that helps TTB reviewers verify alcohol bever
 
 - No uploaded image, application input, or verification result may be persisted.
 - OpenAI integration must use the Responses API with `store: false`.
+- Any Gemini integration must use inline request payloads only with provider logging and data-sharing disabled; no Files API or other durable upload surface is allowed.
 - Single-label review must stay within a 5-second end-to-end target.
+- Planned latency-hardening stories `TTB-208` and `TTB-209` tighten the operational goal to `<= 4,000 ms`, but the current checked-in contract remains `<= 5,000 ms` until those stories land and are re-measured.
 - The model may extract and classify, but final compliance outcomes come from deterministic logic and typed contracts.
 - Uncertain visual judgments, especially boldness, same-field-of-vision, continuity, and separation, default to `review`.
-- Google Stitch is automated-first in this repo. Claude writes the brief, runs the local Stitch workflow, stops for user review of the generated refs, and then implements against the approved image and HTML/code references. Manual Comet Stitch remains available as an explicit fallback.
+- Claude-direct UI development is the default in this repo. Automated Stitch and manual Comet remain available as explicit alternate flows when a story benefits from Stitch-generated references.
 
 ## Primary personas
 
@@ -100,7 +102,7 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 - session-scoped export route or export payload generation
 - tutorial and help manifest routes
 - tutorial recommendation and guided-demo fixture routes
-- OpenAI extraction adapter
+- AI provider routing and extraction adapters
 - deterministic validator engine
 - recommendation aggregator
 
@@ -134,6 +136,8 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 - React + Vite frontend
 - Express API
 - shared Zod contracts in `src/shared/contracts`
+- planned provider routing should be capability-based so label extraction can run Gemini-primary while other model-backed capabilities remain OpenAI-primary with Gemini fallback
+- planned latency hardening should add stage-level timing and budget enforcement before the single-label contract is cut over from `5,000 ms` to `4,000 ms`
 - first model pass is structured extraction only
 - deterministic validators run after extraction
 - response shaping is a separate layer from extraction and validation
@@ -159,6 +163,10 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 - `TTB-203`: extraction adapter, beverage inference, and image-quality assessment
 - `TTB-204`: government warning validator and diff evidence
 - `TTB-205`: field comparison, beverage rules, cross-field checks, and recommendation aggregation
+- `TTB-206`: provider routing foundation and privacy-safe Gemini/OpenAI capability policy
+- `TTB-207`: Gemini-primary label extraction with OpenAI fallback and cross-provider validation
+- `TTB-208`: latency observability and sub-4-second budget framing
+- `TTB-209`: single-label hot-path optimization to `<= 4 seconds`
 - `TTB-103`: batch intake, matching review, and progress UI
 - `TTB-104`: batch dashboard, drill-in shell, and export UI
 - `TTB-301`: batch parser, matcher, orchestration, and session export
@@ -172,7 +180,7 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 ### Claude
 
 - owns frontend design in `src/client/**`
-- prepares Stitch briefs and blocks until Stitch references are returned
+- defaults to direct UI implementation, and prepares Stitch briefs only when a pass explicitly uses automated or manual Stitch
 - stops at visual approval, writes Codex handoffs, and then continues the next UI story
 
 ### Codex
@@ -191,11 +199,12 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 
 - required for MVP implementation: `OPENAI_API_KEY`
 - required config values: `OPENAI_MODEL`, `OPENAI_VISION_MODEL`, `OPENAI_STORE=false`, `PORT`
+- planned provider-migration config: `GEMINI_API_KEY`, `GEMINI_VISION_MODEL`, `GEMINI_TEXT_MODEL`, `GEMINI_EMBEDDING_MODEL`, `AI_CAPABILITY_DEFAULT_ORDER`, `AI_CAPABILITY_LABEL_EXTRACTION_ORDER` (do not require these until `TTB-206` and `TTB-207` land)
 - optional local trace-driven development: `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT`, `LANGSMITH_TRACING=false` by default
 - local runtime bootstrap: `npm run env:bootstrap` creates or refreshes an ignored repo `.env` from the local gauntlet env inventory, and the server auto-loads `.env` / `.env.local`
 - LangSmith bootstrap resolves `LANGSMITH_API_KEY` from either `LANGSMITH_API_KEY` or legacy `LANGCHAIN_API_KEY` in the local gauntlet env inventory
 - trace-driven development is a local-only engineering loop; do not trace staging or production user submissions
-- project-default Stitch generation can use a local `STITCH_API_KEY` or the ignored project-local Stitch MCP config
+- optional automated Stitch generation can use a local `STITCH_API_KEY` or the ignored project-local Stitch MCP config
 - optional local-only Stitch tooling values: `STITCH_PROJECT_ID`, `STITCH_FLOW_MODE`
 
 ## Deployment shape
@@ -214,7 +223,7 @@ The product is ready to develop through the harness when:
 
 - the live tracker points to the next ready leaf story
 - the owning agent can resolve `continue` from checked-in state
-- every UI umbrella packet has a backfilled `stitch-screen-brief.md`
+- every UI umbrella packet has a backfilled `ui-component-spec.md`, with `stitch-screen-brief.md` present whenever that packet uses Stitch
 - LangSmith trace-driven development is wired for future AI stories via repo-local env bootstrap, `npm run langsmith:smoke`, and checked-in workflow docs, while staying off by default
 - the leaf-story map is explicit enough that no one has to infer the next slice from memory
 - the deployment scaffold is checked in even if the external GitHub and Railway bootstrap still needs user credentials and project linkage

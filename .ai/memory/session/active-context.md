@@ -1,11 +1,11 @@
 # Active Context
 
-- Current focus: `TTB-301` is complete; `TTB-106` remains the next queued Claude story, while `TTB-107` is now planned as a follow-on UI story.
+- Current focus: `TTB-106` is complete across both lanes; `TTB-107` is the next queued Claude story, `TTB-206` is the next ready Codex story, provider migration continues through `TTB-207`, and latency hardening is planned as `TTB-208` plus `TTB-209`.
 - GitHub repo and Railway project are now live; the checked-in deploy flow uses GitHub Actions plus Railway CLI.
-- Stitch automation is now the project-default UI generation path, with a user-review gate preserved after generation and a successful automated `TTB-101` artifact run recorded under `docs/specs/TTB-101/stitch-refs/automated/`.
+- `STITCH_FLOW_MODE=claude-direct` is now the workspace default for UI work; automated Stitch and manual Comet are explicit alternates when a pass actually needs generated refs.
 - The Stitch harness now hardwires the canonical local project target to `TTB Label Verification System` (`3197911668966401642`) while still keeping title fallback when `STITCH_PROJECT_ID` is unset.
 - The repo Stitch scripts now resolve auth from env vars first, then from the ignored local `.mcp.json` / `.cursor/mcp.json` Stitch entries, so Claude's local MCP setup also satisfies `npm run stitch:*`.
-- Automated Stitch runs now require a Claude self-review pass before user handoff; raw generated refs should not go straight to the user.
+- Automated Stitch runs still require a Claude self-review pass before user handoff; raw generated refs should not go straight to the user.
 - Repo-local OpenAI runtime config can now be bootstrapped with `npm run env:bootstrap`, and the server auto-loads `.env` / `.env.local` outside tests.
 - Repo-local LangSmith trace-driven development is now wired through `npm run env:bootstrap`, `npm run langsmith:smoke`, and checked-in trace workflow docs, while tracing stays off by default.
 - The workflow now allows Codex to take tracker-marked parallel-safe Codex-only stories while Claude is still working a different UI story; `TTB-202` is the current example.
@@ -17,7 +17,11 @@
 - The current production-build smoke route is `http://127.0.0.1:8796`; live batch preflight/run/summary/export/retry all returned `200`, but the extractor still produced structured `network` errors for the test images.
 - The latest local live `/api/review` smoke attempt on 2026-04-13 used `/tmp/ttb-205-smoke/no-text.png`; local OpenAI config resolved correctly, but the route returned the extractor's structured `network` error before a live result could be inspected.
 - Git hygiene is now explicit in `docs/process/GIT_HYGIENE.md`, wired into both lane checklists plus deployment rules, and backed by `npm run gate:commit` / `npm run gate:push`.
-- `TTB-106` remains the next cross-lane story for optional guided review, replayable help, and contextual info surfaces.
+- `TTB-106` is complete: the approved guided-review UI now reads from a shared typed help manifest exposed at `GET /api/help/manifest`, with the same deterministic fixture kept as the client fallback.
 - `TTB-107` is now planned as a later Claude-first story: a prototype-safe mock PIV/CAC or Treasury SSO entry screen plus persistent `Sarah Chen · ALFD` shell identity and sign-out flow.
+- `TTB-206` is now the next Codex-only engine-planning story; it defines capability routing and Gemini/OpenAI privacy-safe fallback policy.
+- `TTB-207` follows `TTB-206` and is the actual Gemini-primary extraction cutover, including trace, eval, privacy, and timing proof before any default flip.
+- `TTB-208` follows `TTB-207` and adds stage-level timing plus sub-4-second budget framing on the real route.
+- `TTB-209` uses that timing foundation to tune the hot path down to `<= 4,000 ms` and is the only planned story allowed to flip the visible latency budget from `5000` to `4000`.
 - Current contract anchor: `src/shared/contracts/review.ts`
 - Current progress tracker: `docs/process/SINGLE_SOURCE_OF_TRUTH.md`

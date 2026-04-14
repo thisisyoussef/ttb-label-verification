@@ -15,8 +15,8 @@
 - Record the local env audit and treat `OPENAI_API_KEY` as the only required live product key for the MVP path.
 - Add `npm run env:bootstrap` plus automatic server-side `.env` loading so agents stop reporting missing repo-local OpenAI config when the key already exists in the local gauntlet env inventory.
 - Wire LangSmith into the repo as an opt-in trace-driven development path: bootstrap the key from local env inventory, keep tracing off by default, verify with `npm run langsmith:smoke`, and use checked-in trace briefs plus LangSmith inspection for future LLM stories.
-- Make the local automated Stitch flow the project default, and keep manual Comet Stitch as an explicit fallback only.
-- Enforce the automated Stitch path with process-level timeouts and keep the post-generation user review gate explicit instead of auto-implementing from unreviewed generated refs.
+- Make `STITCH_FLOW_MODE=claude-direct` the workspace default for UI work, and keep automated Stitch plus manual Comet as explicit alternate flows instead of the default.
+- Keep the automated Stitch path guarded by process-level timeouts and preserve the post-generation user review gate instead of auto-implementing from unreviewed generated refs.
 - Hardwire the canonical Stitch project id `3197911668966401642` into the local harness so smoke tests and automated story runs prefer `TTB Label Verification System` deterministically.
 - Let the repo Stitch scripts reuse the local ignored MCP config so Claude's project-local Stitch setup doubles as harness auth instead of requiring a separate exported shell key.
 - Require Claude to self-review automated Stitch output before asking the user to review it, and rerun/tweak when the generated result is obviously off-target.
@@ -50,3 +50,10 @@
 - For `TTB-301`, preserve submitted CSV identity values in dashboard rows and export payloads even when extraction text differs.
 - For `TTB-301`, keep fixture-mode batch seeds intact in dev, but wire the production/non-fixture runtime through the real batch endpoints.
 - Plan `TTB-107` as a separate follow-on UI story without changing the existing `TTB-106` sequence.
+- Split Gemini provider migration into two Codex-only stories: `TTB-206` for provider routing/privacy policy and `TTB-207` for Gemini-primary extraction cutover.
+- Keep provider preference capability-specific: planned label extraction order is `gemini,openai`, while other model-backed capabilities default to `openai,gemini`.
+- Use the native Google GenAI path for Gemini multimodal extraction instead of the OpenAI-compat layer, and keep Gemini requests inline-only with provider logging/data-sharing disabled.
+- Split the tighter latency objective into two more Codex-only stories: `TTB-208` for latency observability/budget framing and `TTB-209` for the actual `<= 4,000 ms` optimization cutover.
+- Keep the current checked-in `<= 5,000 ms` contract as the live invariant until `TTB-209` proves the faster path and updates the shared contract explicitly.
+- Treat priority tiers and cache-friendly prefix structuring as optional tuning levers, not default assumptions, and keep explicit provider caching out of bounds for user-bearing requests.
+- For `TTB-106`, move the canonical help manifest into shared code, serve it through a deterministic `GET /api/help/manifest` route, and keep the approved client fixture as the offline fallback rather than maintaining two divergent help content sources.

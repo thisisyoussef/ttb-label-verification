@@ -17,9 +17,10 @@
 - Changing extraction or validator behavior without updating eval artifacts
 - Shipping compliance logic without an updated rule-source trail
 - Treating no-persistence as a policy statement without negative verification
-- Claiming under-5-second performance without measured timings
+- Claiming the active single-label latency target without measured timings
 - Creating a parallel per-story `design.md` instead of writing the feature design into `ui-component-spec.md`
 - Leaving durable workflow corrections only in chat instead of promoting them into checked-in docs
+- Treating automated Stitch as mandatory after `claude-direct` became the default UI flow
 - Starting standard feature work without a spec packet or behavior changes without a RED test
 - Leaving a leaf story as `story-packet.md` only after active implementation has already started and deeper working docs are clearly needed
 - Treating production promotion as automatic per story instead of an explicit release action
@@ -34,3 +35,7 @@
 - Turning batch execution into hidden durable state or a background queue when the checked-in product contract still requires ephemeral in-memory sessions only
 - Reusing shared optional-field Zod schemas directly for Responses structured outputs instead of adapting them into required-plus-nullable API schemas
 - Letting the warning diff collapse into overly broad case-mismatch spans that stop matching the approved UI evidence semantics
+- Adding Gemini through the Files API or any other provider-managed durable upload surface inside a no-persistence product
+- Treating provider fallback as a route-local try/catch instead of a typed capability policy with explicit retry and privacy classification
+- Flipping `latencyBudgetMs` from `5000` to `4000` before the optimized path is actually measured against the approved fixture slice
+- Treating explicit provider caching or raw timing logs as acceptable shortcuts to a faster path
