@@ -49,6 +49,7 @@ Claude should actively reference these docs while working:
 - Follow `docs/process/GIT_HYGIENE.md` for branch, commit, and push behavior. Run `npm run gate:commit` before reviewable commits, `npm run gate:push` before reviewable pushes, and `npm run gate:publish` before any handoff or reply that claims the branch is on GitHub. Claude may push draft UI work before approval, but must not present the branch as `ready-for-codex` until the user approved the UI direction and the publish gate passes.
 - Starting a new story or feature in Claude means opening a fresh `claude/<story-id>-<summary>` branch before packet or code edits. Do not reuse the previous story branch just because it is already valid.
 - If Claude opens or updates a PR, the description must use `.github/pull_request_template.md` and stay production-grade: changed surfaces, tests added or updated, exact validation run, risks, screenshots or manual QA, and follow-ups must all be explicit and current.
+- If a Claude story branch reaches GitHub, let it flow through a GitHub PR and merge there. Do not use direct ref pushes such as `<branch>:main` or `<branch>:production` for normal story completion.
 - Once a Claude-owned branch is approved, published, validated, and mergeable, do not leave it hanging. Merge it into `main` before treating the work as complete unless the user explicitly asks to hold it or a concrete blocker exists. `archive/*`, `rewrite/*`, and `production` are exceptions.
 
 ## Blocking behavior

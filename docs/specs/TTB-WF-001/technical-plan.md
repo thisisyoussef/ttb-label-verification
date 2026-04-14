@@ -11,6 +11,7 @@ Add the checked-in workflow layer under `docs/process/` and `.ai/`, then connect
 - Update `.ai/codex.md`
 - Update `.ai/agents/claude.md`
 - Add `.github/pull_request_template.md`
+- Add `.github/workflows/auto-open-story-prs.yml`
 - Update `scripts/git-story-gate.ts`
 - Add `scripts/install-git-hooks.ts`
 - Add `.githooks/pre-commit`
@@ -23,6 +24,7 @@ Add the checked-in workflow layer under `docs/process/` and `.ai/`, then connect
 - Add `docs/process/PR_DESCRIPTION_STANDARD.md`
 - Tighten story-start workflow docs so a selected new story always moves onto a fresh branch before packet or code edits
 - Tighten Codex lookup and checklist docs so blast-radius mapping is explicit before implementation
+- Tighten GitHub-side story publication so pushed story branches auto-open draft PRs and integration branches reject direct ref updates that bypass merged PRs
 - Update `README.md`
 - Add `docs/reference/submission-baseline.md`
 - Tighten merge-default instructions in `AGENTS.md`, `CLAUDE.md`, `.ai/codex.md`, `.ai/agents/claude.md`, and `docs/process/GIT_HYGIENE.md`
@@ -41,6 +43,7 @@ Add the checked-in workflow layer under `docs/process/` and `.ai/`, then connect
 - Workflow contract requires a blast-radius map before implementation so dependent surfaces get checked intentionally
 - Workflow contract requires a fresh story branch whenever a new feature or story begins
 - Workflow contract requires production-grade PR descriptions, backed by a checked-in template and CI validation on pull requests
+- Workflow contract requires story branches to open and merge through GitHub PRs, with CI guarding `main` and `production` against direct ref updates
 - Submission-facing documentation should stay grounded in the current checked-in prototype rather than roadmap-only claims
 - Reviewable story branches should merge promptly to `main`, with explicit exceptions only for backup, maintenance, and deployment-control refs
 

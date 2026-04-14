@@ -59,3 +59,9 @@
 - Objective: require production-grade PR descriptions that explicitly call out changed surfaces, tests added or updated, and validation status
 - Dependency: `parallel`
 - Validation: `.github/pull_request_template.md` exists, `ci.yml` fails incomplete PR bodies on `pull_request`, and repo workflow docs require the same PR description standard
+
+## Task 11
+
+- Objective: enforce the GitHub PR path by auto-opening story PRs and rejecting integration-branch updates that bypass merged pull requests
+- Dependency: `parallel`
+- Validation: `.github/workflows/auto-open-story-prs.yml` opens draft story PRs on first publish, and `.github/workflows/ci.yml` fails `main` or `production` updates that are not associated with merged PRs

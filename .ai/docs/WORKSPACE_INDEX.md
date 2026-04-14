@@ -19,6 +19,7 @@
 - `.githooks/pre-commit` — automatically runs `npm run gate:commit`
 - `.githooks/pre-push` — automatically runs `npm run gate:push`
 - `.github/pull_request_template.md` — default production-grade PR body template
+- `.github/workflows/auto-open-story-prs.yml` — opens draft story PRs on first publish when no GitHub PR exists yet
 - `.github/workflows/ci.yml` — verification workflow plus PR description validation on pull requests
 - `docs/process/UI_CLAUDE_CHECKLIST.md` — Claude UI lane checklist for full-screen mock/no-data delivery and approval handoff
 - `docs/process/CODEX_CHECKLIST.md` — Codex engineering lane checklist for packet completion, TDD, and verification

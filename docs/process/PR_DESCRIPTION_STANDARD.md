@@ -26,6 +26,7 @@ Every PR description must include these sections with real content:
 ## Content rules
 
 - Keep the body production-grade. Do not leave placeholders, one-word fillers, or blank sections.
+- Story branch pushes auto-open draft PRs through GitHub Actions. Replace the template body with the real description before marking the PR ready for review.
 - If tests were added or updated, list the exact test files and what they cover.
 - If no test files changed, say that explicitly and explain why.
 - In `Validation`, list the exact commands or checks run and whether they passed.
@@ -36,5 +37,6 @@ Every PR description must include these sections with real content:
 ## Enforcement
 
 - GitHub auto-populates the template through `.github/pull_request_template.md`.
-- The `ci` workflow validates PR descriptions on `pull_request` events.
+- GitHub auto-opens draft story PRs on branch publish when a PR does not already exist.
+- The `ci` workflow validates PR descriptions on non-draft `pull_request` events.
 - Story PRs are not considered review-ready when the description is incomplete or stale.
