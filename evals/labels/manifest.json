@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "sourceManifest": "../golden/manifest.json",
+  "sliceId": "core-six",
+  "description": "Live image-backed subset of the golden eval set. These are the default seeded UI and demo scenarios and the first live extraction regression slice.",
+  "cases": [
+    {
+      "id": "perfect-spirit-label",
+      "goldenCaseId": "G-01",
+      "title": "Perfect Spirit Label",
+      "assetPath": "assets/perfect-spirit-label.png",
+      "beverageType": "distilled-spirits",
+      "scenario": "baseline happy path",
+      "expectedRecommendation": "approve"
+    },
+    {
+      "id": "spirit-warning-errors",
+      "goldenCaseId": "G-02",
+      "title": "Spirit Label With Warning Errors",
+      "assetPath": "assets/spirit-warning-errors.png",
+      "beverageType": "distilled-spirits",
+      "scenario": "government warning title case plus punctuation defect",
+      "expectedRecommendation": "reject"
+    },
+    {
+      "id": "spirit-brand-case-mismatch",
+      "goldenCaseId": "G-03",
+      "title": "Spirit Label With Brand Name Case Mismatch",
+      "assetPath": "assets/spirit-brand-case-mismatch.png",
+      "beverageType": "distilled-spirits",
+      "scenario": "cosmetic brand mismatch should downgrade to review, not fail",
+      "expectedRecommendation": "review"
+    },
+    {
+      "id": "wine-missing-appellation",
+      "goldenCaseId": "G-04",
+      "title": "Wine Label Missing Appellation",
+      "assetPath": "assets/wine-missing-appellation.png",
+      "beverageType": "wine",
+      "scenario": "vintage and varietal present without appellation",
+      "expectedRecommendation": "reject"
+    },
+    {
+      "id": "beer-forbidden-abv-format",
+      "goldenCaseId": "G-05",
+      "title": "Beer Label With Forbidden ABV Format",
+      "assetPath": "assets/beer-forbidden-abv-format.png",
+      "beverageType": "malt-beverage",
+      "scenario": "ABV uses forbidden format",
+      "expectedRecommendation": "reject"
+    },
+    {
+      "id": "low-quality-image",
+      "goldenCaseId": "G-06",
+      "title": "Low Quality Image",
+      "assetPath": "assets/low-quality-image.png",
+      "beverageType": "unknown",
+      "scenario": "blurry or low-confidence extraction should surface review",
+      "expectedRecommendation": "review"
+    }
+  ]
+}

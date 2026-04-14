@@ -24,6 +24,13 @@ Why this model:
 - CI remains the hard gate before staging or production deploys
 - the repo still stays simple: one app, one service, two long-lived environments
 
+## Git gates around deploys
+
+- Normal story work happens on story branches, not directly on `main` or `production`.
+- Merge reviewed story branches into `main` to trigger staging deploys.
+- Do not push directly to `production` for routine work; production promotion stays explicit through the checked-in promotion workflow.
+- Follow `docs/process/GIT_HYGIENE.md` before any push that is meant to be merged or deployed. The local gate commands for that are `npm run gate:push`, followed by `npm run gate:publish` before any handoff that claims the branch is available on GitHub.
+
 ## Live external state
 
 As of 2026-04-13, the checked-in scaffold is backed by live external resources:

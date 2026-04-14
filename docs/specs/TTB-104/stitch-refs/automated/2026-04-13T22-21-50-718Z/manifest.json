@@ -1,0 +1,35 @@
+{
+  "storyId": "TTB-104",
+  "generatedAt": "2026-04-13T22:21:50.720Z",
+  "flowMode": "automated",
+  "reviewRequired": true,
+  "project": {
+    "id": "3197911668966401642",
+    "title": "TTB Label Verification System",
+    "wasCreated": false
+  },
+  "modelId": "GEMINI_3_1_PRO",
+  "deviceType": "DESKTOP",
+  "promptSource": "docs/specs/TTB-104/stitch-screen-brief.md",
+  "runDir": "docs/specs/TTB-104/stitch-refs/automated/2026-04-13T22-21-50-718Z",
+  "screens": [
+    {
+      "id": "421d33167f0e4d68b0bb1da696501ede",
+      "name": "projects/3197911668966401642/screens/421d33167f0e4d68b0bb1da696501ede",
+      "title": "Batch Results Dashboard",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzkyOGRmOWRlYjlkNTQwYWQ5YTg1ZmFmZjhjOGU4YzdiEgsSBxCDmeS-iQEYAZIBIwoKcHJvamVjdF9pZBIVQhMzMTk3OTExNjY4OTY2NDAxNjQy&filename=&opi=96797242",
+      "screenshotUrl": "https://lh3.googleusercontent.com/aida/ADBb0ugSSeCSYY9J52ffUDWT4iRAO355DU61udmPHp8tT1_7W80WvS7WKLo4uw9k4oYci0qNMLTK5ibpq7SmzRwnUoNQMOzrimPBh5cK6l-ZAgp0U1TJH2xOdE4WQ8p6mP2MV6suPXBQE8kez_8HRB6Draq0BzLPYlCZ0PENHMGi09fW2n9v1rVomf4ddLwBy8b1vOKHRPN0y9T3HA2v0dhE2CIEuvMWBdze62eSAxuzLIL6ncFYEImWxL7sQVQ",
+      "localHtmlPath": "docs/specs/TTB-104/stitch-refs/automated/2026-04-13T22-21-50-718Z/01-batch-results-dashboard.html",
+      "htmlFetchError": null
+    },
+    {
+      "id": "38a0bf38c6d14008a0d5ac39d9269a46",
+      "name": "projects/3197911668966401642/screens/38a0bf38c6d14008a0d5ac39d9269a46",
+      "title": "Batch Drill-in Detail",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzQ4OWY1YWU4MzI1OTRiMGI4MjgzNGY1ZjMzOWFlMDY1EgsSBxCDmeS-iQEYAZIBIwoKcHJvamVjdF9pZBIVQhMzMTk3OTExNjY4OTY2NDAxNjQy&filename=&opi=96797242",
+      "screenshotUrl": "https://lh3.googleusercontent.com/aida/ADBb0uh7IVYCat5Dtv9GWrUSzlzarwQHh1HtkLnf6y85jBvpuUVUlPhBTm_po77M0Nkek_reoGsMrZe_7xWwuPZwc4IyfOVLBU9gBCt4qoi-5L5Mg_ZOX9hQKgu90R6DIRxUxxDKau0PaYJ6Dc2p5CppvPffntvRncHkvd7behVUuPJJK2NSzM46luNCtTxrOdn9CTLUUGUcuJ5ifG5E2R3icGMmQ0rgTyz979PabkVvJv8DLYFPNZNX2dyGgh4",
+      "localHtmlPath": "docs/specs/TTB-104/stitch-refs/automated/2026-04-13T22-21-50-718Z/02-batch-drill-in-detail.html",
+      "htmlFetchError": null
+    }
+  ]
+}

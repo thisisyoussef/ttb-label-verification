@@ -1,0 +1,135 @@
+<!-- Results - Reject (Warning Expanded) -->
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Industrial Compliance - Verdict Analysis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&amp;family=Work+Sans:wght@400;500;600&amp;family=Inter:wght@400;600;700&amp;family=IBM+Plex+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+.mono-diff-grid { display: grid; grid-template-columns: 120px 1fr; gap: 1rem; }
+</style>
+</head>
+<body class="bg-background font-body text-on-surface antialiased">
+<!-- Verdict Region: Red-toned banner with counts -->
+<section class="bg-error-container/10 border-l-[6px] border-error p-6 flex justify-between items-center">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-error rounded flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+</div>
+<div>
+<h1 class="text-2xl font-headline font-extrabold text-on-error-container tracking-tight">Recommend rejection</h1>
+<p class="font-label text-sm text-on-error-container opacity-80">Final analysis identifies critical regulatory non-compliance in government warning statements.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="text-center px-4">
+<p class="text-xs font-label uppercase tracking-widest text-on-surface-variant">Pass</p>
+<p class="text-2xl font-headline font-bold text-tertiary">8</p>
+</div>
+<div class="text-center px-4">
+<p class="text-xs font-label uppercase tracking-widest text-on-surface-variant">Review</p>
+<p class="text-2xl font-headline font-bold text-secondary">0</p>
+</div>
+<div class="text-center px-4">
+<p class="text-xs font-label uppercase tracking-widest text-on-surface-variant">Fail</p>
+<p class="text-2xl font-headline font-bold text-error">1</p>
+</div>
+</div>
+</section>
+
+<!-- Government Warning Expanded -->
+<div class="bg-surface-container-lowest border border-outline-variant/20 rounded-lg overflow-hidden">
+<div class="bg-error-container/5 p-4 flex items-center justify-between border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">error</span>
+<span class="font-headline font-bold text-on-surface">Government Warning Statements</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-xs font-mono bg-error-container text-on-error-container px-2 py-0.5 rounded">CRITICAL FAIL</span>
+<span class="material-symbols-outlined text-on-surface-variant">expand_less</span>
+</div>
+</div>
+<div class="p-6 space-y-8">
+<!-- Sub-checks List -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-4">
+<h3 class="text-xs font-label uppercase tracking-widest text-on-surface-variant font-bold border-b border-outline-variant/10 pb-2">Technical Checks</h3>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary mt-0.5">check</span>
+<div>
+<p class="text-sm font-semibold text-on-surface">Warning text is present</p>
+<p class="text-xs text-on-surface-variant">Optical verification confirmed at 100% confidence.</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-error mt-0.5">close</span>
+<div>
+<p class="text-sm font-semibold text-on-surface">Warning text matches required wording</p>
+<p class="text-xs text-error font-medium">Required wording begins with "GOVERNMENT WARNING:". Found "Government Warning:".</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-error mt-0.5">close</span>
+<div>
+<p class="text-sm font-semibold text-on-surface">Warning heading is uppercase and bold</p>
+<p class="text-xs text-error font-medium">Heading appears in mixed case.</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded space-y-4">
+<h3 class="text-xs font-label uppercase tracking-widest text-on-surface-variant font-bold">Metadata &amp; Confidence</h3>
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-medium">
+<span class="text-on-surface-variant">OCR Confidence Index</span>
+<span class="text-on-surface">98.4%</span>
+</div>
+<div class="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[98%]"></div>
+</div>
+</div>
+<div>
+<p class="text-xs font-label uppercase text-on-surface-variant mb-1">Citations</p>
+<p class="text-sm font-mono text-on-surface">27 CFR Part 16</p>
+</div>
+</div>
+</div>
+<!-- Character-aligned Comparison -->
+<div class="space-y-3">
+<h3 class="text-xs font-label uppercase tracking-widest text-on-surface-variant font-bold">Literal String Verification</h3>
+<div class="bg-surface-container-highest p-4 rounded font-mono text-sm overflow-x-auto border border-outline-variant/10">
+<div class="mono-diff-grid mb-3 pb-3 border-b border-outline-variant/10">
+<span class="text-on-surface-variant font-semibold">CANONICAL</span>
+<div class="text-on-surface whitespace-nowrap">
+<span class="bg-tertiary/10">GOVERNMENT WARNING:</span> (1) ACCORDING TO THE SURGEON GENERAL...
+</div>
+</div>
+<div class="mono-diff-grid">
+<span class="text-on-surface-variant font-semibold">EXTRACTED</span>
+<div class="text-on-surface whitespace-nowrap">
+<span class="text-error bg-error/10 font-bold decoration-error underline decoration-2">Government Warning:</span> (1) ACCORDING TO THE SURGEON <span class="text-error bg-error/10 px-0.5">X</span>ENERAL...
+</div>
+</div>
+</div>
+<div class="flex gap-4 text-[10px] font-label uppercase tracking-widest text-on-surface-variant">
+<div class="flex items-center gap-1">
+<div class="w-3 h-3 bg-error/20 border border-error/40"></div>
+<span>Case/Character Mismatch</span>
+</div>
+<div class="flex items-center gap-1">
+<div class="w-3 h-3 bg-tertiary/20 border border-tertiary/40"></div>
+<span>Expected Wording</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="flex justify-end items-center gap-3 pt-6">
+<button class="px-6 py-2.5 bg-surface-container-high text-on-surface font-semibold rounded-lg">Export Results</button>
+<button class="px-8 py-2.5 bg-gradient-to-r from-primary to-primary-dim text-white font-headline font-bold rounded-lg shadow-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">refresh</span> New Review
+</button>
+</div>
+</body></html>

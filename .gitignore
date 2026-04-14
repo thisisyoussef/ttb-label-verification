@@ -1,5 +1,11 @@
 node_modules
 dist
 .env
+.env.local
+.env.*.local
+.env.stitch
+.stitch.env
 .railway
+.mcp.json
+.cursor/mcp.json
 *.log

@@ -19,4 +19,7 @@
 - unit:
 - integration:
 - contract:
+- invariants / property tests:
+- flake hazards and seams:
+- mutation-worthy modules:
 - UI behavior:

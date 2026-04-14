@@ -1,0 +1,150 @@
+<!-- Intake - Initial State -->
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TTB Label Verification Assistant</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&amp;family=Work+Sans:wght@400;500;600&amp;family=Inter:wght@400;600;700&amp;family=IBM+Plex+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "on-surface-variant": "#5a6060",
+        "surface-container": "#ebeeed",
+        "tertiary-fixed": "#9df197",
+        "surface-bright": "#f9f9f8",
+        "primary-fixed-dim": "#c9d6de",
+        "tertiary-fixed-dim": "#90e28a",
+        "primary": "#546067",
+        "surface-container-lowest": "#ffffff",
+        "surface-container-low": "#f2f4f3",
+        "on-tertiary-container": "#005c15",
+        "primary-dim": "#48545b",
+        "on-secondary": "#f2faff",
+        "outline": "#767c7b",
+        "secondary": "#49636f",
+        "primary-container": "#d7e4ec",
+        "on-error-container": "#752121",
+        "surface-container-highest": "#dee4e2",
+        "secondary-container": "#cbe7f5",
+        "on-surface": "#2d3433",
+        "on-primary-container": "#47545a",
+        "surface-variant": "#dee4e2",
+        "on-background": "#2d3433",
+        "tertiary-dim": "#096119",
+        "surface": "#f9f9f8",
+        "tertiary": "#1c6d25",
+        "outline-variant": "#adb3b2",
+        "tertiary-container": "#9df197",
+        "on-primary": "#f0f9ff",
+        "on-secondary-container": "#3c5561",
+        "surface-container-high": "#e5e9e8",
+        "error": "#9f403d",
+        "on-error": "#fff7f6",
+        "error-container": "#fe8983",
+        "background": "#f9f9f8",
+      },
+      borderRadius: { DEFAULT: "0.125rem", lg: "0.25rem", xl: "0.5rem", full: "0.75rem" },
+      fontFamily: { headline: ["Public Sans"], body: ["Work Sans"], label: ["Inter"] },
+    },
+  },
+};
+</script>
+</head>
+<body class="bg-background text-on-surface font-body min-h-screen flex flex-col">
+  <!-- TopNavBar -->
+  <header class="bg-[#f2f4f3] flex justify-between items-center w-full px-6 py-2 font-['Public_Sans'] tracking-tight fixed top-0 z-50">
+    <div class="flex items-center gap-8">
+      <span class="text-lg font-bold text-[#2d3433] uppercase tracking-tighter">TTB Label Verification Assistant</span>
+      <nav class="hidden md:flex items-center gap-1">
+        <a href="#" class="px-4 py-2 text-[#546067] border-b-2 border-[#546067] font-semibold">Single</a>
+        <a href="#" class="px-4 py-2 text-[#5a6060] font-medium hover:bg-[#ffffff]/50">Batch</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Workstation -->
+  <main class="flex-grow pt-14 pb-16 px-6 max-w-[1400px] mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+    <!-- Left Column: Image Drop Zone -->
+    <section class="flex flex-col py-8 h-full">
+      <div class="flex-grow bg-surface-container-low border-2 border-dashed border-outline-variant/40 rounded-lg flex flex-col items-center justify-center p-12 text-center">
+        <div class="mb-6 w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-primary">
+          <span class="material-symbols-outlined text-4xl">upload_file</span>
+        </div>
+        <h2 class="text-on-surface font-headline font-bold text-xl mb-2">Drop a label image or click to browse</h2>
+        <p class="text-on-surface-variant font-label text-sm">JPEG, PNG, WEBP, or PDF. Up to 10 MB.</p>
+      </div>
+    </section>
+
+    <!-- Right Column: Application Data Form -->
+    <section class="flex flex-col py-8 gap-8 overflow-y-auto">
+      <div class="bg-surface-container-low rounded-lg p-8 flex flex-col gap-8 h-full">
+        <!-- Beverage Type -->
+        <div class="flex flex-col gap-3">
+          <label class="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Beverage Type</label>
+          <div class="flex bg-surface-container-highest p-1 rounded-md">
+            <button class="flex-1 py-2 text-sm font-semibold rounded bg-surface-container-lowest text-on-surface">Auto-detect</button>
+            <button class="flex-1 py-2 text-sm font-medium text-on-surface-variant">Distilled Spirits</button>
+            <button class="flex-1 py-2 text-sm font-medium text-on-surface-variant">Malt Beverage</button>
+            <button class="flex-1 py-2 text-sm font-medium text-on-surface-variant">Wine</button>
+          </div>
+        </div>
+
+        <!-- Identity Group -->
+        <div class="grid grid-cols-1 gap-6">
+          <div class="flex flex-col gap-2">
+            <label class="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Brand Name</label>
+            <input type="text" placeholder="Enter Brand" class="bg-surface-container-lowest border-0 border-b-2 border-transparent focus:border-primary focus:ring-0 text-on-surface py-3 rounded-t-sm font-body"/>
+          </div>
+          <div class="grid grid-cols-2 gap-6">
+            <div class="flex flex-col gap-2">
+              <label class="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Fanciful Name</label>
+              <input type="text" placeholder="Optional" class="bg-surface-container-lowest border-0 border-b-2 border-transparent focus:border-primary focus:ring-0 text-on-surface py-3 rounded-t-sm font-body"/>
+            </div>
+            <div class="flex flex-col gap-2">
+              <label class="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Class/Type</label>
+              <input type="text" placeholder="e.g. Kentucky Straight Bourbon" class="bg-surface-container-lowest border-0 border-b-2 border-transparent focus:border-primary focus:ring-0 text-on-surface py-3 rounded-t-sm font-body"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alcohol & Origin -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+              <label class="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Alcohol Content (ABV)</label>
+              <span class="bg-error/10 text-error font-label text-[9px] font-extrabold px-1.5 py-0.5 rounded-sm">MANDATORY</span>
+            </div>
+            <input type="text" placeholder="e.g., 45% Alc./Vol." class="w-full bg-surface-container-lowest border-0 border-b-2 border-transparent focus:border-primary focus:ring-0 text-on-surface font-['IBM_Plex_Mono'] py-3 rounded-t-sm"/>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Origin</label>
+            <div class="flex border border-outline-variant/20 rounded h-[46px] overflow-hidden">
+              <button class="flex-1 bg-primary text-white font-semibold text-xs">DOMESTIC</button>
+              <button class="flex-1 bg-surface-container-lowest text-on-surface-variant font-medium text-xs">IMPORTED</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom Action Bar -->
+  <div class="fixed bottom-12 right-6 left-6 z-40">
+    <div class="ambient-shadow border border-outline-variant/10 rounded-lg px-8 py-5 flex justify-between items-center bg-white/85 backdrop-blur-[20px]">
+      <div class="flex items-center gap-2 text-on-surface-variant/70">
+        <span class="text-xs font-label">Nothing is stored. Inputs and results are discarded when you leave.</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button class="px-6 py-2.5 text-sm font-semibold text-on-surface-variant">Clear</button>
+        <button disabled class="bg-surface-container-highest text-outline-variant/60 px-8 py-2.5 rounded-sm text-sm font-bold cursor-not-allowed">Verify Label</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -18,6 +18,7 @@ Create the first project scaffold for a standalone TTB label verification proof 
 - `ttb-prd-comprehensive.md`
 - `ttb-product-spec-final.md`
 - `ttb-implementation-roadmap-final.md`
+- `ttb-user-personas.md` (stakeholder-derived persona synthesis)
 
 ### Official sources checked
 
@@ -44,6 +45,14 @@ Create the first project scaffold for a standalone TTB label verification proof 
 - Agents need different outputs: senior reviewers want judgment, junior reviewers want explicit checklisting, and leadership wants a demoable workflow.
 - The government warning check is the showcase capability.
 - Same-field-of-vision and typography judgments are high value but uncertainty-prone, so the system must prefer `review` over false certainty.
+
+## Persona implications
+
+- The first-use path must be simple enough for a veteran reviewer like Dave to trust without training.
+- The UI must remain professional and demoable enough for Sarah to show leadership and justify future investment.
+- Explanations, citations, confidence, and checklist structure should help junior reviewers like Jenny learn while staying fast for experts.
+- Batch matching, dashboard triage, and CSV export are first-class product needs because of Janet's multi-year request.
+- Documentation, no-persistence posture, and deployment framing must hold up under Marcus's technical review, not just the user-facing demo.
 
 ## Workflow conclusions
 

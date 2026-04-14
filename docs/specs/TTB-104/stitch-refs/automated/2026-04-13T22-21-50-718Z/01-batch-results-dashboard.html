@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;800&amp;family=Work+Sans:wght@400;500;600&amp;family=Inter:wght@400;600;700&amp;family=IBM+Plex+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#9df197",
+                        "on-secondary-fixed": "#29434e",
+                        "surface": "#f9f9f8",
+                        "tertiary-fixed": "#9df197",
+                        "on-primary-fixed": "#354147",
+                        "surface-bright": "#f9f9f8",
+                        "primary-fixed": "#d7e4ec",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#2d3433",
+                        "tertiary-dim": "#096119",
+                        "on-primary-container": "#47545a",
+                        "tertiary": "#1c6d25",
+                        "error": "#9f403d",
+                        "secondary": "#49636f",
+                        "surface-tint": "#546067",
+                        "secondary-fixed": "#cbe7f5",
+                        "on-error": "#fff7f6",
+                        "on-secondary-fixed-variant": "#455f6b",
+                        "error-container": "#fe8983",
+                        "on-secondary": "#f2faff",
+                        "secondary-fixed-dim": "#bdd9e6",
+                        "error-dim": "#4e0309",
+                        "background": "#f9f9f8",
+                        "secondary-container": "#cbe7f5",
+                        "on-secondary-container": "#3c5561",
+                        "on-primary-fixed-variant": "#515d64",
+                        "surface-dim": "#d4dcda",
+                        "on-tertiary-fixed-variant": "#12661e",
+                        "on-tertiary": "#eaffe2",
+                        "outline": "#767c7b",
+                        "on-tertiary-container": "#005c15",
+                        "surface-container-highest": "#dee4e2",
+                        "primary-fixed-dim": "#c9d6de",
+                        "inverse-surface": "#0c0f0e",
+                        "inverse-primary": "#e6f3fb",
+                        "inverse-on-surface": "#9c9d9c",
+                        "primary": "#546067",
+                        "surface-container-high": "#e5e9e8",
+                        "primary-container": "#d7e4ec",
+                        "on-background": "#2d3433",
+                        "surface-container-low": "#f2f4f3",
+                        "primary-dim": "#48545b",
+                        "surface-container": "#ebeeed",
+                        "surface-variant": "#dee4e2",
+                        "tertiary-fixed-dim": "#90e28a",
+                        "on-tertiary-fixed": "#00460e",
+                        "on-surface-variant": "#5a6060"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Public Sans"],
+                        "body": ["Work Sans"],
+                        "label": ["Inter"],
+                        "mono": ["IBM Plex Mono"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container">
+<!-- TopNavBar -->
+<header class="bg-[#f9f9f8] sticky top-0 z-50 w-full">
+<nav class="flex justify-between items-center w-full px-6 py-3 max-w-full">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tight text-[#2d3433] font-headline">TTB Label Verification Assistant</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="text-[#5a6060] font-label text-sm font-semibold tracking-wide style_universal_hover" href="#">Compliance Hub</a>
+<a class="text-[#5a6060] font-label text-sm font-semibold tracking-wide style_universal_hover" href="#">History</a>
+<a class="text-[#5a6060] font-label text-sm font-semibold tracking-wide style_universal_hover" href="#">Standards</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center gap-2 px-3 py-1 bg-surface-container rounded-lg">
+<span class="material-symbols-outlined text-sm text-secondary">verified</span>
+<span class="text-xs font-label text-on-surface-variant">AI-assisted compliance checking</span>
+</div>
+<div class="flex bg-surface-container-high p-1 rounded-lg">
+<button class="px-4 py-1.5 text-xs font-bold font-label text-[#5a6060] rounded style_universal_hover">Single</button>
+<button class="px-4 py-1.5 text-xs font-bold font-label text-[#546067] bg-surface-container-lowest border-b-2 border-[#546067] rounded shadow-sm">Batch</button>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/30">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="professional male auditor headshot with neutral expression in a clean studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCl791PgDUWUAxec47Vi27WJ1vdlLcclcGqGrnNQuP7cE95HH6T_u1bi0SRKRiGcLQF9VL7HBJgchz-YQ3my1Ut6x2E8R-o-7NmY2dr44V3Ywr_NEP3u7CwV1LsP_zpuW073S8Vi4AXN9U46JVt8ndOppG1zk4-8GhSOHs158K__OvCdNsi64wrd2T06vQFk8p7ZJmAQXulQ4kaqDzW5w2ZcHIGJsnN-3OkE7whpaMQv9ewxaJEXRQ2oNamz1ocd5-WqxEAcke7xCU"/>
+</div>
+</div>
+</nav>
+<div class="bg-[#f2f4f3] h-[1px] w-full"></div>
+</header>
+<main class="max-w-[1400px] mx-auto px-6 py-8 space-y-8">
+<!-- Summary Cards: Bento Grid Style -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Approve Card -->
+<div class="bg-surface-container-lowest p-6 border-l-4 border-tertiary relative group overflow-hidden">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-xs font-bold font-label text-on-surface-variant uppercase tracking-widest mb-2">Approved</p>
+<h3 class="text-3xl font-headline font-extrabold text-on-surface">32 <span class="text-lg font-normal text-on-surface-variant">Labels</span></h3>
+</div>
+<span class="material-symbols-outlined text-tertiary bg-tertiary-container/30 p-2 rounded-lg">check_circle</span>
+</div>
+<p class="mt-4 text-sm text-on-surface-variant font-body">All requirements met.</p>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-tertiary opacity-10"></div>
+</div>
+<!-- Review Card -->
+<div class="bg-surface-container-lowest p-6 border-l-4 border-secondary relative group overflow-hidden">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-xs font-bold font-label text-on-surface-variant uppercase tracking-widest mb-2">Review</p>
+<h3 class="text-3xl font-headline font-extrabold text-on-surface">7 <span class="text-lg font-normal text-on-surface-variant">Labels</span></h3>
+</div>
+<span class="material-symbols-outlined text-secondary bg-secondary-container/50 p-2 rounded-lg">visibility</span>
+</div>
+<p class="mt-4 text-sm text-on-surface-variant font-body">Manual verification required.</p>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-secondary opacity-10"></div>
+</div>
+<!-- Reject Card -->
+<div class="bg-surface-container-lowest p-6 border-l-4 border-error relative group overflow-hidden">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-xs font-bold font-label text-on-surface-variant uppercase tracking-widest mb-2">Rejected</p>
+<h3 class="text-3xl font-headline font-extrabold text-on-surface">3 <span class="text-lg font-normal text-on-surface-variant">Labels</span></h3>
+</div>
+<span class="material-symbols-outlined text-error bg-error-container/30 p-2 rounded-lg">report</span>
+</div>
+<p class="mt-4 text-sm text-on-surface-variant font-body">Regulatory violations detected.</p>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-error opacity-10"></div>
+</div>
+</section>
+<!-- Filter & Control Bar -->
+<section class="flex flex-col md:flex-row justify-between items-center bg-surface-container-low p-4 rounded-lg gap-4">
+<div class="flex items-center gap-1 p-1 bg-surface-container-high rounded-md">
+<button class="px-4 py-1.5 text-xs font-bold font-label bg-surface-container-lowest text-on-surface rounded shadow-sm">All</button>
+<button class="px-4 py-1.5 text-xs font-bold font-label text-on-surface-variant hover:text-on-surface transition-colors">Rejects</button>
+<button class="px-4 py-1.5 text-xs font-bold font-label text-on-surface-variant hover:text-on-surface transition-colors">Reviews</button>
+<button class="px-4 py-1.5 text-xs font-bold font-label text-on-surface-variant hover:text-on-surface transition-colors">Approves</button>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative group">
+<button class="flex items-center gap-2 bg-surface-container-lowest px-4 py-2 text-xs font-label font-bold border border-outline-variant/20 rounded shadow-sm">
+<span>Sort: Severity (Worst First)</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Main Results Table -->
+<section class="bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/10">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50 text-[10px] uppercase tracking-widest text-on-surface-variant font-label border-b border-outline-variant/10">
+<th class="px-6 py-4 font-bold">Status</th>
+<th class="px-6 py-4 font-bold">Document</th>
+<th class="px-6 py-4 font-bold">Brand Details</th>
+<th class="px-6 py-4 font-bold">Classification</th>
+<th class="px-6 py-4 font-bold">Issues</th>
+<th class="px-6 py-4 font-bold text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<!-- Row 1: Fail -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-error-container/15 text-error text-[10px] font-bold font-label uppercase">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">error</span>
+                                Fail
+                            </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-14 bg-surface-container-high rounded-sm overflow-hidden flex-shrink-0 border border-outline-variant/20">
+<img alt="vanguard_v1.jpg" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="extreme close up of a luxury wine bottle label with ornate gold foil lettering on dark paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQeE5z9s8Cd4C771wm_zRsDVFbh8UKOwVB1ha20wBovHgf5K06HkPj6bzDKNo8WCFOreHDK4rMA2RRPAcah4LFrEdFnbD4jr8w88F_ILDmFWxmwv9hxCjQLRQFybOS2upqyAFc8FNTKASCIzq4qpXQfNB5qMEE0aNCEKaCdoyuoZQpW_qV7NjKNdKShkUlasVwQRVAg2d7YQtT7lKBc1E-ZKZs7NiX_x6tXa8Z9AB9zAzrxkFydl6XrD10JXR7bl41pqhFf4AHy_8"/>
+</div>
+<span class="text-xs font-mono font-medium text-on-surface">vanguard_v1.jpg</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm font-semibold text-on-surface">Vanguard Reserve</span>
+</td>
+<td class="px-6 py-4 text-xs text-on-surface-variant">Distilled Spirits</td>
+<td class="px-6 py-4">
+<span class="text-xs font-bold text-error">2 Issues</span>
+</td>
+<td class="px-6 py-4 text-right">
+<a class="text-xs font-bold text-secondary hover:underline" href="#">View details</a>
+</td>
+</tr>
+<!-- Row 2: Review -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/30 text-secondary text-[10px] font-bold font-label uppercase">
+<span class="material-symbols-outlined text-[14px]">visibility</span>
+                                Review
+                            </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-14 bg-surface-container-high rounded-sm overflow-hidden flex-shrink-0 border border-outline-variant/20">
+<img alt="coastal_gin_final.png" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="minimalist white spirit label with thin black modern typography and geometric line art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAac9n_9UD_aMa3NOEec-9nrieSyf5GJxn4SMrRo1yy_cfBIGUCiuQqo74zydeWwQ_Hi_wi8QKjCQiwu3CEXolpdsIlMH5b_xAyq4M5vPjuDhFJY_p2q5xzOQkJ_WSFnAiJ07GQsbRcIhEBSusrWOZyHUI5BtoO6CLM2h0rudEo-A4aG6hRiEEYhdYjyFaA2C7yjLmViFyt9n45S6hJBNqpYeRpgrVLlvu9oeDtgQRoveSs1nv8kGKNUm7imfclZ3Q1BIYF9Q-ydmg"/>
+</div>
+<span class="text-xs font-mono font-medium text-on-surface">coastal_gin_final.png</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm font-semibold text-on-surface">Coastal Gin</span>
+</td>
+<td class="px-6 py-4 text-xs text-on-surface-variant">Distilled Spirits</td>
+<td class="px-6 py-4">
+<span class="text-xs font-bold text-secondary">1 Issue</span>
+</td>
+<td class="px-6 py-4 text-right">
+<a class="text-xs font-bold text-secondary hover:underline" href="#">View details</a>
+</td>
+</tr>
+<!-- Row 3: Pass -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-container/30 text-on-tertiary-container text-[10px] font-bold font-label uppercase">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Pass
+                            </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-14 bg-surface-container-high rounded-sm overflow-hidden flex-shrink-0 border border-outline-variant/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-outline">picture_as_pdf</span>
+</div>
+<span class="text-xs font-mono font-medium text-on-surface">oak_ridge_cab.pdf</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm font-semibold text-on-surface">Oak Ridge</span>
+</td>
+<td class="px-6 py-4 text-xs text-on-surface-variant">Wine</td>
+<td class="px-6 py-4">
+<span class="text-xs font-medium text-on-surface-variant">None</span>
+</td>
+<td class="px-6 py-4 text-right">
+<a class="text-xs font-bold text-secondary hover:underline" href="#">View details</a>
+</td>
+</tr>
+<!-- Row 4: Pass -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-container/30 text-on-tertiary-container text-[10px] font-bold font-label uppercase">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Pass
+                            </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-14 bg-surface-container-high rounded-sm overflow-hidden flex-shrink-0 border border-outline-variant/20">
+<img alt="heritage_ipa.jpg" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="rustic hand-drawn illustration of hops and wheat on a craft beer bottle label with thick organic lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-OwhxJB6gtIHG2pkWDeUwB4vbyo7ZfLw652T5aiLJvnMhlbBBkY-ii3muijN24scutuh9R0MjTEvlYPaLpFE_aB1ao8kTlToy--N_pZRN1aPg2mpVSDDdPt-7V727WN2QfCyS839DSQ4OzDyUIHzk7m72qYCBYuEERslL3wCOm1MpqEZJrglVNbMTCDFbf5jAdkKzrnJyCJ_-j2v5e_4z3khFm11Qbd3OFKkmDLKTAwL4JAXyl9OXyK8bBG9GoWdsVsJVUzJTY98"/>
+</div>
+<span class="text-xs font-mono font-medium text-on-surface">heritage_ipa.jpg</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm font-semibold text-on-surface">Heritage IPA</span>
+</td>
+<td class="px-6 py-4 text-xs text-on-surface-variant">Malt Beverages</td>
+<td class="px-6 py-4">
+<span class="text-xs font-medium text-on-surface-variant">None</span>
+</td>
+<td class="px-6 py-4 text-right">
+<a class="text-xs font-bold text-secondary hover:underline" href="#">View details</a>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+<!-- Bottom Action Bar -->
+<section class="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-outline-variant/10">
+<p class="text-xs text-on-surface-variant font-label max-w-sm">Nothing is stored. Inputs and results are discarded when you leave.</p>
+<div class="flex gap-4 w-full md:w-auto">
+<button class="flex-1 md:flex-none px-6 py-2.5 text-sm font-bold font-label text-on-surface bg-surface-container-high rounded-lg hover:bg-surface-container-highest transition-colors">
+                    Export Results
+                </button>
+<button class="flex-1 md:flex-none px-6 py-2.5 text-sm font-bold font-label text-white bg-gradient-to-r from-primary to-primary-dim rounded-lg shadow-md hover:brightness-110 transition-all">
+                    Start Another Batch
+                </button>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#f2f4f3] border-t border-[#adb3b2]/15 mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-6 py-4 text-xs tracking-tight">
+<div class="flex flex-col md:flex-row items-center gap-6">
+<span class="text-sm uppercase tracking-widest text-[#49636f] font-bold font-headline">Verification Assistant</span>
+<p class="text-[#5a6060] font-label">Nothing is stored. Inputs and results are discarded when you leave.</p>
+</div>
+<div class="flex gap-6 mt-4 md:mt-0">
+<a class="text-[#5a6060] font-label hover:underline transition-all" href="#">Privacy Policy</a>
+<a class="text-[#5a6060] font-label hover:underline transition-all" href="#">Security Protocol</a>
+<a class="text-[#5a6060] font-label hover:underline transition-all" href="#">Audit Guidelines</a>
+</div>
+</div>
+</footer>
+</body></html>

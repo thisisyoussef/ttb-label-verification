@@ -10,6 +10,11 @@ Add the checked-in workflow layer under `docs/process/` and `.ai/`, then connect
 - Update `CLAUDE.md`
 - Update `.ai/codex.md`
 - Update `.ai/agents/claude.md`
+- Update `scripts/git-story-gate.ts`
+- Add `scripts/install-git-hooks.ts`
+- Add `.githooks/pre-commit`
+- Add `.githooks/pre-push`
+- Update `package.json`
 - Add `docs/process/SINGLE_SOURCE_OF_TRUTH.md`
 - Add `docs/process/UI_CLAUDE_CHECKLIST.md`
 - Add `docs/process/CODEX_CHECKLIST.md`

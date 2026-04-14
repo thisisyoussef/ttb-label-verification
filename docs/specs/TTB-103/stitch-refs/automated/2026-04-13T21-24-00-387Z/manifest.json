@@ -1,0 +1,35 @@
+{
+  "storyId": "TTB-103",
+  "generatedAt": "2026-04-13T21:24:00.388Z",
+  "flowMode": "automated",
+  "reviewRequired": true,
+  "project": {
+    "id": "3197911668966401642",
+    "title": "TTB Label Verification System",
+    "wasCreated": false
+  },
+  "modelId": "GEMINI_3_1_PRO",
+  "deviceType": "DESKTOP",
+  "promptSource": "docs/specs/TTB-103/stitch-screen-brief.md",
+  "runDir": "docs/specs/TTB-103/stitch-refs/automated/2026-04-13T21-24-00-387Z",
+  "screens": [
+    {
+      "id": "f4b44dc232cc46e3bf39fa2db026f98c",
+      "name": "projects/3197911668966401642/screens/f4b44dc232cc46e3bf39fa2db026f98c",
+      "title": "Batch Upload - Matching Workbench",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzI1ZGQzZjcwOTc5YzQ3OTViYmM0ZWZkYmIwZTU0MWQ2EgsSBxCDmeS-iQEYAZIBIwoKcHJvamVjdF9pZBIVQhMzMTk3OTExNjY4OTY2NDAxNjQy&filename=&opi=96797242",
+      "screenshotUrl": "https://lh3.googleusercontent.com/aida/ADBb0ujmQ70scu8NCYNOd2MJt57OrFMbYB073mAZJGDz6IeKTYNgLs-J6VQfrXVqH3f6vvik5WBIhlQbY5q9yNefjuC0q79N57_sB1QcpW4JftOH3eAGm4l6csyTuSa_RUUySdsYFp7LfQUnxTBFQaQt5l4kqps_Kxh1ah3zAbu_vCnf7rlTuZGbRAjKioTHCf7UO1EcxoGmHXl5460YDkWvrpGoxzJuTcL93aFhYx6eRKX6uwvegDkKnQRmloo",
+      "localHtmlPath": "docs/specs/TTB-103/stitch-refs/automated/2026-04-13T21-24-00-387Z/01-batch-upload-matching-workbench.html",
+      "htmlFetchError": null
+    },
+    {
+      "id": "2fe41c12b36f429492c55ffc1dff982a",
+      "name": "projects/3197911668966401642/screens/2fe41c12b36f429492c55ffc1dff982a",
+      "title": "Batch Processing - Real-time Stream",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzIyZWI4ZGE2ODI4YTQxMTk4ZGQ3ZmRhNmE4MmI4OWY2EgsSBxCDmeS-iQEYAZIBIwoKcHJvamVjdF9pZBIVQhMzMTk3OTExNjY4OTY2NDAxNjQy&filename=&opi=96797242",
+      "screenshotUrl": "https://lh3.googleusercontent.com/aida/ADBb0uiYt4mbC_GrnSpc31hMKaRbjcPkxZmoyMuiOdH2dr2HXq65PZcXW2aKbOX_pE8eR63HACrWtejIFgF6hFADpFDqqe_RG9WT1m5g8KEuV29-8b9b0ajnyd6uscOtgh4oYhHD6-9TmWe5Tax7EB5aOHDjmPXEUeL2lGtY4Zbu3yar5Y-PZ-vtz3sWpPVQmMi54-yTBzrfISWFp1pjTGoWoNX9v6-IOJ94_5YYyfnnbpWHh4O_ih61diJuUDY",
+      "localHtmlPath": "docs/specs/TTB-103/stitch-refs/automated/2026-04-13T21-24-00-387Z/02-batch-processing-real-time-stream.html",
+      "htmlFetchError": null
+    }
+  ]
+}

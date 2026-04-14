@@ -18,7 +18,17 @@ Build a standalone web application that helps TTB reviewers verify alcohol bever
 - Single-label review must stay within a 5-second end-to-end target.
 - The model may extract and classify, but final compliance outcomes come from deterministic logic and typed contracts.
 - Uncertain visual judgments, especially boldness, same-field-of-vision, continuity, and separation, default to `review`.
-- Google Stitch is manual. Claude writes the brief, the user runs Stitch, Claude implements against the returned image and HTML/code references.
+- Google Stitch is automated-first in this repo. Claude writes the brief, runs the local Stitch workflow, stops for user review of the generated refs, and then implements against the approved image and HTML/code references. Manual Comet Stitch remains available as an explicit fallback.
+
+## Primary personas
+
+See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-derived persona packet. The build must simultaneously serve:
+
+- `Sarah Chen` — leadership evaluator who needs a serious, demoable tool, clear metrics, and sub-5-second performance.
+- `Dave Morrison` — veteran reviewer who demands zero-learning UX, judgment-preserving recommendations, and no extra workflow friction.
+- `Jenny Park` — junior reviewer who benefits from expandable explanations, citations, confidence signals, and a digitized checklist mental model.
+- `Marcus Williams` — IT gatekeeper who evaluates security posture, no-persistence claims, deployment realism, and documentation quality before any production conversation.
+- `Janet` — batch-heavy reviewer whose pain drives matching review, dashboard triage, export, and failures-first batch workflows.
 
 ## Primary user journeys
 
@@ -36,6 +46,13 @@ Build a standalone web application that helps TTB reviewers verify alcohol bever
 - extract fields and run format/compliance checks only
 - surface editable extracted values and a path back into full comparison
 
+### 0. Mock internal entry
+
+- open on a prototype-safe Treasury/TTB-flavored mock auth screen before the app shell
+- simulate either PIV/CAC or Treasury SSO entry without real authentication
+- show the signed-in identity in the shell once the prototype transitions into the app
+- allow explicit sign-out back to the mock auth screen
+
 ### 3. Batch review
 
 - upload many label images plus one CSV
@@ -51,10 +68,18 @@ Build a standalone web application that helps TTB reviewers verify alcohol bever
 - show privacy and performance posture clearly
 - package the repo and docs as a procurement-ready demo artifact
 
+### 5. Guided review and contextual help
+
+- start an optional guided review from the intake surface or a persistent help entry point
+- walk through the finished workflow in short, replayable modules that match real reviewer tasks
+- explain dense evidence concepts with contextual indicators and plain-language help
+- restart any guide at any time without introducing backend persistence or hidden completion state
+
 ## Product surfaces
 
 ### UI surfaces
 
+- mock auth entry screen and signed-in shell identity
 - single-label intake
 - single-label processing
 - single-label results
@@ -63,6 +88,8 @@ Build a standalone web application that helps TTB reviewers verify alcohol bever
 - batch upload and matching review
 - batch progress
 - batch dashboard and drill-in
+- guided review and help entry points
+- contextual info indicators and explainer panels
 - release-polish states for accessibility, trust copy, and error handling
 
 ### Server surfaces
@@ -71,6 +98,8 @@ Build a standalone web application that helps TTB reviewers verify alcohol bever
 - single-label review route
 - batch review route
 - session-scoped export route or export payload generation
+- tutorial and help manifest routes
+- tutorial recommendation and guided-demo fixture routes
 - OpenAI extraction adapter
 - deterministic validator engine
 - recommendation aggregator
@@ -81,6 +110,7 @@ Build a standalone web application that helps TTB reviewers verify alcohol bever
 - request contract for batch review
 - response contract for single-label evidence
 - response contract for batch progress and batch summary
+- tutorial manifest and contextual-help contracts
 - warning sub-check and diff evidence objects
 - confidence and uncertainty metadata
 
@@ -107,6 +137,7 @@ Build a standalone web application that helps TTB reviewers verify alcohol bever
 - first model pass is structured extraction only
 - deterministic validators run after extraction
 - response shaping is a separate layer from extraction and validation
+- guided review and help content should be delivered from typed, deterministic manifests
 - no database, no queue, no background job for the proof of concept
 
 ## Story architecture
@@ -132,34 +163,40 @@ Build a standalone web application that helps TTB reviewers verify alcohol bever
 - `TTB-104`: batch dashboard, drill-in shell, and export UI
 - `TTB-301`: batch parser, matcher, orchestration, and session export
 - `TTB-105`: accessibility, trust copy, and final UI polish
+- `TTB-106`: guided review, replayable help, and contextual info layer
+- `TTB-107`: mock Treasury auth entry and signed-in shell identity
 - `TTB-401`: final privacy, performance, eval, and submission pack
 
 ## Lane split
 
 ### Claude
 
-- owns all frontend design and implementation in `src/client/**`
+- owns frontend design in `src/client/**`
 - prepares Stitch briefs and blocks until Stitch references are returned
-- stops at visual approval and writes Codex handoffs
+- stops at visual approval, writes Codex handoffs, and then continues the next UI story
 
 ### Codex
 
-- owns contracts, server, validators, OpenAI integration, tests, evals, privacy, performance, and submission docs
-- preserves the approved UI without redesigning it
+- owns contracts, server, validators, OpenAI integration, tests, evals, LangSmith trace-driven development, privacy, performance, and submission docs
+- preserves the approved UI without redesigning it and may wire approved `src/client/**` surfaces to live behavior
 - blocks and returns to Claude when a required UI change appears
 
 ## Compact packet rule
 
 - Every leaf story has a checked-in packet under `docs/specs/<story-id>/`.
 - During planning, that packet may be a compact `story-packet.md`.
-- Before active implementation, the owning agent expands the packet into the standard working docs it needs.
+- Before active implementation, any agent may create or expand the packet into the standard working docs needed to move the story forward. Lane ownership still controls implementation and handoff work.
 
 ## Env and integration needs
 
 - required for MVP implementation: `OPENAI_API_KEY`
 - required config values: `OPENAI_MODEL`, `OPENAI_VISION_MODEL`, `OPENAI_STORE=false`, `PORT`
-- optional only if tracing is enabled later: `LANGSMITH_API_KEY` or `LANGFUSE_PUBLIC_KEY` plus `LANGFUSE_SECRET_KEY`
-- no Google Stitch repo key is required because Stitch is run manually by the user outside the app
+- optional local trace-driven development: `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT`, `LANGSMITH_TRACING=false` by default
+- local runtime bootstrap: `npm run env:bootstrap` creates or refreshes an ignored repo `.env` from the local gauntlet env inventory, and the server auto-loads `.env` / `.env.local`
+- LangSmith bootstrap resolves `LANGSMITH_API_KEY` from either `LANGSMITH_API_KEY` or legacy `LANGCHAIN_API_KEY` in the local gauntlet env inventory
+- trace-driven development is a local-only engineering loop; do not trace staging or production user submissions
+- project-default Stitch generation can use a local `STITCH_API_KEY` or the ignored project-local Stitch MCP config
+- optional local-only Stitch tooling values: `STITCH_PROJECT_ID`, `STITCH_FLOW_MODE`
 
 ## Deployment shape
 
@@ -178,5 +215,6 @@ The product is ready to develop through the harness when:
 - the live tracker points to the next ready leaf story
 - the owning agent can resolve `continue` from checked-in state
 - every UI umbrella packet has a backfilled `stitch-screen-brief.md`
+- LangSmith trace-driven development is wired for future AI stories via repo-local env bootstrap, `npm run langsmith:smoke`, and checked-in workflow docs, while staying off by default
 - the leaf-story map is explicit enough that no one has to infer the next slice from memory
 - the deployment scaffold is checked in even if the external GitHub and Railway bootstrap still needs user credentials and project linkage

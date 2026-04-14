@@ -1,6 +1,23 @@
 # Active Context
 
-- Current focus: full product blueprint and leaf-story queue are now checked in; next engineering work starts with `TTB-EVAL-001`, while the next UI work starts with `TTB-101`.
+- Current focus: `TTB-301` is complete; `TTB-106` remains the next queued Claude story, while `TTB-107` is now planned as a follow-on UI story.
 - GitHub repo and Railway project are now live; the checked-in deploy flow uses GitHub Actions plus Railway CLI.
+- Stitch automation is now the project-default UI generation path, with a user-review gate preserved after generation and a successful automated `TTB-101` artifact run recorded under `docs/specs/TTB-101/stitch-refs/automated/`.
+- The Stitch harness now hardwires the canonical local project target to `TTB Label Verification System` (`3197911668966401642`) while still keeping title fallback when `STITCH_PROJECT_ID` is unset.
+- The repo Stitch scripts now resolve auth from env vars first, then from the ignored local `.mcp.json` / `.cursor/mcp.json` Stitch entries, so Claude's local MCP setup also satisfies `npm run stitch:*`.
+- Automated Stitch runs now require a Claude self-review pass before user handoff; raw generated refs should not go straight to the user.
+- Repo-local OpenAI runtime config can now be bootstrapped with `npm run env:bootstrap`, and the server auto-loads `.env` / `.env.local` outside tests.
+- Repo-local LangSmith trace-driven development is now wired through `npm run env:bootstrap`, `npm run langsmith:smoke`, and checked-in trace workflow docs, while tracing stays off by default.
+- The workflow now allows Codex to take tracker-marked parallel-safe Codex-only stories while Claude is still working a different UI story; `TTB-202` is the current example.
+- The workflow now prefers ready approved `TTB-1xx` handoffs before later blocking `TTB-2xx+` Codex work once workflow/eval foundations are clear.
+- `TTB-201` through `TTB-205` are complete: the shared review contract matches the approved TTB-102 results model, request intake is normalized and ephemeral, the extraction slice is live behind `POST /api/review/extraction`, the warning validator is staged behind `POST /api/review/warning`, and `POST /api/review` now returns the integrated comparison/recommendation report from `src/server/review-report.ts`.
+- `src/client/App.tsx` now renders the `VerificationReport` returned by `POST /api/review`, and `src/client/review-runtime.ts` explicitly gates fixture-only result controls instead of silently overriding the live runtime path.
+- `TTB-103` story-local Codex cleanup is complete: the approved batch shell stays mounted, but batch seed controls are only visible when fixture mode is enabled. Real batch execution remains a `TTB-301` concern after `TTB-205` and approved `TTB-104`.
+- `TTB-301` added a session-scoped batch engine: `POST /api/batch/preflight`, NDJSON streaming `POST /api/batch/run`, summary/report/export/retry routes, in-memory batch sessions, and live client wiring for batch upload, processing, dashboard, and drill-in.
+- The current production-build smoke route is `http://127.0.0.1:8796`; live batch preflight/run/summary/export/retry all returned `200`, but the extractor still produced structured `network` errors for the test images.
+- The latest local live `/api/review` smoke attempt on 2026-04-13 used `/tmp/ttb-205-smoke/no-text.png`; local OpenAI config resolved correctly, but the route returned the extractor's structured `network` error before a live result could be inspected.
+- Git hygiene is now explicit in `docs/process/GIT_HYGIENE.md`, wired into both lane checklists plus deployment rules, and backed by `npm run gate:commit` / `npm run gate:push`.
+- `TTB-106` remains the next cross-lane story for optional guided review, replayable help, and contextual info surfaces.
+- `TTB-107` is now planned as a later Claude-first story: a prototype-safe mock PIV/CAC or Treasury SSO entry screen plus persistent `Sarah Chen · ALFD` shell identity and sign-out flow.
 - Current contract anchor: `src/shared/contracts/review.ts`
 - Current progress tracker: `docs/process/SINGLE_SOURCE_OF_TRUTH.md`

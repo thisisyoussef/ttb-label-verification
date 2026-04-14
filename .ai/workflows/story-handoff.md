@@ -46,18 +46,19 @@ Use when:
 
 - the story uses the Stitch-assisted UI flow
 - Claude has prepared the screen description but should not implement the final UI until Stitch output exists
-- the user needs a concrete prompt/doc to run through Google Stitch manually
+- the user needs either a concrete prompt/doc to run through Google Stitch manually in Comet, or a review checkpoint for Stitch output generated through the local automated path
 
 What to include:
 
 - exact packet doc path: `docs/specs/<story-id>/stitch-screen-brief.md`
 - which screen or route the brief covers
-- what the user should run through Stitch
-- exactly what the user should return: image reference plus HTML/code reference
+- for manual mode: what the user should run through Stitch and exactly what the user should return
+- for automated mode: the generated artifact path, the generated HTML/code references, what Claude found in self-review, and the exact approve/rerun/tweak decision the user should make
 
 Stop rule:
 
-- For Stitch-assisted UI stories, stop after the brief is ready and wait for the user to return the Stitch assets.
+- For Stitch-assisted UI stories in manual mode, stop after the brief is ready and wait for the user to return the Stitch assets.
+- For Stitch-assisted UI stories in automated mode, stop only after the generated refs are recorded and Claude has completed a self-review of the result. Then wait for the user to approve or redirect the generated output before implementation.
 
 ### 4. Visual review handoff
 
@@ -106,9 +107,11 @@ Use when:
 
 - the story changes a repeatable workflow or behavior
 - a QA developer or the user should verify exact steps
+- Codex needs to stop and hand the local runtime to the user for manual testing
 
 What to include:
 
+- exact local URL or route to run
 - setup or data assumptions
 - exact step-by-step test script
 - expected result after each step
@@ -130,12 +133,18 @@ What to include:
 
 - implementation summary
 - validation commands run
+- published branch confirmation via `npm run gate:publish`
 - review/test steps
+- exact local URL when the user still needs to run the manual acceptance pass
 - measured latency evidence when relevant
 - privacy and no-persistence verification outcome when relevant
 - eval result path and rule-source updates when relevant
 - remaining gaps, if any
 - updated spec and memory artifact paths
+
+Stop rule:
+
+- If the current branch is not pushed or `npm run gate:publish` fails, stop and publish it before claiming final acceptance or GitHub visibility.
 
 ## Default stopping rules
 
@@ -152,6 +161,7 @@ What to include:
 - UI-first stories that start in Claude should also produce a `ready-for-codex` backlog handoff between those two checkpoints.
 - Pure backend or contract stories can usually go straight to QA-style handoff plus final acceptance.
 - Latency-sensitive backend stories should not skip the measured QA-style handoff.
+- Visible Codex stories should stop for a user-run manual test pass instead of treating Playwright or other browser automation as the acceptance gate.
 
 ## Reviewer target
 

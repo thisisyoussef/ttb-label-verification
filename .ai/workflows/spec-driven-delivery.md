@@ -38,7 +38,7 @@ Create `technical-plan.md` and define:
 - data and API contracts
 - dependency boundaries
 - risk and fallback plan
-- testing strategy
+- testing strategy, including test layers, boundary contracts, invariants/properties, flake hazards, and mutation-worthy modules
 
 ## Step 4: Task breakdown
 
@@ -55,7 +55,7 @@ Create `task-breakdown.md` with executable tasks, dependencies, and validation c
 
 ## Step 6: Derive tests from acceptance criteria
 
-Map acceptance criteria directly to tests before coding starts. For AI or validator stories, also map the relevant eval cases from `evals/labels/`.
+Map acceptance criteria directly to tests before coding starts. Name the intended layer for each behavior, call out negative and boundary cases, and note where contract, property, or mutation testing is required. For AI or validator stories, also map the relevant eval cases from `evals/golden/manifest.json` and the live subset when needed.
 
 ## Exit criteria
 

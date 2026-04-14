@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#435c85",
+                        "surface-container-highest": "#00225a",
+                        "surface": "#060e20",
+                        "on-tertiary-fixed-variant": "#54546f",
+                        "surface-container-low": "#06122d",
+                        "surface-container": "#05183c",
+                        "outline-variant": "#2b4680",
+                        "surface-container-high": "#031d4b",
+                        "surface-container-lowest": "#000000",
+                        "secondary-dim": "#909fb5",
+                        "on-secondary-fixed": "#324053",
+                        "on-tertiary": "#53536e",
+                        "inverse-primary": "#476089",
+                        "surface-tint": "#aec7f7",
+                        "tertiary-container": "#d9d7f8",
+                        "surface-variant": "#00225a",
+                        "on-error": "#490106",
+                        "inverse-surface": "#faf8ff",
+                        "on-secondary-fixed-variant": "#4e5c71",
+                        "background": "#060e20",
+                        "on-error-container": "#ff9993",
+                        "on-primary-container": "#b9d1ff",
+                        "tertiary-fixed": "#d9d7f8",
+                        "on-secondary-container": "#b2c0d8",
+                        "outline": "#5b74b1",
+                        "error": "#ee7d77",
+                        "tertiary-fixed-dim": "#cbc9e9",
+                        "error-container": "#7f2927",
+                        "secondary": "#909fb5",
+                        "on-primary-fixed": "#264067",
+                        "inverse-on-surface": "#4d556b",
+                        "on-primary": "#264068",
+                        "on-secondary": "#122133",
+                        "secondary-fixed": "#d5e3fc",
+                        "primary-container": "#2e476f",
+                        "tertiary": "#e8e5ff",
+                        "primary-dim": "#a0bae8",
+                        "tertiary-dim": "#cbc9e9",
+                        "on-tertiary-container": "#4b4a65",
+                        "surface-bright": "#002867",
+                        "primary-fixed": "#d6e3ff",
+                        "primary": "#aec7f7",
+                        "on-surface-variant": "#91aaeb",
+                        "error-dim": "#bb5551",
+                        "surface-dim": "#060e20",
+                        "secondary-fixed-dim": "#c7d5ed",
+                        "on-tertiary-fixed": "#383751",
+                        "on-surface": "#dee5ff",
+                        "primary-fixed-dim": "#c0d5ff",
+                        "secondary-container": "#2e3c4f",
+                        "on-background": "#dee5ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0px",
+                        "lg": "0px",
+                        "xl": "0px",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Public Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Public Sans', sans-serif; }
+        /* Custom scrollbar for high-density workstation feel */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #060e20; }
+        ::-webkit-scrollbar-thumb { background: #2b4680; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface select-none">
+<!-- TopNavBar -->
+<header class="fixed top-0 z-50 flex justify-between items-center w-full px-6 py-2 bg-[#060e20] dark:bg-[#060e20]">
+<div class="flex items-center gap-8">
+<span class="text-lg font-bold tracking-widest uppercase text-[#dee5ff]">ComplianceCore</span>
+<div class="hidden md:flex items-center bg-surface-container-lowest border border-outline-variant/30 px-3 py-1 gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">search</span>
+<input class="bg-transparent border-none text-xs focus:ring-0 w-64 text-on-surface" placeholder="Global Search..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-3 py-1.5 bg-primary-container text-on-primary-container text-xs font-medium uppercase tracking-tighter hover:bg-[#002867] transition-colors duration-150">Batch Mode</button>
+<button class="px-3 py-1.5 bg-[#aec7f7] text-[#002867] text-xs font-bold uppercase tracking-tighter hover:bg-[#dee5ff] transition-colors duration-150">Single Label</button>
+<div class="h-6 w-[1px] bg-outline-variant/50 mx-2"></div>
+<span class="material-symbols-outlined text-[#91aaeb] hover:bg-[#002867] p-1 cursor-pointer transition-colors duration-150" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-[#91aaeb] hover:bg-[#002867] p-1 cursor-pointer transition-colors duration-150" data-icon="settings">settings</span>
+<img alt="User Profile" class="w-8 h-8 bg-surface-container-high ml-2 border border-outline-variant/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjK2-cLJyvnnihT2mg2N2qYossrohXU9WbWrsttkvzTHADNFxlBISoFxfdPScvXvSuk8I7RtDsoCe149rXclt8-4W1Cs8J4QYt4Dhdf2BxkqJMKcnfKlKJ-IjdfE1ZjAwe1PFsCxRp43HES9zqSogiLxNHczm6Y6y5DNKYMaUjgCg8Da74BZFYgGjmzyEGTIWq6DpCn32krMUm3UbdUtJIsEYDszKCrfn0PwNPuOzAQ5iABx5vtvPnpMxISYxLROlQ9qwdAmqJnDph"/>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col pt-16 bg-[#06122d] w-64 z-40">
+<div class="px-6 py-6 mb-4">
+<div class="flex items-center gap-3 mb-1">
+<div class="w-10 h-10 bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="security" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<div>
+<h3 class="text-[#dee5ff] font-bold uppercase tracking-tighter text-sm">Federal Oversight</h3>
+<p class="text-[10px] text-[#91aaeb] uppercase tracking-widest opacity-80">Verification Division</p>
+</div>
+</div>
+</div>
+<nav class="flex-grow space-y-1">
+<!-- Active State: Current Review -->
+<a class="flex items-center px-6 py-3 gap-4 bg-[#002867] text-[#dee5ff] border-l-4 border-[#aec7f7]" href="#">
+<span class="material-symbols-outlined" data-icon="fact_check" style="font-variation-settings: 'FILL' 1;">fact_check</span>
+<span class="text-xs font-medium uppercase tracking-tight">Current Review</span>
+</a>
+<a class="flex items-center px-6 py-3 gap-4 text-[#91aaeb] opacity-80 hover:bg-[#031d4b] hover:text-[#dee5ff] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="text-xs font-medium uppercase tracking-tight">Evidence Locker</span>
+</a>
+<a class="flex items-center px-6 py-3 gap-4 text-[#91aaeb] opacity-80 hover:bg-[#031d4b] hover:text-[#dee5ff] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+<span class="text-xs font-medium uppercase tracking-tight">Policy Reference</span>
+</a>
+<a class="flex items-center px-6 py-3 gap-4 text-[#91aaeb] opacity-80 hover:bg-[#031d4b] hover:text-[#dee5ff] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="text-xs font-medium uppercase tracking-tight">Activity Log</span>
+</a>
+<a class="flex items-center px-6 py-3 gap-4 text-[#91aaeb] opacity-80 hover:bg-[#031d4b] hover:text-[#dee5ff] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="sticky_note_2">sticky_note_2</span>
+<span class="text-xs font-medium uppercase tracking-tight">Team Notes</span>
+</a>
+</nav>
+<div class="mt-auto p-4 space-y-1 bg-[#060e20]">
+<a class="flex items-center px-2 py-2 gap-3 text-[#91aaeb] hover:text-[#dee5ff] transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="help_outline">help_outline</span>
+<span class="text-[11px] font-medium uppercase tracking-tighter">Support</span>
+</a>
+<a class="flex items-center px-2 py-2 gap-3 text-error/80 hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="logout">logout</span>
+<span class="text-[11px] font-medium uppercase tracking-tighter">Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 pt-16 min-h-screen flex flex-col">
+<!-- Workspace Header -->
+<div class="px-8 py-6 bg-surface flex justify-between items-end">
+<div>
+<h1 class="text-2xl font-extrabold uppercase tracking-tight text-on-surface">Verification Engine <span class="text-primary-dim opacity-50">/</span> TX-4491-B</h1>
+<p class="text-on-surface-variant text-xs mt-1 uppercase tracking-widest font-medium">System State: Active Processing — TTB Compliance Layer</p>
+</div>
+<div class="flex gap-2">
+<div class="px-3 py-1 bg-surface-container-high border border-outline-variant/30 text-[10px] uppercase font-bold text-on-surface-variant">
+                    Priority: Standard
+                </div>
+<div class="px-3 py-1 bg-surface-container-high border border-outline-variant/30 text-[10px] uppercase font-bold text-on-surface-variant">
+                    Security: Tier 2
+                </div>
+</div>
+</div>
+<div class="flex-grow p-8 flex gap-6">
+<!-- Left: Pinned Intake Context (The "Analyst Cockpit" feel) -->
+<section class="w-1/3 flex flex-col gap-6">
+<div class="bg-surface-container-low p-1 border-t-2 border-primary">
+<div class="bg-surface p-4">
+<h2 class="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="attachment">attachment</span> Source Document
+                        </h2>
+<div class="aspect-[4/5] bg-surface-container-lowest flex items-center justify-center relative group overflow-hidden border border-outline-variant/10">
+<img class="w-full h-full object-cover opacity-60" data-alt="high contrast technical scan of a vintage wine label with elegant typography and complex gold foil filigree on dark paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALHgQNpgM1iJalkAVWB2xk72Rd8z0RMDvUnOMQwBR_o0M6uNxmCILHlf6b1NepXgGHIVMT2YrmJnR3evwcdug8rh0OPizbbRWAHWU_vBq4mtwjTG-uRaUt6ey6IlITWDeMo9vAQPqAktvkzja_-vsHzdVRW_k-v6ReTux2xkXEW1EU5CFeGUSiXC5o2Dqv9sh4_NXrnJUq5oEdekmXJdzRLOXELtsA4nt6rwiPWj2IF0bISP4e14prXzkY8dEA9qpGffdNLNY70lTq"/>
+<div class="absolute inset-0 flex flex-col items-center justify-center bg-surface-container-lowest/40 backdrop-blur-sm">
+<span class="material-symbols-outlined text-4xl text-primary opacity-30" data-icon="visibility">visibility</span>
+</div>
+</div>
+<div class="mt-4 space-y-3">
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-2">
+<span class="text-[10px] uppercase text-on-surface-variant font-medium">Filename</span>
+<span class="text-xs font-semibold text-on-surface">CAB_SAUV_2022_ESTATE.JPG</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-2">
+<span class="text-[10px] uppercase text-on-surface-variant font-medium">File Size</span>
+<span class="text-xs font-semibold text-on-surface">14.4 MB</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-2">
+<span class="text-[10px] uppercase text-on-surface-variant font-medium">Beverage Type</span>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 bg-tertiary"></span>
+<span class="text-xs font-bold text-tertiary uppercase">Wine</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Technical Specs Box -->
+<div class="bg-surface-container-high p-4 flex flex-col gap-3">
+<h3 class="text-[10px] uppercase font-black text-on-surface-variant/50 tracking-widest">Metadata Hash</h3>
+<code class="text-[10px] break-all font-mono text-outline leading-tight">SHA-256: 8e3c4f...d2a1b9</code>
+</div>
+</section>
+<!-- Right: Verification in Progress -->
+<section class="flex-grow flex flex-col gap-6">
+<!-- Progress Stepper -->
+<div class="bg-surface-container-low p-6">
+<h2 class="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="analytics">analytics</span> Processing Pipeline
+                    </h2>
+<div class="space-y-4">
+<!-- Step 1: Completed -->
+<div class="flex items-center gap-4 bg-surface p-3 border-l-2 border-primary">
+<div class="w-6 h-6 flex items-center justify-center bg-primary/20 text-primary">
+<span class="material-symbols-outlined text-sm" data-icon="check" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+<div class="flex-grow">
+<p class="text-xs font-bold uppercase tracking-tight text-on-surface">1. Reading label image</p>
+<p class="text-[10px] text-on-surface-variant">OCR Engine: V4.2 High Precision</p>
+</div>
+<span class="text-[10px] font-mono text-primary-dim">0.42s</span>
+</div>
+<!-- Step 2: Completed -->
+<div class="flex items-center gap-4 bg-surface p-3 border-l-2 border-primary">
+<div class="w-6 h-6 flex items-center justify-center bg-primary/20 text-primary">
+<span class="material-symbols-outlined text-sm" data-icon="check" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+<div class="flex-grow">
+<p class="text-xs font-bold uppercase tracking-tight text-on-surface">2. Extracting structured fields</p>
+<p class="text-[10px] text-on-surface-variant">Mapping to TTB Schema Ver 11.0</p>
+</div>
+<span class="text-[10px] font-mono text-primary-dim">1.18s</span>
+</div>
+<!-- Step 3: Running -->
+<div class="flex items-center gap-4 bg-surface-bright/20 p-3 border-l-2 border-primary animate-pulse">
+<div class="w-6 h-6 flex items-center justify-center relative">
+<div class="absolute inset-0 border-2 border-primary/30 rounded-full"></div>
+<div class="absolute inset-0 border-t-2 border-primary rounded-full animate-spin"></div>
+<span class="material-symbols-outlined text-[10px] text-primary" data-icon="cycle">cycle</span>
+</div>
+<div class="flex-grow">
+<p class="text-xs font-bold uppercase tracking-tight text-primary">3. Detecting beverage type</p>
+<p class="text-[10px] text-on-surface-variant">Analyzing Class &amp; Type designations...</p>
+</div>
+<span class="text-[10px] font-mono text-primary animate-pulse">RUNNING</span>
+</div>
+<!-- Step 4: Pending -->
+<div class="flex items-center gap-4 bg-surface-container-lowest/50 p-3 border-l-2 border-transparent opacity-40">
+<div class="w-6 h-6 flex items-center justify-center border border-on-surface-variant/30 text-on-surface-variant">
+<span class="text-[10px] font-bold">04</span>
+</div>
+<div class="flex-grow">
+<p class="text-xs font-bold uppercase tracking-tight text-on-surface">4. Running deterministic regulation checks</p>
+<p class="text-[10px] text-on-surface-variant">Queued: 142 CFR sub-checks pending</p>
+</div>
+</div>
+<!-- Step 5: Pending -->
+<div class="flex items-center gap-4 bg-surface-container-lowest/50 p-3 border-l-2 border-transparent opacity-40">
+<div class="w-6 h-6 flex items-center justify-center border border-on-surface-variant/30 text-on-surface-variant">
+<span class="text-[10px] font-bold">05</span>
+</div>
+<div class="flex-grow">
+<p class="text-xs font-bold uppercase tracking-tight text-on-surface">5. Preparing evidence for review</p>
+<p class="text-[10px] text-on-surface-variant">Packaging verification artifacts</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Results Placeholder -->
+<div class="flex-grow bg-surface-container-low border border-outline-variant/10 flex flex-col">
+<div class="p-4 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-lowest/30">
+<h2 class="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">Verification Results</h2>
+<span class="text-[9px] uppercase font-medium text-on-surface-variant/50 tracking-tighter italic">Waiting for pipeline completion...</span>
+</div>
+<div class="flex-grow flex flex-col items-center justify-center p-12 text-center">
+<div class="w-24 h-24 mb-6 relative">
+<!-- Technical "waiting" decorative element -->
+<div class="absolute inset-0 border-2 border-dashed border-outline-variant/20 animate-spin-slow"></div>
+<div class="absolute inset-4 border border-outline-variant/40"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-4xl text-outline-variant" data-icon="database">database</span>
+</div>
+</div>
+<p class="text-sm font-medium text-on-surface-variant max-w-xs">Results will appear here upon completion</p>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant/40 mt-2">Module ID: VER-TTB-ALPHA-09</p>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-4">
+<div class="flex flex-col">
+<span class="text-[10px] uppercase font-bold text-on-surface-variant/60 tracking-tight leading-none">Task Latency</span>
+<span class="text-xs font-mono font-bold text-primary">1.60s elapsed</span>
+</div>
+</div>
+<button class="px-6 py-2 bg-transparent border border-outline-variant/30 text-on-surface-variant text-[10px] font-bold uppercase tracking-widest hover:bg-error/10 hover:text-error hover:border-error transition-all duration-150">
+                        Cancel Review
+                    </button>
+</div>
+</section>
+</div>
+</main>
+<style>
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin-slow 12s linear infinite;
+        }
+    </style>
+</body></html>

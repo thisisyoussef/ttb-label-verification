@@ -1,0 +1,44 @@
+{
+  "storyId": "TTB-101",
+  "generatedAt": "2026-04-13T20:46:26.516Z",
+  "flowMode": "automated",
+  "reviewRequired": true,
+  "project": {
+    "id": "15350665813018316672",
+    "title": "ttb-label-verification automated",
+    "wasCreated": false
+  },
+  "modelId": "GEMINI_3_FLASH",
+  "deviceType": "DESKTOP",
+  "promptSource": "docs/specs/TTB-101/stitch-screen-brief.md",
+  "runDir": "docs/specs/TTB-101/stitch-refs/automated/2026-04-13T20-46-26-515Z",
+  "screens": [
+    {
+      "id": "e31dd5aca47143cfabb4388925998790",
+      "name": "projects/15350665813018316672/screens/e31dd5aca47143cfabb4388925998790",
+      "title": "Intake - TTB Assistant",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sX2U1NzU1OGZjMTEzZDQ3MjE4ODlhMzVlMDNlMmExZTExEgsSBxCDmeS-iQEYAZIBJAoKcHJvamVjdF9pZBIWQhQxNTM1MDY2NTgxMzAxODMxNjY3Mg&filename=&opi=96797242",
+      "screenshotUrl": "https://lh3.googleusercontent.com/aida/ADBb0ujzfGFqyLMlvSwpyAomDRnVg-s1-YzWWcX4AdHz5rpoUQGysKSOZgUFxPkT7CbZtAAyLU1QiancK3fIwXUSNy_1ptCdS3zHwdYFj9joA_yTR6Cp2UrbVKjtR4xIMCxBTbUVGj4CnWZ2xSKczZuA0-E2WsSLZWUI9-94Hx4CUP7zH9iJHWQktd0NM0r__rXJVQXVYMipbAfY2cYbKOVjfj24BZ9oIiiXBpKay8FyVy_-rLauKfrc73PIQch9",
+      "localHtmlPath": "docs/specs/TTB-101/stitch-refs/automated/2026-04-13T20-46-26-515Z/01-intake-ttb-assistant.html",
+      "htmlFetchError": null
+    },
+    {
+      "id": "173bd99c432b4be8bf49f265d9dcd2be",
+      "name": "projects/15350665813018316672/screens/173bd99c432b4be8bf49f265d9dcd2be",
+      "title": "Processing - TTB Assistant",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sXzA1MWRjZWYwYjk4ZjRjOThiYmZkMDIzMjMxOGVlODQyEgsSBxCDmeS-iQEYAZIBJAoKcHJvamVjdF9pZBIWQhQxNTM1MDY2NTgxMzAxODMxNjY3Mg&filename=&opi=96797242",
+      "screenshotUrl": "https://lh3.googleusercontent.com/aida/ADBb0uiLplEUzLUJ77siS0LJXArSKyQp8wkSB6xulk0KnSeLSPWLTW5CEMXYacCjuuBe2lvzgHjh6SjD2KHlIEiAlKS0oP6biXCLb3bsCAGWJvkIm2Kf3BCPDDTjcpPrgd4180vHftQrC5Om5-T4ttA3KvLFG65amy5PJZS33YiENne7B19hmpEzNoYh98pYD2uAkUzJl1eu5K5euSk3HMplfG_nS5NntHWAtnyxQ2LAj8ulNfAZ-WesQGutEVfa",
+      "localHtmlPath": "docs/specs/TTB-101/stitch-refs/automated/2026-04-13T20-46-26-515Z/02-processing-ttb-assistant.html",
+      "htmlFetchError": null
+    },
+    {
+      "id": "cf2435f5e78840ea8da0bc882da5c503",
+      "name": "projects/15350665813018316672/screens/cf2435f5e78840ea8da0bc882da5c503",
+      "title": "Processing Failure - TTB Assistant",
+      "htmlUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sXzM1YjYxOGI4YmFmNzRmY2VhNDMyYTczZjA4MDI4ODk2EgsSBxCDmeS-iQEYAZIBJAoKcHJvamVjdF9pZBIWQhQxNTM1MDY2NTgxMzAxODMxNjY3Mg&filename=&opi=96797242",
+      "screenshotUrl": "https://lh3.googleusercontent.com/aida/ADBb0uip5lluwNX-lLCn8XgJakGjlqxX9gVr4O75wc52gs4vcKYl5jxuN3kY5SljEiIMNhb0wYZ4uKZWDWFjEUFyWTliRViW15qoy3BwxmSwcKqdx1_OJxbDJaFfJho8ZrBDp-kv6THH_Zg1pFuzN05wwlgVUHpQjv93e4Hst_GG_WQd5R1k99mWGH_oFF3LfCLaN5aiBJTOqI6dHflUouMU7DFwJLnx_UKyhDSS1rxLneDhIyU7PlIVkQdq5Qzf",
+      "localHtmlPath": "docs/specs/TTB-101/stitch-refs/automated/2026-04-13T20-46-26-515Z/03-processing-failure-ttb-assistant.html",
+      "htmlFetchError": null
+    }
+  ]
+}

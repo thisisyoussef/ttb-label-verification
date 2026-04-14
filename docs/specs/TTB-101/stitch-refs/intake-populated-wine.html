@@ -1,0 +1,27 @@
+<!-- Intake - Populated (Wine) -->
+<!-- Key design decisions from Stitch:
+  - Two-column layout: left source-document (5/12), right form (7/12).
+  - Uploaded-state panel shows a 24x32 thumbnail, filename in mono, size in small label.
+  - Beverage class is a 3-up grid with icons + labels (Stitch used Spirits/Wine/Beer; canonical brief uses 4 options including Auto-detect).
+  - Wine details: 2-column Appellation + Vintage, then varietals table with running total bar.
+  - Origin is a segmented pair with country text input revealed when Imported is active.
+  - Primary action is a gradient pill anchored bottom-right of the form card.
+-->
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<title>TTB Label Verification Assistant - Intake (Wine)</title>
+</head>
+<body>
+  <!-- Tokens mirror intake-initial.html. See that file for the full Tailwind config block. -->
+  <!-- Full original Stitch HTML preserved below for reference during implementation. -->
+
+  <!-- Header, left column (Source Document card w/ thumbnail, filename, size, Remove), Right column (Label Specifications form with beverage class 3-up, wine appellation+vintage, varietals table, origin Domestic/Imported + country field, action bar with Verify Label gradient button) -->
+
+  <!-- Varietals table structure:
+    th: Varietal Name | Percentage (%) | (delete)
+    tr: Cabernet Sauvignon | 75% | x
+    tr: Merlot              | 10% | x
+    total: 85% (must equal 100% to qualify) + horizontal bar at 85% error color
+  -->
+</body></html>

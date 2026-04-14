@@ -23,3 +23,9 @@
 - Objective: create a checked-in packet for `TTB-WF-001` so the workflow is dogfooded
 - Dependency: `parallel`
 - Validation: `docs/specs/TTB-WF-001/` contains the four core artifacts
+
+## Task 5
+
+- Objective: enforce local commit/push hooks and add a publish gate for GitHub-facing handoffs
+- Dependency: `must-have`
+- Validation: `.githooks/` exists, `package.json` exposes the install/publish commands, and the workflow docs treat unpublished branches as blocked

@@ -15,6 +15,7 @@ The repo has a light harness, but it does not yet enforce the default gauntlet w
 - Standard feature work has a checked-in spec packet.
 - Behavior changes must run through RED -> GREEN -> REFACTOR.
 - Durable lessons survive in checked-in memory instead of chat only.
+- Review and acceptance handoffs cannot claim GitHub visibility until the story branch is actually published.
 
 ## Acceptance criteria
 
@@ -22,6 +23,7 @@ The repo has a light harness, but it does not yet enforce the default gauntlet w
 2. The repo has a checked-in single source of truth and memory-bank structure.
 3. `AGENTS.md` and `.ai/codex.md` enforce the new workflow.
 4. The repo has reusable spec templates for future stories.
+5. Repo-managed git hooks and a publish gate make unpublished branch state a workflow blocker instead of a reminder.
 
 ## Edge cases
 

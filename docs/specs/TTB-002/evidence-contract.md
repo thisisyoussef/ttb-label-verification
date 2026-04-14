@@ -8,6 +8,7 @@
 ## Surfaces affected
 
 - API route or handler: `POST /api/review`
+- staging route: `POST /api/review/warning`
 - Shared contract file: `src/shared/contracts/review.ts`
 - UI detail surfaces:
   - recommendation banner
@@ -31,6 +32,8 @@
   - authoritative rule references that justify the check
 - diff or comparison object:
   - warning canonical text vs extracted text diff payload
+  - warning diff segments walk left-to-right with `match`, `missing`, `wrong-character`, and `wrong-case`
+  - warning exact-text comparison normalizes whitespace only
   - field comparison metadata for fuzzy/cosmetic differences
 - cross-field evidence:
   - dependency checks such as imported-country, wine vintage/appellation, varietal totals, and spirits same-field-of-vision
@@ -55,6 +58,7 @@
   - citation objects or strings
   - warning sub-checks
   - warning diff payload
+  - warning-only staging route output using the shared `CheckReview` shape
   - cross-field checks
   - image-quality or low-confidence signals
   - mode metadata for standalone vs comparison
@@ -67,4 +71,5 @@
 
 - Preserve the top-level recommendation and ordered checklist model from `TTB-001`.
 - Standalone mode must suppress application comparison language without requiring a second endpoint.
+- Warning sub-check ordering is fixed by the approved UI handoff and must not drift.
 - The response model should remain serializable without storing or replaying the uploaded asset after the request completes.

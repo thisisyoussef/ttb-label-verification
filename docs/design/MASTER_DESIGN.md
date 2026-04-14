@@ -1,7 +1,19 @@
 # DESIGN.md
 ## TTB Label Verification App — Design System
 
+> **Concrete theme tokens live in [`INDUSTRIAL_PRECISION_THEME.md`](./INDUSTRIAL_PRECISION_THEME.md).** That file is the single source of truth for palette, typography, corner radius, and elevation — it maps directly to `tailwind.config.js`. This doc defines the principles and posture; the theme doc defines the values. When they disagree, update both so they agree.
+
 ---
+
+# PERSONA GUARDRAILS
+
+The design system must satisfy the full persona spectrum documented in `docs/reference/product-docs/ttb-user-personas.md`.
+
+- **Sarah Chen:** the product must look procurement-ready, serious, and fast enough to survive leadership demos.
+- **Dave Morrison:** the primary flows must feel zero-training, preserve reviewer judgment, and never add steps just to satisfy UI taste.
+- **Jenny Park:** dense surfaces still need expandable teaching context, citations, confidence signals, and a checklist mental model.
+- **Marcus Williams:** the product should signal operational seriousness, no-persistence posture, and future deployment realism even from the interface and supporting docs.
+- **Janet:** batch surfaces must feel first-class, not secondary afterthoughts, and should prioritize triage efficiency over decorative presentation.
 
 # DESIGN PHILOSOPHY
 

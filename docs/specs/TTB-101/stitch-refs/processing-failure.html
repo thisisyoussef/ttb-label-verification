@@ -1,0 +1,20 @@
+<!-- Processing - Failure State -->
+<!-- Key design decisions from Stitch (with deviations flagged for normalization):
+  - Same two-column shell as processing-active.
+  - Failed step: red error circle w/ close icon, row bg error-container/10, left border 4px error.
+  - Subsequent steps opacity 40, outline-variant circle with "pending" icon.
+  - Failure region below the steps: large heading, body copy, Try again (primary gradient) + Back to intake (surface-container-high) buttons.
+
+  DEVIATIONS FROM BRIEF — NORMALIZE DURING IMPLEMENTATION:
+  - Stitch invented step names ("Validating asset integrity", "OCR Extraction", "Health warning analysis", "Compliance scoring"). Canonical brief §6 step copy: "Reading label image", "Extracting structured fields", "Detecting beverage type", "Running deterministic checks", "Preparing evidence".
+  - Stitch added technical jargon in failure state: "PIPELINE_STATUS", "TS: 2024.10.12_14:22:01.442", "REF-2024-XP-091", "CHECKSUM_MATCH: 100% OK", "PARSED_TOKENS: 142 FOUND", "ERR_CONNECTION_DROPPED_LABEL_READ", "STATE: WAIT_FOR_PARENT", "System Log: Pipeline interrupted at Step 3 (id: CL-901-TRX)", "Verified 300 DPI". Brief §3 says "Never show raw error codes or technical language." Remove all jargon.
+  - Preserve the visual treatment of the failed step (red border, error-container background, close icon) and the failure region layout (heading + body + two actions).
+-->
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<title>TTB Label Verification Assistant - Failure</title>
+</head>
+<body>
+  <!-- Original HTML preserved in session transcript; visual skeleton transcribed above, jargon flagged. -->
+</body></html>

@@ -3,21 +3,21 @@
 ## Story
 
 - Story ID: `TTB-EVAL-001`
-- Title: six-label eval corpus and run discipline
+- Title: golden eval set foundation and run discipline
 
 ## AI behavior being changed
 
-This story does not change a model directly. It defines the baseline cases that every later extraction, validator, recommendation, and evidence-model change must evaluate against.
+This story does not change a model directly. It defines the golden cases and slices that every later extraction, validator, recommendation, evidence-model, batch, and error-handling change must evaluate against.
 
 ## Expected gain
 
-- Stable quality gate for later AI and validator work
+- Stable quality gate for later AI, validator, batch, and error-path work
 - Shared seeded-state language for Claude and Codex
 - Repeatable evidence for regressions and demo claims
 
 ## Failure modes to catch
 
-- prompt or validator changes that flip the expected recommendation for a baseline case
+- prompt or validator changes that flip the expected recommendation for a golden baseline case
 - warning defects being missed
 - cosmetic mismatches being treated as hard failures
 - low-quality images incorrectly upgraded to `pass`
@@ -25,15 +25,18 @@ This story does not change a model directly. It defines the baseline cases that 
 
 ## Eval inputs or dataset slice
 
-- `perfect-spirit-label`
-- `spirit-warning-errors`
-- `spirit-brand-case-mismatch`
-- `wine-missing-appellation`
-- `beer-forbidden-abv-format`
-- `low-quality-image`
+- `core-six`
+- `beverage-type-coverage`
+- `format-compliance`
+- `deterministic-comparison`
+- `cross-field-dependencies`
+- `government-warning-edge-cases`
+- `standalone-mode`
+- `batch-processing`
+- `error-handling`
 
 ## Pass criteria
 
-- Every implementation story can name the relevant cases it touches.
+- Every implementation story can name the smallest applicable golden slice it touches.
 - Every later eval run uses the checked-in result template.
-- The six baseline cases remain stable unless an explicit corpus change story is added.
+- The core six remain stable unless an explicit corpus change story is added, and the wider golden catalog stays slice-addressable.

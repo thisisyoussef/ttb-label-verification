@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Batch Upload - TTB Label Verification Assistant</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&amp;family=Work+Sans:wght@400;500;600&amp;family=Inter:wght@400;600;700&amp;family=IBM+Plex+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-bright": "#f9f9f8",
+                      "surface-dim": "#d4dcda",
+                      "on-tertiary-container": "#005c15",
+                      "on-tertiary-fixed-variant": "#12661e",
+                      "tertiary": "#1c6d25",
+                      "inverse-on-surface": "#9c9d9c",
+                      "tertiary-fixed": "#9df197",
+                      "on-primary": "#f0f9ff",
+                      "on-secondary": "#f2faff",
+                      "secondary-fixed": "#cbe7f5",
+                      "tertiary-container": "#9df197",
+                      "surface-container-highest": "#dee4e2",
+                      "secondary-container": "#cbe7f5",
+                      "background": "#f9f9f8",
+                      "on-tertiary-fixed": "#00460e",
+                      "primary-container": "#d7e4ec",
+                      "outline": "#767c7b",
+                      "error-dim": "#4e0309",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container-high": "#e5e9e8",
+                      "primary-fixed-dim": "#c9d6de",
+                      "on-secondary-container": "#3c5561",
+                      "secondary-dim": "#3d5762",
+                      "tertiary-fixed-dim": "#90e28a",
+                      "surface": "#f9f9f8",
+                      "on-background": "#2d3433",
+                      "on-primary-fixed-variant": "#515d64",
+                      "on-primary-container": "#47545a",
+                      "surface-tint": "#546067",
+                      "primary": "#546067",
+                      "on-surface": "#2d3433",
+                      "on-tertiary": "#eaffe2",
+                      "outline-variant": "#adb3b2",
+                      "error-container": "#fe8983",
+                      "inverse-surface": "#0c0f0e",
+                      "on-primary-fixed": "#354147",
+                      "error": "#9f403d",
+                      "primary-fixed": "#d7e4ec",
+                      "surface-variant": "#dee4e2",
+                      "surface-container": "#ebeeed",
+                      "secondary-fixed-dim": "#bdd9e6",
+                      "primary-dim": "#48545b",
+                      "on-surface-variant": "#5a6060",
+                      "inverse-primary": "#e6f3fb",
+                      "secondary": "#49636f",
+                      "on-error": "#fff7f6",
+                      "on-error-container": "#752121",
+                      "surface-container-low": "#f2f4f3",
+                      "tertiary-dim": "#096119",
+                      "on-secondary-fixed-variant": "#455f6b",
+                      "on-secondary-fixed": "#29434e"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "fontFamily": {
+                      "headline": ["Public Sans"],
+                      "body": ["Work Sans"],
+                      "label": ["Inter"],
+                      "mono": ["IBM Plex Mono"]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Work Sans', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+<!-- TopNavBar (Shared Component) -->
+<header class="bg-slate-50 dark:bg-slate-900 sticky top-0 z-50">
+<div class="flex justify-between items-center w-full px-6 py-3 max-w-[1920px] mx-auto font-['Public_Sans'] antialiased tracking-tight">
+<div class="text-lg font-bold tracking-tighter text-slate-800 dark:text-slate-100 uppercase">
+                TTB Label Verification Assistant
+            </div>
+<nav class="hidden md:flex gap-8 items-center">
+<a class="text-slate-500 dark:text-slate-400 font-medium hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors px-2 py-1" href="#">Single</a>
+<a class="text-slate-900 dark:text-white border-b-2 border-slate-700 dark:border-slate-300 font-semibold px-2 py-1" href="#">Batch</a>
+</nav>
+<div class="flex items-center gap-4">
+<span class="text-xs font-label text-on-surface-variant uppercase tracking-widest hidden lg:block">AI-assisted compliance checking</span>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<button class="p-2 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-slate-200/50 dark:bg-slate-800/50 h-px w-full"></div>
+</header>
+<main class="flex-grow max-w-[1920px] w-full mx-auto p-8 grid grid-cols-12 gap-8 items-start">
+<!-- Region 1 & 2: Upload Status & Matching Engine Summary -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+<section class="bg-surface-container-low p-6 rounded-lg">
+<h2 class="font-headline font-bold text-lg mb-6 uppercase tracking-tight text-on-surface border-l-4 border-primary pl-4">Dataset Status</h2>
+<div class="space-y-4">
+<!-- Image Upload Confirmation -->
+<div class="bg-surface-container-lowest p-4 rounded border-l-4 border-tertiary flex items-center gap-4">
+<div class="bg-tertiary-container text-on-tertiary-container p-3 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="photo_library">photo_library</span>
+</div>
+<div>
+<div class="text-xs font-label uppercase font-bold text-on-surface-variant">Label Images</div>
+<div class="font-headline text-xl font-extrabold text-on-surface">42 Files</div>
+<div class="text-[10px] font-mono text-tertiary">UPLOADED_SUCCESS</div>
+</div>
+</div>
+<!-- CSV Upload Confirmation -->
+<div class="bg-surface-container-lowest p-4 rounded border-l-4 border-tertiary flex items-center gap-4">
+<div class="bg-tertiary-container text-on-tertiary-container p-3 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+</div>
+<div class="overflow-hidden">
+<div class="text-xs font-label uppercase font-bold text-on-surface-variant">Application Data</div>
+<div class="font-headline text-xl font-extrabold text-on-surface truncate">applications.csv</div>
+<div class="text-[10px] font-mono text-tertiary">SCHEMA_VALIDATED</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Matching Logic Details -->
+<section class="bg-secondary-container p-6 rounded-lg border-l-4 border-secondary">
+<div class="flex items-start gap-3 mb-4">
+<span class="material-symbols-outlined text-on-secondary-container" data-icon="bolt">bolt</span>
+<h3 class="font-label font-bold text-on-secondary-container uppercase tracking-widest text-sm">Matching Engine Summary</h3>
+</div>
+<p class="text-sm text-on-secondary-container leading-relaxed">
+                    Matching logic: <span class="font-bold">filename priority</span> with sequential fallback. 
+                    The system attempts to align assets by string similarity before defaulting to CSV row order.
+                </p>
+<div class="mt-4 pt-4 border-t border-on-secondary-container/10">
+<div class="flex justify-between items-center mb-2">
+<span class="text-xs font-label text-on-secondary-container opacity-80">Alignment Score</span>
+<span class="text-xs font-mono font-bold text-on-secondary-container">88%</span>
+</div>
+<div class="w-full h-1 bg-on-secondary-container/10 rounded-full overflow-hidden">
+<div class="bg-on-secondary-container h-full" style="width: 88%"></div>
+</div>
+</div>
+</section>
+</div>
+<!-- Region 3: Inline Matching Workbench -->
+<div class="col-span-12 lg:col-span-8">
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant/15 overflow-hidden">
+<div class="bg-surface-container p-4 flex justify-between items-center">
+<h2 class="font-headline font-bold text-sm uppercase tracking-widest text-on-surface-variant">Matching Workbench</h2>
+<span class="bg-error-container text-on-error-container px-2 py-0.5 rounded text-[10px] font-bold">3 RESOLUTIONS REQUIRED</span>
+</div>
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant/10">
+<th class="px-4 py-3 text-[10px] font-label uppercase text-on-surface-variant font-bold">Asset Name</th>
+<th class="px-4 py-3 text-[10px] font-label uppercase text-on-surface-variant font-bold">Application Reference</th>
+<th class="px-4 py-3 text-[10px] font-label uppercase text-on-surface-variant font-bold text-right">Status</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<!-- Clean Match -->
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors">
+<td class="px-4 py-4 font-mono text-xs text-on-surface">bourbon_front.jpg</td>
+<td class="px-4 py-4">
+<span class="text-on-surface-variant">Row 1:</span> <span class="font-semibold text-on-surface">Old Oak Bourbon v1</span>
+</td>
+<td class="px-4 py-4 text-right">
+<span class="bg-tertiary-container/20 text-on-tertiary-container px-2 py-1 rounded-full text-[10px] font-bold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="check_circle">check_circle</span>
+                                    VERIFIED MATCH
+                                </span>
+</td>
+</tr>
+<!-- Ambiguous Match -->
+<tr class="border-b border-outline-variant/10 bg-secondary-container/5 hover:bg-secondary-container/10 transition-colors">
+<td class="px-4 py-4">
+<div class="font-mono text-xs text-on-surface flex items-center gap-2">
+                                    label_v2.png
+                                    <span class="material-symbols-outlined text-secondary text-sm" data-icon="help">help</span>
+</div>
+</td>
+<td class="px-4 py-4">
+<div class="flex flex-col gap-2">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="w-3 h-3 text-primary border-outline-variant focus:ring-0" name="ambig_1" type="radio"/>
+<span class="text-xs group-hover:text-primary">Row 5: <span class="font-semibold">Silver Gin (750ml)</span></span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="w-3 h-3 text-primary border-outline-variant focus:ring-0" name="ambig_1" type="radio"/>
+<span class="text-xs group-hover:text-primary">Row 8: <span class="font-semibold">Silver Gin (1.75L)</span></span>
+</label>
+</div>
+</td>
+<td class="px-4 py-4 text-right">
+<span class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded-full text-[10px] font-bold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="priority_high">priority_high</span>
+                                    AMBIGUOUS
+                                </span>
+</td>
+</tr>
+<!-- Unmatched Image -->
+<tr class="border-b border-outline-variant/10 bg-error-container/5 hover:bg-error-container/10 transition-colors">
+<td class="px-4 py-4 font-mono text-xs text-on-surface">unknown_asset.jpg</td>
+<td class="px-4 py-4">
+<select class="bg-surface-container-lowest border border-outline-variant/30 text-xs rounded px-2 py-1 w-full focus:border-primary focus:ring-0 outline-none">
+<option>Select target row...</option>
+<option>Row 15: Midnight Rum</option>
+<option>Row 19: Clear Creek Vodka</option>
+<option>Row 22: Highland Scotch</option>
+</select>
+</td>
+<td class="px-4 py-4 text-right">
+<span class="bg-error-container/20 text-on-error-container px-2 py-1 rounded-full text-[10px] font-bold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="link_off">link_off</span>
+                                    UNMATCHED ASSET
+                                </span>
+</td>
+</tr>
+<!-- Unmatched Row -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-4 py-4">
+<button class="flex items-center gap-2 text-[10px] font-label font-bold text-primary hover:underline">
+<span class="material-symbols-outlined text-sm" data-icon="upload">upload</span>
+                                    UPLOAD ASSET
+                                </button>
+</td>
+<td class="px-4 py-4">
+<span class="text-on-surface-variant">Row 12:</span> <span class="font-semibold text-on-surface">Mountain Ridge Whiskey</span>
+</td>
+<td class="px-4 py-4 text-right">
+<span class="bg-surface-container-high text-on-surface-variant px-2 py-1 rounded-full text-[10px] font-bold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="pending">pending</span>
+                                    MISSING LABEL
+                                </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Region 4: Action Bar -->
+<div class="mt-8 flex justify-end items-center gap-4 bg-surface-container-low p-4 rounded-lg">
+<button class="px-6 py-2 text-xs font-label font-bold text-on-surface-variant hover:text-on-surface transition-colors uppercase tracking-widest">
+                    Clear Batch
+                </button>
+<div class="relative group">
+<!-- Tooltip for disabled reason -->
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-on-surface text-surface text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none text-center">
+                        Resolve 3 conflicts to enable processing
+                    </div>
+<button class="bg-primary/40 text-on-primary/50 cursor-not-allowed px-8 py-3 rounded text-sm font-label font-bold uppercase tracking-tighter flex items-center gap-2 shadow-sm" disabled="">
+<span class="material-symbols-outlined text-lg" data-icon="play_arrow">play_arrow</span>
+                        Start Batch Run
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="bg-slate-100 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-8 py-4 gap-4 font-['Work_Sans'] text-xs tracking-wide uppercase">
+<div class="text-slate-600 dark:text-slate-400">
+                Nothing is stored. Inputs and results are discarded when you leave.
+            </div>
+<div class="flex gap-6">
+<a class="text-slate-500 dark:text-slate-400 hover:underline decoration-slate-400 transition-all ease-in-out" href="#">Privacy Policy</a>
+<a class="text-slate-500 dark:text-slate-400 hover:underline decoration-slate-400 transition-all ease-in-out" href="#">Compliance Standards</a>
+<a class="text-slate-500 dark:text-slate-400 hover:underline decoration-slate-400 transition-all ease-in-out" href="#">Support</a>
+</div>
+</div>
+</footer>
+</body></html>

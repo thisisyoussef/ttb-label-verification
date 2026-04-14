@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ComplianceEngine | TTB Workstation</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&amp;family=Work+Sans:wght@400;500;600&amp;family=Inter:wght@400;600;700&amp;family=IBM+Plex+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-error": "#fff7f6",
+                      "primary": "#546067",
+                      "background": "#f9f9f8",
+                      "tertiary-fixed-dim": "#90e28a",
+                      "tertiary-fixed": "#9df197",
+                      "tertiary-dim": "#096119",
+                      "on-secondary-fixed-variant": "#455f6b",
+                      "error": "#9f403d",
+                      "on-tertiary-fixed": "#00460e",
+                      "primary-fixed": "#d7e4ec",
+                      "surface": "#f9f9f8",
+                      "on-tertiary": "#eaffe2",
+                      "on-primary-container": "#47545a",
+                      "primary-container": "#d7e4ec",
+                      "on-primary-fixed": "#354147",
+                      "on-primary-fixed-variant": "#515d64",
+                      "secondary-fixed-dim": "#bdd9e6",
+                      "surface-container": "#ebeeed",
+                      "on-secondary-fixed": "#29434e",
+                      "inverse-on-surface": "#9c9d9c",
+                      "surface-container-highest": "#dee4e2",
+                      "surface-tint": "#546067",
+                      "secondary-fixed": "#cbe7f5",
+                      "error-dim": "#4e0309",
+                      "on-secondary": "#f2faff",
+                      "outline-variant": "#adb3b2",
+                      "inverse-surface": "#0c0f0e",
+                      "secondary-dim": "#3d5762",
+                      "on-surface-variant": "#5a6060",
+                      "primary-dim": "#48545b",
+                      "secondary-container": "#cbe7f5",
+                      "surface-dim": "#d4dcda",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-bright": "#f9f9f8",
+                      "on-tertiary-container": "#005c15",
+                      "error-container": "#fe8983",
+                      "tertiary-container": "#9df197",
+                      "secondary": "#49636f",
+                      "on-error-container": "#752121",
+                      "tertiary": "#1c6d25",
+                      "surface-container-high": "#e5e9e8",
+                      "on-primary": "#f0f9ff",
+                      "primary-fixed-dim": "#c9d6de",
+                      "on-background": "#2d3433",
+                      "on-surface": "#2d3433",
+                      "on-tertiary-fixed-variant": "#12661e",
+                      "surface-container-low": "#f2f4f3",
+                      "inverse-primary": "#e6f3fb",
+                      "outline": "#767c7b",
+                      "on-secondary-container": "#3c5561",
+                      "surface-variant": "#dee4e2"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "fontFamily": {
+                      "headline": ["Public Sans"],
+                      "body": ["Work Sans"],
+                      "label": ["Inter"],
+                      "mono": ["IBM Plex Mono"]
+              }
+            },
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            vertical-align: middle;
+        }
+        .popover-shadow {
+            box-shadow: 0px 4px 20px rgba(45, 52, 51, 0.06);
+        }
+        /* Custom scrollbar for high density views */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #adb3b2; border-radius: 2px; }
+    </style>
+</head>
+<body class="bg-background font-body text-on-surface antialiased">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 h-12 flex justify-between items-center px-6 w-full bg-slate-50 dark:bg-slate-900 font-['Public_Sans'] font-semibold tracking-tight text-sm">
+<div class="flex items-center gap-8">
+<span class="text-lg font-bold tracking-tighter text-slate-800 dark:text-slate-100">ComplianceEngine</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors ease-out duration-200" href="#">Dashboard</a>
+<a class="text-slate-900 dark:text-white border-b-2 border-slate-600 dark:border-slate-300 pb-1 ease-out duration-200" href="#">Inventory</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors ease-out duration-200" href="#">Archive</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors ease-out duration-200" href="#">Settings</a>
+</nav>
+</div>
+<div class="flex items-center gap-4 text-slate-600 dark:text-slate-300">
+<div class="flex items-center bg-slate-200/50 dark:bg-slate-800/50 px-3 py-1 rounded-lg">
+<span class="material-symbols-outlined text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-xs w-48" placeholder="Search workstation..." type="text"/>
+</div>
+<span class="material-symbols-outlined cursor-pointer hover:bg-slate-200/50 dark:hover:bg-slate-800/50 p-1 rounded transition-colors">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:bg-slate-200/50 dark:hover:bg-slate-800/50 p-1 rounded transition-colors">account_circle</span>
+</div>
+</header>
+<!-- SideNavBar (Left) -->
+<aside class="fixed left-0 top-12 h-screen w-64 border-r-0 bg-slate-100 dark:bg-slate-950 flex flex-col gap-1 p-3 font-['Work_Sans'] text-sm antialiased">
+<div class="mb-6 px-2">
+<div class="flex items-center gap-3 mb-1">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center text-primary font-bold">A</div>
+<div class="flex flex-col">
+<span class="font-['Public_Sans'] font-bold text-slate-900 dark:text-slate-50">Project Alpha</span>
+<span class="text-[10px] text-slate-500 uppercase tracking-tighter">Gov-ID: TTB-992-X</span>
+</div>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<div class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-900/80 transition-all duration-150 rounded cursor-pointer">
+<span class="material-symbols-outlined">analytics</span>
+<span>Overview</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold transition-all duration-150 rounded cursor-pointer">
+<span class="material-symbols-outlined">fact_check</span>
+<span>Verification</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-900/80 transition-all duration-150 rounded cursor-pointer">
+<span class="material-symbols-outlined text-error">rule_folder</span>
+<span>Discrepancies</span>
+<span class="ml-auto bg-error text-white text-[10px] px-1.5 rounded-full">14</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-900/80 transition-all duration-150 rounded cursor-pointer">
+<span class="material-symbols-outlined">history</span>
+<span>History</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-900/80 transition-all duration-150 rounded cursor-pointer">
+<span class="material-symbols-outlined">assessment</span>
+<span>Reports</span>
+</div>
+</nav>
+<div class="mt-auto p-2">
+<button class="w-full py-2 bg-primary text-white rounded font-semibold text-xs transition-all hover:opacity-90">New Audit</button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 mr-72 mt-12 p-8 min-h-screen">
+<!-- Verdict Header Area -->
+<div class="mb-8 flex justify-between items-start">
+<div>
+<h1 class="text-2xl font-headline font-bold tracking-tight mb-1 text-on-surface">Compliance Review: Batch #2024-08-A</h1>
+<p class="text-on-surface-variant text-sm">Submission timestamp: 2024-05-22 14:32:01 EST</p>
+</div>
+<div class="flex flex-col items-end gap-2">
+<div class="px-4 py-2 bg-error/10 border-l-4 border-error flex items-center gap-3">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">report</span>
+<span class="font-bold text-error uppercase tracking-wider text-sm">Recommend rejection</span>
+</div>
+<span class="text-[10px] font-mono text-on-surface-variant">System Confidence: 98.4%</span>
+</div>
+</div>
+<!-- Summary Stats (No-Line Principle) -->
+<div class="grid grid-cols-4 gap-4 mb-8">
+<div class="bg-surface-container-low p-4 border-l-4 border-tertiary">
+<div class="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest mb-1">Passed Checks</div>
+<div class="text-3xl font-headline font-bold">142</div>
+</div>
+<div class="bg-surface-container-low p-4 border-l-4 border-error">
+<div class="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest mb-1">Critical Failures</div>
+<div class="text-3xl font-headline font-bold">03</div>
+</div>
+<div class="bg-surface-container-low p-4 border-l-4 border-secondary">
+<div class="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest mb-1">Pending Manual Review</div>
+<div class="text-3xl font-headline font-bold">08</div>
+</div>
+<div class="bg-surface-container-low p-4 border-l-4 border-primary">
+<div class="text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest mb-1">Total Elements</div>
+<div class="text-3xl font-headline font-bold">153</div>
+</div>
+</div>
+<!-- Main Workspace: Verification Table -->
+<div class="bg-surface-container-lowest rounded shadow-sm">
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-4 px-6 py-3 border-b border-outline-variant/10 bg-surface-container-high/30 text-[10px] font-label font-bold text-on-surface-variant uppercase tracking-widest">
+<div class="col-span-1">Status</div>
+<div class="col-span-4">Regulation Check</div>
+<div class="col-span-2">Requirement</div>
+<div class="col-span-4">Result / Observation</div>
+<div class="col-span-1 text-right">Action</div>
+</div>
+<!-- Table Rows -->
+<div class="divide-y divide-outline-variant/5">
+<!-- Row 1: Brand Name (Pass) -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 items-center">
+<div class="col-span-1">
+<span class="flex items-center justify-center w-6 h-6 rounded-full bg-tertiary/10 text-tertiary">
+<span class="material-symbols-outlined text-sm">check</span>
+</span>
+</div>
+<div class="col-span-4 font-semibold text-sm">Brand Name Identity</div>
+<div class="col-span-2 text-xs font-mono text-on-surface-variant">27 CFR 16.21</div>
+<div class="col-span-4 flex items-center gap-2">
+<div class="px-2 py-0.5 rounded bg-tertiary-container/20 text-on-tertiary-container text-[10px] font-bold font-label uppercase">Consistent</div>
+<span class="text-xs text-on-surface-variant">Matched "OAK &amp; IRON" across all surfaces.</span>
+</div>
+<div class="col-span-1 text-right">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">chevron_right</span>
+</div>
+</div>
+<!-- Row 2: Government Warning (EXPANDED / FOCUS) -->
+<div class="bg-surface-container-low/50">
+<div class="grid grid-cols-12 gap-4 px-6 py-4 items-center border-l-4 border-error">
+<div class="col-span-1">
+<span class="flex items-center justify-center w-6 h-6 rounded-full bg-error/10 text-error">
+<span class="material-symbols-outlined text-sm">close</span>
+</span>
+</div>
+<div class="col-span-4 font-bold text-sm">Government Warning Row</div>
+<div class="col-span-2 text-xs font-mono text-on-surface-variant">27 CFR 16.22</div>
+<div class="col-span-4 flex items-center gap-2">
+<div class="px-2 py-0.5 rounded bg-error-container/20 text-on-error-container text-[10px] font-bold font-label uppercase">Critical Failure</div>
+<span class="text-xs text-on-surface">Punctuation and capitalization mismatch detected.</span>
+</div>
+<div class="col-span-1 text-right">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer transition-transform rotate-90">chevron_right</span>
+</div>
+</div>
+<!-- Expanded Panel Content -->
+<div class="px-16 py-6 bg-surface-container-lowest/50 border-t border-outline-variant/10">
+<div class="flex items-center gap-2 mb-4 relative">
+<h3 class="text-xs font-label font-bold text-on-surface-variant uppercase tracking-widest">Warning sub-checks</h3>
+<!-- Trigger Icon -->
+<span class="material-symbols-outlined text-sm text-primary cursor-pointer hover:text-primary-dim">info</span>
+<!-- Contextual Info Popover -->
+<div class="absolute left-48 top-0 z-[60] w-[320px] bg-surface-container-lowest popover-shadow rounded-lg p-4 border border-outline-variant/20">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-headline font-bold text-sm text-on-surface">Warning evidence</h4>
+<button class="text-[10px] font-label font-bold text-primary uppercase hover:underline">Close</button>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed mb-4">
+                                    These checks verify the specific text, formatting, and legibility required by Part 16 of the CFR. Use the diff below to inspect character-level discrepancies.
+                                </p>
+<!-- Popover Tail -->
+<div class="absolute -left-2 top-3 w-4 h-4 bg-surface-container-lowest border-l border-t border-outline-variant/20 rotate-[-45deg]"></div>
+</div>
+</div>
+<!-- High Density Results View (Industrial Monospace Diff) -->
+<div class="space-y-4">
+<div class="grid grid-cols-2 gap-4">
+<!-- Reference Column -->
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase">Statutory Reference</label>
+<div class="bg-surface-container-highest/40 p-3 font-mono text-xs leading-relaxed border-l-2 border-primary">
+                                        GOVERNMENT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy...
+                                    </div>
+</div>
+<!-- Captured Column -->
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase">Captured Label Text</label>
+<div class="bg-surface-container-highest/40 p-3 font-mono text-xs leading-relaxed border-l-2 border-error">
+                                        GOVERNMENT WARNING: (1) According to the Surgeon General women should not drink alcoholic beverages during pregnancy...
+                                    </div>
+<div class="flex items-center gap-1 text-error text-[10px] font-bold uppercase mt-1">
+<span class="material-symbols-outlined text-xs">error</span>
+                                        Missing Comma after "General"
+                                    </div>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded flex items-start gap-4">
+<div class="w-24 h-24 bg-white rounded border border-outline-variant/20 overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover grayscale contrast-125" data-alt="extreme close up of wine label typography showing printed ink texture and minor paper grain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcSWc9qwFv0SYh5z8o7f4X5-PKIYZQNntz5vTS491UzYlgk4VV9h3lajqKsEFKwv611a-nOS-h4tzqTSTA1EQanqlv_Pdaiqrtcdhcx855-MZozn26aMMMlhvzi7QTZm8SyHse8DkKL05x0-qkSS3oNW1ZqX007tWxgEHwp9xujQCrHb7cNEfaIEfWlCVbpDNMgLEcDffnnxQ6y2sW52fKpFqU9xDa3J7o8RdTwDOm0G-uajmTcz0f-bTC9GZhN8TdHolZN9PQcxQ"/>
+</div>
+<div>
+<div class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">OCR Confidence Visual</div>
+<p class="text-xs text-on-surface-variant max-w-md">Segment ID: TTB-992-X-WARN-01. Image captured at 600dpi. Segment isolation confirms the omission of punctuation mark at index 142.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Row 3: Alcohol Content (Pass) -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 items-center">
+<div class="col-span-1">
+<span class="flex items-center justify-center w-6 h-6 rounded-full bg-tertiary/10 text-tertiary">
+<span class="material-symbols-outlined text-sm">check</span>
+</span>
+</div>
+<div class="col-span-4 font-semibold text-sm">Alcohol Content Declaration</div>
+<div class="col-span-2 text-xs font-mono text-on-surface-variant">27 CFR 16.33</div>
+<div class="col-span-4 flex items-center gap-2">
+<div class="px-2 py-0.5 rounded bg-tertiary-container/20 text-on-tertiary-container text-[10px] font-bold font-label uppercase">Valid</div>
+<span class="text-xs text-on-surface-variant">14.2% ALC./VOL. detected. Format compliant.</span>
+</div>
+<div class="col-span-1 text-right">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- SideNavBar (Right) - Process Status -->
+<aside class="fixed right-0 top-12 h-screen w-72 bg-slate-100/85 dark:bg-slate-950/85 backdrop-blur-xl flex flex-col border-l border-slate-200 dark:border-slate-800 font-['Inter'] text-xs uppercase tracking-widest shadow-2xl dark:shadow-none">
+<div class="p-4 border-b border-slate-200 dark:border-slate-800">
+<h2 class="font-bold text-slate-800 dark:text-slate-100 mb-1">Guided Review</h2>
+<p class="text-[10px] opacity-60">Process Compliance</p>
+</div>
+<nav class="flex flex-col flex-1">
+<div class="flex items-center gap-3 p-4 text-slate-400 opacity-60 hover:opacity-100 transition-all cursor-pointer">
+<span class="material-symbols-outlined">looks_one</span>
+<span>Step 1: Check</span>
+<span class="material-symbols-outlined ml-auto text-tertiary text-sm">check_circle</span>
+</div>
+<div class="flex items-center gap-3 p-4 border-l-4 border-slate-600 dark:border-slate-400 bg-white/50 dark:bg-slate-900/50 transition-all cursor-pointer">
+<span class="material-symbols-outlined">looks_two</span>
+<span class="text-slate-900 dark:text-white font-bold">Step 2: Match</span>
+</div>
+<div class="flex items-center gap-3 p-4 text-slate-400 opacity-60 hover:opacity-100 transition-all cursor-pointer">
+<span class="material-symbols-outlined">looks_3</span>
+<span>Step 3: Log</span>
+</div>
+<div class="flex items-center gap-3 p-4 text-slate-400 opacity-60 hover:opacity-100 transition-all cursor-pointer">
+<span class="material-symbols-outlined">check_circle</span>
+<span>Complete</span>
+</div>
+</nav>
+<div class="p-4 mt-auto space-y-4">
+<div class="p-3 bg-surface-container-high rounded-lg normal-case tracking-normal">
+<div class="text-[10px] font-bold text-on-surface-variant uppercase mb-2">Internal Note</div>
+<p class="text-[11px] text-on-surface leading-tight">Label fails mandatory health warning punctuation check. Rejecting for non-compliance with 27 CFR Part 16.</p>
+</div>
+<button class="w-full py-3 bg-error text-on-error font-bold rounded-lg flex items-center justify-center gap-2 hover:opacity-90">
+<span class="material-symbols-outlined text-sm">block</span>
+                CONFIRM REJECTION
+            </button>
+</div>
+</aside>
+</body></html>
