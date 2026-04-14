@@ -5,10 +5,10 @@ import {
   batchDashboardResponseSchema,
   batchExportPayloadSchema,
   batchStreamFrameSchema,
-  type BatchStartRequest,
+  type BatchStartRequest
 } from '../shared/contracts/review';
+import { type ExtractionMode } from './ai-provider-policy';
 import type { LlmEndpointSurface } from './llm-policy';
-import { REVIEW_EXTRACTION_MODE } from './llm-policy';
 import { runTracedReviewSurface } from './llm-trace';
 import {
   createReviewExtractionFailure,
@@ -36,8 +36,16 @@ import type {
 
 export class BatchSessionStore {
   private readonly sessions = new Map<string, BatchSession>();
+  private readonly extractor: ReviewExtractor;
+  private readonly extractionMode: ExtractionMode;
 
-  constructor(private readonly extractor: ReviewExtractor) {}
+  constructor(input: {
+    extractor: ReviewExtractor;
+    extractionMode: ExtractionMode;
+  }) {
+    this.extractor = input.extractor;
+    this.extractionMode = input.extractionMode;
+  }
 
   createPreflight(input: {
     manifest: unknown;
@@ -241,7 +249,7 @@ export class BatchSessionStore {
     try {
       const report = await runTracedReviewSurface({
         surface: input.surface,
-        extractionMode: REVIEW_EXTRACTION_MODE,
+        extractionMode: this.extractionMode,
         clientTraceId: [input.surface, input.assignment.image.id].join(':'),
         intake,
         extractor: this.extractor,

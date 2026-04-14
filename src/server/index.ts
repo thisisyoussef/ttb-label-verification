@@ -18,15 +18,15 @@ import {
 import { LOCAL_HELP_MANIFEST } from '../shared/help-fixture';
 import { BatchSessionStore } from './batch-session';
 import {
-  createOpenAIReviewExtractor,
-  readReviewExtractionConfig
-} from './openai-review-extractor';
+  DEFAULT_EXTRACTION_MODE,
+  type ExtractionMode
+} from './ai-provider-policy';
 import {
   runTracedExtractionSurface,
   runTracedReviewSurface,
   runTracedWarningSurface
 } from './llm-trace';
-import { REVIEW_EXTRACTION_MODE } from './llm-policy';
+import { createConfiguredReviewExtractor } from './review-extractor-factory';
 import { type ReviewExtractor } from './review-extraction';
 import {
   handleBatchUpload,
@@ -45,6 +45,7 @@ const defaultClientDistDir = path.resolve(serverDir, '../../dist');
 type CreateAppOptions = {
   clientDistDir?: string;
   extractor?: ReviewExtractor;
+  extractionMode?: ExtractionMode;
 };
 
 function readClientTraceId(request: express.Request) {
@@ -58,12 +59,14 @@ export function createApp(options: CreateAppOptions = {}) {
   const clientIndexPath = path.join(clientDistDir, 'index.html');
   const hasBuiltClient = existsSync(clientIndexPath);
   const extractorResolution = resolveExtractor(options);
-  const batchSessions = new BatchSessionStore(
-    extractorResolution.extractor ??
+  const batchSessions = new BatchSessionStore({
+    extractor:
+      extractorResolution.extractor ??
       (async () => {
         throw new Error('Extractor unavailable.');
-      })
-  );
+      }),
+    extractionMode: extractorResolution.extractionMode
+  });
 
   app.use(express.json({ limit: '1mb' }));
 
@@ -103,7 +106,7 @@ export function createApp(options: CreateAppOptions = {}) {
       response.json(
         await runTracedReviewSurface({
           surface: '/api/review',
-          extractionMode: REVIEW_EXTRACTION_MODE,
+          extractionMode: extractorResolution.extractionMode,
           clientTraceId: readClientTraceId(request),
           intake,
           extractor: extractorResolution.extractor
@@ -125,7 +128,7 @@ export function createApp(options: CreateAppOptions = {}) {
 
       const extraction = await runTracedExtractionSurface({
         surface: '/api/review/extraction',
-        extractionMode: REVIEW_EXTRACTION_MODE,
+        extractionMode: extractorResolution.extractionMode,
         clientTraceId: readClientTraceId(request),
         intake,
         extractor: extractorResolution.extractor
@@ -147,7 +150,7 @@ export function createApp(options: CreateAppOptions = {}) {
 
       const warningCheck = await runTracedWarningSurface({
         surface: '/api/review/warning',
-        extractionMode: REVIEW_EXTRACTION_MODE,
+        extractionMode: extractorResolution.extractionMode,
         clientTraceId: readClientTraceId(request),
         intake,
         extractor: extractorResolution.extractor
@@ -294,26 +297,36 @@ if (process.env.NODE_ENV !== 'test') {
 function resolveExtractor(options: CreateAppOptions):
   | {
       extractor: ReviewExtractor;
+      extractionMode: ExtractionMode;
     }
   | {
       extractor?: undefined;
+      extractionMode: ExtractionMode;
       status: number;
       error: ReviewError;
     } {
   if (options.extractor) {
     return {
-      extractor: options.extractor
+      extractor: options.extractor,
+      extractionMode: options.extractionMode ?? DEFAULT_EXTRACTION_MODE
     };
   }
 
-  const configResult = readReviewExtractionConfig(process.env);
-  if (!configResult.success) {
-    return configResult;
+  const resolution = createConfiguredReviewExtractor({
+    env: process.env,
+    requestedMode: options.extractionMode
+  });
+  if (!resolution.success) {
+    return {
+      extractor: undefined,
+      extractionMode: resolution.extractionMode ?? DEFAULT_EXTRACTION_MODE,
+      status: resolution.status,
+      error: resolution.error
+    };
   }
 
   return {
-    extractor: createOpenAIReviewExtractor({
-      config: configResult.value
-    })
+    extractor: resolution.value.extractor,
+    extractionMode: resolution.value.extractionMode
   };
 }

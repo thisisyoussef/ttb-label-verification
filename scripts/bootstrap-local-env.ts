@@ -1,5 +1,6 @@
 import { readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { DEFAULT_LANGSMITH_PROJECT } from '../src/server/langsmith-config';
 import { parseDotEnvFile } from '../src/server/load-local-env';
@@ -8,6 +9,16 @@ const DEFAULT_ENV_VALUES = {
   OPENAI_MODEL: 'gpt-5.4-mini',
   OPENAI_VISION_MODEL: 'gpt-5.4',
   OPENAI_STORE: 'false',
+  GEMINI_API_KEY: '',
+  GEMINI_VISION_MODEL: '',
+  GEMINI_TEXT_MODEL: '',
+  GEMINI_EMBEDDING_MODEL: '',
+  AI_CAPABILITY_DEFAULT_ORDER: 'openai,gemini',
+  AI_CAPABILITY_LABEL_EXTRACTION_ORDER: 'openai',
+  AI_EXTRACTION_MODE_DEFAULT: 'cloud',
+  AI_EXTRACTION_MODE_ALLOW_LOCAL: 'false',
+  OLLAMA_HOST: 'http://localhost:11434',
+  OLLAMA_LABEL_EXTRACTION_MODEL: '',
   LANGSMITH_API_KEY: '',
   LANGSMITH_PROJECT: DEFAULT_LANGSMITH_PROJECT,
   LANGSMITH_TRACING: 'false',
@@ -27,6 +38,8 @@ const OPENAI_ENV_KEY = 'OPENAI_API_KEY';
 const LANGSMITH_ENV_KEY = 'LANGSMITH_API_KEY';
 const orderedKeys = [
   OPENAI_ENV_KEY,
+  'GEMINI_API_KEY',
+  'OLLAMA_HOST',
   LANGSMITH_ENV_KEY,
   ...Object.keys(DEFAULT_ENV_VALUES)
 ] as const;
@@ -130,11 +143,15 @@ function describeKeySource(targetKey: string, source: KeySource) {
   return `${sourceLabel} redacted from ${source.sourcePath}`;
 }
 
-function renderEnvFile(values: Record<string, string>) {
+export function renderEnvFile(values: Record<string, string>) {
   const orderedEntries: Array<[string, string]> = [];
   const seenKeys = new Set<string>();
 
   for (const key of orderedKeys) {
+    if (seenKeys.has(key)) {
+      continue;
+    }
+
     const value = values[key];
     if (value === undefined) {
       continue;
@@ -216,4 +233,6 @@ function main() {
   }
 }
 
-main();
+if (path.resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url)) {
+  main();
+}

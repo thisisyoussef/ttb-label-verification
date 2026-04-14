@@ -375,6 +375,7 @@ describe('LLM route trace surfaces', () => {
     expect(traceInput?.intake.fields.brandName).toBe('Trace Brand');
   });
 
+
   it('routes /api/review/extraction through the traced extraction surface', async () => {
     const extractor = vi.fn().mockResolvedValue(buildExtractionPayload());
     const server = await startServer({ extractor });

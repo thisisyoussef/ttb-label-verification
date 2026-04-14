@@ -55,6 +55,7 @@
 - Fixture-backed OpenAI clients are the preferred eval seam for route-aware LLM tests in this repo: they exercise the real extractor contract while keeping LangSmith traces privacy-safe and deterministic.
 - Route-aware golden evals should live beside reusable support modules (`evals/llm/support/*`) and select manifest slices by endpoint surface before any broader corpus expansion.
 - Cache-friendly request structuring is acceptable only for static prefixes; provider features that create durable storage of user-bearing content are not valid baseline latency solutions in this repo.
+- Model-backed routes should resolve through one typed provider-policy module plus one extractor factory, not by instantiating provider SDKs directly in route or batch code.
 - Seed fixtures unlock UI progress before live backend integration.
 - For established UI shells that need live wiring, add a pure client runtime adapter (`src/client/batch-runtime.ts`) so API-to-view-model mapping stays testable outside React components.
 - The golden eval set is part of the product contract, not optional test garnish. The core-six live subset is only the first slice, not the whole corpus.
