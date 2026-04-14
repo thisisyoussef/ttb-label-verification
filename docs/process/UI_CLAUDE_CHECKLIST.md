@@ -37,7 +37,7 @@ Use this checklist whenever Claude is the active lane owner for a story.
 
 - [ ] Treat the story packet as the shared contract for both agents. Update the UI-facing parts without forking a second spec tree.
 - [ ] Treat `story-packet.md` as a valid compact planning artifact, but do not stay there once active UI implementation starts.
-- [ ] Update `docs/specs/<story-id>/ui-component-spec.md` with problem, users, flows, IA/layout, states, copy, constraints, backend data needs, frozen constraints, and open questions.
+- [ ] Update `docs/specs/<story-id>/ui-component-spec.md` with problem, users, flows, IA/layout, states, copy, constraints, backend data needs, hard constraints, flexible implementation space, and open questions.
 - [ ] Create or update `docs/specs/<story-id>/stitch-screen-brief.md` only when the current pass uses Stitch.
 - [ ] Default path: keep `STITCH_FLOW_MODE=claude-direct`, implement directly from the checked-in design context, and stop for user visual review.
 - [ ] Automated path: only run `npm run stitch:story -- <story-id>` when the pass is explicitly set to `STITCH_FLOW_MODE=automated`, then record the generated Stitch refs in the packet.
@@ -70,7 +70,7 @@ Use this checklist whenever Claude is the active lane owner for a story.
 - [ ] Create or update `docs/backlog/codex-handoffs/<story-id>.md`.
 - [ ] **Reconcile the packet again.** Update `story-packet.md` so its Claude-lane status reflects `done` (UI approved) and its Codex-lane status reflects `ready-for-codex`, and so its task breakdown and working-artifacts list point at the final UI spec, Stitch refs, and handoff doc. If the packet's constitution check still reads as "UI only" when the story actually has a Codex lane, rewrite it lane-scoped before handoff.
 - [ ] Set the handoff status to `ready-for-codex` only after explicit user approval.
-- [ ] List the Stitch image reference, the Stitch HTML/code reference, touched `src/client/**` files, approved routes/views, frozen layout/copy/interaction constraints, relevant eval scenarios, backend data needs, supported states, privacy/latency constraints, and open engineering questions.
+- [ ] List the Stitch image reference, the Stitch HTML/code reference, touched `src/client/**` files, approved routes/views, hard constraints/non-negotiables, flexible areas Codex may change, relevant eval scenarios, backend data needs, supported states, privacy/latency constraints, and open engineering questions.
 - [ ] Update `docs/process/SINGLE_SOURCE_OF_TRUTH.md` with the new status and next owner.
 - [ ] Stop the current story.
 - [ ] If the user explicitly asks for engineering on that same story, tell them to switch to Codex and point to `docs/specs/<story-id>/` plus `docs/backlog/codex-handoffs/<story-id>.md`.

@@ -3,7 +3,7 @@
 ## Story
 
 - Story ID: `TTB-207`
-- Title: Gemini-primary label extraction with OpenAI fallback and cross-provider validation
+- Title: cloud extraction mode: Gemini-primary with OpenAI fallback and cross-provider validation
 - Lane: Codex-only
 
 ## Non-negotiables

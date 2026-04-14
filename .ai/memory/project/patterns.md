@@ -21,8 +21,9 @@
 
 ## Product pattern
 
-- Claude owns frontend design in `src/client/**` and hands approved UI to Codex through `docs/backlog/codex-handoffs/`.
-- Codex may wire approved `src/client/**` surfaces to live behavior as long as the design contract stays fixed.
+- Claude owns the initial frontend design pass in `src/client/**` and hands approved UI to Codex through `docs/backlog/codex-handoffs/`.
+- A `ready-for-codex` handoff establishes the starting UI plus any hard constraints; it does not freeze every future client edit.
+- Codex may wire approved `src/client/**` surfaces to live behavior and make story-scoped UI refinements when those changes stay aligned with the story intent and design system.
 - Approved results UI should render the `VerificationReport` returned by `/api/review` directly; seeded scenarios are a dev-only fallback, not the primary runtime path.
 - Dev-only scenario and batch seed controls should be explicitly gated by fixture-mode rules instead of remaining visible in normal runtime behavior.
 - Claude now defaults to `STITCH_FLOW_MODE=claude-direct` and implements UI directly from the checked-in packet and design context; automated Stitch and manual Comet are explicit per-pass alternatives instead of the default.
@@ -40,12 +41,17 @@
 - Validator work can follow the same pattern with a narrow staging route (`POST /api/review/warning`) as long as the validator itself remains a pure reusable module for the later full aggregation story.
 - Once the staging slices exist, the production review route should cut over by composing those same pure modules into a dedicated report builder (`src/server/review-report.ts`) rather than duplicating comparison logic inside `src/server/index.ts`.
 - Batch mode should follow the same pattern: keep parsing/matching/session orchestration in focused server modules, and let `src/server/index.ts` remain a thin route composition layer.
-- Model-provider selection should route through a capability policy instead of direct provider checks inside routes: planned `TTB-206` defaults non-image capabilities to `openai,gemini`, while planned `TTB-207` gives label extraction its own `gemini,openai` order.
+- Extraction routing should split mode from provider: planned `TTB-206` resolves `cloud` vs `local` first, planned `TTB-207` gives cloud label extraction its own `gemini,openai` order, and planned `TTB-212` adds a local Ollama/Qwen path without cross-mode fallback.
 - Gemini multimodal extraction should use the native Google GenAI path with inline image/PDF bytes plus structured JSON output, not the Gemini Files API and not the OpenAI-compat layer for the core extraction path.
 - Latency tuning should follow a two-step pattern: instrument stage timing first, then optimize the measured hot leg, and only after proof cut the visible `latencyBudgetMs` contract to the tighter target.
+- Prompt hardening should follow the same central-policy pattern as extraction routing: one shared extraction baseline, route-specific overlays for review/extraction/warning/batch, mode-specific overlays for cloud/local limits, and structural guardrails after schema parse instead of prompt strings embedded in route handlers.
+- LLM evaluation should stay endpoint-aware, mode-aware, and persona-aware: score the route graph the way Sarah, Dave, Jenny, Marcus, and Janet experience it instead of relying on corpus accuracy alone.
+- Shared extraction tracing should wrap the capability once and feed the route surface into the wrapper instead of duplicating trace plumbing in each handler.
+- Fixture-backed OpenAI clients are the preferred eval seam for route-aware LLM tests in this repo: they exercise the real extractor contract while keeping LangSmith traces privacy-safe and deterministic.
+- Route-aware golden evals should live beside reusable support modules (`evals/llm/support/*`) and select manifest slices by endpoint surface before any broader corpus expansion.
 - Cache-friendly request structuring is acceptable only for static prefixes; provider features that create durable storage of user-bearing content are not valid baseline latency solutions in this repo.
 - Seed fixtures unlock UI progress before live backend integration.
-- For frozen UI shells that need live wiring, add a pure client runtime adapter (`src/client/batch-runtime.ts`) so API-to-view-model mapping stays testable outside React components.
+- For established UI shells that need live wiring, add a pure client runtime adapter (`src/client/batch-runtime.ts`) so API-to-view-model mapping stays testable outside React components.
 - The golden eval set is part of the product contract, not optional test garnish. The core-six live subset is only the first slice, not the whole corpus.
 - LangSmith tracing is a local engineering tool, not runtime product behavior; it should only capture approved fixtures or sanitized inputs and should never be left on for staging or production traffic.
 - Every compliance rule should be traceable through `docs/rules/RULE_SOURCE_INDEX.md`.
@@ -53,6 +59,9 @@
 - Warning text comparison should normalize whitespace only, keep punctuation/case literal, and shape phrase-level diff segments to match the approved UI evidence contract.
 - Future tutorial/help work should be optional and replayable, with critical guidance inline or in accessible panels/dialogs rather than hidden in tooltip-only affordances.
 - Shared help content should follow the same contract-first pattern as review payloads: keep semantic anchor keys and manifest validation in `src/shared/contracts`, store canonical English fixture content in shared code, serve it through a stateless route, and let the client keep a local fallback instead of duplicating help copy in UI-only modules.
+- Guided tours should resolve against live runtime state through a dedicated helper rather than assuming the happy path in component code; each step needs explicit recovery actions for missing prerequisites and a deterministic demo path when the flow must continue without live backend work.
+- When a guided-tour target triggers async work in the real app, keep "interaction advance" separate from "footer Next": target clicks should wait for the downstream state transition before advancing, and failures should recover into a deterministic demo state instead of leaving the next step without its anchor.
+- Overlay callouts that depend on spotlighted targets should measure their rendered height and clamp to viewport-safe margins instead of relying on fixed-height estimates; long procedural copy is normal in this product.
 
 ## Documentation pattern
 

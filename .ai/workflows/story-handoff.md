@@ -85,7 +85,7 @@ Use when:
 
 - Claude finished the approved UI slice for a UI-first story
 - the user has already confirmed the visual direction
-- Codex must continue engineering without changing the frontend design
+- Codex must continue engineering from the approved UI starting point and may still make scoped UI refinements during implementation
 
 What to include:
 
@@ -93,13 +93,14 @@ What to include:
 - Stitch image reference and Stitch HTML/code reference when Stitch was used
 - approved route or local URL
 - files touched in `src/client/**`
-- frozen layout, copy, styling, and interaction constraints
+- hard constraints / non-negotiables Codex must preserve
+- flexible areas Codex may change without a second Claude pass
 - required backend, contract, validator, and test work
 - open questions or blockers
 
 Stop rule:
 
-- Codex should not begin a UI-first engineering story until this backlog handoff exists and is marked `ready-for-codex`.
+- Codex should not begin a UI-first engineering story until this backlog handoff exists and is marked `ready-for-codex`. After that, Codex may make story-scoped UI changes directly and should hand back only when a broader redesign or new direction is needed.
 
 ### 6. QA-style handoff
 

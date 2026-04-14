@@ -98,7 +98,7 @@ Phase B: Codex engineering pass
 
 Gate rule:
 
-- If a story has material UI scope, Codex waits until Claude finishes the UI phase and the handoff is `ready-for-codex`.
+- If a story has material UI scope, Codex waits until Claude finishes the initial UI phase and the handoff is `ready-for-codex`.
 - If a Codex-only story has no pending dependency on unapproved UI, the tracker may mark it parallel-safe so Codex can execute it while Claude continues a different UI story.
 - If a story has no material UI scope, Codex may proceed without a Claude handoff.
 - If a story is UI-only, Claude may finish the packet without Codex implementation work.
@@ -121,7 +121,7 @@ Gate rule:
    - Claude implements the UI against those Stitch references
    - Claude stops for user visual review
    - Claude writes `docs/backlog/codex-handoffs/<story-id>.md` after approval
-   - Codex follows `docs/process/CODEX_CHECKLIST.md` and completes the rest of the same packet only after the handoff is `ready-for-codex`
+   - Codex follows `docs/process/CODEX_CHECKLIST.md` and completes the rest of the same packet only after the handoff is `ready-for-codex`, with room for story-scoped UI refinements during engineering
 7. Fill the non-UI packet in this order:
    - constitution check
    - feature spec

@@ -7,4 +7,6 @@
 - Known future dependency: rule-ingestion work will need authoritative TTB source normalization before production-grade validators can be completed.
 - Known future dependency: live Gemini migration work under `TTB-206` and `TTB-207` still needs repo-local bootstrap support plus a usable `GEMINI_API_KEY` before the cutover can be exercised.
 - Known future dependency: the tighter `<= 4,000 ms` target cannot be claimed until `TTB-208` and `TTB-209` add real stage timing and optimize the hot path against the approved fixture slice.
-- Known future dependency: `TTB-401` remains blocked on Claude/Codex completing `TTB-107` and `TTB-209`.
+- Known future dependency: the restricted-network local-mode plan (`TTB-212`) still needs Ollama availability plus a usable local model footprint before it can be exercised.
+- Known future dependency: `TTB-210` still needs to replace the current hard-coded prompt-profile and guardrail identifiers with the planned shared policy module before the full hardening sequence can close cleanly.
+- Known future dependency: `TTB-401` now remains blocked on Claude/Codex completing `TTB-107`, `TTB-108`, and `TTB-211`.

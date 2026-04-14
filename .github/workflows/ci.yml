@@ -30,6 +30,20 @@ jobs:
       - name: Run tests
         run: npm run test
 
+      - name: Run golden LLM evals
+        env:
+          LANGSMITH_API_KEY: ${{ secrets.LANGSMITH_API_KEY }}
+          LANGSMITH_PROJECT: ttb-label-verification-dev
+        run: |
+          if [ -n "${LANGSMITH_API_KEY:-}" ]; then
+            export LANGSMITH_TRACING=true
+            export LANGSMITH_TEST_TRACKING=true
+          else
+            export LANGSMITH_TRACING=false
+            export LANGSMITH_TEST_TRACKING=false
+          fi
+          npm run eval:golden
+
       - name: Run typecheck
         run: npm run typecheck
 

@@ -3,7 +3,7 @@
 ## Story
 
 - Story ID: `TTB-206`
-- Title: provider routing foundation and privacy-safe Gemini/OpenAI capability policy
+- Title: extraction mode routing foundation and privacy-safe cloud/local provider policy
 
 ## Checks
 
@@ -12,6 +12,7 @@
 - [ ] The target Gemini project keeps AI Studio logging and dataset sharing disabled.
 - [ ] No provider adapter logs raw label bytes, raw prompt bodies, or full raw model responses.
 - [ ] Unsupported-provider and privacy-policy failures do not fall through to a second provider automatically.
+- [ ] Explicit local-mode selection does not fall through to cloud providers automatically.
 
 ## Negative verification
 

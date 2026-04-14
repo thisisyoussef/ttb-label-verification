@@ -2,7 +2,7 @@
 
 ## Scope
 
-Move the live label-extraction path to Gemini-first while preserving the existing typed extraction contract and keeping OpenAI available as the bounded fallback provider.
+Move the default cloud label-extraction path to Gemini-first while preserving the existing typed extraction contract and keeping OpenAI available as the bounded fallback provider inside cloud mode.
 
 ## Planned modules and files
 
@@ -11,15 +11,15 @@ Move the live label-extraction path to Gemini-first while preserving the existin
 - `src/server/gemini-review-extractor.test.ts`
   - request-building, normalization, and provider-failure coverage
 - `src/server/ai-provider-policy.ts`
-  - consume the `label-extraction=gemini,openai` order and enforce fast-fail fallback rules
+  - consume the `cloud` mode plus `label-extraction=gemini,openai` order and enforce fast-fail fallback rules
 - `src/server/review-extractor-factory.ts`
-  - instantiate Gemini first, OpenAI second, and return the winning provider
+  - instantiate Gemini first, OpenAI second, and return the winning cloud provider
 - `src/server/openai-review-extractor.ts`
   - remain the fallback adapter with existing Responses + `store: false` behavior
 - `src/server/index.ts`
-  - route `/api/review`, `/api/review/extraction`, and `/api/review/warning` through the Gemini-primary factory path
+  - route `/api/review`, `/api/review/extraction`, and `/api/review/warning` through the Gemini-primary cloud factory path
 - `src/server/batch-session.ts`
-  - inherit the same label-extraction provider order for item processing
+  - inherit the same cloud-mode label-extraction provider order for item processing
 - `scripts/bootstrap-local-env.ts`
   - add Gemini keys/models and provider-order defaults
 
@@ -68,6 +68,7 @@ The repo’s current upload cap is 10 MB, which fits under Gemini’s documented
   - immediate connection / DNS / TLS failures
   - explicit retriable schema/transport failures classified by the adapter
 - Fail-closed, no fallback:
+  - explicit `local` execution mode
   - Gemini Files API requirement
   - privacy-policy violation
   - unsupported capability mismatch

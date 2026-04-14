@@ -3,7 +3,7 @@
 ## Story
 
 - Story ID: `TTB-208`
-- Title: latency observability and sub-4-second budget framing
+- Title: cloud/default latency observability and sub-4-second budget framing
 - Parent: `TTB-002`
 - Primary lane: Codex
 - Packet mode: standard

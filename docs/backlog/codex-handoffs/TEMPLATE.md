@@ -19,14 +19,14 @@
 - Approved on:
 - Visual review notes:
 
-## Frozen UI scope
+## Established UI scope
 
 - Screens or views in scope:
 - `src/client/**` files touched:
 - Interaction states approved:
 - Relevant eval scenarios or label cases:
-- Copy constraints Codex must preserve:
-- Layout or styling constraints Codex must preserve:
+- Hard constraints / non-negotiables Codex must preserve:
+- Flexible areas Codex may adjust during engineering:
 
 ## Required Codex engineering work
 
@@ -44,7 +44,7 @@
 
 ## Follow-ups back to Claude
 
-- Use this section only if Codex finds a required UI change after engineering starts.
+- Use this section only if Codex needs a broader redesign, a new screen concept, or a fresh Stitch/user-review loop after engineering starts.
 
 ## Completion notes
 

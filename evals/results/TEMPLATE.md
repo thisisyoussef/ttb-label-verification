@@ -9,6 +9,16 @@
 
 - `core-six`
 
+## Endpoint context
+
+- Endpoint surface:
+- Provider:
+- Prompt profile:
+- Guardrail policy:
+- Trace mode: tracked / dry-run
+- LangSmith project:
+- Trace ids:
+
 ## Cases run
 
 - list each case id or runtime slug explicitly
@@ -23,6 +33,20 @@
 | Case | Expected | Actual | Latency | Notes |
 | --- | --- | --- | --- | --- |
 |  |  |  |  |  |
+
+## Persona scorecards
+
+- Sarah:
+- Dave:
+- Jenny:
+- Marcus:
+- Janet:
+
+## Privacy and trace notes
+
+- Fixture-only or sanitized inputs:
+- `noPersistence` proof:
+- Prompt/provider provenance recorded:
 
 ## Regressions
 

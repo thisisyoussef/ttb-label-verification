@@ -3,11 +3,11 @@
 ## Story
 
 - Story ID: `TTB-207`
-- Title: Gemini-primary label extraction with OpenAI fallback and cross-provider validation
+- Title: cloud extraction mode: Gemini-primary with OpenAI fallback and cross-provider validation
 
 ## AI behavior being changed
 
-This story swaps the live extraction default from OpenAI-only to Gemini-primary with OpenAI fallback on the single-label and batch paths.
+This story swaps the live cloud extraction default from OpenAI-only to Gemini-primary with OpenAI fallback on the single-label and batch paths.
 
 ## Expected gain
 

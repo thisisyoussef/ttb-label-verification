@@ -60,6 +60,18 @@ Use the smallest applicable slice:
 - `error-handling`
   - invalid upload, unreadable image, and wrong-product behavior
 
+- `endpoint-review`
+  - integrated `/api/review` route behavior
+
+- `endpoint-extraction`
+  - focused `/api/review/extraction` evidence contract behavior
+
+- `endpoint-warning`
+  - focused `/api/review/warning` fidelity behavior
+
+- `endpoint-batch`
+  - `/api/batch/run` and `/api/batch/retry` row execution behavior
+
 ## Applicability rule
 
 Do not run the entire golden set by reflex.
@@ -69,6 +81,7 @@ Do not run the entire golden set by reflex.
 - comparison or aggregation stories should select only the relevant deterministic and cross-field slices
 - UI stories should seed from `core-six` first, then add only the extra states they actually surface
 - batch stories should use the batch slice
+- route-specific LLM work should start with the matching endpoint slice before adding broader corpus slices
 - upload or route hardening stories should use the error slice
 
 ## Asset rule

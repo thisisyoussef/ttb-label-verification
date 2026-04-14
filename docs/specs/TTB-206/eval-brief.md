@@ -3,25 +3,28 @@
 ## Story
 
 - Story ID: `TTB-206`
-- Title: provider routing foundation and privacy-safe Gemini/OpenAI capability policy
+- Title: extraction mode routing foundation and privacy-safe cloud/local provider policy
 
 ## AI behavior being changed
 
-This story changes provider selection and fallback policy, not the extracted review contract itself.
+This story changes extraction-mode selection plus provider fallback policy, not the extracted review contract itself.
 
 ## Expected gain
 
-- Establish one routing path for Gemini-primary image/document extraction later.
+- Establish one routing path for cloud vs local extraction later.
+- Establish one routing path for Gemini-primary image/document extraction inside cloud mode later.
 - Establish Gemini fallback as the default secondary provider policy for future non-image OpenAI-backed capabilities.
 - Prevent privacy-unsafe Gemini features from sneaking in during the migration.
 
 ## Failure modes to catch
 
 - wrong provider order for `label-extraction`
+- wrong default extraction mode or missing mode seam for later UI wiring
 - default capability order not falling back to Gemini
 - invalid provider-order env strings being accepted silently
 - OpenAI adapters bypassing the new factory path
 - privacy-unsafe Gemini options being treated as normal fallback paths
+- local-mode failures being treated as permission to call cloud providers
 
 ## Eval inputs or dataset slice
 

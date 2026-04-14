@@ -6,11 +6,13 @@
 - The integrated `POST /api/review` path is live, but successful live corpus execution is still unproven because the core-six live-eval binaries are missing and the latest no-text smoke attempt returned the extractor's structured `network` error.
 - The batch engine is now live, but real successful batch outcomes are still unproven locally because the extractor is still returning structured `network` errors during live item processing.
 - The latest local live warning-route spot-check exceeded the product latency target (`7632 ms` on `/tmp/README.md.png`), so extraction-path performance still needs real-corpus measurement and tuning.
-- Provider selection is still hard-coded to the OpenAI extractor; `TTB-206` and `TTB-207` are now the planned path for capability routing, Gemini-primary image extraction, and cross-provider fallback.
+- Extraction is still hard-coded to one OpenAI cloud path; `TTB-206`, `TTB-207`, and `TTB-212` are now the planned path for cloud/local mode routing, Gemini-primary cloud extraction, and the restricted-network local path.
 - The visible report contract still hard-codes `latencyBudgetMs: 5000`; `TTB-208` and `TTB-209` are now the planned path for stage timing, sub-4-second tuning, and the eventual `4000` cutover.
+- The extractor still relies on one route-agnostic prompt string; `TTB-210` remains the planned path for endpoint-aware and mode-aware prompt policy plus structural guardrails.
+- The route-aware fixture gate from `TTB-211` now exists, but prompt-profile and guardrail version strings are still hard-coded until `TTB-210` lands the shared prompt-policy module.
 - The 2026-04-13 env audit did not identify an active repo-local Gemini runtime key, so live Gemini cutover work still depends on bootstrap support plus a usable `GEMINI_API_KEY`.
 - TTB rule normalization has not been turned into machine-readable source files yet.
-- The approved `TTB-105` polish exists as frozen UI input, but the release-gate story (`TTB-401`) still waits on `TTB-106`, `TTB-107`, and now `TTB-209`.
+- The approved `TTB-105` polish exists as the current release-gate UI baseline, but the release-gate story (`TTB-401`) now also waits on the extraction-mode selector (`TTB-108`) and the user-centered LLM hardening follow-ons after `TTB-107`.
 
 ## Process debt
 

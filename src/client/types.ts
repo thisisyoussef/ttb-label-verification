@@ -46,6 +46,7 @@ export interface LabelImage {
   file: File;
   previewUrl: string;
   sizeLabel: string;
+  demoScenarioId?: string;
 }
 
 export type DropZoneError =

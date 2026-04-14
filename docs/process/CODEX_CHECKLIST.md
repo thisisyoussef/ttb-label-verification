@@ -9,11 +9,12 @@ Use this checklist whenever Codex is the active lane owner for a story.
 - [ ] Confirm `docs/process/SINGLE_SOURCE_OF_TRUTH.md` either names this story as `Next blocking for Codex`, lists it as the active Codex story, or explicitly marks it `ready-parallel` for Codex.
 - [ ] For any story with material UI scope, confirm `docs/backlog/codex-handoffs/<story-id>.md` exists and is marked `ready-for-codex`.
 - [ ] If the story is an approved `TTB-1xx` handoff marked `ready-parallel`, confirm it is the preferred Codex pick ahead of later blocking `TTB-2xx+` work under the tracker rules.
-- [ ] Confirm the task belongs to the engineering lane, not frontend design.
+- [ ] Confirm the task belongs to the engineering lane, not a net-new frontend direction or broad redesign.
+- [ ] Before packet or code edits, confirm the current branch is story-scoped. If the worktree is on `main` or `production`, switch immediately to `codex/<story-id>-<summary>`.
 - [ ] If the story only has `story-packet.md`, expand it into the standard working docs before implementation begins.
 - [ ] Before declaring missing local model credentials, run `npm run env:bootstrap`.
 - [ ] If the story changes prompt/model/tool-call or agentic LLM behavior, run `npm run langsmith:smoke` before starting the trace loop.
-- [ ] If the task needs frontend design or the approved UI handoff is missing, stop and redirect the user to Claude.
+- [ ] If the task needs a new UI direction, major visual exploration, or the approved UI handoff is missing, stop and redirect the user to Claude.
 - [ ] If another story is still active in Claude, confirm this story is explicitly safe to run in parallel and does not depend on pending UI approval.
 
 ## Read set
@@ -35,7 +36,7 @@ Use this checklist whenever Codex is the active lane owner for a story.
 - [ ] `docs/specs/<story-id>/` packet
 - [ ] `docs/specs/<story-id>/stitch-screen-brief.md` when Stitch was used
 - [ ] `docs/backlog/codex-handoffs/<story-id>.md` when the story starts from approved UI
-- [ ] `docs/design/MASTER_DESIGN.md` when preserving a frozen UI contract
+- [ ] `docs/design/MASTER_DESIGN.md` when extending an established UI or honoring handoff constraints
 - [ ] `docs/rules/README.md`, `docs/rules/RULE_SOURCE_INDEX.md`, and `evals/README.md` for validator or AI behavior work
 - [ ] `src/shared/contracts/review.ts`
 
@@ -57,10 +58,11 @@ Use this checklist whenever Codex is the active lane owner for a story.
 ## Engineering work
 
 - [ ] Implement the minimum server, shared-contract, validator, orchestration, and tooling changes needed to satisfy the packet.
-- [ ] Keep frontend design fixed. You may update `src/client/**` only for non-design integration wiring that preserves the approved Stitch-based UI direction. Do not redesign copy, layout, styling, or interaction flow.
+- [ ] Start from the established UI direction, not from scratch. You may update `src/client/**` for integration, correctness, usability, and maintainability work, including copy, layout, styling, and interaction refinements, as long as the result stays aligned with the story packet, `docs/design/MASTER_DESIGN.md`, and the handoff's hard constraints.
 - [ ] Use Stitch tooling only for harness work, read-only inspection, or preserving already-approved references. Do not use it to generate a new UI direction from the Codex lane.
-- [ ] If engineering exposes a required UI gap, write it back to `docs/backlog/codex-handoffs/<story-id>.md` and hand it back instead of patching the design directly.
-- [ ] When a UI gap blocks engineering, stop and tell the user explicitly to switch to Claude with the relevant packet and backlog handoff files.
+- [ ] If you make a material UI refinement from the Codex lane, update the relevant packet and handoff docs so the new durable baseline is recorded.
+- [ ] If engineering exposes a broader UI-direction gap, write it back to `docs/backlog/codex-handoffs/<story-id>.md` and hand it back instead of improvising a redesign.
+- [ ] When a new screen concept, broad redesign question, or fresh Stitch pass blocks engineering, stop and tell the user explicitly to switch to Claude with the relevant packet and backlog handoff files.
 - [ ] Keep no-persistence guarantees explicit for uploads, model calls, temp files, caches, and logs.
 - [ ] Keep LangSmith tracing disabled outside explicit trace runs, and never trace staging or production user submissions.
 - [ ] Keep low-confidence or ambiguous outcomes reversible and biased toward `review`.

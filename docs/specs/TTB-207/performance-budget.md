@@ -3,9 +3,9 @@
 ## Story
 
 - Story ID: `TTB-207`
-- Title: Gemini-primary label extraction with OpenAI fallback and cross-provider validation
+- Title: cloud extraction mode: Gemini-primary with OpenAI fallback and cross-provider validation
 
-## Single-label target
+## Default cloud single-label target
 
 - End-to-end target remains under 5 seconds.
 

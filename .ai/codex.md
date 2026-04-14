@@ -18,7 +18,7 @@ This file mirrors the canonical project rules in `AGENTS.md` and turns them into
 12. Read `CLAUDE.md`.
 13. Read `.ai/docs/WORKSPACE_INDEX.md`.
 14. Read `docs/backlog/README.md` and the active `docs/backlog/codex-handoffs/<story-id>.md` when the task starts from an approved UI handoff.
-15. Read `docs/design/MASTER_DESIGN.md` when the task starts from an approved UI handoff or must preserve a frozen UI.
+15. Read `docs/design/MASTER_DESIGN.md` when the task starts from an approved UI handoff or extends an established UI.
 16. Read `docs/specs/<story-id>/stitch-screen-brief.md` when the story started from the Stitch-assisted UI flow.
 17. Read `docs/rules/README.md`, `docs/rules/RULE_SOURCE_INDEX.md`, and `evals/README.md` for validator, extraction, or critical-path work.
 18. Inspect `src/shared/contracts/review.ts` before changing API or contract wiring.
@@ -66,9 +66,9 @@ Before edits:
 Codex must block and redirect instead of improvising outside its lane.
 
 - If the user says `continue` or `continue with the next story`, resolve that request from `docs/process/SINGLE_SOURCE_OF_TRUTH.md` and `.ai/workflows/continue-next-story.md`.
-- If the task needs frontend design, layout, interaction changes, copy work, or a new Stitch pass, stop and tell the user to continue in Claude.
+- If the task needs a net-new frontend direction, major redesign, broad copy/interaction exploration, or a new Stitch pass, stop and tell the user to continue in Claude.
 - If the story has UI scope and the approved Claude handoff does not exist yet, stop and tell the user to finish the Claude lane first.
-- If engineering exposes a required UI change, stop, write the issue back to `docs/backlog/codex-handoffs/<story-id>.md`, and tell the user to take that follow-up to Claude.
+- If engineering exposes a story-scoped UI change, make it directly and record the durable outcome in the packet/handoff. If it exposes a broader redesign or new UI direction, stop, write the issue back to `docs/backlog/codex-handoffs/<story-id>.md`, and tell the user to take that follow-up to Claude.
 - If the tracker exposes a Codex-ready parallel-safe story or an approved UI handoff that SSOT marks executable non-blocking, Codex may take it even while Claude owns a different active UI story. If the tracker exposes no Codex-ready story, stop and redirect instead of inventing one.
 - Redirect messages should be short and explicit:
   - `Blocked in Codex lane`
@@ -83,7 +83,7 @@ Codex must block and redirect instead of improvising outside its lane.
 - Deterministic validators and evidence models
 - Shared contracts, fixtures, and tests
 - Evaluation harness, rule-source traceability, privacy gates, and performance proof for the engineering path
-- API surfaces that satisfy the approved UI contract without redesigning the frontend
+- API surfaces and client behavior that satisfy the approved UI contract and may refine it as needed to finish the story well
 
 ## Non-negotiables
 
@@ -93,13 +93,13 @@ Codex must block and redirect instead of improvising outside its lane.
 - A single extraction pass is the baseline; a second model pass is allowed only for bounded recovery or ambiguity resolution.
 - Never let uncertain visual judgments silently harden into `pass`.
 - Keep LangSmith tracing off by default and enable it only for explicit local trace runs on approved fixtures or sanitized inputs.
-- You may edit `src/client/**` only for non-design integration wiring that preserves the approved layout, styling, copy, and interaction flow.
+- You may edit `src/client/**` after an initial Claude-created slice or `ready-for-codex` handoff exists. Those edits may include integration wiring plus story-scoped copy, layout, styling, interaction, and component-structure refinements, as long as they stay aligned with `docs/design/MASTER_DESIGN.md`, the story packet, and the handoff's hard constraints.
 - Codex may verify Stitch tooling or inspect already-approved Stitch references, but may not use Stitch to generate or redesign UI from the Codex lane.
 - Every validator-facing rule needs a checked-in source trail. Update `docs/rules/RULE_SOURCE_INDEX.md` and the story packet's `rule-source-map.md` when the rule surface changes.
 - Every upload or model story needs explicit no-persistence verification, not just intent.
 - Every single-label critical-path story needs measured timing, not just a budget claim.
 - Keep the suite pyramid-shaped and hermetic. Do not compensate for weak tests with more fragile end-to-end coverage.
-- If you must touch `src/client/**` for integration wiring, preserve the UI hygiene rules from `CLAUDE.md` and `AGENTS.md`: keep files under the 300-line soft cap and 500-line hard stop, avoid barrel files and deep nesting, and do not collapse multiple concerns into one component just because the change is "small".
+- If you touch `src/client/**` from the Codex lane, preserve the UI hygiene rules from `CLAUDE.md` and `AGENTS.md`: keep files under the 300-line soft cap and 500-line hard stop, avoid barrel files and deep nesting, and do not collapse multiple concerns into one component just because the change is "small".
 - Treat `evals/golden/manifest.json` as the canonical golden set and `evals/labels/manifest.json` as the live image-backed core-six subset. Missing binaries under `evals/labels/assets/` are only live-run blockers, not generic implementation blockers.
 - Codex owns deployment scaffolding and release automation for this repo.
 - Prefer the local `railway` CLI for Railway bootstrap, status, log inspection, and manual spot checks.
@@ -122,7 +122,7 @@ Codex must block and redirect instead of improvising outside its lane.
 7. For high-risk pure logic such as validators, severity mapping, or comparison helpers, run a targeted mutation pass before closeout or record an explicit waiver.
 8. Change the smallest contract or module that satisfies the test.
 9. Refactor only after GREEN is established.
-10. If engineering exposes a UI gap, record it back in `docs/backlog/codex-handoffs/<story-id>.md` instead of redesigning the frontend.
+10. If engineering exposes a broader UI-direction gap, record it back in `docs/backlog/codex-handoffs/<story-id>.md` instead of improvising a redesign. If the change is story-scoped and aligned, make it and document it.
 11. Run the relevant eval slice, trace loop, privacy checks, and measured timing before final handoff.
 12. Verify the result with `npm run test`, `npm run typecheck`, and `npm run build`.
 13. Run `npm run gate:commit` before a reviewable commit, `npm run gate:push` before a reviewable push, and `npm run gate:publish` before any handoff or reply that claims the branch is on GitHub.
@@ -132,7 +132,7 @@ Codex must block and redirect instead of improvising outside its lane.
 17. For deployable implementation stories, follow `docs/process/DEPLOYMENT_FLOW.md` and report staging-deploy status or the exact CI/Railway blocker.
 18. Update the presearch, spec packet, rule index, eval result, backlog item, deploy note, or memory docs when durable truth changes.
 
-When touching `src/client/**` for integration wiring:
+When touching `src/client/**` during engineering:
 
 - keep the existing component and hook boundaries clean
 - extract before crossing the UI file-size limits
@@ -141,7 +141,7 @@ When touching `src/client/**` for integration wiring:
 
 ## Boundaries with Claude
 
-- Claude owns frontend design in `src/client/**`, UI composition, and interaction polish.
-- Codex treats Claude's approved UI as fixed and works behind the contract, not through frontend redesign.
-- Codex is the lane that waits: it stitches the approved UI into the working product after the required Claude handoffs and earlier Codex prerequisites are satisfied.
+- Claude owns the initial frontend design direction in `src/client/**`, UI composition, and the first pass at interaction polish.
+- Codex starts from Claude's approved UI and may refine it while finishing the working product, as long as those refinements stay within story intent, the design system, and the handoff's hard constraints.
+- Codex is the lane that waits first: it begins after the required Claude handoff exists and earlier Codex prerequisites are satisfied.
 - Codex waits only on the specific UI-gated story it is trying to execute. Codex-only stories and approved UI handoffs that the tracker marks executable parallel-safe may proceed while Claude continues a different UI story.

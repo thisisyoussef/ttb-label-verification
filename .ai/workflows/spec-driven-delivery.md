@@ -8,6 +8,10 @@ Translate intent into executable engineering work before coding begins.
 
 Run for `standard` feature work and significant behavior changes.
 
+## Step 0: Branch hygiene
+
+Before creating packet docs or editing implementation files, confirm the worktree is on a story-scoped branch. If the current branch is `main` or `production`, switch immediately to `<lane>/<story-id>-<summary>` and continue there.
+
 ## Step 1: Constitution check
 
 Create `constitution-check.md` from the template and confirm the story does not violate:
@@ -59,6 +63,7 @@ Map acceptance criteria directly to tests before coding starts. Name the intende
 
 ## Exit criteria
 
+- Story work is happening on a story-scoped branch rather than `main` or `production`
 - Constitution check complete
 - Feature spec complete
 - Technical plan complete

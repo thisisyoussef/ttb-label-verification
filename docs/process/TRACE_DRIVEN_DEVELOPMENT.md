@@ -122,10 +122,20 @@ Do not mix unrelated changes into the same trace iteration.
 Update the packet and eval result with:
 
 - LangSmith project name
+- endpoint surface
+- provider
+- prompt profile or prompt-policy version
+- guardrail policy version
 - key trace ids
 - what changed between iterations
 - final decision and why it won
 - remaining failure modes or open questions
+
+When traces support an endpoint-aware eval or scorecard review, also record:
+
+- the endpoint slice that was exercised
+- the personas being judged in that run
+- whether the run was tracked or dry-run only
 
 ## Exit criteria
 

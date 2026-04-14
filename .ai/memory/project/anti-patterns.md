@@ -6,7 +6,7 @@
 - Asking the model for a holistic compliance pass/fail verdict
 - Converting low-confidence visual judgments into hard `pass`
 - Recreating validator logic in client components
-- Letting Codex redesign or patch `src/client/**` to make backend work easier
+- Letting Codex thrash `src/client/**` without an initial Claude-created starting point, without respecting handoff hard constraints, or without keeping the result aligned to the story intent and design system
 - Letting Claude change shared contracts, validators, or backend code instead of handing requirements to Codex
 - Letting either agent keep going after it knows the work belongs in the other lane
 - Letting either agent skip the checked-in tracker and choose the next story from memory
@@ -37,5 +37,11 @@
 - Letting the warning diff collapse into overly broad case-mismatch spans that stop matching the approved UI evidence semantics
 - Adding Gemini through the Files API or any other provider-managed durable upload surface inside a no-persistence product
 - Treating provider fallback as a route-local try/catch instead of a typed capability policy with explicit retry and privacy classification
+- Letting an explicit `local` mode selection silently hop back to Gemini or OpenAI after a failure
 - Flipping `latencyBudgetMs` from `5000` to `4000` before the optimized path is actually measured against the approved fixture slice
 - Treating explicit provider caching or raw timing logs as acceptable shortcuts to a faster path
+- Embedding route-specific prompt strings directly in `/api/review`, `/api/review/extraction`, `/api/review/warning`, or batch code instead of routing through one shared prompt-policy module
+- Treating local mode as just another reviewer default instead of an explicit deployment-readiness path with a slower, more conservative posture
+- Treating a generic corpus pass as enough proof for all model-backed endpoints without checking the distinct promises made to Sarah, Dave, Jenny, Marcus, and Janet
+- Recording raw label content, prompt bodies, or unsanitized model outputs in LangSmith when fixture ids and bounded summaries are enough for comparison
+- Letting the staging deploy run on CI success without first passing the fixture-backed endpoint eval gate

@@ -56,10 +56,10 @@ Use the checked-in docs deliberately, not as background noise:
 
 ## Ownership split
 
-- Claude Code owns frontend design in `src/client/**`: screens, layout, states, interaction flow, copy, accessibility, and seeded fixtures that define the approved UI.
+- Claude Code owns the initial frontend design pass in `src/client/**`: first-pass screens, layout direction, interaction direction, copy, accessibility, and seeded fixtures that establish the starting UI for a story.
 - Claude Code does not change `src/server/**`, `src/shared/**`, validators, tests, API boundaries, OpenAI orchestration, or infrastructure. If UI work needs new data, fields, or behavior, Claude records that requirement in `docs/backlog/codex-handoffs/<story-id>.md`.
-- Codex owns engineering only: `src/server/**`, `src/shared/**`, validators, API boundaries, OpenAI orchestration, integration, tests, tooling, and infrastructure.
-- Codex must treat approved frontend design as fixed input. Codex may edit `src/client/**` only for non-design integration wiring, data flow, request state, and contract hookup needed to stitch the approved UI into the working product. Do not change layout, styling, copy, interaction flow, or visual hierarchy unless the user explicitly overrides this rule.
+- Codex owns engineering: `src/server/**`, `src/shared/**`, validators, API boundaries, OpenAI orchestration, integration, tests, tooling, and infrastructure.
+- After an initial Claude-created slice or a `ready-for-codex` handoff exists, Codex may also edit `src/client/**` when that materially helps integration, correctness, usability, or maintainability. Those edits may include state flow, component structure, copy, layout, styling, and interaction refinements, as long as they stay aligned with `docs/design/MASTER_DESIGN.md`, the story packet, and any hard constraints recorded in the handoff.
 - Shared types in `src/shared/contracts` are the handshake point, but ownership of those contracts stays with Codex.
 - `.ai/codex.md` is the Codex execution mirror. `CLAUDE.md` is the Claude operating contract. `.ai/agents/claude.md` only mirrors that at a high level.
 
@@ -68,12 +68,12 @@ Use the checked-in docs deliberately, not as background noise:
 - If the active agent is in the wrong lane, it must stop before edits and redirect the user to the correct agent.
 - Claude blocks and redirects to Codex only when the user is explicitly asking Claude to perform server, shared contract, validator, OpenAI, test, integration, or infrastructure work.
 - Claude blocks and redirects to the user only when the selected UI flow still needs Stitch output, whether that means reviewing automated refs or returning manual Comet assets.
-- Codex blocks and redirects to Claude when the task needs frontend design, screen structure, layout, copy, interaction design, or a new Stitch brief/visual pass.
+- Codex blocks and redirects to Claude when the task needs a net-new frontend direction, major redesign, broad copy/interaction exploration, or a new Stitch brief/visual pass.
 - Codex blocks and redirects to Claude when the specific story in question has UI scope but the Claude UI phase is not complete or the backlog handoff is not `ready-for-codex`.
 - Codex does not block just because Claude or the user currently owns a different story. If `docs/process/SINGLE_SOURCE_OF_TRUTH.md` exposes a Codex-ready parallel-safe story with no pending UI dependency, Codex may take that story.
 - Approved UI-first handoffs may be executable for Codex before they become the blocking next story. Keep those handoffs `ready-for-codex` in `docs/backlog/codex-handoffs/`, and mark them `ready-parallel` in `docs/process/SINGLE_SOURCE_OF_TRUTH.md` when they are executable Codex work. After workflow/eval foundations are clear, prefer the earliest ready `TTB-1xx` handoff ahead of later blocking `TTB-2xx+` engineering work.
-- If Codex discovers a required UI change during engineering, it must stop, write the follow-up back to the backlog handoff, and redirect the user to Claude instead of patching the UI directly.
-- Claude does not block just because Codex has ready or blocked engineering work. Claude keeps moving through the UI queue from `docs/process/SINGLE_SOURCE_OF_TRUTH.md`, and Codex stitches the approved UI into the working product afterward.
+- If Codex discovers a UI change during engineering, Codex may make it directly when it is story-scoped and still aligned with the established design direction. If the needed change is a broader redesign, a new screen concept, or requires a fresh Stitch/user-approval loop, record it back to the backlog handoff and redirect to Claude.
+- Claude does not block just because Codex has ready or blocked engineering work. Claude keeps moving through the UI queue from `docs/process/SINGLE_SOURCE_OF_TRUTH.md`, and Codex turns the established UI into the working product afterward.
 - Redirect messages must be explicit: name the blocker, name the next agent, and name the exact artifact or file the next agent should use.
 
 ## Continue and next-story resolution
@@ -106,7 +106,7 @@ Use the checked-in docs deliberately, not as background noise:
 - Codex must not begin implementation work for a story with UI scope until the Claude UI phase is complete and the handoff is marked `ready-for-codex`.
 - Codex may begin a Codex-only story in parallel with Claude only when the tracker explicitly marks that story ready for Codex and the packet does not depend on pending UI approval or a missing Claude handoff. Approved UI-first handoffs that are executable should stay `ready-for-codex` in backlog docs and be marked `ready-parallel` in the tracker until Codex picks them up or completes them.
 - For engineering stories and approved UI handoffs, Codex follows `docs/process/CODEX_CHECKLIST.md` before implementation and final handoff.
-- After an approved UI-first handoff exists, Codex runs `.ai/workflows/codex-from-ui-handoff.md`, completes the remaining packet under the same `docs/specs/<story-id>/` folder, and implements the engineering work without redesigning the frontend.
+- After an approved UI-first handoff exists, Codex runs `.ai/workflows/codex-from-ui-handoff.md`, completes the remaining packet under the same `docs/specs/<story-id>/` folder, and implements the engineering work, including any scoped UI refinements needed to finish the story.
 - Some stories may be one-agent only. Claude-only stories still use the packet when they are non-trivial. Codex-only stories may proceed without a Claude handoff when there is no material UI scope.
 - Before declaring that local OpenAI runtime configuration is missing, run `npm run env:bootstrap`. The server loads repo-local `.env` and `.env.local` automatically outside tests.
 - Treat `evals/golden/manifest.json` as the canonical golden eval set and `evals/labels/manifest.json` as the live image-backed core-six subset. Missing binaries under `evals/labels/assets/` only block stories that actually require a live extraction or live eval run.
@@ -148,7 +148,7 @@ Use the checked-in docs deliberately, not as background noise:
 - Keep components and hooks single-purpose. Split layout, state ownership, and repeated regions before they collapse into one large file.
 - Extract repeated UI structure or logic once it appears in 2 meaningful places or when duplication starts hiding intent.
 - Keep validation, rule interpretation, domain policy, and transport normalization out of UI components.
-- When Codex touches `src/client/**` for integration wiring, preserve these hygiene constraints instead of adding one-off glue that makes the approved UI harder to maintain.
+- When Codex touches `src/client/**`, preserve these hygiene constraints instead of adding one-off glue that makes the established UI harder to maintain.
 
 ## Memory bank updates after work
 

@@ -11,6 +11,8 @@
     "env:bootstrap": "tsx scripts/bootstrap-local-env.ts",
     "hooks:install": "tsx scripts/install-git-hooks.ts",
     "evals:validate": "tsx scripts/validate-evals.ts",
+    "eval:llm": "vitest run --config ls.vitest.config.ts",
+    "eval:golden": "npm run evals:validate && npm run eval:llm",
     "build": "vite build && tsup src/server/index.ts --format esm --target node20 --out-dir dist/server --clean",
     "preview": "vite preview --host 0.0.0.0 --port 4176",
     "start": "node dist/server/index.js",

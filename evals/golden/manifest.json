@@ -37,6 +37,22 @@
     "error-handling": {
       "description": "Upload, unreadable image, and wrong-product handling.",
       "caseIds": ["G-37", "G-38", "G-39", "G-40"]
+    },
+    "endpoint-review": {
+      "description": "Route-aware integrated review coverage for the current model-backed /api/review surface.",
+      "caseIds": ["G-02", "G-03", "G-04", "G-05", "G-06", "G-32"]
+    },
+    "endpoint-extraction": {
+      "description": "Route-aware structured extraction coverage for /api/review/extraction.",
+      "caseIds": ["G-01", "G-06", "G-32", "G-39"]
+    },
+    "endpoint-warning": {
+      "description": "Route-aware warning fidelity coverage for /api/review/warning.",
+      "caseIds": ["G-01", "G-02", "G-06", "G-29", "G-31"]
+    },
+    "endpoint-batch": {
+      "description": "Route-aware batch run and retry coverage for the model-backed batch path.",
+      "caseIds": ["G-34", "G-35", "G-36"]
     }
   },
   "cases": [
