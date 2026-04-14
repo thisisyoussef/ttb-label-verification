@@ -118,13 +118,38 @@ Explicitly avoid:
 
 ## 8. Returned Stitch references
 
-Claude will run the automated Stitch flow (`STITCH_FLOW_MODE=automated` is already configured for this workspace) and record the generated references here.
+The workspace now defaults to `STITCH_FLOW_MODE=claude-direct`, so this Stitch section is optional. If this story explicitly switches to `STITCH_FLOW_MODE=automated` or `manual`, record the returned Stitch references here.
 
 - Stitch image reference: _pending_
 - Stitch HTML/code reference: _pending_
 - Date returned: _pending_
 - Notes on which returned asset covers which state from §5: _pending_
-- Deviations Claude normalized during implementation: _pending — record after implementation, following the TTB-102 / TTB-103 / TTB-104 / TTB-106 pattern._
+- Deviations Claude normalized during implementation (recorded 2026-04-14 before implementation, following the TTB-102 / TTB-103 / TTB-104 / TTB-106 pattern):
+
+  **Screen 0 — institutional framing**
+
+  1. Invented US flag graphic inside the government banner using raw hex (`#005288`, `#002664`) — dropped. Brief was explicit: text-only federal context; no seals, no flags, no imagery. Banner is text-only.
+  2. Raw hex values in the flag element — dropped with the flag.
+  3. Disclaimer copy extended to `This is a prototype. It is not a production Treasury system. Unauthorized access is prohibited and subject to monitoring.` — reverted to brief verbatim: `This is a prototype. It is not a production Treasury system.` (The extra sentence is production-login register; §7 explicitly bans that.)
+  4. Invented `info` icon prefixing the disclaimer — dropped; keeps the disclaimer line text-only.
+  5. Invented page footer with `Nothing is stored…` + `Privacy Policy` + `Terms of Service` links — dropped. Brief said Screen 0 is banner + card + background only. Privacy anchor appears inside the signed-in app, not on the pre-auth gate (no app data to disclaim yet).
+  6. SSO button rendered as `surface-container-high` secondary while PIV is gradient primary — normalized so both options render at equal weight. The brief frames them as peer paths ("The two sign-in buttons are the most obviously interactive elements on the screen."), not a preferred + alternative.
+  7. States 2–7 not rendered — Stitch only produced the Entry state. The six missing variations (PIV in-progress, PIV success, SSO entry, SSO verifying, SSO success, banner-disclosure-expanded) are built directly from the brief's §5 and §6 copy anchors.
+
+  **Screen 2 — signed-in shell**
+
+  8. Header nav rewritten with `Single Mode / Batch Mode / Developer Controls` links replacing the existing `Single | Batch` two-button toggle — dropped. The existing toggle is frozen across TTB-101/102/103/104/105/106.
+  9. Invented `Auditor ID: 99201-X` under the identity line — dropped (privacy-adjacent; same rule as the audit IDs rejected in TTB-103/104).
+  10. Invented `account_circle` avatar icon next to the identity — dropped. Brief explicitly said "No avatar."
+  11. Invented Dashboard Summary Bar at the top of the main area (`Compliance Status 94.2%`, `Review Queue 12 Labels`, `Processed (24h) 1,402`, `System Latency 180ms`) — dropped. Analytics-dashboard invention; §7 anti-pattern.
+  12. Entire Results region reinvented from scratch (invented `Verification Report: #9938210-C`, invented product `Chateau Montelena Reserve 2019`, invented `EXPECTED / FOUND` layout, invented OCR overlay markers on the label image, invented `Technical Metadata` block with source resolution / capture date / batch reference) — dropped. The real TTB-102 Results component is the frozen contract and renders unchanged beneath the signed-in header.
+  13. Raw hex values throughout the header (`#546067`, `#f2f4f3`, `#2d3433`) — dropped; use theme tokens only.
+  14. `max-w-[1440px]` on the main area — normalized to the established `max-w-[1400px]`.
+
+  **Salvaged from Stitch:**
+
+  15. Screen 0's centered card composition (width, padding, stacked buttons, disclaimer-at-bottom shape).
+  16. The identity-block position in the signed-in header: far right of the right cluster, after the existing controls, with a thin divider separating the identity line + `Sign out` button from the other header controls.
 
 ### Automated run — 2026-04-14T15:42:34.535Z
 

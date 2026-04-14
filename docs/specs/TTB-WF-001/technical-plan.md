@@ -2,7 +2,7 @@
 
 ## Scope
 
-Add the checked-in workflow layer under `docs/process/` and `.ai/`, then connect it to the canonical repo rules.
+Add the checked-in workflow layer under `docs/process/` and `.ai/`, then connect it to the canonical repo rules, including the default Claude-direct UI flow and the optional Stitch-assisted alternates.
 
 ## Modules and files
 

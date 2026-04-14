@@ -37,7 +37,7 @@ Use the checked-in docs deliberately, not as background noise:
 - `docs/reference/` for env and integration audit notes
 - `docs/process/TRACE_DRIVEN_DEVELOPMENT.md` for LangSmith-backed trace loops on LLM and agentic stories
 - `docs/process/TEST_QUALITY_STANDARD.md` for repo-level test design, hermeticity, contract coverage, property tests, and mutation checks
-- `docs/process/STITCH_AUTOMATION.md` for the project-default automated Stitch flow and explicit manual Comet fallback
+- `docs/process/STITCH_AUTOMATION.md` for the Claude-direct default UI flow plus automated/manual Stitch alternatives
 - `docs/process/DEPLOYMENT_FLOW.md` for repo bootstrap, Railway CLI flow, and story-to-deploy wiring
 - `docs/process/GIT_HYGIENE.md` for branch, commit, push, and merge gates
 - `docs/design/MASTER_DESIGN.md` for durable UI direction
@@ -67,7 +67,7 @@ Use the checked-in docs deliberately, not as background noise:
 
 - If the active agent is in the wrong lane, it must stop before edits and redirect the user to the correct agent.
 - Claude blocks and redirects to Codex only when the user is explicitly asking Claude to perform server, shared contract, validator, OpenAI, test, integration, or infrastructure work.
-- Claude blocks and redirects to the user when Stitch output is required only after the automated Stitch run has produced refs and the workflow needs user review, or when the automated Stitch path is unavailable and the user must either restore config or explicitly choose manual Comet fallback.
+- Claude blocks and redirects to the user only when the selected UI flow still needs Stitch output, whether that means reviewing automated refs or returning manual Comet assets.
 - Codex blocks and redirects to Claude when the task needs frontend design, screen structure, layout, copy, interaction design, or a new Stitch brief/visual pass.
 - Codex blocks and redirects to Claude when the specific story in question has UI scope but the Claude UI phase is not complete or the backlog handoff is not `ready-for-codex`.
 - Codex does not block just because Claude or the user currently owns a different story. If `docs/process/SINGLE_SOURCE_OF_TRUTH.md` exposes a Codex-ready parallel-safe story with no pending UI dependency, Codex may take that story.
@@ -100,7 +100,7 @@ Use the checked-in docs deliberately, not as background noise:
 - Use the local `railway` CLI for Railway bootstrap, status, logs, and manual spot checks. Do not treat ad hoc dashboard clicks as the harness source of truth.
 - Follow `docs/process/GIT_HYGIENE.md` before committing, pushing, or merging. Use `npm run gate:commit` before reviewable commits, `npm run gate:push` before reviewable pushes, and `npm run gate:publish` before any handoff or final response that claims the branch is available on GitHub. Story work happens on story-scoped branches, not directly on `main` or `production`.
 - For `standard` non-UI-first work, run `.ai/workflows/spec-driven-delivery.md` and write the artifact set under `docs/specs/<story-id>/` using the conventions in `docs/specs/README.md` and `.ai/docs/SPEC_CREATION_METHODOLOGY.md`.
-- For stories with material UI scope, Claude follows `docs/process/UI_CLAUDE_CHECKLIST.md` plus `docs/process/STITCH_AUTOMATION.md`: create or update `docs/specs/<story-id>/ui-component-spec.md` and `docs/specs/<story-id>/stitch-screen-brief.md`, run the local automated Stitch flow by default, self-review the generated refs against the packet before asking the user to look, stop for user review only after that self-review gate, implement `src/client/**` from the approved Stitch image and HTML references, get user visual approval, and finally write `docs/backlog/codex-handoffs/<story-id>.md`. Manual Comet Stitch is a fallback, not the default path.
+- For stories with material UI scope, Claude follows `docs/process/UI_CLAUDE_CHECKLIST.md` plus `docs/process/STITCH_AUTOMATION.md`: create or update `docs/specs/<story-id>/ui-component-spec.md`, use `docs/specs/<story-id>/stitch-screen-brief.md` only when the selected mode uses Stitch, implement directly when `STITCH_FLOW_MODE=claude-direct` (default), or self-review generated refs before user review when `STITCH_FLOW_MODE=automated`, or stop for Comet assets when `STITCH_FLOW_MODE=manual`, then get user visual approval and finally write `docs/backlog/codex-handoffs/<story-id>.md`.
 - Codex must not begin implementation work for a story with UI scope until the Claude UI phase is complete and the handoff is marked `ready-for-codex`.
 - Codex may begin a Codex-only story in parallel with Claude only when the tracker explicitly marks that story ready for Codex and the packet does not depend on pending UI approval or a missing Claude handoff. Approved UI-first handoffs that are executable should stay `ready-for-codex` in backlog docs and be marked `ready-parallel` in the tracker until Codex picks them up or completes them.
 - For engineering stories and approved UI handoffs, Codex follows `docs/process/CODEX_CHECKLIST.md` before implementation and final handoff.

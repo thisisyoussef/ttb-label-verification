@@ -1,6 +1,6 @@
 # Single Source of Truth
 
-Last updated: 2026-04-14 (`TTB-106` Claude lane is approved and ready for Codex integration, `TTB-107` is the next ready Claude story, and Gemini provider migration is now planned as `TTB-206` plus `TTB-207` before `TTB-401`)
+Last updated: 2026-04-14 (`TTB-106` is complete across both lanes, `TTB-107` is the next ready Claude story, and `TTB-206` is now the next ready Codex story after the help-manifest cutover landed`)
 
 ## Continue resolution
 
@@ -22,7 +22,7 @@ Last updated: 2026-04-14 (`TTB-106` Claude lane is approved and ready for Codex 
 - Existing `TTB-001` through `TTB-004` folders remain umbrella packets for the major product areas.
 - New `TTB-1xx`, `TTB-2xx`, `TTB-3xx`, and `TTB-4xx` stories are the executable leaf queue.
 - A planning-stage leaf story may start as `story-packet.md`; any agent may create or expand that packet before implementation when deeper working docs are needed. Lane ownership still controls implementation and handoff work.
-- Claude owns the UI-first lane: prepare `stitch-screen-brief.md`, run the local automated Stitch flow by default, stop for user review of the generated refs, implement the approved screens in `src/client/**`, stop for visual approval, then write the Codex handoff. Manual Comet Stitch is an explicit fallback.
+- Claude owns the UI-first lane: default to `STITCH_FLOW_MODE=claude-direct` and implement directly from the checked-in design context, or use automated/manual Stitch only when that pass explicitly needs it; then stop for visual approval and write the Codex handoff.
 - Claude continues through later UI stories after each approved handoff. Claude is not blocked by outstanding Codex engineering on earlier stories.
 - Codex owns the engineering lane: complete the remaining packet, wire real behavior, preserve approved UI, and close tests, evals, privacy, and performance gates.
 - Codex may update `src/client/**` only to stitch approved UI into live behavior without redesigning it.
@@ -33,18 +33,18 @@ Last updated: 2026-04-14 (`TTB-106` Claude lane is approved and ready for Codex 
 
 - Project status: runnable scaffold plus full-product planning set with live GitHub and Railway backing
 - Runtime status: React + Express scaffold exists, the shared review contract now includes typed extraction plus warning evidence, `POST /api/review` keeps uploads in memory and now runs the integrated extraction + warning + aggregation path, `POST /api/review/seed` remains the explicit scaffold-only inspection route, `POST /api/review/extraction` runs the live extraction boundary, `POST /api/review/warning` stages the warning validator, and contracts are tested
-- Process status: lane rules, next-story routing, spec gate, TDD gate, LangSmith-backed trace-driven development, automated-first Stitch flow with manual fallback, deployment flow, repo-managed git hooks, and publish-gate handoff rules are checked in
-- Planning status: `TTB-106` now has a ready-parallel Codex handoff, `TTB-107` is the next queued Claude story, and Gemini provider migration is now captured as `TTB-206` plus `TTB-207` without changing the existing UI-first Codex priority rule
+- Process status: lane rules, next-story routing, spec gate, TDD gate, LangSmith-backed trace-driven development, Claude-direct UI flow with automated/manual Stitch alternatives, deployment flow, repo-managed git hooks, and publish-gate handoff rules are checked in
+- Planning status: `TTB-106` is complete across both lanes, `TTB-107` is the next queued Claude story, Gemini provider migration is captured as `TTB-206` plus `TTB-207`, and the tightened `<= 4,000 ms` latency objective is now captured as `TTB-208` plus `TTB-209`
 - GitHub bootstrap status: live repo exists at `thisisyoussef/ttb-label-verification`
 - Railway bootstrap status: project, service, staging, production, public domains, and GitHub Actions token wiring are configured
 
 ## Active pointers
 
 - Active Claude story: none in progress (`TTB-106` Claude lane complete and approved 2026-04-14)
-- Active Codex story: none in progress (`TTB-301` complete 2026-04-13; `TTB-106` and `TTB-206` are both ready picks, with `TTB-106` still preferred by lane rules)
+- Active Codex story: none in progress (`TTB-106` is complete; `TTB-206` is now the next ready Codex pickup)
 - Next ready for Claude: `TTB-107` — the mock Treasury auth entry + signed-in shell identity story is now unblocked by the approved `TTB-106` handoff
-- Next preferred for Codex: `TTB-106` (`ready-parallel`) — typed help contract + stateless manifest routes remain the earliest ready approved `TTB-1xx` handoff; `TTB-206` is the next Codex-only engine story after that handoff priority clears
-- Next blocking for Codex: `TTB-206` — provider routing foundation and privacy-safe Gemini/OpenAI capability policy; `TTB-207` follows it, and `TTB-401` now waits on `TTB-106`, `TTB-107`, and `TTB-207`
+- Next preferred for Codex: `TTB-206` — provider routing foundation and privacy-safe Gemini/OpenAI capability policy is now the earliest remaining ready Codex story
+- Next blocking for Codex: `TTB-206` — provider routing foundation and privacy-safe Gemini/OpenAI capability policy; `TTB-207`, `TTB-208`, and `TTB-209` follow it, and `TTB-401` now waits on `TTB-107` and `TTB-209`
 - Current blocker owner: none
 - Current manual user action: none
 
@@ -65,16 +65,18 @@ Last updated: 2026-04-14 (`TTB-106` Claude lane is approved and ready for Codex 
 | 10 | `TTB-104` | `TTB-003` | batch dashboard, drill-in shell, and export UI | Codex | `ready-parallel` | preserve the approved batch dashboard + drill-in shell (verbatim reuse of the `TTB-102` Results view) + session-scoped export UI as frozen input; backend execution still lands under `TTB-301` once `TTB-205` completes | none |
 | 11 | `TTB-301` | `TTB-003` | batch parser, matcher, orchestration, and session export | Codex | `done` | keep the packet, eval note, and live smoke record as the proof that the approved batch shells now run against the real session-scoped engine | none |
 | 12 | `TTB-105` | `TTB-004` | accessibility, trust copy, and final UI polish | Codex | `ready-parallel` | preserve the approved polish (single-label Results `Back to Intake` breadcrumb, promoted Processing `Cancel review`) as frozen release-gate input for `TTB-401` | none |
-| 13 | `TTB-106` | `TTB-004` | guided review, replayable help, and contextual info layer | Codex | `ready-parallel` | preserve the approved guided-tour spotlight + info anchor layer; add the typed help contract, stateless `/api/help/manifest` route, and cutover the client fixture per the handoff doc | none |
+| 13 | `TTB-106` | `TTB-004` | guided review, replayable help, and contextual info layer | Codex | `done` | keep the packet, help contract, manifest route, and fallback runtime bridge as the record of the completed help-layer cutover | none |
 | 14 | `TTB-107` | `TTB-004` | mock Treasury auth entry and signed-in shell identity | Claude | `ready` | design the prototype-safe mock auth entry and signed-in shell; the `TTB-106` help launcher will move inside the signed-in header when this story lands | none |
 | 15 | `TTB-206` | `TTB-002` | provider routing foundation and privacy-safe Gemini/OpenAI capability policy | Codex | `ready` | implement the provider capability registry, fallback policy, env/bootstrap surface, and no-persistence guardrails from the new packet | none |
 | 16 | `TTB-207` | `TTB-002` | Gemini-primary label extraction with OpenAI fallback and cross-provider validation | Codex | `blocked-by-dependency` | implement Gemini-primary extraction after `TTB-206`, then run trace, eval, privacy, and performance gates before any default flip | `TTB-206` complete |
-| 17 | `TTB-401` | `TTB-004` | final privacy, performance, eval, and submission pack | Codex | `blocked-by-dependency` | run the release gate and package the submission | `TTB-106` complete and `TTB-107` complete and `TTB-207` complete |
+| 17 | `TTB-208` | `TTB-002` | latency observability and sub-4-second budget framing | Codex | `blocked-by-dependency` | add stage timing, budget math, and privacy-safe measurement on the real Gemini/OpenAI path without yet flipping the visible contract target | `TTB-207` complete |
+| 18 | `TTB-209` | `TTB-002` | single-label hot-path optimization to `<= 4 seconds` | Codex | `blocked-by-dependency` | use the timing data to tune the hot path, enforce deadline-aware fallback, and only then cut the visible budget to `4000` | `TTB-208` complete |
+| 19 | `TTB-401` | `TTB-004` | final privacy, performance, eval, and submission pack | Codex | `blocked-by-dependency` | run the release gate and package the submission | `TTB-107` complete and `TTB-209` complete |
 
 ## Handoff points
 
-- Hand off to the user for Stitch review after Claude has produced automated Stitch refs, unless the user explicitly switched the current pass to manual Comet generation.
-- Hand off to the user for visual review after Claude has a runnable screen set aligned to Stitch.
+- Hand off to the user for Stitch review only when the current pass is using automated or manual Stitch.
+- Hand off to the user for visual review after Claude has a runnable screen set aligned to the selected UI flow.
 - Hand off to Codex only after the user approves the UI direction and `docs/backlog/codex-handoffs/<story-id>.md` is `ready-for-codex`.
 - A `ready-for-codex` handoff may still be non-blocking. Use `ready-parallel` in this tracker when Codex can execute the handoff and it is waiting in the preferred `TTB-1xx` handoff queue.
 - Claude does not need a Codex completion to continue the next UI story. Claude resolves the next UI-ready item from this file.

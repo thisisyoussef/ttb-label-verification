@@ -39,7 +39,9 @@ This file is the checked-in leaf-story queue for completing the TTB Label Verifi
 | 13 | `TTB-107` | `TTB-004` | mock Treasury auth entry and signed-in shell identity | Claude-first, then Codex integration | `TTB-106` approved | the prototype opens in a realistic internal-tool entry flow and returns there on sign-out without adding real auth infrastructure |
 | 14 | `TTB-206` | `TTB-002` | provider routing foundation and privacy-safe Gemini/OpenAI capability policy | Codex-only | `TTB-205`, `TTB-301` | provider capability routing, fallback policy, env surface, and privacy rules exist without flipping the live extraction default |
 | 15 | `TTB-207` | `TTB-002` | Gemini-primary label extraction with OpenAI fallback and cross-provider validation | Codex-only | `TTB-206` | single-label and batch extraction routes can run Gemini first, fall back to OpenAI when allowed, and record trace/eval/privacy/performance evidence |
-| 16 | `TTB-401` | `TTB-004` | final privacy, performance, eval, and submission pack | Codex-led release gate | `TTB-106`, `TTB-107`, `TTB-207` | the final proof of concept is measured, documented, and submission-ready |
+| 16 | `TTB-208` | `TTB-002` | latency observability and sub-4-second budget framing | Codex-only | `TTB-207` | stage timing, budget math, and privacy-safe latency instrumentation exist for the real single-label path without yet cutting the visible budget target over |
+| 17 | `TTB-209` | `TTB-002` | single-label hot-path optimization to `<= 4 seconds` | Codex-only | `TTB-208` | the real single-label path meets the tighter latency target and the visible contract budget moves from `5000` to `4000` with evidence |
+| 18 | `TTB-401` | `TTB-004` | final privacy, performance, eval, and submission pack | Codex-led release gate | `TTB-106`, `TTB-107`, `TTB-209` | the final proof of concept is measured, documented, and submission-ready |
 
 ## Execution notes
 
@@ -53,6 +55,7 @@ This file is the checked-in leaf-story queue for completing the TTB Label Verifi
 - Once workflow/eval foundations are clear, ready approved `TTB-1xx` handoffs should be picked before later blocking `TTB-2xx+` Codex work. The SSOT pointer is the source of truth for when that preference applies.
 - Batch stories reuse the single-label evidence language instead of inventing a second result model.
 - `TTB-206` and `TTB-207` are late-added provider-migration stories under `TTB-002`. `TTB-206` establishes shared routing and privacy policy, while `TTB-207` may only flip label extraction to Gemini-primary after trace, eval, privacy, and performance gates pass.
+- `TTB-208` and `TTB-209` are the latency-hardening follow-ons under `TTB-002`. `TTB-208` adds measurement and budget framing; `TTB-209` is the only story allowed to tighten the visible single-label budget from `5000` to `4000`.
 - The mock auth story is prototype theater, not security infrastructure. It should strengthen federal context without introducing real credential handling, tokens, or server sessions.
 - Guided-review/help work ships only after the integrated single-label and batch workflows exist, and it should remain optional, replayable, and calm rather than a forced tutorial.
 - `TTB-401` is the release gate. No project-level “done” claim skips it.

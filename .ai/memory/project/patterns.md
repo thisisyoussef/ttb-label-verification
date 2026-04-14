@@ -25,8 +25,8 @@
 - Codex may wire approved `src/client/**` surfaces to live behavior as long as the design contract stays fixed.
 - Approved results UI should render the `VerificationReport` returned by `/api/review` directly; seeded scenarios are a dev-only fallback, not the primary runtime path.
 - Dev-only scenario and batch seed controls should be explicitly gated by fixture-mode rules instead of remaining visible in normal runtime behavior.
-- Claude uses the local automated Stitch flow by default and stops for user review after generated refs are recorded; manual Comet Stitch is an explicit fallback when the pass is switched to `STITCH_FLOW_MODE=manual` or local Stitch auth is unavailable.
-- The automated Stitch lane writes artifacts under `docs/specs/<story-id>/stitch-refs/automated/<timestamp>/`, uses process-level timeout guards for the destructive generation call, and still stops for explicit user review before implementation.
+- Claude now defaults to `STITCH_FLOW_MODE=claude-direct` and implements UI directly from the checked-in packet and design context; automated Stitch and manual Comet are explicit per-pass alternatives instead of the default.
+- When a pass does use automated Stitch, it writes artifacts under `docs/specs/<story-id>/stitch-refs/automated/<timestamp>/`, uses process-level timeout guards for the destructive generation call, and still stops for explicit user review before implementation.
 - Codex-only stories that the tracker marks `ready-parallel` may proceed while Claude is still on a different UI story; Codex only waits on missing UI approval for the specific story it is executing.
 - Local runtime env recovery is standardized: run `npm run env:bootstrap` before reporting missing OpenAI config, and rely on the server's `.env` / `.env.local` autoload for actual local runs.
 - Story work uses checked-in git gates: story-scoped branches, story-id commit messages, `npm run gate:commit` before reviewable commits, `npm run gate:push` before reviewable pushes, no routine direct pushes to `main` or `production`, and deploy-triggering merges flow through `main`.
@@ -42,6 +42,8 @@
 - Batch mode should follow the same pattern: keep parsing/matching/session orchestration in focused server modules, and let `src/server/index.ts` remain a thin route composition layer.
 - Model-provider selection should route through a capability policy instead of direct provider checks inside routes: planned `TTB-206` defaults non-image capabilities to `openai,gemini`, while planned `TTB-207` gives label extraction its own `gemini,openai` order.
 - Gemini multimodal extraction should use the native Google GenAI path with inline image/PDF bytes plus structured JSON output, not the Gemini Files API and not the OpenAI-compat layer for the core extraction path.
+- Latency tuning should follow a two-step pattern: instrument stage timing first, then optimize the measured hot leg, and only after proof cut the visible `latencyBudgetMs` contract to the tighter target.
+- Cache-friendly request structuring is acceptable only for static prefixes; provider features that create durable storage of user-bearing content are not valid baseline latency solutions in this repo.
 - Seed fixtures unlock UI progress before live backend integration.
 - For frozen UI shells that need live wiring, add a pure client runtime adapter (`src/client/batch-runtime.ts`) so API-to-view-model mapping stays testable outside React components.
 - The golden eval set is part of the product contract, not optional test garnish. The core-six live subset is only the first slice, not the whole corpus.
@@ -50,6 +52,7 @@
 - Deterministic validation runs after extraction, not instead of it.
 - Warning text comparison should normalize whitespace only, keep punctuation/case literal, and shape phrase-level diff segments to match the approved UI evidence contract.
 - Future tutorial/help work should be optional and replayable, with critical guidance inline or in accessible panels/dialogs rather than hidden in tooltip-only affordances.
+- Shared help content should follow the same contract-first pattern as review payloads: keep semantic anchor keys and manifest validation in `src/shared/contracts`, store canonical English fixture content in shared code, serve it through a stateless route, and let the client keep a local fallback instead of duplicating help copy in UI-only modules.
 
 ## Documentation pattern
 

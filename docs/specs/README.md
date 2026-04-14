@@ -28,7 +28,7 @@ Recommended packet:
 - `technical-plan.md`
 - `task-breakdown.md`
 - `ui-component-spec.md` when UI scope is material; this is the per-feature design doc, not a separate `design.md`
-- `stitch-screen-brief.md` when the UI flow uses Google Stitch; this holds the prompt Claude writes plus the returned Stitch references, whether those references came from the project-default automated flow or an explicit manual Comet fallback
+- `stitch-screen-brief.md` when the UI flow uses Google Stitch; this holds the prompt Claude writes plus the returned Stitch references for automated or manual Stitch passes
 - `evidence-contract.md` when result payloads, evidence objects, or detail views change
 - `rule-source-map.md` when validator logic or citations change
 - `privacy-checklist.md` when uploads, logs, temp files, or model calls change
@@ -46,10 +46,10 @@ Method:
 1. preflight
 2. story lookup
 3. story sizing
-4. if the story starts in Claude's UI lane, create or update `ui-component-spec.md` and `stitch-screen-brief.md`
-5. default to the local automated Stitch flow so the repo generates image plus HTML/code references itself; only switch to a user-run Comet pass when the user explicitly sets `STITCH_FLOW_MODE=manual` for that pass
-6. review the generated Stitch output yourself first, then stop for user review before implementation
-7. Claude implements the UI against the approved Stitch references, then stops for visual review
+4. if the story starts in Claude's UI lane, create or update `ui-component-spec.md`, and add or update `stitch-screen-brief.md` only when that pass uses Stitch
+5. default to `STITCH_FLOW_MODE=claude-direct`; switch to repo-run automated Stitch only when the story explicitly benefits from generated references, or to user-run Comet only when the pass is explicitly set to `STITCH_FLOW_MODE=manual`
+6. when using automated Stitch, review the generated output yourself first, then stop for user review before implementation
+7. Claude implements the UI directly in `claude-direct` mode or against the approved Stitch references in automated/manual modes, then stops for visual review
 7. if the story has UI scope, Codex waits for the approved UI handoff, then completes the remaining packet from that same story folder
 8. add the relevant evidence, rule-source, privacy, performance, and eval artifacts
 9. add `trace-brief.md` and run the trace-driven loop when the story includes prompt/model/tool-call or agentic LLM tuning

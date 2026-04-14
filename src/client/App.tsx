@@ -47,11 +47,15 @@ import type {
   BatchStreamItem,
   BatchTerminalSummary
 } from './batchTypes';
+import { AuthScreen } from './AuthScreen';
+import type { AuthPhase } from './authState';
 import { GuidedTourSpotlight } from './GuidedTourSpotlight';
 import { HelpLauncher } from './HelpLauncher';
 import { getTourSteps, type HelpShowMe } from './helpManifest';
+import { loadRemoteHelpManifest } from './help-runtime';
 import { loadHelpReplayState, saveHelpReplayState } from './helpReplayState';
 import { ImagePreviewOverlay } from './ImagePreviewOverlay';
+import { SignedInIdentity } from './SignedInIdentity';
 import { Intake } from './Intake';
 import { Processing } from './Processing';
 import { Results } from './Results';
@@ -381,7 +385,10 @@ export function App() {
   }));
   const [previewImage, setPreviewImage] = useState<BatchLabelImage | null>(null);
 
+  const [authPhase, setAuthPhase] = useState<AuthPhase>('signed-out');
+
   const initialReplay = useMemo(() => loadHelpReplayState(), []);
+  const [helpManifestRevision, setHelpManifestRevision] = useState(0);
   const [tourOpen, setTourOpen] = useState(false);
   const [tourStepIndex, setTourStepIndex] = useState(0);
   const [helpNudgeDismissed, setHelpNudgeDismissed] = useState<boolean>(
@@ -390,7 +397,21 @@ export function App() {
   const [tourCompleted, setTourCompleted] = useState<boolean>(
     initialReplay.tourCompleted
   );
-  const tourSteps = useMemo(() => getTourSteps(), []);
+  const tourSteps = useMemo(() => getTourSteps(), [helpManifestRevision]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    void loadRemoteHelpManifest().then(() => {
+      if (!ignore) {
+        setHelpManifestRevision((current) => current + 1);
+      }
+    });
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   const persistReplay = useCallback(
     (nudgeDismissed: boolean, completed: boolean) => {
@@ -1411,6 +1432,40 @@ export function App() {
 
   const onClosePreview = useCallback(() => setPreviewImage(null), []);
 
+  const onStartPiv = useCallback(() => setAuthPhase('piv-loading'), []);
+  const onStartSsoForm = useCallback(() => setAuthPhase('sso-form'), []);
+  const onBackFromSso = useCallback(() => setAuthPhase('signed-out'), []);
+  const onSubmitSso = useCallback(() => setAuthPhase('sso-loading'), []);
+  const onAuthPhaseComplete = useCallback(() => {
+    setAuthPhase((prev) => {
+      if (prev === 'piv-loading') return 'piv-success';
+      if (prev === 'sso-loading') return 'sso-success';
+      if (prev === 'piv-success' || prev === 'sso-success') return 'signed-in';
+      return prev;
+    });
+  }, []);
+
+  const onSignOut = useCallback(() => {
+    revokeImage(image);
+    setImage(null);
+    setFields(emptyIntake());
+    setBeverage('auto');
+    setScenarioId('blank');
+    setVariantOverride('auto');
+    setReport(null);
+    setMode('single');
+    setView('intake');
+    setBatchPhase('intake');
+    setDrillInRowId(null);
+    setDrillInRows([]);
+    setReviewedRowIds(new Set<string>());
+    setExportState({ kind: 'idle' });
+    setPreviewImage(null);
+    setTourOpen(false);
+    setTourStepIndex(0);
+    setAuthPhase('signed-out');
+  }, [image, revokeImage]);
+
   const onLaunchTour = useCallback(() => {
     setTourOpen(true);
     setTourStepIndex(0);
@@ -1476,6 +1531,19 @@ export function App() {
     },
     [mode]
   );
+
+  if (authPhase !== 'signed-in') {
+    return (
+      <AuthScreen
+        phase={authPhase}
+        onStartPiv={onStartPiv}
+        onStartSsoForm={onStartSsoForm}
+        onBackFromSso={onBackFromSso}
+        onSubmitSso={onSubmitSso}
+        onPhaseComplete={onAuthPhaseComplete}
+      />
+    );
+  }
 
   return (
     <div className="min-h-full flex flex-col bg-background">
@@ -1620,6 +1688,7 @@ export function App() {
               onLaunch={onLaunchTour}
               onDismissNudge={onDismissNudge}
             />
+            <SignedInIdentity onSignOut={onSignOut} />
           </div>
         </div>
       </header>

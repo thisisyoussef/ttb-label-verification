@@ -7,7 +7,7 @@
 - Parent: `TTB-004`
 - Lanes in scope: Claude (UI) + Codex (client-side state wiring and reset semantics)
 - Lane status:
-  - Claude lane: `in-progress` — UI spec drafted (`docs/specs/TTB-107/ui-component-spec.md`); Stitch brief + automated Stitch + implementation pending
+  - Claude lane: `in-progress` — UI spec drafted (`docs/specs/TTB-107/ui-component-spec.md`); Claude-direct implementation pending, with Stitch remaining optional for this story
   - Codex lane: `blocked-by-dependency` — Codex starts after Claude's UI direction is approved and the handoff is `ready-for-codex`
 - Packet mode: expanded working packet
 - Last reconciled: 2026-04-14 at the active-pickup gate, against `docs/process/SINGLE_SOURCE_OF_TRUTH.md`, `docs/backlog/codex-handoffs/TTB-106.md`, and `docs/reference/product-docs/ttb-user-personas.md`
@@ -66,7 +66,7 @@ The feature must feel authentic enough to show domain understanding, but it cann
 
 ## Technical plan
 
-- Expand this packet with Claude-owned UI planning docs (`ui-component-spec.md`, `stitch-screen-brief.md`) before implementation.
+- Expand this packet with Claude-owned UI planning docs (`ui-component-spec.md`, and `stitch-screen-brief.md` only if this story switches to a Stitch-assisted pass) before implementation.
 - Treat the feature as a shell wrapper plus a small state machine, not as a backend feature.
 - Claude designs:
   - Screen 0 government banner
@@ -87,7 +87,7 @@ The feature must feel authentic enough to show domain understanding, but it cann
 
 1. Reconcile this packet against the SSOT and persona doc (this planning revision).
 2. Write `ui-component-spec.md` covering the entry screen, government banner, card structure, flow states, signed-in shell treatment, copy constraints, and prototype-safety constraints.
-3. Write `stitch-screen-brief.md` and run the automated Stitch flow for the mock auth screen and signed-in shell header treatment.
+3. Default to a Claude-direct pass for the mock auth screen and signed-in shell header treatment; only use `stitch-screen-brief.md` plus Stitch if the story later switches to `STITCH_FLOW_MODE=automated` or `manual`.
 4. Implement the mock auth entry and signed-in shell presentation in `src/client/**`.
 5. Verify the screen feels institutional and calm without reading as a fake production portal; stop for visual review.
 6. After approval, write `docs/backlog/codex-handoffs/TTB-107.md` and update SSOT.
@@ -104,8 +104,8 @@ The feature must feel authentic enough to show domain understanding, but it cann
 
 - `docs/specs/TTB-107/story-packet.md` — this file (expanded packet).
 - `docs/specs/TTB-107/ui-component-spec.md` — to be created by Claude.
-- `docs/specs/TTB-107/stitch-screen-brief.md` — to be created by Claude.
-- `docs/specs/TTB-107/stitch-refs/` — created on Stitch return.
+- `docs/specs/TTB-107/stitch-screen-brief.md` — optional, only if this story uses automated/manual Stitch.
+- `docs/specs/TTB-107/stitch-refs/` — created only on Stitch return.
 - `docs/backlog/codex-handoffs/TTB-107.md` — created after UI approval.
 - Shared baseline: `docs/specs/TTB-105/story-packet.md`, `docs/specs/TTB-106/story-packet.md`, `docs/design/MASTER_DESIGN.md`, `docs/reference/product-docs/ttb-user-personas.md`, and the existing approved app shell in `src/client/**`.
 
