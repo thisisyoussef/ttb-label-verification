@@ -7,12 +7,12 @@
 
 ## Checks
 
-- [ ] OpenAI requests remain on the Responses API with `store: false`.
-- [ ] Gemini support is specified as inline-only for this product; no Files API uploads are permitted.
-- [ ] The target Gemini project keeps AI Studio logging and dataset sharing disabled.
-- [ ] No provider adapter logs raw label bytes, raw prompt bodies, or full raw model responses.
-- [ ] Unsupported-provider and privacy-policy failures do not fall through to a second provider automatically.
-- [ ] Explicit local-mode selection does not fall through to cloud providers automatically.
+- [x] OpenAI requests remain on the Responses API with `store: false`.
+- [x] Gemini support is specified as inline-only for this product; no Files API uploads are permitted.
+- [x] The target Gemini project keeps AI Studio logging and dataset sharing disabled.
+- [x] No provider adapter logs raw label bytes, raw prompt bodies, or full raw model responses.
+- [x] Unsupported-provider and privacy-policy failures do not fall through to a second provider automatically.
+- [x] Explicit local-mode selection does not fall through to cloud providers automatically.
 
 ## Negative verification
 
@@ -23,3 +23,4 @@
 ## Notes
 
 - This story is the policy layer. The live Gemini extraction adapter arrives in `TTB-207`.
+- Verification: factory and route tests now cover invalid provider-order config, explicit local-mode fail-closed behavior, and the unchanged default OpenAI/cloud path.

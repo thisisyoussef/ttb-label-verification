@@ -37,6 +37,7 @@
 - Letting the warning diff collapse into overly broad case-mismatch spans that stop matching the approved UI evidence semantics
 - Adding Gemini through the Files API or any other provider-managed durable upload surface inside a no-persistence product
 - Treating provider fallback as a route-local try/catch instead of a typed capability policy with explicit retry and privacy classification
+- Instantiating the OpenAI extractor directly in routes or batch orchestration instead of going through the shared extractor factory
 - Letting an explicit `local` mode selection silently hop back to Gemini or OpenAI after a failure
 - Flipping `latencyBudgetMs` from `5000` to `4000` before the optimized path is actually measured against the approved fixture slice
 - Treating explicit provider caching or raw timing logs as acceptable shortcuts to a faster path

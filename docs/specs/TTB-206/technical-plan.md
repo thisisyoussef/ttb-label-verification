@@ -95,3 +95,5 @@ Each provider leg should expose:
   - current OpenAI-backed `ReviewExtraction` and `VerificationReport` payloads stay unchanged
 - mutation-worthy modules:
   - provider-order parser and fallback classifier
+- mutation note:
+  - a targeted Stryker run against `src/server/ai-provider-policy.ts` was started on 2026-04-14 and aborted at 41% after 16 timeouts / 0 survivors because the current harness expanded the file to 201 mutants with low-signal runtime overhead; rely on the focused unit + integration coverage until the mutation harness is tightened for this module.

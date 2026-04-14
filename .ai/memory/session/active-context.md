@@ -1,6 +1,6 @@
 # Active Context
 
-- Current focus: `TTB-106`, `TTB-107`, and the current OpenAI-backed `TTB-211` override slice are complete; `TTB-108` is now the next ready Claude story for the mode selector, `TTB-206` is the next blocking new Codex story, cloud extraction migration continues through `TTB-207`, cloud latency hardening is planned as `TTB-208` plus `TTB-209`, the restricted-network local mode is planned as `TTB-212`, and the remaining user-centered prompt/guardrail hardening follow-on is `TTB-210`.
+- Current focus: `TTB-106`, `TTB-107`, `TTB-206`, and the current OpenAI-backed `TTB-211` eval foundation are complete; `TTB-108` is still the next ready Claude story for the mode selector, `TTB-207` is now the next blocking Codex story, cloud latency hardening remains planned as `TTB-208` plus `TTB-209`, the restricted-network local mode remains planned as `TTB-212`, and the remaining prompt-policy hardening follow-on is `TTB-210`.
 - `TTB-107` is now published from the clean branch `codex/TTB-107-auth-publish` and merged into `main`: the packet is expanded, auth regression coverage lives in `src/client/auth-state.test.tsx`, and the root auth flow uses shared helper seams for phase advancement, delay selection, and sign-out reset orchestration.
 - Final verification for the `TTB-107` publish path passed after rebasing onto `origin/main`: `npm run test`, `npm run typecheck`, `npm run build`, `npm run gate:push`, and `npm run gate:publish`.
 - GitHub repo and Railway project are now live; the checked-in deploy flow uses GitHub Actions plus Railway CLI.
@@ -34,8 +34,8 @@
 - The guided-tour spotlight overlay now measures targets and positions callouts in viewport coordinates, not document coordinates, so the highlight stays aligned on scrolled results pages.
 - The guided-tour callout now measures its real rendered height and clamps itself within the viewport instead of relying on a fixed-height estimate; `Finish` resets the signed-in shell back to blank single-label intake.
 - `TTB-108` is now the next ready Claude story and adds the small cloud/local extraction selector plus mode-aware processing copy to the signed-in shell.
-- `TTB-206` is now the next blocking Codex planning and implementation story; it defines extraction-mode routing and cloud/local privacy-safe policy.
-- `TTB-207` follows `TTB-206` and is the actual Gemini-primary cloud extraction cutover, including trace, eval, privacy, and timing proof before any default flip.
+- `TTB-206` is now complete: `src/server/ai-provider-policy.ts` and `src/server/review-extractor-factory.ts` define the extraction-mode resolver, provider-order parsing, explicit local fail-closed behavior, and the shared factory used by single-label plus batch routes.
+- `TTB-207` is now the next Codex story and is the actual Gemini-primary cloud extraction cutover, including trace, eval, privacy, and timing proof before any default flip.
 - `TTB-208` follows `TTB-207` and adds stage-level timing plus sub-4-second budget framing on the default cloud route.
 - `TTB-209` uses that timing foundation to tune the default cloud hot path down to `<= 4,000 ms` and is the only planned story allowed to flip the visible latency budget from `5000` to `4000`.
 - `TTB-212` follows `TTB-209` and adds the Ollama/Qwen restricted-network local extraction path without changing the deterministic validator pipeline.
