@@ -25,6 +25,7 @@ The repo has a light harness, but it does not yet enforce the default gauntlet w
 4. The repo has reusable spec templates for future stories.
 5. Repo-managed git hooks and a publish gate make unpublished branch state a workflow blocker instead of a reminder.
 6. The repo keeps a checked-in evaluator-facing README and submission baseline that document deliverables, approach, tools, assumptions, and evaluation framing from current checked-in truth.
+7. The repo treats “published, validated, mergeable, but still unmerged” as a workflow failure for normal story branches, with explicit exceptions for backup and maintenance refs.
 
 ## Edge cases
 

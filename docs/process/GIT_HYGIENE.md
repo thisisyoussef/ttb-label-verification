@@ -129,6 +129,8 @@ Reviewable merge gate:
 - GitHub now allows only rebase merges into `main`; squash merges and merge commits are disabled so story commits stay visible in the mainline history.
 - GitHub deletes merged branches automatically after merge.
 - GitHub Actions now auto-update clean story PR branches when `main` moves and auto-merge eligible story PRs after green CI. Branches with real conflicts stay open for manual resolution.
+- A published, validated, mergeable story branch should be merged promptly. Leaving reviewable work unmerged is a workflow failure unless the user explicitly asks to hold it or a concrete blocker exists.
+- Do not apply that rule to `archive/*`, `rewrite/*`, or long-lived environment rails like `production`; those refs exist for backup, maintenance, or deployment control, not for feature-history consolidation.
 
 Deployment branch rules:
 

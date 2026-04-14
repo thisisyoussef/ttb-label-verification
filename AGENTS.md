@@ -100,6 +100,7 @@ Use the checked-in docs deliberately, not as background noise:
 - Use the local `railway` CLI for Railway bootstrap, status, logs, and manual spot checks. Do not treat ad hoc dashboard clicks as the harness source of truth.
 - Follow `docs/process/GIT_HYGIENE.md` before committing, pushing, or merging. Use `npm run gate:commit` before reviewable commits, `npm run gate:push` before reviewable pushes, and `npm run gate:publish` before any handoff or final response that claims the branch is available on GitHub. Story work happens on story-scoped branches, not directly on `main` or `production`.
 - `main` history is intentionally linear and story-shaped. Story branches merge to `main` via rebase only; do not squash story work or rely on merge commits if you want GitHub history to stay truthful.
+- A published, validated, reviewable story branch is not considered done while it remains unmerged. Merge it into `main` before final handoff unless the user explicitly asks to hold it or a concrete blocker exists such as failing CI or unresolved conflicts. `archive/*`, `rewrite/*`, and long-lived deployment rails like `production` are explicit exceptions and must not be swept into `main` as if they were story branches.
 - For `standard` non-UI-first work, run `.ai/workflows/spec-driven-delivery.md` and write the artifact set under `docs/specs/<story-id>/` using the conventions in `docs/specs/README.md` and `.ai/docs/SPEC_CREATION_METHODOLOGY.md`.
 - For stories with material UI scope, Claude follows `docs/process/UI_CLAUDE_CHECKLIST.md` plus `docs/process/STITCH_AUTOMATION.md`: create or update `docs/specs/<story-id>/ui-component-spec.md`, use `docs/specs/<story-id>/stitch-screen-brief.md` only when the selected mode uses Stitch, implement directly when `STITCH_FLOW_MODE=claude-direct` (default), or self-review generated refs before user review when `STITCH_FLOW_MODE=automated`, or stop for Comet assets when `STITCH_FLOW_MODE=manual`, then get user visual approval and finally write `docs/backlog/codex-handoffs/<story-id>.md`.
 - Codex must not begin implementation work for a story with UI scope until the Claude UI phase is complete and the handoff is marked `ready-for-codex`.
@@ -170,6 +171,7 @@ Refresh the smallest set needed after each story:
 - `npm run gate:commit`
 - `npm run gate:push` before any reviewable or deploy-triggering push
 - `npm run gate:publish` before any QA-style handoff, final acceptance handoff, or claim that the branch is published on GitHub
+- For mergeable story branches, verify they are actually merged to `main` before calling the work complete. If not merged, report the exact blocker.
 - `npm run test:mutation -- --mutate "<path>"` for changed high-risk pure modules, or an explicit waiver in the handoff
 - Re-read `docs/process/SINGLE_SOURCE_OF_TRUTH.md` when story ownership, handoff state, or queue status changes during the work.
 - Re-read `.ai/docs/WORKSPACE_INDEX.md` when the harness or planning docs change.

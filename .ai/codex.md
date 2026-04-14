@@ -126,10 +126,11 @@ Codex must block and redirect instead of improvising outside its lane.
 11. Run the relevant eval slice, trace loop, privacy checks, and measured timing before final handoff.
 12. Verify the result with `npm run test`, `npm run typecheck`, and `npm run build`.
 13. Run `npm run gate:commit` before a reviewable commit, `npm run gate:push` before a reviewable push, and `npm run gate:publish` before any handoff or reply that claims the branch is on GitHub.
-14. If the story changed visible or repeatable runtime behavior, start the local app/server and hand the exact URL plus a concrete manual test script to the user.
-15. Do not use Playwright or other browser automation as the final acceptance gate for visible Codex stories.
-16. For deployable implementation stories, follow `docs/process/DEPLOYMENT_FLOW.md` and report staging-deploy status or the exact CI/Railway blocker.
-17. Update the presearch, spec packet, rule index, eval result, backlog item, deploy note, or memory docs when durable truth changes.
+14. If the branch is published, validated, and mergeable, merge it into `main` before calling the work complete unless the user explicitly asks to hold it or a concrete blocker exists.
+15. If the story changed visible or repeatable runtime behavior, start the local app/server and hand the exact URL plus a concrete manual test script to the user.
+16. Do not use Playwright or other browser automation as the final acceptance gate for visible Codex stories.
+17. For deployable implementation stories, follow `docs/process/DEPLOYMENT_FLOW.md` and report staging-deploy status or the exact CI/Railway blocker.
+18. Update the presearch, spec packet, rule index, eval result, backlog item, deploy note, or memory docs when durable truth changes.
 
 When touching `src/client/**` for integration wiring:
 

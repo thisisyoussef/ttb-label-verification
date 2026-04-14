@@ -47,6 +47,7 @@ Claude should actively reference these docs while working:
 - After the runnable full-screen set exists, stop for user visual review.
 - After feedback is incorporated and the UI direction is approved, write `docs/backlog/codex-handoffs/<story-id>.md` so Codex can finish the engineering and full spec packet.
 - Follow `docs/process/GIT_HYGIENE.md` for branch, commit, and push behavior. Run `npm run gate:commit` before reviewable commits, `npm run gate:push` before reviewable pushes, and `npm run gate:publish` before any handoff or reply that claims the branch is on GitHub. Claude may push draft UI work before approval, but must not present the branch as `ready-for-codex` until the user approved the UI direction and the publish gate passes.
+- Once a Claude-owned branch is approved, published, validated, and mergeable, do not leave it hanging. Merge it into `main` before treating the work as complete unless the user explicitly asks to hold it or a concrete blocker exists. `archive/*`, `rewrite/*`, and `production` are exceptions.
 
 ## Blocking behavior
 
@@ -237,8 +238,9 @@ ttb-label-verification/
    - required data fields, API behavior, validation behavior, and error/loading states Codex must support
    - privacy and latency constraints the backend must preserve
    - open questions or known engineering gaps
-15. Update `docs/process/SINGLE_SOURCE_OF_TRUTH.md`, then stop the current story. Codex can pick it up from there when engineering is needed.
-16. If the user says `continue` after that handoff, resolve the next Claude-owned UI story from `docs/process/SINGLE_SOURCE_OF_TRUTH.md` instead of treating the Codex queue as a blocker.
+15. Publish and merge the clean UI branch once it is approved and mergeable; if it is not merged, report the exact blocker instead of treating the work as complete.
+16. Update `docs/process/SINGLE_SOURCE_OF_TRUTH.md`, then stop the current story. Codex can pick it up from there when engineering is needed.
+17. If the user says `continue` after that handoff, resolve the next Claude-owned UI story from `docs/process/SINGLE_SOURCE_OF_TRUTH.md` instead of treating the Codex queue as a blocker.
 
 ## Lane exceptions
 

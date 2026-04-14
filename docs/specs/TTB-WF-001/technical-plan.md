@@ -20,6 +20,7 @@ Add the checked-in workflow layer under `docs/process/` and `.ai/`, then connect
 - Add `docs/process/CODEX_CHECKLIST.md`
 - Update `README.md`
 - Add `docs/reference/submission-baseline.md`
+- Tighten merge-default instructions in `AGENTS.md`, `CLAUDE.md`, `.ai/codex.md`, `.ai/agents/claude.md`, and `docs/process/GIT_HYGIENE.md`
 - Update `.ai/docs/WORKSPACE_INDEX.md`
 - Update `.ai/docs/SINGLE_SOURCE_OF_TRUTH.md`
 - Add `.ai/memory/**`
@@ -33,6 +34,7 @@ Add the checked-in workflow layer under `docs/process/` and `.ai/`, then connect
 - No runtime API or UI contract changes
 - Workflow contract becomes checked-in and explicit
 - Submission-facing documentation should stay grounded in the current checked-in prototype rather than roadmap-only claims
+- Reviewable story branches should merge promptly to `main`, with explicit exceptions only for backup, maintenance, and deployment-control refs
 
 ## Risks and fallback
 

@@ -35,3 +35,9 @@
 - Objective: keep evaluator-facing delivery docs checked in by upgrading the top-level README and maintaining a submission baseline for deliverables, tools, assumptions, and evaluation criteria
 - Dependency: `parallel`
 - Validation: `README.md` and `docs/reference/submission-baseline.md` match the current checked-in build and verified deployed review URL
+
+## Task 7
+
+- Objective: treat unmerged-but-reviewable branches as a workflow failure by updating the agent contracts and merge-gate docs
+- Dependency: `parallel`
+- Validation: `AGENTS.md`, `CLAUDE.md`, `.ai/codex.md`, `.ai/agents/claude.md`, and `docs/process/GIT_HYGIENE.md` all describe the same merge-default rule and the same `archive/*` / `rewrite/*` / `production` exceptions
