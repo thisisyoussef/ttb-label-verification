@@ -22,7 +22,7 @@ Claude should actively reference these docs while working:
 - `docs/process/SINGLE_SOURCE_OF_TRUTH.md` for current owner, gate, and next story state
 - `docs/specs/FULL_PRODUCT_SPEC.md` for the complete product shape and leaf-story map
 - `docs/process/UI_CLAUDE_CHECKLIST.md` for the required UI-phase workflow
-- `docs/process/STITCH_AUTOMATION.md` for the project-default automated Stitch flow and explicit manual Comet fallback
+- `docs/process/STITCH_AUTOMATION.md` for the Claude-direct default UI flow plus automated/manual Stitch alternatives
 - `docs/process/GIT_HYGIENE.md` for branch, commit, push, and merge gates
 - `docs/specs/<story-id>/` for the shared story packet
 - `docs/reference/env-audit-2026-04-13.md` for current integration/env assumptions
@@ -34,16 +34,16 @@ Claude should actively reference these docs while working:
 ## Primary lane
 
 - Build and refine the review experience only.
-- The default UI flow is Stitch-assisted and automated-first: write the screen brief, run the repo Stitch tooling, stop for user review of the generated refs, then implement from the approved Stitch image and HTML references.
-- Manual Comet Stitch is the fallback path when the user explicitly sets `STITCH_FLOW_MODE=manual` for the current pass or local Stitch auth is unavailable.
+- The default UI flow is `STITCH_FLOW_MODE=claude-direct`: build directly from the checked-in packet, master design, and seeded scenarios, then stop for user visual review.
+- Automated Stitch is now opt-in via `STITCH_FLOW_MODE=automated`, and manual Comet is opt-in via `STITCH_FLOW_MODE=manual`.
 - After each automated Stitch run, review the generated output yourself before asking the user to review it. Compare it against `ui-component-spec.md`, `stitch-screen-brief.md`, `docs/design/MASTER_DESIGN.md`, and the current story goal. If the result is obviously off, update the brief and rerun before user handoff.
 - Use realistic seeded data and read the current shared contract in `src/shared/contracts/review.ts`.
 - Base seeded UI states on the golden eval set in `evals/golden/manifest.json`, using the live core-six subset in `evals/labels/manifest.json` as the default seeded baseline.
 - Treat `docs/design/MASTER_DESIGN.md` as the durable design baseline for the product.
 - Keep the interface large-text friendly, keyboard reachable, and understandable in two clicks or less for the main single-label flow.
 - Treat the government warning section as the densest UI surface and keep it readable when expanded.
-- For non-trivial UI-first feature work, create or update `docs/specs/<story-id>/ui-component-spec.md` and `docs/specs/<story-id>/stitch-screen-brief.md` before implementation.
-- Do not silently switch away from the project default automated Stitch flow unless the user explicitly sets `STITCH_FLOW_MODE=manual` for the current pass or the local Stitch config is unavailable.
+- For non-trivial UI-first feature work, create or update `docs/specs/<story-id>/ui-component-spec.md` before implementation, and create or update `docs/specs/<story-id>/stitch-screen-brief.md` only when the selected pass uses Stitch.
+- Do not silently switch away from the project default Claude-direct flow unless the user explicitly sets `STITCH_FLOW_MODE=automated` or `STITCH_FLOW_MODE=manual` for the current pass.
 - After the runnable full-screen set exists, stop for user visual review.
 - After feedback is incorporated and the UI direction is approved, write `docs/backlog/codex-handoffs/<story-id>.md` so Codex can finish the engineering and full spec packet.
 - Follow `docs/process/GIT_HYGIENE.md` for branch, commit, and push behavior. Run `npm run gate:commit` before reviewable commits, `npm run gate:push` before reviewable pushes, and `npm run gate:publish` before any handoff or reply that claims the branch is on GitHub. Claude may push draft UI work before approval, but must not present the branch as `ready-for-codex` until the user approved the UI direction and the publish gate passes.
@@ -55,7 +55,7 @@ Claude must block and redirect instead of improvising outside its lane.
 - If the user says `continue` or `continue with the next story`, resolve that request from `docs/process/SINGLE_SOURCE_OF_TRUTH.md` and `.ai/workflows/continue-next-story.md` instead of guessing.
 - If the user explicitly asks Claude to do backend or engineering work, stop and tell the user to continue in Codex.
 - If `stitch-screen-brief.md` is ready and the current pass is automated, run `npm run stitch:story -- <story-id>`, review the generated refs yourself, and only then stop for user review.
-- If the current pass expects automated Stitch but neither env-based Stitch auth nor the local project Stitch MCP config is available, stop and tell the user to either restore the Stitch config or explicitly switch this pass to `STITCH_FLOW_MODE=manual` for a Comet fallback. If Claude must hand off to manual mode, paste the full text of `stitch-screen-brief.md` inline in the chat so the user can run it without opening the file.
+- If the current pass expects automated Stitch but neither env-based Stitch auth nor the local project Stitch MCP config is available, stop and tell the user to either restore the Stitch config or explicitly switch this pass to `STITCH_FLOW_MODE=manual` for a Comet fallback or `STITCH_FLOW_MODE=claude-direct` for direct implementation. If Claude must hand off to manual mode, paste the full text of `stitch-screen-brief.md` inline in the chat so the user can run it without opening the file.
 - If the user explicitly asks Claude to continue the same approved story after the UI handoff and the remaining work is contract, API, validator, orchestration, testing, or integration work, stop and tell the user to move to Codex with `docs/specs/<story-id>/` and `docs/backlog/codex-handoffs/<story-id>.md`.
 - Do not treat pending Codex work as a blocker for future UI stories. After a UI handoff is written, resolve the next Claude-owned story from the tracker and keep moving through the UI queue.
 - Do not promise staging or production deployment from Claude. Deployment ownership sits in Codex and the Railway CLI/GitHub Actions release flow.
@@ -80,7 +80,7 @@ Claude must block and redirect instead of improvising outside its lane.
 - `docs/design/MASTER_DESIGN.md` is the durable product-level design baseline.
 - `docs/process/DEPLOYMENT_FLOW.md` defines what happens after a Codex-completed story is merged.
 - `docs/specs/<story-id>/ui-component-spec.md` is the per-feature implementation design doc.
-- `docs/specs/<story-id>/stitch-screen-brief.md` is the Google Stitch prompt/reference doc Claude prepares for the user and then updates with the returned Stitch assets.
+- `docs/specs/<story-id>/stitch-screen-brief.md` is the Google Stitch prompt/reference doc Claude prepares and updates only when a pass uses automated or manual Stitch.
 - `docs/specs/<story-id>/story-packet.md` is an allowed compact packet for pre-authored leaf stories; expand it before active implementation if the story needs the full standard artifact set.
 - Do not create a parallel per-story `design.md`. In this repo, the feature design output belongs in `ui-component-spec.md`.
 - **Packet reconciliation.** A compact `story-packet.md` is a planning artifact, not a frozen contract. When Claude expands the packet for active implementation, Claude MUST treat `docs/process/SINGLE_SOURCE_OF_TRUTH.md` and any `docs/backlog/codex-handoffs/<story-id>.md` as the live source of truth for lane ownership and scope, and must edit the packet to match. Specifically:
@@ -92,7 +92,7 @@ Claude must block and redirect instead of improvising outside its lane.
 
 ## Feature design generation contract
 
-For non-trivial UI-first feature work, generate or update `docs/specs/<story-id>/ui-component-spec.md` and `docs/specs/<story-id>/stitch-screen-brief.md` using the context already in the repo before asking for more information.
+For non-trivial UI-first feature work, generate or update `docs/specs/<story-id>/ui-component-spec.md`, and generate or update `docs/specs/<story-id>/stitch-screen-brief.md` only when the selected pass uses Stitch, using the context already in the repo before asking for more information.
 
 Read first:
 
@@ -216,12 +216,12 @@ ttb-label-verification/
 4. Read `docs/design/MASTER_DESIGN.md`.
 5. Read `evals/labels/README.md` and the label scenario manifest before inventing seeded result states.
 6. If the active leaf story only has `story-packet.md`, expand it into the working docs you need before UI implementation.
-7. Create or update `docs/specs/<story-id>/ui-component-spec.md` and `docs/specs/<story-id>/stitch-screen-brief.md` using the feature design generation contract above.
-8. Default path: run `npm run stitch:story -- <story-id>` to generate and record Stitch output directly.
-9. Review the generated Stitch output yourself against the packet and master design before showing it to the user. If it is clearly off, revise the brief and rerun.
-10. Stop for user review of the generated Stitch output before implementation using `.ai/workflows/story-handoff.md`.
-11. If this pass is explicitly switched to `STITCH_FLOW_MODE=manual` or local Stitch auth is broken, stop for a manual Stitch prep handoff in Comet instead.
-12. Implement the screens in `src/client/**` against the approved Stitch references. Use mock data or no data where possible until Codex wires live behavior.
+7. Create or update `docs/specs/<story-id>/ui-component-spec.md`, and create or update `docs/specs/<story-id>/stitch-screen-brief.md` only when the selected pass uses Stitch.
+8. Default path: keep `STITCH_FLOW_MODE=claude-direct` and implement directly from the checked-in design context.
+9. If this pass is explicitly switched to `STITCH_FLOW_MODE=automated`, run `npm run stitch:story -- <story-id>` to generate and record Stitch output directly, then review the generated Stitch output yourself against the packet and master design before showing it to the user. If it is clearly off, revise the brief and rerun.
+10. If this pass is explicitly switched to `STITCH_FLOW_MODE=manual`, stop for a manual Stitch prep handoff in Comet instead.
+11. When a Stitch-assisted pass is in play, stop for user review of the generated Stitch output before implementation using `.ai/workflows/story-handoff.md`.
+12. Implement the screens in `src/client/**` directly in Claude-direct mode or against the approved Stitch references in automated/manual modes. Use mock data or no data where possible until Codex wires live behavior.
 13. Before handing off for visual review, start the dev server yourself and open the app in Comet:
    - run `npm run dev` in the background (Vite on 5176, API on 8787; Vite auto-bumps the port if 5176 is occupied — read the background log for the actual URL)
    - open the resolved URL in Comet via `open -a "Comet" "<url>"`

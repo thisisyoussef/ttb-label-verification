@@ -6,7 +6,7 @@
 - `docs/reference/env-audit-2026-04-13.md` — current local env and API-key audit for this repo
 - `docs/process/TRACE_DRIVEN_DEVELOPMENT.md` — LangSmith-backed trace loop for prompt, model, tool-call, and agentic tuning
 - `docs/process/TEST_QUALITY_STANDARD.md` — repo standard for strong TDD, contract, property, and mutation-test design
-- `docs/process/STITCH_AUTOMATION.md` — automated-first Stitch flow, self-review gate, and explicit manual Comet fallback
+- `docs/process/STITCH_AUTOMATION.md` — Claude-direct default UI flow plus automated/manual Stitch alternatives
 - `docs/process/DEPLOYMENT_FLOW.md` — GitHub repo bootstrap, Railway staging/prod flow, and story-to-deploy rules
 - `docs/process/GIT_HYGIENE.md` — branch, commit, push, and merge gates for story work
 - `scripts/bootstrap-local-env.ts` — creates or refreshes an ignored repo `.env` from the local gauntlet env inventory without printing secrets

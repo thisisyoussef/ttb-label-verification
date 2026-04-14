@@ -1,23 +1,25 @@
 # Stitch Automation
 
-This repo uses local Stitch automation as the default UI-generation path, with manual Comet fallback kept available when the user explicitly switches modes or local Stitch auth is unavailable.
+This repo uses a Claude-direct UI flow by default, with automated Stitch and manual Comet both available as explicit alternate modes when a story benefits from them.
 
 ## Flow flag
 
-Use `STITCH_FLOW_MODE` to switch between the two supported modes:
+Use `STITCH_FLOW_MODE` to switch between the three supported modes:
 
-- `automated` — project default. If the variable is unset, the harness assumes this mode. Claude runs Stitch directly through the repo tooling, records the generated references, self-reviews the result, then stops for user review before implementation.
-- `manual` — explicit fallback. Claude writes or updates the brief, then stops so the user can run Stitch in Comet.
+- `claude-direct` — project default. If the variable is unset, the harness assumes this mode. Claude works directly from the checked-in packet, master design, and seeded scenarios, then stops for user visual review before implementation handoff.
+- `automated` — opt-in Stitch automation. Claude runs Stitch directly through the repo tooling, records the generated references, self-reviews the result, then stops for user review before implementation.
+- `manual` — explicit Comet fallback. Claude writes or updates the brief, then stops so the user can run Stitch in Comet.
 
 ## Default lane behavior
 
-- Default UI flow: Claude writes `docs/specs/<story-id>/stitch-screen-brief.md`, runs `npm run stitch:story -- <story-id>`, records the generated references, reviews the generated output against the packet, then stops for user review before implementation.
+- Default UI flow: Claude works directly from `docs/specs/<story-id>/ui-component-spec.md`, `docs/design/MASTER_DESIGN.md`, and the approved repo context. No Stitch generation step is required in this mode.
+- Stitch-assisted flow: when `STITCH_FLOW_MODE=automated`, Claude writes `docs/specs/<story-id>/stitch-screen-brief.md`, runs `npm run stitch:story -- <story-id>`, records the generated references, reviews the generated output against the packet, then stops for user review before implementation.
 - Manual Stitch browser work should use Comet, not Chrome.
 - Codex may wire and verify the Stitch harness, but Codex does not design screens or generate new UI direction.
 
 ## Optional local automation
 
-Use the local Stitch helpers as the normal path when the UI lane needs Stitch output, and additionally when one of these is true:
+Use the local Stitch helpers when the current UI pass actually needs Stitch output, and additionally when one of these is true:
 
 - the user explicitly wants direct Stitch generation or edits from the repo workflow
 - the harness itself is being tested or debugged
@@ -32,7 +34,7 @@ Automation does not replace the lane split:
 
 Local-only environment variables:
 
-- `STITCH_FLOW_MODE` as `automated` or `manual`; if unset, the repo defaults to `automated`
+- `STITCH_FLOW_MODE` as `claude-direct`, `automated`, or `manual`; if unset, the repo defaults to `claude-direct`
 - `STITCH_API_KEY` for API-key auth
 - `STITCH_PROJECT_ID` to target a specific existing project during smoke tests
 - `STITCH_PROJECT_TITLE` for automatic project reuse/creation when `STITCH_PROJECT_ID` is unset
@@ -91,7 +93,9 @@ Automated story generation from a checked-in brief:
 npm run stitch:story -- <story-id>
 ```
 
-What it does in the default automated flow (`STITCH_FLOW_MODE=automated`, or unset):
+This command only runs when `STITCH_FLOW_MODE=automated`. In `claude-direct` or `manual`, it exits immediately with a mode-specific guidance error.
+
+What it does in automated flow (`STITCH_FLOW_MODE=automated`):
 
 - reads `docs/specs/<story-id>/stitch-screen-brief.md`
 - extracts the section 3 prompt
@@ -171,12 +175,10 @@ Rules:
 
 ### Claude lane
 
-1. Write or update `stitch-screen-brief.md`.
-2. Default path: run `npm run stitch:story -- <story-id>` from the repo workflow and record the generated references.
-3. Review the generated output against the story packet and master design before asking the user to look at it.
-4. Stop for user review of the generated Stitch output before implementation.
-5. If the user explicitly switches this pass to `STITCH_FLOW_MODE=manual`, stop instead for the user to run Stitch manually in Comet and return image plus HTML/code references.
-6. Implement `src/client/**` from the approved references.
+1. Default path (`STITCH_FLOW_MODE=claude-direct`): work directly from the checked-in packet and approved design context, self-review the result, then stop for user visual review.
+2. Automated path (`STITCH_FLOW_MODE=automated`): write or update `stitch-screen-brief.md`, run `npm run stitch:story -- <story-id>`, review the generated output against the story packet and master design, then stop for user review of the generated Stitch output before implementation.
+3. Manual path (`STITCH_FLOW_MODE=manual`): write or update `stitch-screen-brief.md`, then stop for the user to run Stitch manually in Comet and return image plus HTML/code references.
+4. Implement `src/client/**` directly in Claude-direct mode, or from the approved Stitch references in automated/manual modes.
 
 ### Codex lane
 
@@ -186,6 +188,8 @@ Rules:
 
 ## Blocking rules
 
+- If the current pass is `claude-direct`, Claude should not block on Stitch.
 - If `stitch-screen-brief.md` is ready and the current pass is automated, Claude should run the repo automation, self-review the result, and only then hand it to the user.
-- If the automated Stitch path is expected for the current pass but neither env-based auth nor the local Stitch MCP config is available, Claude stops and asks the user to either restore the Stitch config or explicitly switch the pass to `STITCH_FLOW_MODE=manual` for a Comet fallback.
+- If the automated Stitch path is expected for the current pass but neither env-based auth nor the local Stitch MCP config is available, Claude stops and asks the user to either restore the Stitch config or explicitly switch the pass to `STITCH_FLOW_MODE=manual` for a Comet fallback or `STITCH_FLOW_MODE=claude-direct` for direct implementation.
+- If the current pass is manual, Claude stays blocked until the user returns the requested Stitch assets.
 - If Codex needs a new UI direction or a fresh Stitch pass, Codex stops and redirects to Claude.

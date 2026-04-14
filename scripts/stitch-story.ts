@@ -4,6 +4,10 @@ import path from "node:path";
 import { Stitch, StitchToolClient } from "@google/stitch-sdk";
 import { getStitchClientConfig } from "./stitch-auth.js";
 import {
+  getStitchFlowMode,
+  requireAutomatedStitchFlow,
+} from "./stitch-flow-mode.js";
+import {
   findProjectById,
   findProjectByPreferredTitle,
   getConfiguredProjectId,
@@ -49,20 +53,6 @@ function getStoryId(): string {
   }
 
   return storyId;
-}
-
-function getFlowMode(): string {
-  return process.env.STITCH_FLOW_MODE?.trim().toLowerCase() || "automated";
-}
-
-function requireAutomatedFlowMode(): void {
-  const flowMode = getFlowMode();
-
-  if (flowMode !== "automated") {
-    throw new Error(
-      "Stitch automated flow is disabled for this run. Leave STITCH_FLOW_MODE unset or set it to 'automated'. Use 'manual' only for an explicit Comet fallback."
-    );
-  }
 }
 
 function extractSection(markdown: string, heading: string): string {
@@ -547,7 +537,8 @@ function appendToReturnedReferencesSection(
 }
 
 async function main(): Promise<void> {
-  requireAutomatedFlowMode();
+  const flowMode = getStitchFlowMode();
+  requireAutomatedStitchFlow(flowMode);
 
   const storyId = getStoryId();
   const briefPath = path.resolve(
@@ -585,7 +576,7 @@ async function main(): Promise<void> {
     await writeFile(path.join(runDir, "prompt.txt"), `${prompt}\n`);
 
     console.log(
-      `[stitch] story=${storyId} flow=automated project=${projectInfo.projectTitle}`
+      `[stitch] story=${storyId} flow=${flowMode} project=${projectInfo.projectTitle}`
     );
 
     const beforeScreens = await listProjectScreens(api, projectInfo.projectId);
@@ -622,7 +613,7 @@ async function main(): Promise<void> {
           {
             storyId,
             generatedAt: runDisplayTimestamp,
-            flowMode: getFlowMode(),
+            flowMode,
             project: {
               id: projectInfo.projectId,
               title: projectInfo.projectTitle,
@@ -730,7 +721,7 @@ async function main(): Promise<void> {
     const manifest = {
       storyId,
       generatedAt: runDisplayTimestamp,
-      flowMode: getFlowMode(),
+      flowMode,
       reviewRequired,
       project: {
         id: projectInfo.projectId,
@@ -749,7 +740,7 @@ async function main(): Promise<void> {
 
     const appendix = buildBriefAppendix({
       generatedAt: runDisplayTimestamp,
-      flowMode: getFlowMode(),
+      flowMode,
       reviewRequired,
       projectId: projectInfo.projectId,
       projectTitle: projectInfo.projectTitle,

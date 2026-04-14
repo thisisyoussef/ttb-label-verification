@@ -8,10 +8,10 @@
 - Lanes in scope: Claude (UI) + Codex (typed help contracts + manifest routes + demo fixtures)
 - Lane status:
   - Claude lane: `done` — UI approved 2026-04-14; `docs/backlog/codex-handoffs/TTB-106.md` written as `ready-for-codex`
-  - Codex lane: `ready-parallel` — typed help contract + stateless manifest route + optional demo-fixture wiring, available for Codex pickup
+  - Codex lane: `done` — typed help contract, shared manifest fixture, stateless manifest route, and client cutover landed 2026-04-14
   - Note: the packet was earlier edited to claim this story was blocked by `TTB-107`. The user explicitly overrode that gate ("nah finish 106 first"); `TTB-106` landed first. `TTB-107` is now the next ready Claude story.
 - Packet mode: expanded working packet
-- Last reconciled: 2026-04-14 at the handoff gate, against `docs/process/SINGLE_SOURCE_OF_TRUTH.md`, the completed Codex integration in `TTB-205` + `TTB-301`, and `docs/backlog/codex-handoffs/TTB-106.md`
+- Last reconciled: 2026-04-14 after Codex completion, against `docs/process/SINGLE_SOURCE_OF_TRUTH.md`, the completed Codex integration in `TTB-205` + `TTB-301`, and `docs/backlog/codex-handoffs/TTB-106.md`
 
 ## Constitution check
 
@@ -90,11 +90,11 @@ This story adds an optional, replayable guided review plus a contextual info lay
 
 ### Codex lane (tracked here for scope clarity; executed after Claude approval)
 
-1. Typed help contract under `src/shared/contracts/**`.
-2. Stateless manifest and recommendation routes under `src/server/**`.
-3. Deterministic content seeded for every semantic anchor Claude lands.
-4. Replay-safe demo fixtures wired to the guided tour's `Show me` transitions.
-5. Verify privacy, accessibility, and manual QA coverage.
+1. Typed help contract under `src/shared/contracts/**`. Done in `src/shared/contracts/help.ts`.
+2. Stateless manifest route under `src/server/**`. Done as `GET /api/help/manifest`; recommendation routing remains intentionally out of scope for this story.
+3. Deterministic content seeded for every semantic anchor Claude lands. Done in `src/shared/help-fixture.ts`.
+4. Client fixture cut over to shared manifest runtime with offline fallback. Done in `src/client/helpManifest.ts` and `src/client/help-runtime.ts`.
+5. Verify privacy, accessibility, and manual QA coverage. Done through contract, route, and runtime tests plus the final app handoff.
 
 ## Working artifacts
 
@@ -103,7 +103,20 @@ This story adds an optional, replayable guided review plus a contextual info lay
 - `docs/specs/TTB-106/stitch-screen-brief.md` — Stitch brief + returned-reference record.
 - `docs/specs/TTB-106/stitch-refs/` — created on Stitch return.
 - `docs/backlog/codex-handoffs/TTB-106.md` — created after UI approval.
+- `src/shared/contracts/help.ts` — canonical help manifest and anchor schemas.
+- `src/shared/help-fixture.ts` — deterministic English help manifest fixture.
+- `src/client/help-runtime.ts` — route fetch + fallback bridge for the approved UI.
 - Shared baseline: `docs/backlog/codex-handoffs/TTB-102.md`, `TTB-103.md`, `TTB-104.md`, `TTB-105.md`, `src/shared/contracts/review.ts`, `docs/design/MASTER_DESIGN.md`, `docs/design/INDUSTRIAL_PRECISION_THEME.md`, `evals/labels/manifest.json`.
+
+## Codex completion notes (2026-04-14)
+
+- Moved the canonical help schema into `src/shared/contracts/help.ts`, including semantic anchor keys, tour target keys, the `showMe` action model, and manifest validation.
+- Moved the approved English help content verbatim into `src/shared/help-fixture.ts` so client and server read the same source of truth.
+- Added `GET /api/help/manifest` in `src/server/index.ts` with `Cache-Control: public, max-age=300`; the route is deterministic and does not touch OpenAI, persistence, or logs.
+- Replaced the client-only fixture binding with a small runtime bridge: `src/client/help-runtime.ts` fetches the remote manifest at startup, validates it, and falls back to the local fixture if the route is unavailable.
+- Removed the unused `src/client/GuidedReviewPanel.tsx` file from the rejected first-pass side-panel implementation so the approved spotlight flow is the only active help path.
+- Verification added in `src/shared/contracts/help.test.ts`, `src/server/help-routes.test.ts`, and `src/client/help-runtime.test.ts`.
+- Mutation testing waived for this story: the changed logic is schema validation plus route/runtime plumbing, not a high-risk pure validator or comparison helper where mutation score would add signal.
 
 ## Reconciliation notes (2026-04-13)
 

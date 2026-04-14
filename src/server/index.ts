@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 import express from 'express';
 
+import { helpManifestSchema } from '../shared/contracts/help';
 import {
   batchStartRequestSchema,
   checkReviewSchema,
@@ -14,6 +15,7 @@ import {
   getSeedVerificationReport,
   healthResponseSchema
 } from '../shared/contracts/review';
+import { LOCAL_HELP_MANIFEST } from '../shared/help-fixture';
 import { BatchSessionStore } from './batch-session';
 import { buildGovernmentWarningCheck } from './government-warning-validator';
 import {
@@ -71,6 +73,11 @@ export function createApp(options: CreateAppOptions = {}) {
 
   app.get('/api/review/seed', (_request, response) => {
     response.json(getSeedVerificationReport());
+  });
+
+  app.get('/api/help/manifest', (_request, response) => {
+    response.setHeader('cache-control', 'public, max-age=300');
+    response.json(helpManifestSchema.parse(LOCAL_HELP_MANIFEST));
   });
 
   app.post('/api/review', (request, response) => {

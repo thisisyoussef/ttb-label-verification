@@ -38,18 +38,19 @@ Use this checklist whenever Claude is the active lane owner for a story.
 - [ ] Treat the story packet as the shared contract for both agents. Update the UI-facing parts without forking a second spec tree.
 - [ ] Treat `story-packet.md` as a valid compact planning artifact, but do not stay there once active UI implementation starts.
 - [ ] Update `docs/specs/<story-id>/ui-component-spec.md` with problem, users, flows, IA/layout, states, copy, constraints, backend data needs, frozen constraints, and open questions.
-- [ ] Create or update `docs/specs/<story-id>/stitch-screen-brief.md` with the screen description the user will run through Google Stitch.
-- [ ] Default path: run `npm run stitch:story -- <story-id>` before implementation and record the generated Stitch refs in the packet.
-- [ ] Fallback path: only stop for a manual Comet Stitch handoff if the user explicitly switched this pass to `STITCH_FLOW_MODE=manual` or local Stitch auth is unavailable.
-- [ ] Record the returned Stitch references in `docs/specs/<story-id>/stitch-screen-brief.md`.
+- [ ] Create or update `docs/specs/<story-id>/stitch-screen-brief.md` only when the current pass uses Stitch.
+- [ ] Default path: keep `STITCH_FLOW_MODE=claude-direct`, implement directly from the checked-in design context, and stop for user visual review.
+- [ ] Automated path: only run `npm run stitch:story -- <story-id>` when the pass is explicitly set to `STITCH_FLOW_MODE=automated`, then record the generated Stitch refs in the packet.
+- [ ] Manual path: only stop for a manual Comet Stitch handoff if the pass is explicitly set to `STITCH_FLOW_MODE=manual`.
+- [ ] Record the returned Stitch references in `docs/specs/<story-id>/stitch-screen-brief.md` when the pass uses Stitch.
 - [ ] Review the generated Stitch output yourself against `ui-component-spec.md`, `stitch-screen-brief.md`, and `docs/design/MASTER_DESIGN.md` before asking the user to review it.
 - [ ] If the generated result is clearly off, revise the brief and rerun automated Stitch before handing anything to the user.
 - [ ] Stop for user review of the generated Stitch output only after the self-review gate is complete.
-- [ ] If Stitch references are still missing, stay blocked and tell the user exactly what to return.
+- [ ] If Stitch references are still missing for an automated/manual pass, stay blocked and tell the user exactly what to return.
 
-## Implementation from Stitch
+## Implementation
 
-- [ ] Implement the full screens in `src/client/**` against the returned Stitch image and HTML references, using mock data or no data where possible.
+- [ ] Implement the full screens in `src/client/**` directly in `claude-direct` mode, or against the returned Stitch image and HTML references when the selected pass uses Stitch.
 - [ ] Do not re-design the visual hierarchy after Stitch references exist unless the user explicitly asks for a new Stitch pass.
 - [ ] Keep all temporary fixtures client-side. Do not invent backend behavior inside components.
 - [ ] Cover the relevant empty, loading, processing, result, error, and low-confidence states for the story.
