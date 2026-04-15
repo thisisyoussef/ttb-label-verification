@@ -56,6 +56,10 @@
     background-size: 200% 100%;
     animation: shimmer 1.6s ease-in-out infinite;
   }
+
+  .animate-fade-in {
+    animation: fade-in 150ms ease-out both;
+  }
 }
 
 @keyframes shimmer {
@@ -64,5 +68,14 @@
   }
   100% {
     background-position: -200% 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }

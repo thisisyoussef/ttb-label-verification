@@ -271,9 +271,16 @@ export function Processing({
   );
 }
 
-function StepRow({ step, index, reducedMotion }: { step: ProcessingStep; index: number; reducedMotion: boolean }) {
-  const baseRow =
-    'flex items-center gap-5 p-4 rounded-lg transition-colors';
+function StepRow({
+  step,
+  index,
+  reducedMotion
+}: {
+  step: ProcessingStep;
+  index: number;
+  reducedMotion: boolean;
+}) {
+  const baseRow = 'flex items-center gap-5 p-4 rounded-lg transition-colors';
   const variantClass =
     step.status === 'active'
       ? 'bg-surface-container-low'
@@ -321,7 +328,15 @@ function StepRow({ step, index, reducedMotion }: { step: ProcessingStep; index: 
   );
 }
 
-function StepIcon({ step, index, reducedMotion }: { step: ProcessingStep; index: number; reducedMotion: boolean }) {
+function StepIcon({
+  step,
+  index,
+  reducedMotion
+}: {
+  step: ProcessingStep;
+  index: number;
+  reducedMotion: boolean;
+}) {
   if (step.status === 'done') {
     return (
       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-tertiary-container text-on-tertiary-container flex-shrink-0">

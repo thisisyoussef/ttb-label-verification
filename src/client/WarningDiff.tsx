@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import type { DiffSegment } from './types';
 
 interface WarningDiffProps {
@@ -41,6 +42,20 @@ function summarize(segments: DiffSegment[]) {
 }
 
 export function WarningDiff({ segments }: WarningDiffProps) {
+  const [capped, setCapped] = useState(true);
+  const [needsCap, setNeedsCap] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const check = () => setNeedsCap(el.scrollHeight > 200);
+    check();
+    const observer = new ResizeObserver(check);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [segments]);
+
   const stats = summarize(segments);
   const clean = stats.wrongChars === 0 && stats.wrongCase === 0 && stats.missing === 0;
   const summaryText = clean
@@ -58,7 +73,13 @@ export function WarningDiff({ segments }: WarningDiffProps) {
       <p className="sr-only" aria-live="polite">
         Warning text comparison summary. {summaryText}.
       </p>
-      <div className="bg-surface-container-highest rounded-lg border border-outline-variant/20 p-4 overflow-x-auto">
+      <div
+        ref={contentRef}
+        className={[
+          'bg-surface-container-highest rounded-lg border border-outline-variant/20 p-4 overflow-x-auto transition-[max-height] duration-200',
+          needsCap && capped ? 'max-h-[200px] overflow-y-hidden' : ''
+        ].join(' ')}
+      >
         <DiffRow
           label="Required warning"
           segments={segments}
@@ -71,6 +92,18 @@ export function WarningDiff({ segments }: WarningDiffProps) {
           field="extracted"
         />
       </div>
+      {needsCap ? (
+        <button
+          type="button"
+          onClick={() => setCapped((prev) => !prev)}
+          className="text-xs font-label font-semibold text-primary hover:underline flex items-center gap-1"
+        >
+          <span className="material-symbols-outlined text-sm" aria-hidden="true">
+            {capped ? 'expand_more' : 'expand_less'}
+          </span>
+          {capped ? 'Show full text' : 'Show less'}
+        </button>
+      ) : null}
       <DiffLegend />
     </div>
   );
