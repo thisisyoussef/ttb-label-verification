@@ -64,162 +64,166 @@ export function Intake({
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto w-full px-6 py-6 xl:py-10">
+    <div className="h-[calc(100dvh-var(--header-h))] flex flex-col max-w-[1400px] mx-auto w-full">
       <form
         onSubmit={(event) => {
           event.preventDefault();
           onPrimary();
         }}
         onKeyDown={onFormKeyDown}
-        className="grid grid-cols-1 lg:grid-cols-12 gap-8"
+        className="flex flex-col flex-1 min-h-0"
       >
-        <section className="lg:col-span-5 flex flex-col">
-          <FieldGroupHeading>Label image</FieldGroupHeading>
-          <DropZone image={image} onAccept={onImageChange} onRemove={() => onImageChange(null)} />
-        </section>
+        <div className="flex-1 overflow-y-auto px-6 py-4 xl:py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <section className="lg:col-span-5 flex flex-col">
+              <FieldGroupHeading>Label image</FieldGroupHeading>
+              <DropZone image={image} onAccept={onImageChange} onRemove={() => onImageChange(null)} />
+            </section>
 
-        <section className="lg:col-span-7 flex flex-col">
-          <FieldGroupHeading>Declared values from COLA application</FieldGroupHeading>
-          <p className="text-xs text-on-surface-variant/80 font-label mb-3 -mt-1">
-            Enter the declared values from the COLA application. The tool will compare them against
-            what it reads from the label.
-          </p>
+            <section className="lg:col-span-7 flex flex-col">
+              <FieldGroupHeading>Declared values from COLA application</FieldGroupHeading>
+              <p className="text-xs text-on-surface-variant/80 font-label mb-3 -mt-1">
+                Enter the declared values from the COLA application. The tool will compare them against
+                what it reads from the label.
+              </p>
 
-          <div className="bg-surface-container-low rounded-lg p-5 md:p-6 xl:p-8 flex flex-col gap-6 xl:gap-8">
-            <div className="flex flex-col gap-4">
-              <BeverageTypeField value={beverage} onChange={onBeverageChange} />
-              <PasteFromJson
-                fields={fields}
-                onFieldsChange={onFieldsChange}
-                onBeverageChange={onBeverageChange}
-              />
-            </div>
-
-            <FieldGroup title="Identity & classification">
-              <IntakeFieldRow>
-                <TextField
-                  label="Brand name"
-                  placeholder="Stone's Throw"
-                  value={fields.brandName}
-                  onChange={(value) => setField('brandName', value)}
-                />
-              </IntakeFieldRow>
-              <IntakeFieldRow columns={2}>
-                <TextField
-                  label="Class / type"
-                  placeholder="Kentucky Straight Bourbon"
-                  value={fields.classType}
-                  onChange={(value) => setField('classType', value)}
-                />
-                <TextField
-                  label="Fanciful name"
-                  hint="Optional"
-                  placeholder="Small Batch Reserve"
-                  value={fields.fancifulName}
-                  onChange={(value) => setField('fancifulName', value)}
-                />
-              </IntakeFieldRow>
-            </FieldGroup>
-
-            <FieldGroup title="Alcohol and measure">
-              <IntakeFieldRow columns={2}>
-                <TextField
-                  label="Alcohol content"
-                  hint="Exact format from the COLA"
-                  placeholder="45% Alc./Vol."
-                  tag={abvTag}
-                  monospace
-                  value={fields.alcoholContent}
-                  onChange={(value) => setField('alcoholContent', value)}
-                />
-                <TextField
-                  label="Net contents"
-                  hint="Exact format from the COLA"
-                  placeholder="750 mL"
-                  monospace
-                  value={fields.netContents}
-                  onChange={(value) => setField('netContents', value)}
-                />
-              </IntakeFieldRow>
-            </FieldGroup>
-
-            <FieldGroup title="Origin and applicant">
-              <IntakeFieldRow columns={2}>
-                <OriginField
-                  value={fields.origin}
-                  onChange={(value) => setField('origin', value)}
-                />
-                {fields.origin === 'imported' ? (
-                  <TextField
-                    label="Country"
-                    placeholder="France"
-                    value={fields.country}
-                    onChange={(value) => setField('country', value)}
+              <div className="bg-surface-container-low rounded-lg p-5 md:p-6 xl:p-8 flex flex-col gap-6 xl:gap-8">
+                <div className="flex flex-col gap-4">
+                  <BeverageTypeField value={beverage} onChange={onBeverageChange} />
+                  <PasteFromJson
+                    fields={fields}
+                    onFieldsChange={onFieldsChange}
+                    onBeverageChange={onBeverageChange}
                   />
-                ) : (
-                  <TextField
-                    label="Formula ID"
-                    hint="Optional"
-                    placeholder="If assigned"
-                    value={fields.formulaId}
-                    onChange={(value) => setField('formulaId', value)}
-                  />
-                )}
-              </IntakeFieldRow>
-              <IntakeFieldRow>
-                <TextAreaField
-                  label="Applicant name & address"
-                  hint="Name, city, and state exactly as on the permit."
-                  placeholder={'Stone Throw Distilling Co.\nLouisville, KY'}
-                  value={fields.applicantAddress}
-                  onChange={(value) => setField('applicantAddress', value)}
-                />
-              </IntakeFieldRow>
-              {fields.origin === 'imported' ? (
-                <IntakeFieldRow>
-                  <TextField
-                    label="Formula ID"
-                    hint="Optional"
-                    placeholder="If assigned"
-                    value={fields.formulaId}
-                    onChange={(value) => setField('formulaId', value)}
-                  />
-                </IntakeFieldRow>
-              ) : null}
-            </FieldGroup>
+                </div>
 
-            {showWineFields ? (
-              <FieldGroup title="Wine details">
-                <IntakeFieldRow columns={2}>
-                  <TextField
-                    label="Appellation"
-                    placeholder="Napa Valley"
-                    value={fields.appellation}
-                    onChange={(value) => setField('appellation', value)}
-                  />
-                  <TextField
-                    label="Vintage"
-                    placeholder="2021"
-                    monospace
-                    value={fields.vintage}
-                    onChange={(value) => setField('vintage', value)}
-                  />
-                </IntakeFieldRow>
-                <VarietalsTable
-                  rows={fields.varietals}
-                  onChange={(rows) => setField('varietals', rows)}
-                />
-              </FieldGroup>
-            ) : null}
+                <FieldGroup title="Identity & classification">
+                  <IntakeFieldRow>
+                    <TextField
+                      label="Brand name"
+                      placeholder="Stone's Throw"
+                      value={fields.brandName}
+                      onChange={(value) => setField('brandName', value)}
+                    />
+                  </IntakeFieldRow>
+                  <IntakeFieldRow columns={2}>
+                    <TextField
+                      label="Class / type"
+                      placeholder="Kentucky Straight Bourbon"
+                      value={fields.classType}
+                      onChange={(value) => setField('classType', value)}
+                    />
+                    <TextField
+                      label="Fanciful name"
+                      hint="Optional"
+                      placeholder="Small Batch Reserve"
+                      value={fields.fancifulName}
+                      onChange={(value) => setField('fancifulName', value)}
+                    />
+                  </IntakeFieldRow>
+                </FieldGroup>
+
+                <FieldGroup title="Alcohol and measure">
+                  <IntakeFieldRow columns={2}>
+                    <TextField
+                      label="Alcohol content"
+                      hint="Exact format from the COLA"
+                      placeholder="45% Alc./Vol."
+                      tag={abvTag}
+                      monospace
+                      value={fields.alcoholContent}
+                      onChange={(value) => setField('alcoholContent', value)}
+                    />
+                    <TextField
+                      label="Net contents"
+                      hint="Exact format from the COLA"
+                      placeholder="750 mL"
+                      monospace
+                      value={fields.netContents}
+                      onChange={(value) => setField('netContents', value)}
+                    />
+                  </IntakeFieldRow>
+                </FieldGroup>
+
+                <FieldGroup title="Origin and applicant">
+                  <IntakeFieldRow columns={2}>
+                    <OriginField
+                      value={fields.origin}
+                      onChange={(value) => setField('origin', value)}
+                    />
+                    {fields.origin === 'imported' ? (
+                      <TextField
+                        label="Country"
+                        placeholder="France"
+                        value={fields.country}
+                        onChange={(value) => setField('country', value)}
+                      />
+                    ) : (
+                      <TextField
+                        label="Formula ID"
+                        hint="Optional"
+                        placeholder="If assigned"
+                        value={fields.formulaId}
+                        onChange={(value) => setField('formulaId', value)}
+                      />
+                    )}
+                  </IntakeFieldRow>
+                  <IntakeFieldRow>
+                    <TextAreaField
+                      label="Applicant name & address"
+                      hint="Name, city, and state exactly as on the permit."
+                      placeholder={'Stone Throw Distilling Co.\nLouisville, KY'}
+                      value={fields.applicantAddress}
+                      onChange={(value) => setField('applicantAddress', value)}
+                    />
+                  </IntakeFieldRow>
+                  {fields.origin === 'imported' ? (
+                    <IntakeFieldRow>
+                      <TextField
+                        label="Formula ID"
+                        hint="Optional"
+                        placeholder="If assigned"
+                        value={fields.formulaId}
+                        onChange={(value) => setField('formulaId', value)}
+                      />
+                    </IntakeFieldRow>
+                  ) : null}
+                </FieldGroup>
+
+                {showWineFields ? (
+                  <FieldGroup title="Wine details">
+                    <IntakeFieldRow columns={2}>
+                      <TextField
+                        label="Appellation"
+                        placeholder="Napa Valley"
+                        value={fields.appellation}
+                        onChange={(value) => setField('appellation', value)}
+                      />
+                      <TextField
+                        label="Vintage"
+                        placeholder="2021"
+                        monospace
+                        value={fields.vintage}
+                        onChange={(value) => setField('vintage', value)}
+                      />
+                    </IntakeFieldRow>
+                    <VarietalsTable
+                      rows={fields.varietals}
+                      onChange={(rows) => setField('varietals', rows)}
+                    />
+                  </FieldGroup>
+                ) : null}
+              </div>
+
+              <p className="text-[11px] text-on-surface-variant/60 font-label mt-3">
+                Or upload just the image to check it without application data.
+              </p>
+            </section>
           </div>
+        </div>
 
-          <p className="text-[11px] text-on-surface-variant/60 font-label mt-3">
-            Or upload just the image to check it without application data.
-          </p>
-        </section>
-
-        <section className="lg:col-span-12 mt-2">
-          <div className="bg-surface-container-lowest border border-outline-variant/20 rounded-lg px-6 py-5 flex flex-col md:flex-row gap-4 md:items-center md:justify-between shadow-ambient">
+        <div className="shrink-0 px-6 pb-4 pt-2">
+          <div className="bg-surface-container-lowest border border-outline-variant/20 rounded-lg px-6 py-4 flex flex-col md:flex-row gap-4 md:items-center md:justify-between shadow-ambient">
             <div className="flex items-center gap-2 text-on-surface-variant">
               <span className="material-symbols-outlined text-lg" aria-hidden="true">
                 shield
@@ -291,7 +295,7 @@ export function Intake({
               </div>
             </div>
           </div>
-        </section>
+        </div>
       </form>
     </div>
   );
