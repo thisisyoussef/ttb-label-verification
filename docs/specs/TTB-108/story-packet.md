@@ -5,61 +5,49 @@
 - Story ID: `TTB-108`
 - Title: extraction mode selector and mode-aware processing states
 - Parent: `TTB-004`
-- Lanes in scope: Claude (UI) + Codex (client and request-state wiring)
-- Packet mode: compact planning packet
-- Depends on: `TTB-107` approved; Codex integration also depends on the backend mode-routing stories under `TTB-206` and `TTB-212`
+- Lanes in scope: Claude (UI) + Codex (client wiring and request-state integration)
+- Claude lane status: `done` (UI approved 2026-04-14)
+- Codex lane status: `ready-for-codex`
+- Packet mode: expanded working packet
+- Depends on: `TTB-107` approved; Codex integration also depends on `TTB-206` (extraction mode routing) and `TTB-212` (local extraction mode)
 
 ## Problem
 
-The current workstation exposes one implicit extraction path. That is fine for the prototype today, but it cannot express the dual-mode architecture Marcus cares about: a cloud-first demo path and a local restricted-network path that keeps the same deterministic validator pipeline.
-
-If the product adds a local extraction mode but hides it behind env-only behavior, Sarah cannot demo it and Marcus cannot validate the deployment story from the running app. If the control is too prominent, Dave pays a cognitive tax on every review for a feature he will rarely change.
-
-The UI needs a small, secondary mode selector that preserves the existing workstation hierarchy, makes cloud mode the obvious default, and gives the reviewer clear mode-aware processing feedback without turning the app into a settings-heavy surface.
+The current workstation exposes one implicit extraction path. The dual-mode architecture (cloud + local) needs a reviewer-facing selector that defaults to local (deployment-realistic) and lets the reviewer switch to cloud for demos. The control must be present and credible for Marcus (IT gatekeeper) and Sarah (leadership demos) without adding friction for Dave (veteran reviewer).
 
 ## Acceptance criteria
 
-1. The signed-in workstation exposes a compact extraction-mode selector with exactly two choices:
-   - `Cloud (recommended)`
-   - `Local (offline)`
-2. The selector is visually secondary to the primary review workflow and does not displace:
-   - the `Single | Batch` mode toggle
-   - the primary review action
-   - the privacy anchor copy
-3. The processing surface and any in-flight progress copy reflect the selected extraction mode.
-4. The results surface stays structurally the same. The mode change does not create a second results design.
-5. Local mode framing is calm and explicit:
-   - slower than cloud
-   - may produce more `Review` outcomes on layout and formatting checks
-   - does not promise the same visual-reasoning quality as cloud mode
-6. Mode selection lives only in current tab state and is cleared by sign-out.
-7. If local mode is selected but unavailable, the UI shows a bounded failure state with a clear path back to cloud mode.
+1. The auth flow includes a mode-select step after sign-in success, before the workstation loads.
+2. Local (on-premise) is the default. Cloud (demo) is the alternative.
+3. Each option has a tooltip explaining the deployment rationale grounded in real project constraints.
+4. The signed-in header shows a compact mode indicator with a quick-switch link.
+5. The processing surface reflects the selected extraction mode in header copy, body copy, and sidebar context.
+6. The results surface stays structurally the same regardless of mode.
+7. Local-mode framing is calm and explicit: slower, more Review outcomes, no parity promise.
+8. Mode selection is tab-scoped React state, reset to local on sign-out.
+9. If local mode is unavailable, a bounded failure state appears with a path back to cloud.
+
+## Constitution check
+
+### Claude lane
+- UI only. No `src/server/**` or `src/shared/**` edits.
+- Build the mode-select auth step, header indicator, processing copy, and unavailable state.
+
+### Codex lane
+- Wire extraction mode into the review request body.
+- Pass mode to the backend extraction-mode seam (lands in `TTB-206`).
+- Replace client-side heuristic for local-unavailable with proper backend error-kind check.
+- Add regression tests for cloud/local selection, reset, and unavailable-state recovery.
+
+## Working artifacts
+
+- `docs/specs/TTB-108/ui-component-spec.md` — design spec (v2)
+- `docs/backlog/codex-handoffs/TTB-108.md` — Codex handoff (`ready-for-codex`)
+- No Stitch refs (claude-direct mode)
 
 ## Out of scope
 
-- new result cards or a second evidence model
-- exposing provider names like Gemini, OpenAI, Ollama, or Qwen in the primary reviewer surface
-- new settings screens, configuration drawers, or admin panels
-- backend provider implementation details
-
-## Lane plan
-
-### Claude
-
-- define where the selector lives in the signed-in shell
-- define the resting, loading, and unavailable states
-- define the exact processing copy for cloud and local runs
-- preserve the industrial-precision header hierarchy
-- stop at visual approval and write the Codex handoff
-
-### Codex
-
-- wire the approved selector into client-local state
-- pass the selected mode into the eventual backend extraction-mode seam
-- keep the selection ephemeral and reset it on sign-out
-- add regression tests for cloud/local selection, reset, and unavailable-state recovery
-
-## Notes for tailoring
-
-- This story exists because the dual-mode architecture is primarily for Marcus and Sarah, not for daily reviewer throughput. The control should therefore be present and credible, but never noisy.
-- `Cloud` remains the default because the repo’s primary interactive SLA and demo story are still anchored to the cloud path.
+- New result cards or a second evidence model
+- Exposing provider names in the reviewer surface
+- Settings screens, configuration drawers, or admin panels
+- Backend provider implementation (belongs to `TTB-206`, `TTB-207`, `TTB-212`)
