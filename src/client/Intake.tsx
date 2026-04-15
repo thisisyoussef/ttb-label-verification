@@ -12,11 +12,29 @@ import {
 } from './IntakeFormControls';
 import { PasteFromJson } from './PasteFromJson';
 import { VarietalsTable } from './VarietalsTable';
+import { WelcomePrompt } from './WelcomePrompt';
 import type {
   BeverageSelection,
   IntakeFields,
   LabelImage
 } from './types';
+
+function isFieldsEmpty(fields: IntakeFields): boolean {
+  return (
+    !fields.brandName &&
+    !fields.fancifulName &&
+    !fields.classType &&
+    !fields.alcoholContent &&
+    !fields.netContents &&
+    !fields.applicantAddress &&
+    !fields.country &&
+    !fields.formulaId &&
+    !fields.appellation &&
+    !fields.vintage &&
+    (fields.varietals.length === 0 ||
+      fields.varietals.every((row) => !row.name && !row.percentage))
+  );
+}
 
 interface IntakeProps {
   image: LabelImage | null;
@@ -86,6 +104,10 @@ export function Intake({
                 Enter the declared values from the COLA application. The tool will compare them against
                 what it reads from the label.
               </p>
+
+              {image === null && isFieldsEmpty(fields) ? (
+                <WelcomePrompt />
+              ) : null}
 
               <div className="bg-surface-container-low rounded-lg p-5 md:p-6 xl:p-8 flex flex-col gap-6 xl:gap-8">
                 <div className="flex flex-col gap-4">
@@ -215,7 +237,8 @@ export function Intake({
                 ) : null}
               </div>
 
-              <p className="text-[11px] text-on-surface-variant/60 font-label mt-3">
+              <p className="text-xs text-on-surface-variant/60 font-label mt-3 flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[14px]" aria-hidden="true">info</span>
                 Or upload just the image to check it without application data.
               </p>
             </section>
