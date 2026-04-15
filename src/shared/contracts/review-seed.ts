@@ -19,7 +19,7 @@ export const seedVerificationReport: VerificationReport = {
   mode: 'single-label',
   beverageType: 'distilled-spirits',
   verdict: 'review',
-  verdictSecondary: 'Low extraction confidence — review carefully.',
+  verdictSecondary: 'The image was hard to read — please review these results carefully.',
   standalone: false,
   extractionQuality: {
     globalConfidence: 0.68,
@@ -35,7 +35,7 @@ export const seedVerificationReport: VerificationReport = {
   latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
   noPersistence: true,
   summary:
-    'Sample result for demonstration. Full automated checks will be available in a future update.',
+    'Sample result for demonstration purposes.',
   checks: [
     {
       id: 'brand-name',
@@ -53,7 +53,7 @@ export const seedVerificationReport: VerificationReport = {
         status: 'match',
         applicationValue: "Stone's Throw",
         extractedValue: "Stone's Throw",
-        note: 'Normalized strings match exactly.'
+        note: 'Values match exactly.'
       }
     },
     {
@@ -75,7 +75,7 @@ export const seedVerificationReport: VerificationReport = {
         status: 'case-mismatch',
         applicationValue: '45% Alc./Vol.',
         extractedValue: '45% alc./vol.',
-        note: 'Only letter casing differs after normalization.'
+        note: 'Only letter casing differs.'
       }
     },
     {
@@ -113,20 +113,20 @@ export const seedVerificationReport: VerificationReport = {
             label: 'Warning heading is uppercase and bold',
             status: 'review',
             reason:
-              'Typography-specific judgments stay reversible until image-quality assessment and warning validation are live.'
+              'This formatting check needs your review — automated checking is not yet available.'
           },
           {
             id: 'continuous-paragraph',
             label: 'Warning is a continuous paragraph',
             status: 'pass',
-            reason: 'The extracted warning appears as a continuous paragraph in the scaffold evidence.'
+            reason: 'The warning text appears as a continuous paragraph on the label.'
           },
           {
             id: 'legibility',
             label: 'Warning is legible at label size',
             status: 'review',
             reason:
-              'Legibility remains a review call until the extraction adapter can score image quality directly.'
+              'Legibility could not be confirmed automatically and needs your review.'
           }
         ],
         required: CANONICAL_GOVERNMENT_WARNING,
@@ -155,9 +155,9 @@ export const seedVerificationReport: VerificationReport = {
       status: 'review',
       severity: 'major',
       summary:
-        'Spatial verification remains a review state until the extraction layer can localize brand name, class/type, and alcohol content reliably.',
+        'Brand name, class/type, and alcohol content must appear in the same field of vision — this needs your review.',
       details:
-        'Per TTB guidance, brand name, class/type, and alcohol content must appear in the same field of vision. The scaffold keeps this reversible while later stories add real spatial evidence.',
+        'Per TTB guidance, these fields must be visible together. Automated positioning checks are not yet available, so please verify this on the label.',
       confidence: 0.54,
       citations: [
         'TTB distilled spirits mandatory label information',
@@ -187,16 +187,16 @@ const standaloneSeedVerificationReport: VerificationReport = {
   latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
   noPersistence: true,
   summary:
-    'Standalone scaffold result only. Extracted values are available without application-data comparisons.',
+    'Image-only review. Values read from the label are shown without application-data comparisons.',
   checks: [
     {
       id: 'brand-name',
       label: 'Brand name',
       status: 'pass',
       severity: 'note',
-      summary: 'Extracted brand text is available for standalone review.',
+      summary: 'Brand name was read from the label.',
       details:
-        'No application value was provided, so the standalone flow shows extracted label text without a comparison verdict.',
+        'No application value was provided, so the value read from the label is shown without comparison.',
       confidence: 0.97,
       citations: ['TTB distilled spirits mandatory label information'],
       extractedValue: "Stone's Throw",
@@ -212,7 +212,7 @@ const standaloneSeedVerificationReport: VerificationReport = {
       severity: 'minor',
       summary: 'Alcohol content is visible, but image quality keeps this in review.',
       details:
-        'Standalone mode keeps low-confidence extraction judgments reversible while no application comparison is available.',
+        'The image was hard to read and no application data was provided, so this value needs your review.',
       confidence: 0.74,
       citations: [
         'TTB distilled spirits mandatory label information',
@@ -362,11 +362,11 @@ function compareSeedValues(
 function seedComparisonSummary(status: ComparisonStatus): string {
   switch (status) {
     case 'match':
-      return 'Application value and extracted label text match.';
+      return 'Application value matches what was read from the label.';
     case 'case-mismatch':
       return 'Formatting difference requires a quick human check.';
     case 'value-mismatch':
-      return 'Application data and extracted label text differ.';
+      return 'Application value does not match what was read from the label.';
     case 'not-applicable':
       return 'No application comparison is available.';
   }
@@ -375,9 +375,9 @@ function seedComparisonSummary(status: ComparisonStatus): string {
 function seedComparisonDetails(status: ComparisonStatus): string {
   switch (status) {
     case 'match':
-      return 'Submitted application value matches the extracted label text after normalization.';
+      return 'The application value matches the text read from the label.';
     case 'case-mismatch':
-      return 'Submitted application value differs from extracted label text only by letter casing.';
+      return 'The application value differs from what was read from the label only by letter casing.';
     case 'value-mismatch':
       return 'The application value does not match what was read from the label.';
     case 'not-applicable':
@@ -388,11 +388,11 @@ function seedComparisonDetails(status: ComparisonStatus): string {
 function seedComparisonNote(status: ComparisonStatus): string {
   switch (status) {
     case 'match':
-      return 'Normalized strings match exactly.';
+      return 'Values match exactly.';
     case 'case-mismatch':
-      return 'Only letter casing differs after normalization.';
+      return 'Only letter casing differs.';
     case 'value-mismatch':
-      return 'Submitted application value does not match extracted label text.';
+      return 'The application value does not match what was read from the label.';
     case 'not-applicable':
       return 'No application value was supplied for standalone review.';
   }

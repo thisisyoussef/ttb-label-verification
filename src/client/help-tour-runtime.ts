@@ -192,14 +192,14 @@ export function resolveTourStep(
       return {
         ...step,
         showMe: undefined,
-        cta: 'Review the failed checks and highlighted text in the expanded warning evidence.'
+        cta: 'The failing label is loaded — review the highlighted problems in the expanded row below.'
       };
     }
 
     return {
       ...step,
-      cta: 'Load the failing label to review the failed checks and highlighted text.',
-      showMe: buildResultsAction('Load failing label', WARNING_TOUR_SCENARIO_ID)
+      cta: 'Switch to a failing label to see how the tool highlights warning issues.',
+      showMe: buildResultsAction('See failing example', WARNING_TOUR_SCENARIO_ID)
     };
   }
 

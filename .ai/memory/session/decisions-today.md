@@ -65,7 +65,7 @@
 - Treat priority tiers and cache-friendly prefix structuring as optional tuning levers, not default assumptions, and keep explicit provider caching out of bounds for user-bearing requests.
 - Adapt the consultant's dual-mode recommendation to this repo as `cloud` vs `local` extraction above the provider layer, not as a replacement for the existing Gemini/OpenAI cloud plan.
 - Keep cloud mode as the default reviewer path and the only path bound to the headline sub-5-second UX promise; local mode is a deployment-readiness path for Marcus with a slower, explicit budget.
-- Add `TTB-108` as the Claude-first UI story for the compact cloud/local selector, and add `TTB-212` as the Codex story for the Ollama/Qwen local extraction path.
+- Add `TTB-108` as the Claude-first UI story for the compact cloud/local selector. The later `TTB-212` Ollama local extraction idea was archived on 2026-04-15 at user request.
 - Do not let explicit local mode silently fall back to cloud providers; the whole point of the mode is to prove a no-cloud path.
 - For `TTB-106`, move the canonical help manifest into shared code, serve it through a deterministic `GET /api/help/manifest` route, and keep the approved client fixture as the offline fallback rather than maintaining two divergent help content sources.
 - For `TTB-106` follow-up tour hardening, keep click-to-advance and footer `Next` as separate paths: real target clicks should only advance the tour, while footer `Next` should stay disabled on action steps until the required state exists.
@@ -86,7 +86,7 @@
 - Closed the remaining `TTB-211` acceptance gap by recording explicit `cloud` extraction-mode metadata, route-surface spans, stage timings, and experiment-backed eval evidence in the shared trace wrapper, route/eval logs, packet docs, and recorded eval result so the endpoint-aware evidence now matches the packet and release gate.
 - For `TTB-206`, keep the live label-extraction default on `openai` while moving route and batch wiring behind a shared provider-policy module and extractor factory; let later providers join that factory without rewriting callsites.
 - For `TTB-206`, treat explicit local mode as fail-closed until a real Ollama adapter exists; do not silently hop back into cloud providers.
-- Keep the Gemini and Ollama env keys present in the bootstrapped repo-local `.env`, but leave model values empty until the live provider stories (`TTB-207`, `TTB-212`) supply concrete adapters and deployment choices.
+- Keep the Gemini env keys present in the bootstrapped repo-local `.env`; the old Ollama-related planning notes now belong to archived `TTB-212` and are not active delivery guidance.
 - Record the attempted `ai-provider-policy.ts` mutation run as a waiver note in the packet because the current Stryker harness expanded it to 201 mutants with repeated timeouts before producing a useful score.
 
 - For `TTB-207`, implement Gemini through the native `@google/genai` SDK, but keep OpenAI as the bounded cloud fallback inside the shared provider factory instead of forking route-local logic.

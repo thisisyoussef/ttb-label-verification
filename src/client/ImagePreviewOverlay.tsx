@@ -84,7 +84,7 @@ export function ImagePreviewOverlay({ image, onClose }: ImagePreviewOverlayProps
                 picture_as_pdf
               </span>
               <p className="font-body text-sm">
-                PDF preview is not available in this proof of concept.
+                PDF preview is not available yet.
               </p>
             </div>
           ) : image.previewUrl ? (

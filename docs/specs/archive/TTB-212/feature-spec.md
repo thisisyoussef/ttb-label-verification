@@ -4,6 +4,7 @@
 
 - Story ID: `TTB-212`
 - Title: local extraction mode: Ollama-hosted Qwen2.5-VL with degraded-confidence guardrails
+- Status: deferred by user on 2026-04-15; keep as a backlog packet, not active implementation guidance
 
 ## Problem statement
 
@@ -21,7 +22,7 @@ This app already has the right downstream shape for a local story. Only the firs
 ## Acceptance criteria
 
 1. The server supports a `local` extraction mode in addition to the default `cloud` mode.
-2. Local mode runs through an Ollama-hosted vision model, with `Qwen2.5-VL 7B` as the default planned target.
+2. Local mode runs through an Ollama-hosted vision model chosen later by the user; no checked-in default model target is blessed in this packet.
 3. Local mode normalizes into the existing `ReviewExtraction` contract so downstream validators, reports, and batch summaries remain unchanged.
 4. When local mode is explicitly selected, the server does not silently fall back to cloud providers.
 5. Local-mode output applies a degraded-confidence posture for weak or unsupported visual judgments, especially:
@@ -50,3 +51,4 @@ This app already has the right downstream shape for a local story. Only the firs
 - introducing Anthropic as another cloud provider
 - turning local mode into a separate UI workflow
 - claiming local parity on formatting or spatial reasoning before evidence proves it
+- any active implementation on the current branch until the user explicitly resumes this story

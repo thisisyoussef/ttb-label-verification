@@ -1,5 +1,7 @@
 # Task Breakdown
 
+> Status: deferred by user on 2026-04-15. Do not treat these tasks as in-progress.
+
 1. Extend the extraction router to resolve `cloud` vs `local`
    - Files: `src/server/ai-provider-policy.ts`, `src/server/review-extractor-factory.ts`
    - Validation: unit tests prove mode resolution and no cross-mode fallback

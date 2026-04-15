@@ -82,7 +82,7 @@ export function Intake({
           <FieldGroupHeading>Declared values from COLA application</FieldGroupHeading>
           <p className="text-xs text-on-surface-variant/80 font-label mb-3 -mt-1">
             Enter the declared values from the COLA application. The tool will compare them against
-            what it extracts from the label.
+            what it reads from the label.
           </p>
 
           <div className="bg-surface-container-low rounded-lg p-5 md:p-6 xl:p-8 flex flex-col gap-6 xl:gap-8">

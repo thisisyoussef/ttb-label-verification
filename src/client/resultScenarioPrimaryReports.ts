@@ -247,7 +247,7 @@ export function lowQualityImageReport(): UIVerificationReport {
             id: 'legibility',
             label: 'Warning is legible at label size',
             status: 'review',
-            reason: 'Inconclusive — image is below resolution threshold.'
+            reason: 'Inconclusive — the image is not sharp enough to check this.'
           }
         ],
         required: CANONICAL_WARNING,
@@ -266,7 +266,7 @@ export function lowQualityImageReport(): UIVerificationReport {
     extractionQuality: {
       globalConfidence: 0.54,
       state: 'low-confidence',
-      note: 'Image quality is below the threshold required for a confident verdict.'
+      note: 'The image quality is too low for reliable results.'
     },
     counts: countsFor(checks, crossFieldChecks),
     checks,

@@ -26,7 +26,7 @@ export const SORT_OPTIONS: Array<{ value: BatchDashboardSort; label: string }> =
   { value: 'worst-first', label: 'Worst first' },
   { value: 'filename', label: 'Filename' },
   { value: 'brand-name', label: 'Brand name' },
-  { value: 'completed-order', label: 'Completed order' }
+  { value: 'completed-order', label: 'Order completed' }
 ];
 
 const STATUS_RANK: Record<BatchItemStatus, number> = {

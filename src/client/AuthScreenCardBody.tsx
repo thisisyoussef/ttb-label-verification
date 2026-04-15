@@ -157,13 +157,13 @@ function AuthScreenModeSelect({
         </p>
       </div>
 
-      <fieldset className="flex flex-col gap-2.5" aria-label="Extraction mode">
+      <fieldset className="flex flex-col gap-2.5" aria-label="How this workstation reads label images">
         <ModeOption
           value="local"
           icon="hard_drive"
           label="Local (on-premise)"
           description="All label reading runs on this workstation. No label data leaves the network. Required for restricted or air-gapped deployments."
-          tooltip="TTB's network firewall blocks outbound traffic to external services. The previous scanning vendor pilot failed because their cloud calls were blocked. Local mode avoids this entirely."
+          tooltip="Local mode keeps all data on this workstation. It does not require outbound network access, making it suitable for restricted or air-gapped environments."
           checked={extractionMode === 'local'}
           onChange={() => onExtractionModeChange('local')}
         />
@@ -172,7 +172,7 @@ function AuthScreenModeSelect({
           icon="cloud"
           label="Cloud (demo)"
           description="Sends label images to a cloud service for higher accuracy on complex labels. Requires outbound network access."
-          tooltip="Cloud mode reads labels more accurately, especially for small text, unusual layouts, and government warning formatting. Use this when demonstrating best-case accuracy on an unrestricted network."
+          tooltip="Cloud mode reads labels more accurately, especially for small text, unusual layouts, and government warning formatting. It requires outbound network access."
           checked={extractionMode === 'cloud'}
           onChange={() => onExtractionModeChange('cloud')}
         />

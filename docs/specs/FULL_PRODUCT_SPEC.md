@@ -175,7 +175,6 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 - `TTB-207`: cloud extraction mode: Gemini-primary with OpenAI fallback and cross-provider validation
 - `TTB-208`: cloud/default latency observability and sub-4-second budget framing
 - `TTB-209`: cloud/default Gemini hot-path tuning and latency policy hardening
-- `TTB-212`: local extraction mode: Ollama-hosted Qwen2.5-VL with degraded-confidence guardrails
 - `TTB-210`: persona-centered prompt profiles and endpoint plus mode guardrails
 - `TTB-211`: LLM endpoint and mode eval matrix, persona scorecards, and trace regression gates
 - `TTB-103`: batch intake, matching review, and progress UI
@@ -211,7 +210,7 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 
 - required for MVP implementation: `OPENAI_API_KEY`
 - required config values: `OPENAI_MODEL`, `OPENAI_VISION_MODEL`, `OPENAI_STORE=false`, `PORT`
-- planned extraction-mode and provider config: `GEMINI_API_KEY`, `GEMINI_VISION_MODEL`, `GEMINI_TEXT_MODEL`, `GEMINI_EMBEDDING_MODEL`, `AI_CAPABILITY_DEFAULT_ORDER`, `AI_CAPABILITY_LABEL_EXTRACTION_ORDER`, `AI_EXTRACTION_MODE_DEFAULT`, `AI_EXTRACTION_MODE_ALLOW_LOCAL`, `OLLAMA_HOST`, `OLLAMA_LABEL_EXTRACTION_MODEL` (do not require these until `TTB-206`, `TTB-207`, and `TTB-212` land)
+- planned extraction-mode and provider config: `GEMINI_API_KEY`, `GEMINI_VISION_MODEL`, `GEMINI_TEXT_MODEL`, `GEMINI_EMBEDDING_MODEL`, `AI_CAPABILITY_DEFAULT_ORDER`, `AI_EXTRACTION_MODE_DEFAULT` (do not require these until `TTB-206` and `TTB-207` land). Historical local-mode env ideas were archived with `TTB-212`.
 - optional local trace-driven development: `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT`, `LANGSMITH_TRACING=false` by default
 - local runtime bootstrap: `npm run env:bootstrap` creates or refreshes an ignored repo `.env` from the local gauntlet env inventory, and the server auto-loads `.env` / `.env.local`
 - LangSmith bootstrap resolves `LANGSMITH_API_KEY` from either `LANGSMITH_API_KEY` or legacy `LANGCHAIN_API_KEY` in the local gauntlet env inventory

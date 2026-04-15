@@ -9,6 +9,7 @@ on:
         default: main
 
 permissions:
+  actions: write
   contents: write
 
 jobs:
@@ -35,6 +36,17 @@ jobs:
           git checkout --detach FETCH_HEAD
           git push origin HEAD:production --force-with-lease
 
+      - name: Trigger CI on production branch
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ci.yml',
+              ref: 'production',
+            });
+
       - name: Write promotion summary
         env:
           SOURCE_REF: ${{ github.event.inputs.source_ref }}
@@ -44,5 +56,5 @@ jobs:
             echo
             echo "- Source ref: $SOURCE_REF"
             echo "- Target branch: production"
-            echo "- CI on \`production\` will verify and then deploy Railway production via the CLI workflow."
+            echo "- CI has been explicitly dispatched on \`production\` and will verify, then trigger Railway production deploy via the CLI workflow."
           } >> "$GITHUB_STEP_SUMMARY"

@@ -281,11 +281,11 @@ export function noTextExtractedReport(): UIVerificationReport {
     extractionQuality: {
       globalConfidence: 0,
       state: 'no-text-extracted',
-      note: 'The system could not read enough text to produce a meaningful result.'
+      note: 'We could not read enough text from this image to produce a meaningful result.'
     },
     counts: { pass: 0, review: 0, fail: 0 },
     checks: [],
     crossFieldChecks: [],
-    summary: 'No text could be extracted from the submitted label image.'
+    summary: 'We could not read any text from this label image.'
   });
 }
