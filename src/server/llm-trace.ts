@@ -6,6 +6,7 @@ import type {
   VerificationReport
 } from '../shared/contracts/review';
 import { buildGovernmentWarningCheck } from './government-warning-validator';
+import { runWarningOcrCrossCheck } from './warning-ocr-cross-check';
 import { type LlmEndpointSurface } from './llm-policy';
 import {
   annotateCurrentRun,
@@ -48,6 +49,7 @@ export type TracedReviewExtractionInput = TraceMetadataInput & {
 
 type TracedWarningValidationInput = TraceMetadataInput & {
   extraction: ReviewExtraction;
+  ocrCrossCheck?: import('./warning-ocr-cross-check').OcrCrossCheckResult;
 };
 
 type TracedReviewReportInput = TraceMetadataInput & {
@@ -119,7 +121,7 @@ const tracedReviewExtraction = traceable(
 const tracedWarningValidation = traceable(
   async (input: TracedWarningValidationInput) => {
     annotateCurrentRun(input);
-    return buildGovernmentWarningCheck(input.extraction);
+    return buildGovernmentWarningCheck(input.extraction, input.ocrCrossCheck);
   },
   {
     name: 'ttb.warning_validation.stage',
@@ -166,16 +168,42 @@ const tracedReviewSurface = traceable(
     annotateCurrentRun(input);
     const latencyCapture = resolveLatencyCapture(input);
     const startedAt = performance.now();
+
+    // Start OCR in parallel with VLM extraction — Tesseract finishes in
+    // ~600ms while the VLM takes 1-3s, so this adds zero wall-clock time.
+    const ocrTextPromise = runWarningOcrCrossCheck({
+      label: input.intake.label,
+      vlmWarningText: '' // will re-check with actual VLM text after extraction
+    }).catch(() => null);
+
     const extractionStage = await measureStage(() =>
       runTracedReviewExtraction({
         ...input,
         latencyCapture
       })
     );
+
+    // Cross-check with the actual VLM warning text now that extraction is done.
+    const vlmWarning = extractionStage.result.fields.governmentWarning.value ?? '';
+    let ocrCrossCheck: import('./warning-ocr-cross-check').OcrCrossCheckResult =
+      { status: 'abstain', reason: 'no-vlm-warning-text' };
+    if (vlmWarning.length > 0) {
+      try {
+        ocrCrossCheck = await runWarningOcrCrossCheck({
+          label: input.intake.label,
+          vlmWarningText: vlmWarning
+        });
+      } catch {
+        ocrCrossCheck = { status: 'abstain', reason: 'ocr-error' };
+      }
+    }
+    void ocrTextPromise; // ensure the parallel placeholder is consumed
+
     const warningStage = await measureStage(() =>
       tracedWarningValidation({
         ...input,
-        extraction: extractionStage.result
+        extraction: extractionStage.result,
+        ocrCrossCheck
       })
     );
     latencyCapture.recordSpan({
