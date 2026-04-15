@@ -1,11 +1,15 @@
-import { seedScenarios, type SeedScenario } from '../scenarios';
-import { SEED_BATCHES } from '../batchScenarios';
+import {
+  TOOLBENCH_BATCH_SCENARIOS,
+  TOOLBENCH_SINGLE_SCENARIOS,
+  type ToolbenchBatchScenario,
+  type ToolbenchSingleScenario,
+} from './toolbenchFixtures';
 
 interface ToolbenchScenariosProps {
   activeScenarioId: string;
   activeBatchSeedId: string;
-  onSelectScenario: (scenario: SeedScenario) => void;
-  onSelectBatchSeed: (id: string) => void;
+  onSelectScenario: (scenario: ToolbenchSingleScenario) => void;
+  onSelectBatchSeed: (scenario: ToolbenchBatchScenario) => void;
 }
 
 const SECTION_HEADER = 'font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant';
@@ -20,10 +24,10 @@ export function ToolbenchScenarios({
   onSelectBatchSeed,
 }: ToolbenchScenariosProps) {
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto p-3">
+    <div className="flex flex-col gap-4 p-3">
       <section className="flex flex-col gap-1">
         <p className={SECTION_HEADER}>Single Review</p>
-        {seedScenarios.map((scenario) => {
+        {TOOLBENCH_SINGLE_SCENARIOS.map((scenario) => {
           const isActive = scenario.id === activeScenarioId;
           return (
             <button
@@ -42,17 +46,17 @@ export function ToolbenchScenarios({
 
       <section className="flex flex-col gap-1">
         <p className={SECTION_HEADER}>Batch</p>
-        {SEED_BATCHES.map((batch) => {
-          const isActive = batch.id === activeBatchSeedId;
+        {TOOLBENCH_BATCH_SCENARIOS.map((scenario) => {
+          const isActive = scenario.id === activeBatchSeedId;
           return (
             <button
-              key={batch.id}
-              onClick={() => onSelectBatchSeed(batch.id)}
+              key={scenario.id}
+              onClick={() => onSelectBatchSeed(scenario)}
               className={`${SCENARIO_BASE} ${isActive ? SCENARIO_ACTIVE : SCENARIO_IDLE}`}
             >
-              <p className="text-xs font-body font-semibold leading-tight">{batch.label}</p>
+              <p className="text-xs font-body font-semibold leading-tight">{scenario.title}</p>
               <p className="text-[10px] font-body text-on-surface-variant leading-tight mt-0.5">
-                {batch.description}
+                {scenario.description}
               </p>
             </button>
           );

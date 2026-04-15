@@ -24,6 +24,7 @@ This file is the checked-in branch registry for normal story work.
 | Branch | Story | Lane | Status | Description | PR | Opened | Updated | Base | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `chore/TTB-WF-003-branch-tracker` | `TTB-WF-003` | `chore` | `draft-local` | add the branch tracker workflow and enforce branch metadata updates | - | `2026-04-15` | `2026-04-15` | `main` | isolated workflow worktree |
+| `claude/TTB-000-fix-toolbench-scroll` | `TTB-000` | `claude` | `open` | fix toolbench scroll — move overflow to tabpanel | #45 | `2026-04-15` | `2026-04-15` | `main` | - |
 <!-- ACTIVE_BRANCHES:END -->
 
 ## Closed branches

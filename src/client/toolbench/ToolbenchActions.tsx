@@ -2,10 +2,9 @@ import { useState } from 'react';
 import type { ExtractionMode, Mode } from '../appTypes';
 
 interface ToolbenchActionsProps {
-  mode: Mode;
   extractionMode: ExtractionMode;
   onReset: () => void;
-  onSwitchMode: (next: Mode) => void;
+  onOpenMode: (next: Mode) => void;
   onToggleExtraction: (next: ExtractionMode) => void;
   onLaunchTour: () => void;
 }
@@ -33,20 +32,15 @@ function ActionButton({ icon, label, onClick, loading = false }: ActionButtonPro
 }
 
 export function ToolbenchActions({
-  mode,
   extractionMode,
   onReset,
-  onSwitchMode,
+  onOpenMode,
   onToggleExtraction,
   onLaunchTour,
 }: ToolbenchActionsProps) {
   const [healthLoading, setHealthLoading] = useState(false);
   const [healthResult, setHealthResult] = useState<Record<string, unknown> | null>(null);
   const [healthError, setHealthError] = useState<string | null>(null);
-
-  const altMode: Mode = mode === 'single' ? 'batch' : 'single';
-  const switchIcon = altMode === 'batch' ? 'view_list' : 'draft';
-  const switchLabel = altMode === 'batch' ? 'Switch to batch review' : 'Switch to single review';
 
   const altExtraction: ExtractionMode = extractionMode === 'cloud' ? 'local' : 'cloud';
   const extractionIcon = altExtraction === 'cloud' ? 'cloud' : 'hard_drive';
@@ -70,12 +64,17 @@ export function ToolbenchActions({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-1 overflow-y-auto p-3">
+    <div className="flex flex-col gap-1 p-3">
       <ActionButton icon="restart_alt" label="Reset app" onClick={onReset} />
       <ActionButton
-        icon={switchIcon}
-        label={switchLabel}
-        onClick={() => onSwitchMode(altMode)}
+        icon="draft"
+        label="Open single review"
+        onClick={() => onOpenMode('single')}
+      />
+      <ActionButton
+        icon="view_list"
+        label="Open batch review"
+        onClick={() => onOpenMode('batch')}
       />
       <ActionButton
         icon={extractionIcon}
