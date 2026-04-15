@@ -1,0 +1,154 @@
+import { useEffect, useRef } from 'react';
+import type { ExtractionMode, Mode } from '../appTypes';
+import type { SeedScenario } from '../scenarios';
+import { ToolbenchActions } from './ToolbenchActions';
+import { ToolbenchAssets } from './ToolbenchAssets';
+import { ToolbenchScenarios } from './ToolbenchScenarios';
+import { type ToolbenchTab, useToolbenchState } from './useToolbenchState';
+
+interface AssessorToolbenchProps {
+  activeScenarioId: string;
+  activeBatchSeedId: string;
+  onSelectScenario: (scenario: SeedScenario) => void;
+  onSelectBatchSeed: (id: string) => void;
+  onLoadImage: (file: File) => void;
+  onLoadCsv: (file: File) => void;
+  mode: Mode;
+  extractionMode: ExtractionMode;
+  onReset: () => void;
+  onSwitchMode: (next: Mode) => void;
+  onToggleExtraction: (next: ExtractionMode) => void;
+  onLaunchTour: () => void;
+}
+
+const TABS: { id: ToolbenchTab; label: string }[] = [
+  { id: 'scenarios', label: 'Scenarios' },
+  { id: 'assets', label: 'Assets' },
+  { id: 'actions', label: 'Actions' },
+];
+
+export function AssessorToolbench({
+  activeScenarioId,
+  activeBatchSeedId,
+  onSelectScenario,
+  onSelectBatchSeed,
+  onLoadImage,
+  onLoadCsv,
+  mode,
+  extractionMode,
+  onReset,
+  onSwitchMode,
+  onToggleExtraction,
+  onLaunchTour,
+}: AssessorToolbenchProps) {
+  const { open, tab, setTab, toggle, close } = useToolbenchState();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Escape to close
+  useEffect(() => {
+    if (!open) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') close();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [open, close]);
+
+  // Click outside to close
+  useEffect(() => {
+    if (!open) return;
+    function handleMouseDown(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        close();
+      }
+    }
+    // Defer so the same click that opens the panel doesn't immediately close it
+    const id = setTimeout(() => document.addEventListener('mousedown', handleMouseDown), 0);
+    return () => {
+      clearTimeout(id);
+      document.removeEventListener('mousedown', handleMouseDown);
+    };
+  }, [open, close]);
+
+  return (
+    <div ref={containerRef} className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2">
+      {/* Panel — renders above FAB in flex-col so it grows upward */}
+      {open && (
+        <div className="w-[400px] max-h-[520px] rounded-xl border border-dashed border-outline-variant/60 bg-surface-container shadow-ambient flex flex-col overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center justify-between px-3 py-2 border-b border-outline-variant/40 shrink-0">
+            <span className="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-widest">
+              Assessor Toolbench
+            </span>
+            <button
+              onClick={close}
+              aria-label="Close toolbench"
+              className="text-on-surface-variant hover:text-on-surface transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">close</span>
+            </button>
+          </div>
+
+          {/* Tab bar */}
+          <div role="tablist" className="flex border-b border-outline-variant/40 shrink-0">
+            {TABS.map(({ id, label }) => (
+              <button
+                key={id}
+                role="tab"
+                aria-selected={tab === id}
+                onClick={() => setTab(id)}
+                className={`flex-1 py-2 text-xs font-label font-semibold transition-colors border-b-2 ${
+                  tab === id
+                    ? 'text-primary border-primary'
+                    : 'text-on-surface-variant border-transparent hover:text-on-surface'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab content */}
+          <div role="tabpanel" className="flex-1 min-h-0 overflow-hidden">
+            {tab === 'scenarios' && (
+              <ToolbenchScenarios
+                activeScenarioId={activeScenarioId}
+                activeBatchSeedId={activeBatchSeedId}
+                onSelectScenario={onSelectScenario}
+                onSelectBatchSeed={onSelectBatchSeed}
+              />
+            )}
+            {tab === 'assets' && (
+              <ToolbenchAssets onLoadImage={onLoadImage} onLoadCsv={onLoadCsv} />
+            )}
+            {tab === 'actions' && (
+              <ToolbenchActions
+                mode={mode}
+                extractionMode={extractionMode}
+                onReset={onReset}
+                onSwitchMode={onSwitchMode}
+                onToggleExtraction={onToggleExtraction}
+                onLaunchTour={onLaunchTour}
+              />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* FAB */}
+      <button
+        onClick={toggle}
+        aria-expanded={open}
+        aria-label="Toggle assessor toolbench"
+        className={`flex items-center gap-1.5 rounded-full px-4 py-2 border border-dashed font-label text-xs font-semibold transition-colors ${
+          open
+            ? 'border-primary/50 bg-primary/10 text-primary'
+            : 'border-outline-variant/60 bg-surface-container text-on-surface-variant hover:border-primary/40 hover:text-primary'
+        }`}
+      >
+        <span className="material-symbols-outlined text-[16px]">science</span>
+        Toolbench
+      </button>
+    </div>
+  );
+}
