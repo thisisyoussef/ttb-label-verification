@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
+vi.mock('node:fs', () => ({ existsSync: vi.fn(() => true) }));
+
 import { reviewExtractionSchema } from '../shared/contracts/review';
 import type { ReviewExtractionModelOutput } from './review-extraction';
 import type { NormalizedReviewIntake } from './review-intake';

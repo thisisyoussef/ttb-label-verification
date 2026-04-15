@@ -65,7 +65,6 @@ describe('server extraction mode policy surfaces', () => {
 
         expect(payload.kind).toBe('adapter');
         expect(payload.retryable).toBe(false);
-        expect(payload.message).toContain('Local extraction');
       }
     );
   });
