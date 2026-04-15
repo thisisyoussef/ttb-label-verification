@@ -6,7 +6,7 @@ export const AI_CAPABILITIES = [
   'embeddings'
 ] as const;
 export const EXTRACTION_MODES = ['cloud', 'local'] as const;
-export const AI_PROVIDERS = ['openai', 'gemini', 'ollama'] as const;
+export const AI_PROVIDERS = ['openai', 'gemini', 'ollama', 'transformers'] as const;
 
 export type AiCapability = (typeof AI_CAPABILITIES)[number];
 export type ExtractionMode = (typeof EXTRACTION_MODES)[number];
@@ -16,7 +16,7 @@ export const DEFAULT_EXTRACTION_MODE: ExtractionMode = 'cloud';
 
 const DEFAULT_CLOUD_PROVIDER_ORDER: readonly AiProvider[] = ['openai', 'gemini'];
 const DEFAULT_LABEL_EXTRACTION_PROVIDER_ORDER: readonly AiProvider[] = ['gemini', 'openai'];
-const DEFAULT_LOCAL_PROVIDER_ORDER: readonly AiProvider[] = ['ollama'];
+const DEFAULT_LOCAL_PROVIDER_ORDER: readonly AiProvider[] = ['transformers', 'ollama'];
 const TRUTHY_VALUES = new Set(['1', 'true', 'yes', 'on']);
 const FALSY_VALUES = new Set(['0', 'false', 'no', 'off']);
 
@@ -163,7 +163,7 @@ export function resolveProviderOrder(input: {
 }
 
 export function providerMode(provider: AiProvider): ExtractionMode {
-  return provider === 'ollama' ? 'local' : 'cloud';
+  return provider === 'ollama' || provider === 'transformers' ? 'local' : 'cloud';
 }
 
 function parseExtractionModeValue(
