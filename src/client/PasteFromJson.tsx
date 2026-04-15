@@ -50,8 +50,17 @@ function parseJsonFields(
   let parsed: Record<string, unknown>;
   try {
     parsed = JSON.parse(raw);
-  } catch {
-    return { fields: {}, error: 'That text is not valid JSON. Check the format and try again.' };
+  } catch (err) {
+    const detail =
+      err instanceof SyntaxError && err.message
+        ? err.message.length > 80
+          ? err.message.slice(0, 77) + '...'
+          : err.message
+        : null;
+    const message = detail
+      ? `Could not parse JSON: ${detail}`
+      : 'That text is not valid JSON. Check the format and try again.';
+    return { fields: {}, error: message };
   }
 
   if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
