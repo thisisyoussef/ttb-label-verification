@@ -20,68 +20,71 @@ export function ResultsPinnedColumn({ image, beverage }: ResultsPinnedColumnProp
   const isPdf = image.file.type === 'application/pdf';
 
   return (
-    <aside className="md:col-span-4 lg:col-span-3 bg-surface-container-low p-4 lg:p-6 xl:p-8 flex flex-col gap-4 xl:gap-6 border-r border-outline-variant/15 overflow-y-auto">
-      <h2 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
-        Label details
-      </h2>
+    <aside className="md:col-span-5 lg:col-span-4 bg-surface-container-low border-r border-outline-variant/15 overflow-y-auto flex flex-col">
+      <div className="sticky top-0 z-10 p-4 lg:p-6 xl:p-8 pb-0 lg:pb-0 xl:pb-0 flex flex-col gap-4 xl:gap-6">
+        <h2 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+          Label details
+        </h2>
 
-      {isPdf ? (
-        <div className="aspect-[3/4] bg-surface-container-highest rounded-lg flex items-center justify-center">
-          <span
-            aria-hidden="true"
-            className="material-symbols-outlined text-5xl text-on-surface-variant"
-          >
-            picture_as_pdf
-          </span>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setOverlayOpen(true)}
-          className="relative group w-full cursor-zoom-in rounded-lg overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2"
-          aria-label="View full-size label image"
-        >
-          <img
-            alt="Submitted label thumbnail"
-            src={image.previewUrl}
-            className="w-full aspect-[3/4] object-cover bg-surface-container-highest transition-transform duration-200 group-hover:scale-[1.02]"
-          />
-          <div className="absolute inset-0 bg-on-surface/0 group-hover:bg-on-surface/30 transition-colors flex items-center justify-center">
-            <span className="material-symbols-outlined text-3xl text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg">
-              zoom_in
+        {isPdf ? (
+          <div className="min-h-[200px] max-h-[55vh] bg-surface-container-highest rounded-lg flex items-center justify-center">
+            <span
+              aria-hidden="true"
+              className="material-symbols-outlined text-5xl text-on-surface-variant"
+            >
+              picture_as_pdf
             </span>
           </div>
-        </button>
-      )}
+        ) : (
+          <button
+            type="button"
+            onClick={() => setOverlayOpen(true)}
+            className="relative group w-full cursor-zoom-in rounded-lg overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2 bg-surface-container-highest"
+            aria-label="View full-size label image"
+          >
+            <img
+              alt="Submitted label thumbnail"
+              src={image.previewUrl}
+              className="w-full max-h-[55vh] object-contain bg-surface-container-highest transition-transform duration-200 group-hover:scale-[1.02]"
+            />
+            <div className="absolute bottom-2 right-2 bg-on-surface/60 text-white rounded px-2 py-0.5 text-[10px] font-label uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+              <span className="material-symbols-outlined text-[14px]" aria-hidden="true">
+                zoom_in
+              </span>
+              Full size
+            </div>
+          </button>
+        )}
+      </div>
 
-      <dl className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <dt className="font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
-            Filename
+      <dl className="flex flex-col gap-3 p-4 lg:px-6 xl:px-8 pt-4">
+        <div className="flex items-baseline gap-3">
+          <dt className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant shrink-0 w-16">
+            File
           </dt>
-          <dd className="font-mono text-sm font-semibold text-on-surface break-all">
+          <dd className="font-mono text-xs font-semibold text-on-surface break-all">
             {image.file.name}
           </dd>
         </div>
-        <div className="flex flex-col gap-1">
-          <dt className="font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
+        <div className="flex items-baseline gap-3">
+          <dt className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant shrink-0 w-16">
             Size
           </dt>
-          <dd className="font-body text-sm text-on-surface">{image.sizeLabel}</dd>
+          <dd className="font-body text-xs text-on-surface">{image.sizeLabel}</dd>
         </div>
-        <div className="flex flex-col gap-1">
-          <dt className="font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
-            Beverage type
+        <div className="flex items-center gap-3">
+          <dt className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant shrink-0 w-16">
+            Type
           </dt>
           <dd>
-            <span className="inline-flex items-center gap-2 px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full font-label text-sm font-bold">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-secondary-container text-on-secondary-container rounded-full font-label text-xs font-bold">
               {BEVERAGE_LABELS[beverage]}
             </span>
           </dd>
         </div>
       </dl>
 
-      <p className="mt-auto pt-6 border-t border-outline-variant/15 text-xs text-on-surface-variant leading-relaxed flex items-center gap-2 flex-wrap">
+      <p className="mt-auto p-4 lg:px-6 xl:px-8 pt-4 border-t border-outline-variant/15 text-xs text-on-surface-variant leading-relaxed flex items-center gap-2 flex-wrap">
         <span>Nothing is stored. Inputs and results are discarded when you leave.</span>
         <InfoAnchor anchorKey="no-persistence" placement="bottom" />
       </p>
