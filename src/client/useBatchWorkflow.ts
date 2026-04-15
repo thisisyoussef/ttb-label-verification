@@ -1,20 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  DEFAULT_SEED_BATCH_ID,
   findSeedBatch,
   STREAM_CANCELLED,
   STREAM_RUNNING_MIXED,
   STREAM_SEEDS,
   type SeedBatch
 } from './batchScenarios';
+import { revokeBatchLabelImages } from './batch-runtime';
 import {
-  revokeBatchLabelImages
-} from './batch-runtime';
-import {
+  type BatchWorkflowSource,
+  LIVE_BATCH_SEED_ID,
   cloneSeed,
   emptyBatchSeedState,
+  nextBatchWorkflowSource,
   summarizeItems,
-  updateMatching
+  updateMatching,
+  usesFixtureBatchSource
 } from './appBatchState';
 import {
   retryLiveBatchItem,
@@ -31,6 +32,10 @@ import type {
   BatchTerminalSummary
 } from './batchTypes';
 import type { BatchLabelImage } from './batchTypes';
+
+function emptyBatchProgressState(): BatchProgress {
+  return { done: 0, total: 0, secondsRemaining: null };
+}
 
 export interface BatchWorkflow extends BatchDashboardFlow {
   batchSeedId: string;
@@ -68,30 +73,24 @@ export function useBatchWorkflow(options: {
   setMode: (mode: Mode) => void;
   setView: (view: View) => void;
 }): BatchWorkflow {
-  const [batchSeedId, setBatchSeedId] = useState<string>(DEFAULT_SEED_BATCH_ID);
-  const [batchSeed, setBatchSeed] = useState<SeedBatch>(() =>
-    options.fixtureControlsEnabled
-      ? cloneSeed(findSeedBatch(DEFAULT_SEED_BATCH_ID))
-      : emptyBatchSeedState()
-  );
+  const [batchSource, setBatchSource] = useState<BatchWorkflowSource>('live');
+  const [batchSeedId, setBatchSeedId] = useState<string>(LIVE_BATCH_SEED_ID);
+  const [batchSeed, setBatchSeed] = useState<SeedBatch>(() => emptyBatchSeedState());
   const [batchSessionId, setBatchSessionId] = useState<string | null>(null);
   const [batchCsvFile, setBatchCsvFile] = useState<File | null>(null);
   const [batchPhase, setBatchPhase] = useState<BatchPhase>('intake');
   const [batchStreamSeedId, setBatchStreamSeedId] = useState<string>(
     STREAM_RUNNING_MIXED.id
   );
-  const [batchItems, setBatchItems] = useState<BatchStreamItem[]>(
-    () => [...STREAM_RUNNING_MIXED.items]
+  const [batchItems, setBatchItems] = useState<BatchStreamItem[]>([]);
+  const [batchProgress, setBatchProgress] = useState<BatchProgress>(
+    () => emptyBatchProgressState()
   );
-  const [batchProgress, setBatchProgress] = useState<BatchProgress>(() => ({
-    done: STREAM_RUNNING_MIXED.doneOverride ?? 0,
-    total: STREAM_RUNNING_MIXED.total,
-    secondsRemaining: STREAM_RUNNING_MIXED.secondsRemaining ?? null
-  }));
   const [previewImage, setPreviewImage] = useState<BatchLabelImage | null>(null);
   const batchPreflightRequestRef = useRef<number>(0);
   const batchRunAbortRef = useRef<AbortController | null>(null);
   const batchImagesCleanupRef = useRef<BatchLabelImage[]>([]);
+  const fixtureModeActive = usesFixtureBatchSource(batchSource);
 
   useEffect(() => {
     batchImagesCleanupRef.current = batchSeed.images;
@@ -106,24 +105,31 @@ export function useBatchWorkflow(options: {
 
   const resetLiveBatch = useCallback(() => {
     batchRunAbortRef.current?.abort();
+    batchRunAbortRef.current = null;
     revokeBatchLabelImages(batchSeed.images);
+    setBatchSource((current) =>
+      nextBatchWorkflowSource({ current, event: 'reset' })
+    );
+    setBatchSeedId(LIVE_BATCH_SEED_ID);
     setBatchSessionId(null);
     setBatchCsvFile(null);
     setBatchSeed(emptyBatchSeedState());
     setBatchPhase('intake');
+    setBatchStreamSeedId(STREAM_RUNNING_MIXED.id);
     setBatchItems([]);
-    setBatchProgress({ done: 0, total: 0, secondsRemaining: null });
+    setBatchProgress(emptyBatchProgressState());
     setPreviewImage(null);
   }, [batchSeed.images]);
 
   const dashboard = useBatchDashboardFlow({
     fixtureControlsEnabled: options.fixtureControlsEnabled,
+    fixtureModeActive,
     setView: options.setView,
     batchSessionId,
     batchSeedImages: batchSeed.images,
     batchStreamSeedId,
     resetLiveBatch: () => {
-      if (!options.fixtureControlsEnabled) {
+      if (!fixtureModeActive) {
         resetLiveBatch();
       }
       dashboard.reset();
@@ -149,13 +155,45 @@ export function useBatchWorkflow(options: {
     previewImage,
     summary,
     onSelectBatchSeed: (id) => {
+      if (!options.fixtureControlsEnabled) {
+        return;
+      }
+
+      batchRunAbortRef.current?.abort();
+      batchRunAbortRef.current = null;
+      revokeBatchLabelImages(batchSeed.images);
+      setBatchSource((current) =>
+        nextBatchWorkflowSource({ current, event: 'fixture-selected' })
+      );
       setBatchSeedId(id);
+      setBatchSessionId(null);
+      setBatchCsvFile(null);
       setBatchSeed(cloneSeed(findSeedBatch(id)));
       setBatchPhase('intake');
+      setBatchItems([]);
+      setBatchProgress(emptyBatchProgressState());
+      setPreviewImage(null);
+      dashboard.reset();
+      dashboard.resetDashboardSeed();
     },
     onSelectStreamSeed: (id) => {
+      if (!options.fixtureControlsEnabled) {
+        return;
+      }
+
       const seed = STREAM_SEEDS.find((entry) => entry.id === id);
       if (!seed) return;
+
+      batchRunAbortRef.current?.abort();
+      batchRunAbortRef.current = null;
+      revokeBatchLabelImages(batchSeed.images);
+      setBatchSource((current) =>
+        nextBatchWorkflowSource({ current, event: 'stream-seed-selected' })
+      );
+      setBatchSeedId(LIVE_BATCH_SEED_ID);
+      setBatchSessionId(null);
+      setBatchCsvFile(null);
+      setBatchSeed(emptyBatchSeedState());
       setBatchStreamSeedId(id);
       setBatchItems([...seed.items]);
       setBatchProgress({
@@ -173,6 +211,24 @@ export function useBatchWorkflow(options: {
       options.setView('batch-processing');
     },
     onSelectLiveImages: (files) => {
+      if (fixtureModeActive) {
+        setBatchSource((current) =>
+          nextBatchWorkflowSource({ current, event: 'live-input-selected' })
+        );
+        setBatchSeedId(LIVE_BATCH_SEED_ID);
+        setBatchSessionId(null);
+        setBatchCsvFile(null);
+        setBatchSeed(emptyBatchSeedState());
+        setBatchPhase('intake');
+        setBatchItems([]);
+        setBatchProgress(emptyBatchProgressState());
+        setPreviewImage(null);
+        dashboard.reset();
+        dashboard.resetDashboardSeed();
+      } else {
+        setBatchSeedId(LIVE_BATCH_SEED_ID);
+      }
+
       selectLiveImages({
         files,
         batchSeedImages: batchSeed.images,
@@ -184,14 +240,33 @@ export function useBatchWorkflow(options: {
         setBatchProgress,
         setBatchPhase,
         setPreviewImage,
-        resetDashboardSeed: dashboard.onSelectDashboardSeed
+        resetDashboardSeed: dashboard.resetDashboardSeed
       });
     },
     onSelectLiveCsv: (file) => {
+      const liveBatchImages = fixtureModeActive ? [] : batchSeed.images;
+
+      if (fixtureModeActive) {
+        setBatchSource((current) =>
+          nextBatchWorkflowSource({ current, event: 'live-input-selected' })
+        );
+        setBatchSeedId(LIVE_BATCH_SEED_ID);
+        setBatchSessionId(null);
+        setBatchSeed(emptyBatchSeedState());
+        setBatchPhase('intake');
+        setBatchItems([]);
+        setBatchProgress(emptyBatchProgressState());
+        setPreviewImage(null);
+        dashboard.reset();
+        dashboard.resetDashboardSeed();
+      } else {
+        setBatchSeedId(LIVE_BATCH_SEED_ID);
+      }
+
       setBatchCsvFile(file);
       selectLiveCsv({
         file,
-        batchImages: batchSeed.images,
+        batchImages: liveBatchImages,
         batchPreflightRequestRef,
         setBatchSessionId,
         setBatchSeed
@@ -204,14 +279,15 @@ export function useBatchWorkflow(options: {
         options.setView('intake');
         return;
       }
-      if (!options.fixtureControlsEnabled && batchSeed.images.length === 0 && batchSeed.csv === null) {
+      if (!fixtureModeActive && batchSeed.images.length === 0 && batchSeed.csv === null) {
+        setBatchSeedId(LIVE_BATCH_SEED_ID);
         setBatchSeed(emptyBatchSeedState());
       }
       options.setView('batch-intake');
       setBatchPhase('intake');
     },
     onStartBatchFromIntake: () => {
-      if (options.fixtureControlsEnabled) {
+      if (fixtureModeActive) {
         setBatchStreamSeedId(STREAM_RUNNING_MIXED.id);
         setBatchItems([...STREAM_RUNNING_MIXED.items]);
         setBatchProgress({
@@ -240,7 +316,7 @@ export function useBatchWorkflow(options: {
       });
     },
     onCancelBatchRun: () => {
-      if (options.fixtureControlsEnabled) {
+      if (fixtureModeActive) {
         setBatchStreamSeedId(STREAM_CANCELLED.id);
         setBatchItems([...STREAM_CANCELLED.items]);
         setBatchProgress({
@@ -258,7 +334,7 @@ export function useBatchWorkflow(options: {
       }
     },
     onRetryBatchItem: (itemId) => {
-      if (options.fixtureControlsEnabled) {
+      if (fixtureModeActive) {
         setBatchItems((previous) =>
           previous.map((item) =>
             item.id === itemId && item.status === 'error'
@@ -287,8 +363,9 @@ export function useBatchWorkflow(options: {
     onReturnToSingle: () => {
       options.setMode('single');
       options.setView('intake');
-      if (!options.fixtureControlsEnabled) {
+      if (!fixtureModeActive) {
         resetLiveBatch();
+        dashboard.resetDashboardSeed();
       } else {
         setBatchPhase('intake');
       }
@@ -334,11 +411,8 @@ export function useBatchWorkflow(options: {
     reset: () => {
       dashboard.reset();
       setPreviewImage(null);
-      if (!options.fixtureControlsEnabled) {
-        resetLiveBatch();
-      } else {
-        setBatchPhase('intake');
-      }
+      resetLiveBatch();
+      dashboard.resetDashboardSeed();
     }
   };
 }

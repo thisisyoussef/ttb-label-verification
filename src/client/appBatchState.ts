@@ -6,9 +6,37 @@ import type {
   BatchTerminalSummary
 } from './batchTypes';
 
+export const LIVE_BATCH_SEED_ID = 'live-batch';
+
+export type BatchWorkflowSource = 'live' | 'fixture';
+
+export type BatchWorkflowSourceEvent =
+  | 'fixture-selected'
+  | 'stream-seed-selected'
+  | 'live-input-selected'
+  | 'reset';
+
+export function usesFixtureBatchSource(source: BatchWorkflowSource) {
+  return source === 'fixture';
+}
+
+export function nextBatchWorkflowSource(input: {
+  current: BatchWorkflowSource;
+  event: BatchWorkflowSourceEvent;
+}): BatchWorkflowSource {
+  if (
+    input.event === 'fixture-selected' ||
+    input.event === 'stream-seed-selected'
+  ) {
+    return 'fixture';
+  }
+
+  return 'live';
+}
+
 export function emptyBatchSeedState(): SeedBatch {
   return {
-    id: 'live-batch',
+    id: LIVE_BATCH_SEED_ID,
     label: 'Live batch',
     description: 'Live batch review session',
     images: [],

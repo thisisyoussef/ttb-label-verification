@@ -274,6 +274,7 @@ describe('batch routes', () => {
     });
 
     expect(response.status).toBe(200);
+    expect(response.headers.get('cache-control')).toBe('no-store');
 
     const payload = batchPreflightResponseSchema.parse(await response.json());
 
@@ -353,6 +354,7 @@ describe('batch routes', () => {
     });
 
     expect(runResponse.status).toBe(200);
+    expect(runResponse.headers.get('cache-control')).toBe('no-store');
 
     const frames = await collectNdjsonFrames(runResponse);
     const summaryFrame = frames.at(-1);
@@ -372,6 +374,7 @@ describe('batch routes', () => {
       serverUrl(server, `/api/batch/${preflight.batchSessionId}/summary`)
     );
     expect(summaryResponse.status).toBe(200);
+    expect(summaryResponse.headers.get('cache-control')).toBe('no-store');
     const dashboard = batchDashboardResponseSchema.parse(await summaryResponse.json());
 
     const passRow = dashboard.rows.find((row) => row.imageId === 'image-pass');
@@ -385,6 +388,7 @@ describe('batch routes', () => {
     const reportResponse = await fetch(
       serverUrl(server, `/api/batch/${preflight.batchSessionId}/report/${passRow?.reportId}`)
     );
+    expect(reportResponse.headers.get('cache-control')).toBe('no-store');
     const report = verificationReportSchema.parse(await reportResponse.json());
     const brandCheck = report.checks.find((check) => check.id === 'brand-name');
     expect(brandCheck?.applicationValue).toBe('Submitted Brand Pass');
@@ -393,6 +397,7 @@ describe('batch routes', () => {
       serverUrl(server, `/api/batch/${preflight.batchSessionId}/export`)
     );
     expect(exportResponse.status).toBe(200);
+    expect(exportResponse.headers.get('cache-control')).toBe('no-store');
     expect(exportResponse.headers.get('content-disposition')).toContain(
       `ttb-batch-${preflight.batchSessionId}.json`
     );
@@ -406,6 +411,7 @@ describe('batch routes', () => {
       }
     );
     expect(retryResponse.status).toBe(200);
+    expect(retryResponse.headers.get('cache-control')).toBe('no-store');
     const retriedDashboard = batchDashboardResponseSchema.parse(await retryResponse.json());
     const retriedRow = retriedDashboard.rows.find((row) => row.imageId === 'image-retry');
 
@@ -413,4 +419,44 @@ describe('batch routes', () => {
     expect(retriedRow?.reportId).not.toBeNull();
     expect(retriedDashboard.summary.error).toBe(0);
   }, 15000);
+
+  it('marks batch cancellation responses as non-cacheable', async () => {
+    const server = await startServer();
+    serversToClose.push(server);
+
+    const csv = new File(
+      [
+        [
+          'filename,beverage_type,brand_name,fanciful_name,class_type,alcohol_content,net_contents,applicant_address,origin,country,formula_id,appellation,vintage',
+          'brand-pass.png,distilled-spirits,Submitted Brand Pass,,Straight Rye,45% Alc./Vol.,750 mL,Pass Distilling,domestic,,,,'
+        ].join('\n')
+      ],
+      'applications.csv',
+      { type: 'text/csv' }
+    );
+
+    const preflightResponse = await postBatchPreflight(server, {
+      images: [
+        {
+          id: 'image-pass',
+          file: new File([new Uint8Array([1])], 'brand-pass.png', {
+            type: 'image/png'
+          })
+        }
+      ],
+      csv
+    });
+    const preflight = batchPreflightResponseSchema.parse(await preflightResponse.json());
+
+    const cancelResponse = await fetch(
+      serverUrl(server, `/api/batch/${preflight.batchSessionId}/cancel`),
+      {
+        method: 'POST'
+      }
+    );
+
+    expect(cancelResponse.status).toBe(202);
+    expect(cancelResponse.headers.get('cache-control')).toBe('no-store');
+    expect(await cancelResponse.json()).toEqual({ status: 'cancelling' });
+  });
 });

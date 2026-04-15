@@ -26,6 +26,8 @@
 - Mock-auth shell slice: `src/client/App.tsx`, `src/client/AuthScreen.tsx`, `src/client/SignedInIdentity.tsx`, and `src/client/authState.ts` now model the approved TTB-107 Screen 0 as a fully client-local auth gate; `authState.ts` holds the stable transition, delay, and sign-out reset helpers that the regression suite exercises
 - Results contract: `VerificationReport` now carries verdict/counts/extraction-quality state, regular comparison evidence, warning sub-checks plus diff segments, and cross-field checks in one shared schema
 - Batch UI runtime: `src/client/batch-runtime.ts` maps live batch API payloads into the established batch upload, processing, dashboard, and drill-in view models while preserving the product's approved direction
+- `TTB-302` moved batch orchestration onto an explicit client-side source model in `src/client/useBatchWorkflow.ts` and `src/client/useBatchDashboardFlow.ts`: live is now the default runtime, fixture seeds are opt-in, and dashboard/report/retry/export branch on the active source instead of the global dev-fixture flag
+- Batch route hardening: `src/server/register-batch-routes.ts` now marks every batch response surface as `cache-control: no-store`, including preflight, cancel, summary, report, export, and retry
 - Post-handoff collaboration model: Claude establishes the initial UI direction for a story, then Codex may refine `src/client/**` during engineering once a `ready-for-codex` handoff exists, as long as the result stays aligned with the story packet, master design, and handoff hard constraints
 - Planned help architecture: future guided-tour and contextual-help behavior should be delivered from typed, deterministic manifests and stateless server routes rather than persisted onboarding state
 
