@@ -42,7 +42,7 @@ export const seedVerificationReport: VerificationReport = {
       label: 'Brand name',
       status: 'pass',
       severity: 'note',
-      summary: 'Application value and extracted label text match.',
+      summary: 'Application value matches what was read from the label.',
       details:
         'The value on the application matches what was read from the label.',
       confidence: 0.99,
