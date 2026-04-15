@@ -54,3 +54,11 @@ export function resolveReviewFailureMessage(
 
   return message;
 }
+
+export function classifyCause(message: string): string {
+  const lower = message.toLowerCase();
+  if (lower.includes("connection")) return "This looks like a connection issue.";
+  if (lower.includes("timeout") || lower.includes("took too long"))
+    return "The request timed out.";
+  return "Something went wrong on our end.";
+}
