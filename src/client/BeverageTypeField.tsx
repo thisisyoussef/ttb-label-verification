@@ -1,3 +1,4 @@
+import { useHint } from './useHint';
 import type { BeverageSelection } from './types';
 
 interface Option {
@@ -18,6 +19,8 @@ interface BeverageTypeFieldProps {
 }
 
 export function BeverageTypeField({ value, onChange }: BeverageTypeFieldProps) {
+  const beverageHint = useHint('beverage-type', value !== 'auto');
+
   return (
     <div className="flex flex-col gap-3">
       <label
@@ -52,6 +55,12 @@ export function BeverageTypeField({ value, onChange }: BeverageTypeFieldProps) {
           );
         })}
       </div>
+      {beverageHint.visible ? (
+        <p className="text-xs text-on-surface-variant/70 font-label flex items-center gap-1.5">
+          <span className="material-symbols-outlined text-[14px]" aria-hidden="true">lightbulb</span>
+          This adjusts which fields appear and which rules apply.
+        </p>
+      ) : null}
     </div>
   );
 }

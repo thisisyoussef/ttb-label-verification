@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useHint } from './useHint';
 import { CrossFieldChecks } from './CrossFieldChecks';
 import { FieldRow } from './FieldRow';
 import { FocusAreas } from './FocusAreas';
@@ -40,6 +41,8 @@ export function Results({
   exportEnabled
 }: ResultsProps) {
   const [expandedId, setExpandedId] = useState<string | null>(tourExpandedCheckId);
+  const expandRowHint = useHint('expand-row', expandedId !== null);
+  const newReviewHint = useHint('new-review-shortcut', false);
   const rowRefs = useMemo(() => new Map<string, HTMLButtonElement>(), []);
   const workingAreaRef = useRef<HTMLElement | null>(null);
   const tourExpandTimeoutRef = useRef<number | null>(null);
@@ -213,6 +216,13 @@ export function Results({
               ))}
             </section>
 
+            {expandRowHint.visible ? (
+              <p className="text-xs text-on-surface-variant/70 font-label flex items-center gap-1.5 -mt-1">
+                <span className="material-symbols-outlined text-[14px]" aria-hidden="true">lightbulb</span>
+                Click any row to see evidence and confidence details.
+              </p>
+            ) : null}
+
             <CrossFieldChecks
               checks={report.crossFieldChecks}
               expandedId={expandedId}
@@ -244,6 +254,11 @@ export function Results({
                   </span>
                   New Review
                 </button>
+                {newReviewHint.visible ? (
+                  <span className="text-xs text-on-surface-variant/70 font-label">
+                    Press N to start a new review.
+                  </span>
+                ) : null}
               </div>
               <button
                 type="button"

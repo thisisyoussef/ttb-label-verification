@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { BeverageTypeField } from './BeverageTypeField';
+import { useHint } from './useHint';
 import { DropZone } from './DropZone';
 import {
   abvTagFor,
@@ -59,6 +60,7 @@ export function Intake({
 }: IntakeProps) {
   const [confirmingClear, setConfirmingClear] = useState(false);
   const verifyDisabled = image === null;
+  const jsonPasteHint = useHint('json-paste', image !== null);
 
   const setField = <K extends keyof IntakeFields>(key: K, value: IntakeFields[K]) => {
     onFieldsChange({ ...fields, [key]: value });
@@ -96,6 +98,12 @@ export function Intake({
             <section className="lg:col-span-5 flex flex-col">
               <FieldGroupHeading>Label image</FieldGroupHeading>
               <DropZone image={image} onAccept={onImageChange} onRemove={() => onImageChange(null)} />
+              {jsonPasteHint.visible && !image ? (
+                <p className="text-xs text-on-surface-variant/70 font-label flex items-center gap-1.5 mt-2">
+                  <span className="material-symbols-outlined text-[14px]" aria-hidden="true">lightbulb</span>
+                  You can also paste JSON to pre-fill the form.
+                </p>
+              ) : null}
             </section>
 
             <section className="lg:col-span-7 flex flex-col">
