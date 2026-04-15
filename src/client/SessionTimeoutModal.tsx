@@ -36,7 +36,7 @@ export function SessionTimeoutModal({
               id="session-timeout-title"
               className="font-headline text-lg font-bold text-on-surface"
             >
-              Your session is about to timeout
+              Your session is about to expire
             </h2>
             <p
               id="session-timeout-description"

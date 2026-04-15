@@ -18,7 +18,7 @@ export function StandaloneBanner({ onRunFullComparison }: StandaloneBannerProps)
           info
         </span>
         <p className="font-body text-sm md:text-base flex items-center gap-2 flex-wrap">
-          <span>Standalone mode — no application data provided. Extracted values are shown below.</span>
+          <span>Image only — no application data was provided. Values read from the label are shown below.</span>
           <InfoAnchor anchorKey="standalone-mode" />
         </p>
       </div>

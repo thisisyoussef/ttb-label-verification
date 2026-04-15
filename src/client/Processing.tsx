@@ -111,7 +111,7 @@ export function Processing({
           </div>
           <div className="flex flex-col gap-1">
             <dt className="font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
-              Extraction mode
+              Processing mode
             </dt>
             <dd className="flex items-center gap-2">
               <span
@@ -121,7 +121,7 @@ export function Processing({
                 {extractionMode === 'cloud' ? 'cloud' : 'hard_drive'}
               </span>
               <span className="font-body text-sm font-semibold text-on-surface">
-                {extractionMode === 'cloud' ? 'Cloud' : 'Local (offline)'}
+                {extractionMode === 'cloud' ? 'Cloud' : 'Local'}
               </span>
             </dd>
           </div>
@@ -147,7 +147,7 @@ export function Processing({
           <h1 className="font-headline text-2xl xl:text-4xl font-extrabold text-on-surface tracking-tight">
             Reviewing this label
             {extractionMode === 'local' ? (
-              <span className="text-on-surface-variant font-semibold"> — local extraction</span>
+              <span className="text-on-surface-variant font-semibold"> — local mode</span>
             ) : null}
           </h1>
           <p className="mt-2 text-on-surface-variant font-body">
@@ -179,10 +179,10 @@ export function Processing({
               </span>
               <div className="flex flex-col gap-2">
                 <h2 className="font-headline text-xl font-extrabold text-on-surface">
-                  Local extraction is not available
+                  Local mode is not available
                 </h2>
                 <p className="text-on-surface-variant font-body leading-relaxed max-w-lg">
-                  Local extraction is not available on this workstation. Switch to Cloud mode to
+                  Local mode is not available on this workstation. Switch to Cloud mode to
                   continue.
                 </p>
               </div>

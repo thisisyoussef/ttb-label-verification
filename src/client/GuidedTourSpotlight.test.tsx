@@ -50,7 +50,7 @@ describe('GuidedTourSpotlight', () => {
       />
     );
 
-    expect(html).toContain('Complete the required action on the live surface');
+    expect(html).toContain('Complete the step above, then continue.');
     expect(html).toContain('cursor-not-allowed shadow-none');
   });
 
@@ -70,7 +70,7 @@ describe('GuidedTourSpotlight', () => {
       />
     );
 
-    expect(html).toContain('Use the recovery action below or continue to the next step.');
+    expect(html).toContain('You can skip ahead or use the button below.');
     expect(html).not.toContain('cursor-not-allowed shadow-none');
   });
 
@@ -91,7 +91,7 @@ describe('GuidedTourSpotlight', () => {
     );
 
     expect(html).toContain('Show sample results');
-    expect(html).toContain('Use the primary action below to continue.');
+    expect(html).toContain('Use the button below to continue.');
     expect(html).not.toContain('>Next<');
   });
 });

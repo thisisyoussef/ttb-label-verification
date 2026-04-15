@@ -7,8 +7,8 @@ interface FieldEvidencePanelProps {
 }
 
 const SEVERITY_COPY: Record<CheckReview['severity'], string> = {
-  blocker: 'Blocker',
-  major: 'Major',
+  blocker: 'Must fix',
+  major: 'Important',
   minor: 'Minor',
   note: 'Note'
 };
@@ -26,7 +26,7 @@ export function FieldEvidencePanel({ check, standalone }: FieldEvidencePanelProp
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 flex flex-col gap-3">
           <h4 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
-            What the system found
+            Finding
           </h4>
           <p className="font-headline text-lg font-bold text-on-surface">{check.summary}</p>
           <p className="font-body text-sm text-on-surface-variant leading-relaxed">

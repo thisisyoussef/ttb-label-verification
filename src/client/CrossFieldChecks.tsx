@@ -26,14 +26,14 @@ export function CrossFieldChecks({
         id="cross-field-heading"
         className="font-headline text-lg font-bold text-on-surface tracking-tight"
       >
-        Cross-field checks
+        Related checks
       </h3>
       {empty ? (
         <div className="bg-surface-container-low rounded-lg p-4 flex items-center gap-3 text-on-surface-variant">
           <span aria-hidden="true" className="material-symbols-outlined">
             info
           </span>
-          <p className="font-body text-sm">No cross-field checks apply to this label.</p>
+          <p className="font-body text-sm">No related checks apply to this label.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">

@@ -44,7 +44,7 @@ const TOUR_STEPS: TourStep[] = [
     totalSteps: 8,
     title: 'Verify the label',
     body:
-      'Clicking Verify Label runs a deterministic pipeline — read image, extract fields, detect beverage type, run checks, prepare evidence. Click it now to continue.',
+      'Clicking Verify Label starts the review — the tool reads the image, identifies fields, detects the beverage type, runs compliance checks, and prepares evidence. Click it now to continue.',
     target: 'tour-verify-button',
     interaction: 'click-to-advance',
     cta: 'Click Verify Label to continue',
@@ -106,13 +106,13 @@ const INFO_POPOVERS: InfoPopover[] = [
     anchorKey: 'confidence-indicator',
     title: 'Confidence',
     body:
-      "This bar shows how confident the extraction is for this field. Green means 90%+; amber means 70–89%; red means below 70%. Lower confidence is never a verdict — it's a signal to verify manually."
+      "This bar shows how reliably the tool could read this field from the label. Green means 90%+; amber means 70\u201389%; red means below 70%. Lower confidence does not change the verdict \u2014 it\u2019s a signal to double-check the value yourself."
   },
   {
     anchorKey: 'standalone-mode',
-    title: 'Standalone mode',
+    title: 'Image only',
     body:
-      'You uploaded an image without application data, so the tool is extracting and checking what it can read. Comparison checks that need the application data are skipped. Use Run Full Comparison to return and provide that data.'
+      'You uploaded an image without application data, so the tool is reading and checking what it can find on the label. Checks that compare against application data are skipped. Use Run Full Comparison to go back and provide that data.'
   },
   {
     anchorKey: 'batch-matching-logic',

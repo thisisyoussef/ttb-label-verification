@@ -12,16 +12,16 @@ const STEP_COPY: Record<
     generic: 'We could not finish while reading the label.'
   },
   'extracting-fields': {
-    connectionDropped: 'The connection dropped while extracting structured fields.',
-    generic: 'We could not finish while extracting structured fields.'
+    connectionDropped: 'The connection dropped while identifying label fields.',
+    generic: 'We could not finish while identifying label fields.'
   },
   'detecting-beverage': {
     connectionDropped: 'The connection dropped while detecting the beverage type.',
     generic: 'We could not finish while detecting the beverage type.'
   },
   'running-checks': {
-    connectionDropped: 'The connection dropped while running deterministic checks.',
-    generic: 'We could not finish while running deterministic checks.'
+    connectionDropped: 'The connection dropped while running compliance checks.',
+    generic: 'We could not finish while running compliance checks.'
   },
   'preparing-evidence': {
     connectionDropped: 'The connection dropped while preparing the evidence.',

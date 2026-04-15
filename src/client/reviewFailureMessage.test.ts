@@ -20,7 +20,7 @@ describe('review failure message helpers', () => {
     expect(
       resolveReviewFailureMessage(DEFAULT_FAILURE_MESSAGE, 'extracting-fields')
     ).toBe(
-      'The connection dropped while extracting structured fields. Your label and inputs are still here — nothing was saved.'
+      'The connection dropped while identifying label fields. Your label and inputs are still here — nothing was saved.'
     );
   });
 
@@ -28,7 +28,7 @@ describe('review failure message helpers', () => {
     expect(
       resolveReviewFailureMessage(GENERIC_FAILURE_MESSAGE, 'running-checks')
     ).toBe(
-      'We could not finish while running deterministic checks. Your label and inputs are still here — nothing was saved.'
+      'We could not finish while running compliance checks. Your label and inputs are still here — nothing was saved.'
     );
   });
 

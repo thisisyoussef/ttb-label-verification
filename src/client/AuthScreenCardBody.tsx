@@ -153,7 +153,7 @@ function AuthScreenModeSelect({
           Welcome, <span className="font-semibold">{AUTH_IDENTITY.name}</span>.
         </p>
         <p className="font-body text-sm text-on-surface-variant leading-relaxed">
-          Choose how this workstation processes label images.
+          Choose how this workstation reads label images.
         </p>
       </div>
 
@@ -162,8 +162,8 @@ function AuthScreenModeSelect({
           value="local"
           icon="hard_drive"
           label="Local (on-premise)"
-          description="All extraction runs on this workstation. No label data leaves the network. Required for restricted-network and FedRAMP-aligned deployments."
-          tooltip="TTB's network firewall blocks outbound traffic to external ML endpoints. The previous scanning vendor pilot failed because their cloud ML calls were blocked. Local mode avoids this entirely."
+          description="All label reading runs on this workstation. No label data leaves the network. Required for restricted or air-gapped deployments."
+          tooltip="TTB's network firewall blocks outbound traffic to external services. The previous scanning vendor pilot failed because their cloud calls were blocked. Local mode avoids this entirely."
           checked={extractionMode === 'local'}
           onChange={() => onExtractionModeChange('local')}
         />
@@ -171,8 +171,8 @@ function AuthScreenModeSelect({
           value="cloud"
           icon="cloud"
           label="Cloud (demo)"
-          description="Routes extraction through cloud vision models for higher accuracy on complex labels. Requires outbound network access."
-          tooltip="Cloud mode uses hosted vision models that perform better on bold-text detection, spatial layout, and government warning formatting. Use this when demonstrating best-case extraction quality on an unrestricted network."
+          description="Sends label images to a cloud service for higher accuracy on complex labels. Requires outbound network access."
+          tooltip="Cloud mode reads labels more accurately, especially for small text, unusual layouts, and government warning formatting. Use this when demonstrating best-case accuracy on an unrestricted network."
           checked={extractionMode === 'cloud'}
           onChange={() => onExtractionModeChange('cloud')}
         />

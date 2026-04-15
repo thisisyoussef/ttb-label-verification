@@ -9,9 +9,9 @@ import type {
 
 const STEP_TEMPLATE: { id: ProcessingStepId; label: string }[] = [
   { id: 'reading-image', label: 'Reading label image' },
-  { id: 'extracting-fields', label: 'Extracting structured fields' },
+  { id: 'extracting-fields', label: 'Identifying label fields' },
   { id: 'detecting-beverage', label: 'Detecting beverage type' },
-  { id: 'running-checks', label: 'Running deterministic checks' },
+  { id: 'running-checks', label: 'Running compliance checks' },
   { id: 'preparing-evidence', label: 'Preparing evidence' }
 ];
 
@@ -22,7 +22,7 @@ const STEP_TEMPLATE: { id: ProcessingStepId; label: string }[] = [
  * Index 0 → "Reading label image" completes after 400 ms (first visible advancement).
  * Index 1 → "Extracting structured fields" completes after 800 ms.
  * Index 2 → "Detecting beverage type" completes after 1 100 ms.
- * Index 3 → "Running deterministic checks" completes after 1 200 ms.
+ * Index 3 → "Running compliance checks" completes after 1 200 ms.
  * Index 4 → final step idles; the pipeline waits for the API response.
  *
  * Cumulative: 0 → 400 → 1 200 → 2 300 → 3 500 ms.

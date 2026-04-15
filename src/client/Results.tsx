@@ -142,7 +142,7 @@ export function Results({
   const isNoText = report.extractionQuality.state === 'no-text-extracted';
   const lowConfidenceSecondary =
     report.extractionQuality.state === 'low-confidence'
-      ? 'Low extraction confidence — review carefully.'
+      ? 'The image was hard to read — please review these results carefully.'
       : null;
   const secondary =
     report.verdictSecondary ??
@@ -233,8 +233,8 @@ export function Results({
                 disabled={!exportEnabled}
                 title={
                   exportEnabled
-                    ? 'Download this result set as JSON.'
-                    : 'Export is enabled when the live pipeline lands.'
+                    ? 'Download these results.'
+                    : 'Export is not yet available.'
                 }
                 className="px-6 py-2.5 rounded-lg bg-surface-container-lowest border border-outline-variant/40 text-on-surface font-semibold text-sm hover:bg-surface-container-low disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-2"
               >

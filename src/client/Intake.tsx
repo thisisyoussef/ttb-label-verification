@@ -214,7 +214,7 @@ export function Intake({
           </div>
 
           <p className="text-[11px] text-on-surface-variant/60 font-label mt-3">
-            Or upload just an image for standalone format checking.
+            Or upload just the image to check it without application data.
           </p>
         </section>
 

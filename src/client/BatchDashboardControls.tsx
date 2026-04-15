@@ -56,7 +56,7 @@ export function SummaryCards({
       />
       <SummaryCard
         heading="Review"
-        description="Needs a human read"
+        description="Needs your review"
         count={review}
         tone="caution"
         icon="warning"
@@ -120,10 +120,10 @@ export function ActionBar({
     <section className="rounded-lg border border-outline-variant/20 bg-surface-container-lowest px-6 py-5 flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
       <div className="flex flex-col gap-1">
         <p className="text-sm font-label text-on-surface">
-          Nothing is stored. Export only when you need a local handoff file.
+          Nothing is stored. Export results if you need a copy before leaving.
         </p>
         <p className="text-xs font-body text-on-surface-variant">
-          Batch results disappear when you leave this session.
+          All results are cleared when you leave this session.
         </p>
       </div>
 

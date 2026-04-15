@@ -10,8 +10,8 @@ export function MatchingExplanation() {
   return (
     <p className="text-sm text-on-surface-variant font-body leading-relaxed flex items-center gap-2 flex-wrap">
       <span>
-        We match each image to a CSV row by the filename column first, then fall back
-        to row order.
+        Images are matched to CSV rows by filename first, then by row order if no
+        filename match is found.
       </span>
       <InfoAnchor anchorKey="batch-matching-logic" />
     </p>

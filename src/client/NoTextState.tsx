@@ -63,7 +63,7 @@ export function NoTextState({ onTryAnother, onContinueWithCaution }: NoTextState
           <span className="flex flex-col gap-1">
             <span className="font-body font-bold text-on-surface">Continue with caution</span>
             <span className="text-xs text-on-surface-variant">
-              Render whatever the system read, flagged as low confidence.
+              Show partial results anyway, marked as less reliable.
             </span>
           </span>
         </button>
