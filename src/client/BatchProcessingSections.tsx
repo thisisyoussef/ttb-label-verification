@@ -328,6 +328,11 @@ function StreamRow({
           >
             {item.filename}
           </button>
+          {item.status === 'error' ? (
+            <p className="text-xs text-error font-body mt-0.5">
+              {item.errorMessage || 'Could not process this label \u2014 retry or skip.'}
+            </p>
+          ) : null}
         </div>
       </div>
       <div className="md:col-span-5 min-w-0">
