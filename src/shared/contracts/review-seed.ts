@@ -35,7 +35,7 @@ export const seedVerificationReport: VerificationReport = {
   latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
   noPersistence: true,
   summary:
-    'Scaffold result only. The shared contract now mirrors the approved TTB-102 results UI while live extraction and validators land in later stories.',
+    'Sample result for demonstration. Full automated checks will be available in a future update.',
   checks: [
     {
       id: 'brand-name',
@@ -44,7 +44,7 @@ export const seedVerificationReport: VerificationReport = {
       severity: 'note',
       summary: 'Application value and extracted label text match.',
       details:
-        'Seed fixture includes one exact comparison match so the approved evidence panel can render the pass state from the shared contract.',
+        'The value on the application matches what was read from the label.',
       confidence: 0.99,
       citations: ['TTB distilled spirits mandatory label information'],
       applicationValue: "Stone's Throw",
@@ -84,9 +84,9 @@ export const seedVerificationReport: VerificationReport = {
       status: 'review',
       severity: 'blocker',
       summary:
-        'Government warning remains a blocker-class review until deterministic validation is wired.',
+        'Government warning needs manual review — automated checking is not yet available for this field.',
       details:
-        'Seed fixture now carries sub-checks and a character diff so the approved TTB-102 warning evidence surface can bind to the shared contract before live validation lands.',
+        'The warning text has been read and compared, but some checks still need your attention. Expand to see the detailed breakdown.',
       confidence: 0.62,
       citations: [
         'TTB distilled spirits health warning guidance',
@@ -106,7 +106,7 @@ export const seedVerificationReport: VerificationReport = {
             label: 'Warning text matches required wording',
             status: 'review',
             reason:
-              'Seed fixture keeps exact-wording judgment in review until the deterministic warning validator lands.'
+              'Exact-wording check needs manual review — automated comparison is not yet available.'
           },
           {
             id: 'uppercase-bold-heading',
@@ -230,9 +230,9 @@ const standaloneSeedVerificationReport: VerificationReport = {
       status: 'review',
       severity: 'blocker',
       summary:
-        'Government warning remains a blocker-class review until deterministic validation is wired.',
+        'Government warning needs manual review — automated checking is not yet available for this field.',
       details:
-        'Standalone review still carries warning evidence, but exact-text and typography judgments remain reversible until the validator and image-quality pipeline are fully live.',
+        'Warning text was read from the label. Exact wording and formatting checks still need your review.',
       confidence: 0.62,
       citations: [
         'TTB distilled spirits health warning guidance',
@@ -379,7 +379,7 @@ function seedComparisonDetails(status: ComparisonStatus): string {
     case 'case-mismatch':
       return 'Submitted application value differs from extracted label text only by letter casing.';
     case 'value-mismatch':
-      return 'Submitted application value does not match the extracted label text, so this remains a review state until the live deterministic comparison path lands.';
+      return 'The application value does not match what was read from the label.';
     case 'not-applicable':
       return 'No application data was supplied for this review.';
   }

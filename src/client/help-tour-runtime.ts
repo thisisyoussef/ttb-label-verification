@@ -49,7 +49,7 @@ function resolveVerdictReadyCta(context: TourRuntimeContext): string {
     : 'Your uploaded label';
 
   if (context.reportVerdict === 'approve') {
-    return subject + ' cleared the current deterministic checks. Click Next to compare it with an issue case.';
+    return subject + ' passed all compliance checks. Click Next to compare it with an issue case.';
   }
 
   if (context.reportVerdict === 'review' || context.reportVerdict === 'reject') {

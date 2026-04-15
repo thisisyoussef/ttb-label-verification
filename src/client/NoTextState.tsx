@@ -7,7 +7,7 @@ export function NoTextState({ onTryAnother, onContinueWithCaution }: NoTextState
   return (
     <section
       role="alert"
-      aria-label="Extraction produced no readable text"
+      aria-label="No readable text found in this image"
       className="bg-surface-container-low border-l-4 border-secondary rounded-lg p-6 md:p-8 flex flex-col gap-6"
     >
       <div className="flex items-start gap-5">

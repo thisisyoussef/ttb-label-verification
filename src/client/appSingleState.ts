@@ -23,7 +23,7 @@ const STEP_TEMPLATE: { id: ProcessingStepId; label: string }[] = [
  * Index 1 → "Extracting structured fields" completes after 800 ms.
  * Index 2 → "Detecting beverage type" completes after 1 100 ms.
  * Index 3 → "Running compliance checks" completes after 1 200 ms.
- * Index 4 → final step idles; the pipeline waits for the API response.
+ * Index 4 → final step idles; waits for the API response.
  *
  * Cumulative: 0 → 400 → 1 200 → 2 300 → 3 500 ms.
  * The last step ("Preparing evidence") appears at ~3.5 s and stays
