@@ -19,6 +19,7 @@ Last updated: 2026-04-15 (`TTB-108` is complete with extraction-mode selection, 
 - `docs/specs/FULL_PRODUCT_SPEC.md` is the product-wide blueprint.
 - `docs/specs/PROJECT_STORY_INDEX.md` is the ordered leaf-story queue.
 - `docs/specs/<story-id>/` is the universal story packet for that story.
+- `docs/process/BRANCH_TRACKER.md` is the branch-lifecycle source of truth; keep story queue state here and branch inventory there.
 - Existing `TTB-001` through `TTB-004` folders remain umbrella packets for the major product areas.
 - New `TTB-1xx`, `TTB-2xx`, `TTB-3xx`, and `TTB-4xx` stories are the executable leaf queue.
 - A planning-stage leaf story may start as `story-packet.md`; any agent may create or expand that packet before implementation when deeper working docs are needed. Lane ownership still controls implementation and handoff work.
@@ -34,6 +35,7 @@ Last updated: 2026-04-15 (`TTB-108` is complete with extraction-mode selection, 
 - Project status: runnable scaffold plus full-product planning set with live GitHub and Railway backing
 - Runtime status: React + Express scaffold exists, the shared review contract now includes typed extraction plus warning evidence, `POST /api/review` keeps uploads in memory and now runs the integrated extraction + warning + aggregation path, `POST /api/review/seed` remains the explicit scaffold-only inspection route, `POST /api/review/extraction` runs the live extraction boundary, `POST /api/review/warning` stages the warning validator, and contracts are tested
 - Process status: lane rules, next-story routing, spec gate, TDD gate, LangSmith-backed trace-driven development, Claude-direct UI flow with automated/manual Stitch alternatives, deployment flow, repo-managed git hooks, and publish-gate handoff rules are checked in
+- Branch workflow status: `TTB-WF-003` is in progress on `chore/TTB-WF-003-branch-tracker` to add a checked-in branch tracker and story-branch helper flow without weakening the existing PR-only integration gates
 - Planning status: `TTB-106`, `TTB-107`, `TTB-108`, `TTB-206`, `TTB-207`, `TTB-208`, `TTB-209`, and the current OpenAI-backed `TTB-211` override slice are complete, including route-surface trace evidence, endpoint-aware fixture evals, privacy-safe latency summaries, smarter Gemini request defaults, and the checked-in synthetic `latency-twenty` image corpus. `TTB-108` now provides the signed-in extraction-mode choice, mode-aware processing copy and failure recovery, inactivity timeout warning, and the guided-tour recovery/gating polish needed to teach the flow against both reviewer-entered and deterministic demo paths. `TTB-207` plus `TTB-208` now provide the native Gemini adapter, shared cross-provider schema/prompt layer, Gemini-primary cloud routing, typed stage timing on the route and batch surfaces, and measured fallback-path classification without changing the visible `latencyBudgetMs: 5000` contract. `TTB-209` locked the winning Gemini runtime profile (`gemini-2.5-flash-lite`, raster `low`, PDF `medium`, Flash-family `thinkingBudget=0`), confirmed that priority and the slimmer `cloud-cross-provider-v2` prompt did not materially improve the route, raised the checked-in Gemini timeout default from `3000` to `5000`, and explicitly kept the public `latencyBudgetMs` contract at `5000` because the tighter `4000` target was not proved. The `TTB-212` local-mode packet is now archived at `docs/specs/archive/TTB-212/` by user request. The user-centered prompt/guardrail hardening follow-ons remain `TTB-210` plus `TTB-211`.
 - GitHub bootstrap status: live repo exists at `thisisyoussef/ttb-label-verification`
 - Railway bootstrap status: project, service, staging, production, public domains, and GitHub Actions token wiring are configured
@@ -53,6 +55,7 @@ Last updated: 2026-04-15 (`TTB-108` is complete with extraction-mode selection, 
 | Order | Story ID | Parent | Title | Next owner | Status | Next action | Blocking gate |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 0 | `TTB-WF-001` | workflow | workflow foundation upgrade | Codex | `done-as-baseline` | keep current harness aligned as the product spec expands | none |
+| 0.5 | `TTB-WF-003` | workflow | branch tracker and story-branch workflow | Codex | `in-progress-parallel` | add the checked-in branch registry, story-branch helper, and gate enforcement so branch metadata is not implicit | none |
 | 1 | `TTB-EVAL-001` | eval foundation | golden eval set foundation and run discipline | Codex | `done-as-baseline` | keep the golden set, live core-six subset, template, and gate docs aligned as later stories land | none |
 | 2 | `TTB-101` | `TTB-001` | single-label intake and processing UI | Codex | `done` | keep the packet and handoff as the record of the completed intake-to-processing integration | none |
 | 3 | `TTB-102` | `TTB-001` | single-label results, warning evidence, and standalone UI | Codex | `done` | keep the packet and handoff as the record of the completed live-results integration and fixture gating | none |
@@ -93,6 +96,7 @@ Last updated: 2026-04-15 (`TTB-108` is complete with extraction-mode selection, 
 ## Update rules
 
 - This file is the only checked-in tracker for active story, lane owner, queue status, and next gate.
+- Branch inventory, branch description, and PR lifecycle metadata live in `docs/process/BRANCH_TRACKER.md`, not here.
 - The checklist docs are procedural references. Do not use them as status trackers.
 - Update this file when the active story changes, a handoff changes state, ownership moves between Claude and Codex, or the blocking / executable-parallel pointers change.
 - When an approved `TTB-1xx` UI-first handoff can proceed independently of a still-active Claude story, mark that explicitly here with `ready-parallel` so Codex can prefer it before later `TTB-2xx+` engine work.

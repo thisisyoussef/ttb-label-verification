@@ -1,4 +1,10 @@
 import { execFileSync } from "node:child_process";
+import fs from "node:fs";
+
+import {
+  findActiveBranchEntry,
+  isPlaceholderDescription,
+} from "./branch-tracker.js";
 
 type GateMode = "commit" | "push" | "publish";
 type PublishStatus = {
@@ -77,6 +83,14 @@ function runLocalGuard(args: string[]): void {
   }
 }
 
+function readFile(filePath: string): string {
+  try {
+    return fs.readFileSync(filePath, "utf8");
+  } catch {
+    fail(`Could not read '${filePath}'.`);
+  }
+}
+
 const mode = process.argv[2] as GateMode | undefined;
 
 if (mode !== "commit" && mode !== "push" && mode !== "publish") {
@@ -99,6 +113,23 @@ if (!STORY_BRANCH_PATTERN.test(branch) && !EXCEPTION_BRANCH_PATTERN.test(branch)
   fail(
     `Branch '${branch}' does not follow repo branch naming. Use claude/<story-id>-<summary>, codex/<story-id>-<summary>, chore/<story-id>-<summary>, or an explicit archive/rewrite branch for exceptional maintenance.`,
   );
+}
+
+if (!EXCEPTION_BRANCH_PATTERN.test(branch)) {
+  const trackerPath = "docs/process/BRANCH_TRACKER.md";
+  const trackerEntry = findActiveBranchEntry(readFile(trackerPath), branch);
+
+  if (!trackerEntry) {
+    fail(
+      `Branch '${branch}' is missing from ${trackerPath}. Update the branch tracker with npm run story:branch -- update ... or add the row before ${mode}.`,
+    );
+  }
+
+  if (isPlaceholderDescription(trackerEntry.description)) {
+    fail(
+      `Branch '${branch}' still has a placeholder description in ${trackerPath}. Replace it with a real branch summary before ${mode}.`,
+    );
+  }
 }
 
 runGit(["diff", "--check"]);

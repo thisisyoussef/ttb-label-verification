@@ -13,15 +13,16 @@ This file mirrors the canonical project rules in `AGENTS.md` and turns them into
 7. Read `docs/process/TEST_QUALITY_STANDARD.md`.
 8. Read `docs/process/STITCH_AUTOMATION.md` when the task touches the Stitch harness or starts from a Stitch-assisted UI flow.
 9. Read `docs/process/GIT_HYGIENE.md`.
-10. Read `docs/reference/product-docs/README.md`.
-11. Read `docs/process/DEPLOYMENT_FLOW.md`.
-12. Read `CLAUDE.md`.
-13. Read `.ai/docs/WORKSPACE_INDEX.md`.
-14. Read `docs/backlog/README.md` and the active `docs/backlog/codex-handoffs/<story-id>.md` when the task starts from an approved UI handoff.
-15. Read `docs/design/MASTER_DESIGN.md` when the task starts from an approved UI handoff or extends an established UI.
-16. Read `docs/specs/<story-id>/stitch-screen-brief.md` when the story started from the Stitch-assisted UI flow.
-17. Read `docs/rules/README.md`, `docs/rules/RULE_SOURCE_INDEX.md`, and `evals/README.md` for validator, extraction, or critical-path work.
-18. Inspect `src/shared/contracts/review.ts` before changing API or contract wiring.
+10. Read `docs/process/BRANCH_TRACKER.md`.
+11. Read `docs/reference/product-docs/README.md`.
+12. Read `docs/process/DEPLOYMENT_FLOW.md`.
+13. Read `CLAUDE.md`.
+14. Read `.ai/docs/WORKSPACE_INDEX.md`.
+15. Read `docs/backlog/README.md` and the active `docs/backlog/codex-handoffs/<story-id>.md` when the task starts from an approved UI handoff.
+16. Read `docs/design/MASTER_DESIGN.md` when the task starts from an approved UI handoff or extends an established UI.
+17. Read `docs/specs/<story-id>/stitch-screen-brief.md` when the story started from the Stitch-assisted UI flow.
+18. Read `docs/rules/README.md`, `docs/rules/RULE_SOURCE_INDEX.md`, and `evals/README.md` for validator, extraction, or critical-path work.
+19. Inspect `src/shared/contracts/review.ts` before changing API or contract wiring.
 
 ## Documentation sources
 
@@ -53,14 +54,15 @@ Before edits:
 6. Run `.ai/workflows/story-lookup.md`.
 7. Run `.ai/workflows/story-sizing.md`.
 8. If the current branch does not already belong to the selected story, create or switch to a fresh `codex/<story-id>-<summary>` or `chore/<story-id>-<summary>` branch before packet or code edits. Do this even when the current branch is another valid story branch.
-9. If the active story only has `story-packet.md`, expand it into the standard working docs before implementation.
-10. If the story has material UI scope, do not start implementation until the approved UI handoff exists; then run `.ai/workflows/codex-from-ui-handoff.md`.
-11. If the task is a `standard` non-UI-first feature, run `.ai/workflows/spec-driven-delivery.md`.
-12. If the task changes AI behavior, validators, extraction quality, or evidence payloads, run `.ai/workflows/eval-gate.md`.
-13. If the task changes prompt/model/tool-call or agentic LLM behavior, run `.ai/workflows/trace-driven-development.md`.
-14. If the task changes behavior, run `.ai/workflows/tdd-pipeline.md`.
-15. Use `.ai/workflows/story-handoff.md` before asking for QA review or closing the story.
-16. Before declaring missing local OpenAI runtime config, run `npm run env:bootstrap`.
+9. Record the branch in `docs/process/BRANCH_TRACKER.md` as soon as it is opened. Prefer `npm run story:branch -- open ...` and keep the row current with `update ...` or `close ...`.
+10. If the active story only has `story-packet.md`, expand it into the standard working docs before implementation.
+11. If the story has material UI scope, do not start implementation until the approved UI handoff exists; then run `.ai/workflows/codex-from-ui-handoff.md`.
+12. If the task is a `standard` non-UI-first feature, run `.ai/workflows/spec-driven-delivery.md`.
+13. If the task changes AI behavior, validators, extraction quality, or evidence payloads, run `.ai/workflows/eval-gate.md`.
+14. If the task changes prompt/model/tool-call or agentic LLM behavior, run `.ai/workflows/trace-driven-development.md`.
+15. If the task changes behavior, run `.ai/workflows/tdd-pipeline.md`.
+16. Use `.ai/workflows/story-handoff.md` before asking for QA review or closing the story.
+17. Before declaring missing local OpenAI runtime config, run `npm run env:bootstrap`.
 
 ## Blocking behavior
 

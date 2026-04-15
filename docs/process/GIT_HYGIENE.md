@@ -11,6 +11,9 @@ The goal is simple:
 
 Canonical local commands:
 
+- `npm run story:branch -- open ...`
+- `npm run story:branch -- update ...`
+- `npm run story:branch -- close ...`
 - `npm run gate:commit`
 - `npm run gate:push`
 - `npm run gate:publish`
@@ -36,6 +39,7 @@ Rules:
 - Never do story work directly on `main` or `production`.
 - If you realize the worktree is already carrying story work on `main` or `production`, cut a story branch immediately with `git switch -c <lane>/<story-id>-<summary>` before the next commit.
 - Starting a new feature, story, or tightly-coupled workflow item means opening a fresh branch is the first action before packet or code edits.
+- Opening a fresh branch also means recording it in `docs/process/BRANCH_TRACKER.md` with a real description. Prefer `npm run story:branch -- open --lane <lane> --story <story-id> --summary <summary> --description "<description>"`.
 - Do not mix unrelated stories in one branch unless the tracker explicitly treats them as one coupled unit.
 - If the worktree already contains unrelated changes, do not revert them. Stage only the files for the story you are committing.
 - If you temporarily isolate work in a side worktree or branch to avoid those unrelated changes, merge, rebase, or cherry-pick the finished story diff back into the user's active delivery branch before calling the work done.
@@ -49,6 +53,7 @@ Before each commit:
 1. Confirm the staged diff belongs to one story or one coherent workflow change.
 2. Sync the checked-in docs that changed with the code:
    - `docs/process/SINGLE_SOURCE_OF_TRUTH.md`
+   - `docs/process/BRANCH_TRACKER.md`
    - the active packet under `docs/specs/<story-id>/`
    - `docs/backlog/codex-handoffs/<story-id>.md` when relevant
    - memory docs when durable truth changed
@@ -75,6 +80,7 @@ Rules:
 - Do not combine refactor-only edits with new behavior unless the diff is still clearly one change.
 - WIP commits are allowed on local branches, but reviewable history should be cleaned before merge when practical.
 - Repo-managed `commit-msg` hooks now enforce conventional-commit subjects and require the branch story id in each normal story commit.
+- Repo-managed commit and push gates also require the current story branch to have an active `docs/process/BRANCH_TRACKER.md` row with a non-placeholder description.
 
 ## Push gate
 
