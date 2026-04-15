@@ -1,21 +1,20 @@
-import { readFileSync, existsSync } from 'node:fs';
-import { execSync } from 'node:child_process';
-import { describe, expect, it, beforeAll } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { convertPdfLabelToImage } from './pdf-label-converter';
 import type { NormalizedUploadedLabel } from './review-intake';
 
-const PROBE_PDF_PATH = '/tmp/ttb-pdf-probe.pdf';
-const SOURCE_PNG_PATH = 'evals/labels/assets/perfect-spirit-label.png';
+// Minimal valid single-page PDF that renders a blank page.
+// Hand-written to avoid depending on ImageMagick or any system tool in CI.
+const MINIMAL_PDF = Buffer.from(
+  '%PDF-1.0\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n' +
+    '2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n' +
+    '3 0 obj<</Type/Page/MediaBox[0 0 72 72]/Parent 2 0 R>>endobj\n' +
+    'xref\n0 4\n0000000000 65535 f \n0000000009 00000 n \n' +
+    '0000000058 00000 n \n0000000115 00000 n \n' +
+    'trailer<</Size 4/Root 1 0 R>>\nstartxref\n190\n%%EOF'
+);
 
 describe('convertPdfLabelToImage', () => {
-  beforeAll(() => {
-    if (!existsSync(SOURCE_PNG_PATH)) {
-      return;
-    }
-    execSync(`magick ${SOURCE_PNG_PATH} ${PROBE_PDF_PATH}`);
-  });
-
   it('returns image labels unchanged', async () => {
     const label: NormalizedUploadedLabel = {
       originalName: 'test.png',
@@ -29,16 +28,11 @@ describe('convertPdfLabelToImage', () => {
   });
 
   it('converts a PDF label to a PNG buffer', async () => {
-    if (!existsSync(PROBE_PDF_PATH)) {
-      return; // skip if magick not available
-    }
-
-    const pdfBuffer = readFileSync(PROBE_PDF_PATH);
     const label: NormalizedUploadedLabel = {
       originalName: 'label.pdf',
       mimeType: 'application/pdf',
-      bytes: pdfBuffer.length,
-      buffer: pdfBuffer
+      bytes: MINIMAL_PDF.length,
+      buffer: MINIMAL_PDF
     };
 
     const result = await convertPdfLabelToImage(label);

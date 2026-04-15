@@ -199,14 +199,16 @@ describe('OpenAI review extractor', () => {
     expect((content[1] as { image_url: string }).image_url).toContain('data:image/png;base64,');
   });
 
-  it('builds a pdf extraction request without using durable file uploads', () => {
+  it('builds an image extraction request even when the original was a PDF (converted upstream)', () => {
+    // PDFs are converted to PNG by pdf-label-converter.ts at the intake
+    // boundary, so the extractor always receives an image buffer.
     const request = buildReviewExtractionRequest({
       intake: buildIntake({
         label: {
-          originalName: 'label.pdf',
-          mimeType: 'application/pdf',
+          originalName: 'label.png',
+          mimeType: 'image/png',
           bytes: 4,
-          buffer: Buffer.from('%PDF')
+          buffer: Buffer.from('PNG!')
         }
       }),
       config: {
@@ -219,11 +221,10 @@ describe('OpenAI review extractor', () => {
     const content = requestContent(request);
 
     expect(content[1]).toMatchObject({
-      type: 'input_file',
-      filename: 'label.pdf'
+      type: 'input_image'
     });
-    expect((content[1] as { file_data: string }).file_data).toContain(
-      'data:application/pdf;base64,'
+    expect((content[1] as { image_url: string }).image_url).toContain(
+      'data:image/png;base64,'
     );
   });
 
