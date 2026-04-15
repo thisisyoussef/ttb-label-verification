@@ -159,7 +159,7 @@ export function Results({
     (lowConfidenceSecondary ? lowConfidenceSecondary : undefined);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-12 h-[calc(100dvh-var(--header-h))]">
+    <div className="grid grid-cols-1 md:grid-cols-12 h-[calc(100dvh-var(--header-h))] animate-fade-in motion-reduce:animate-none">
       <ResultsPinnedColumn image={image} beverage={beverage} />
       <section
         ref={workingAreaRef}
@@ -252,7 +252,7 @@ export function Results({
                 title={
                   exportEnabled
                     ? 'Download these results.'
-                    : 'Export is not yet available.'
+                    : 'Complete a review first to export results.'
                 }
                 className="px-6 py-2.5 rounded-lg bg-surface-container-lowest border border-outline-variant/40 text-on-surface font-semibold text-sm hover:bg-surface-container-low disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-2"
               >
