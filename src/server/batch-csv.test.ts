@@ -34,7 +34,7 @@ describe('batch csv parsing', () => {
       throw new Error('Expected CSV parsing to fail.');
     }
 
-    expect(result.error.message).toContain('Missing required');
+    expect(result.error.message).toContain('missing required headers');
   });
 
   it('rejects malformed row widths', () => {

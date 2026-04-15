@@ -39,7 +39,7 @@ describe('AI provider policy', () => {
         mode: 'local',
         capability: 'label-extraction'
       })
-    ).toEqual(['ollama']);
+    ).toEqual(['transformers', 'ollama']);
   });
 
   it('rejects unknown or duplicate providers in env ordering', () => {
@@ -89,7 +89,7 @@ describe('AI provider policy', () => {
 
     expect(disabledLocal.status).toBe(503);
     expect(disabledLocal.error.retryable).toBe(false);
-    expect(disabledLocal.error.message).toContain('Local extraction mode');
+    expect(disabledLocal.error.message).toContain('Local mode');
   });
 
   it('allows explicit local mode once the env gate is enabled', () => {
