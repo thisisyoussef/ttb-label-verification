@@ -106,3 +106,5 @@
 - Close `TTB-209` around the measured 5-second contract instead of forcing an unproved `4000 ms` claim: keep `gemini-2.5-flash-lite`, keep the more accurate `cloud-cross-provider-v1` prompt, and keep priority tier disabled by default.
 - Raise the checked-in Gemini timeout default from `3000` to `5000` because the 20-case checked-in review slice returned `20/20` timeouts at `3000` and materially better completion at `5000`.
 - Treat any future sub-`4000 ms` push as a new measured follow-on rather than carrying the old stretch target forward as if it had been proved.
+- Pull the user-requested `TTB-WF-002` follow-on immediately after `TTB-209` merged, and keep that maintenance story narrowly focused on shrinking large mixed-responsibility files plus preserving the 500-line source-size guard in repo gates.
+- For maintenance cleanup in this repo, prefer flat sibling extraction (`AuthScreen*`, `GuidedTour*`, `register-*.ts`) over nested folders or barrel indirection so the refactor improves reviewability without changing the codebase shape.

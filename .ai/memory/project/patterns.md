@@ -83,6 +83,7 @@
 - Codex workflow changes should force a blast-radius pass before implementation: when a story moves shell, navigation, results, view-state, selectors, or target anchors, inspect dependent guided-help surfaces instead of assuming the change is isolated.
 - New story pickup should always move onto a fresh story branch before packet or code edits; reusing the previous story branch is a workflow violation even when the branch name is otherwise valid.
 - Reviewable PRs should always describe changed surfaces, test file additions or updates, validation results, risks, and manual QA in the body; GitHub should auto-seed that structure from a checked-in template and CI should reject placeholder PR descriptions.
+- Maintenance refactors should preserve the repo's flat layout by extracting sibling helpers and registration modules next to the file they trim; for example, auth shells split into banner/body/primitives files, tour overlays split into hook plus callout modules, and `src/server/index.ts` delegates route wiring to flat `register-*.ts` siblings instead of deeper folders or barrels.
 
 ## Documentation pattern
 
