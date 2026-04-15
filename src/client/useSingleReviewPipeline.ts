@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { buildInitialSteps, STEP_ADVANCE_MS } from './appSingleState';
+import { buildInitialSteps, STEP_DELAYS_MS } from './appSingleState';
 import { submitReview } from './appReviewApi';
 import type { View } from './appTypes';
 import {
@@ -278,89 +278,119 @@ export function useSingleReviewPipeline(
       clearPipelineTimer();
       resetPipelineState();
 
-      const tick = () => {
-        if (requestId !== requestIdRef.current) {
-          return;
-        }
+      const scheduleAdvance = (stepIndex: number) => {
+        const delay =
+          STEP_DELAYS_MS[stepIndex] ??
+          STEP_DELAYS_MS[STEP_DELAYS_MS.length - 1] ??
+          900;
 
-        let shouldContinue = false;
-        let failed = false;
-
-        setSteps((previous) => {
-          const next = previous.map((step) => ({ ...step }));
-          const activeIndex = next.findIndex((step) => step.status === 'active');
-          if (activeIndex === -1) {
-            return previous;
+        const tick = () => {
+          if (requestId !== requestIdRef.current) {
+            return;
           }
 
-          if (shouldFail && activeIndex === 2) {
-            next[activeIndex] = { ...next[activeIndex], status: 'failed' };
-            failed = true;
+          let nextStepIndex = -1;
+          let failed = false;
+
+          setSteps((previous) => {
+            const next = previous.map((step) => ({ ...step }));
+            const activeIndex = next.findIndex(
+              (step) => step.status === 'active'
+            );
+            if (activeIndex === -1) {
+              return previous;
+            }
+
+            if (shouldFail && activeIndex === 2) {
+              next[activeIndex] = { ...next[activeIndex], status: 'failed' };
+              failed = true;
+              return next;
+            }
+
+            // Last step — stay active until the API responds.
+            if (activeIndex === next.length - 1) {
+              return previous;
+            }
+
+            next[activeIndex] = { ...next[activeIndex], status: 'done' };
+            const following = activeIndex + 1;
+            if (following < next.length) {
+              next[following] = { ...next[following], status: 'active' };
+              nextStepIndex = following;
+            }
             return next;
+          });
+
+          if (failed) {
+            setPhase('failed');
+            return;
           }
 
-          if (activeIndex === next.length - 1) {
-            shouldContinue = true;
-            return previous;
+          if (nextStepIndex >= 0) {
+            scheduleAdvance(nextStepIndex);
           }
+        };
 
-          next[activeIndex] = { ...next[activeIndex], status: 'done' };
-          const nextIndex = activeIndex + 1;
-          if (nextIndex < next.length) {
-            next[nextIndex] = { ...next[nextIndex], status: 'active' };
-            shouldContinue = true;
-          }
-          return next;
-        });
-
-        if (failed) {
-          setPhase('failed');
-          return;
-        }
-
-        if (shouldContinue) {
-          timerRef.current = window.setTimeout(tick, STEP_ADVANCE_MS);
-        }
+        timerRef.current = window.setTimeout(tick, delay);
       };
 
-      timerRef.current = window.setTimeout(tick, STEP_ADVANCE_MS);
+      scheduleAdvance(0);
     },
     [clearPipelineTimer, resetPipelineState]
   );
 
+  /** Shared setup: bump request counter, abort stale, emit started event. */
+  const beginReview = useCallback(() => {
+    if (!options.image) return null;
+    requestIdRef.current += 1;
+    const requestId = requestIdRef.current;
+    const clientRequestId = crypto.randomUUID();
+    traceIdRef.current = clientRequestId;
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+    setReport(null);
+    options.setView('processing');
+    options.onEvent?.({
+      type: 'review.submit.started',
+      traceId: clientRequestId,
+      requestId,
+      scenarioId: options.scenarioId,
+      demoScenarioId: options.image.demoScenarioId ?? null,
+      labelMimeType: options.image.file.type,
+      labelBytes: options.image.file.size,
+      hasApplicationData: hasApplicationData(options.fields),
+      beverage: options.beverage
+    });
+    return { requestId, clientRequestId };
+  }, [options]);
+
+  const PREFETCH_ABBREVIATED_MS = 600;
+
+  const startReviewFromPrefetch = useCallback(
+    (cachedReport: UIVerificationReport) => {
+      const ctx = beginReview();
+      if (!ctx) return;
+      clearPipelineTimer();
+      resetPipelineState();
+      timerRef.current = window.setTimeout(() => {
+        if (ctx.requestId !== requestIdRef.current) return;
+        completePipeline(ctx.requestId, cachedReport);
+      }, PREFETCH_ABBREVIATED_MS);
+    },
+    [beginReview, clearPipelineTimer, completePipeline, resetPipelineState]
+  );
+
   const startReview = useCallback(
     async (shouldFail: boolean) => {
-      if (!options.image) {
-        return;
-      }
-
-      requestIdRef.current += 1;
-      const requestId = requestIdRef.current;
-      const clientRequestId = crypto.randomUUID();
-      traceIdRef.current = clientRequestId;
-
-      abortControllerRef.current?.abort();
-      setReport(null);
-      options.setView('processing');
-      startPipeline(shouldFail, requestId);
-
-      options.onEvent?.({
-        type: 'review.submit.started',
-        traceId: clientRequestId,
-        requestId,
-        scenarioId: options.scenarioId,
-        demoScenarioId: options.image.demoScenarioId ?? null,
-        labelMimeType: options.image.file.type,
-        labelBytes: options.image.file.size,
-        hasApplicationData: hasApplicationData(options.fields),
-        beverage: options.beverage
-      });
+      const ctx = beginReview();
+      if (!ctx) return;
+      startPipeline(shouldFail, ctx.requestId);
 
       if (shouldFail) {
         options.onEvent?.({
           type: 'review.submit.fixture-failure',
-          traceId: clientRequestId,
-          requestId,
+          traceId: ctx.clientRequestId,
+          requestId: ctx.requestId,
           scenarioId: options.scenarioId
         });
         return;
@@ -370,26 +400,27 @@ export function useSingleReviewPipeline(
       abortControllerRef.current = controller;
 
       try {
+        // options.image is guaranteed non-null: beginReview() returns null when image is missing.
         const result = await submitReview({
-          image: options.image,
+          image: options.image!,
           beverage: options.beverage,
           fields: options.fields,
           signal: controller.signal,
-          clientRequestId
+          clientRequestId: ctx.clientRequestId
         });
 
         if (result.ok) {
           options.onEvent?.({
             type: 'review.submit.response-ok',
-            traceId: clientRequestId,
-            requestId,
+            traceId: ctx.clientRequestId,
+            requestId: ctx.requestId,
             scenarioId: options.scenarioId,
             reportId: result.report.id,
             verdict: result.report.verdict,
             standalone: result.report.standalone,
             extractionState: result.report.extractionQuality.state
           });
-          completePipeline(requestId, result.report);
+          completePipeline(ctx.requestId, result.report);
           return;
         }
 
@@ -397,18 +428,18 @@ export function useSingleReviewPipeline(
 
         options.onEvent?.({
           type: 'review.submit.response-error',
-          traceId: clientRequestId,
-          requestId,
+          traceId: ctx.clientRequestId,
+          requestId: ctx.requestId,
           scenarioId: options.scenarioId,
           message: resolvedMessage
         });
-        failPipeline(requestId, resolvedMessage);
+        failPipeline(ctx.requestId, resolvedMessage);
       } catch (error) {
         if (controller.signal.aborted) {
           options.onEvent?.({
             type: 'review.submit.aborted',
-            traceId: clientRequestId,
-            requestId,
+            traceId: ctx.clientRequestId,
+            requestId: ctx.requestId,
             scenarioId: options.scenarioId
           });
           return;
@@ -423,17 +454,17 @@ export function useSingleReviewPipeline(
 
         options.onEvent?.({
           type: 'review.submit.exception',
-          traceId: clientRequestId,
-          requestId,
+          traceId: ctx.clientRequestId,
+          requestId: ctx.requestId,
           scenarioId: options.scenarioId,
           errorName: error instanceof Error ? error.name : 'unknown',
           message: resolvedMessage
         });
 
-        failPipeline(requestId, resolvedMessage);
+        failPipeline(ctx.requestId, resolvedMessage);
       }
     },
-    [completePipeline, failPipeline, options, resolveCurrentFailureMessage, startPipeline]
+    [beginReview, completePipeline, failPipeline, options, resolveCurrentFailureMessage, startPipeline]
   );
 
   const abandonInFlightReview = useCallback(() => {
@@ -452,6 +483,7 @@ export function useSingleReviewPipeline(
     setPhase,
     setFailureMessage,
     startReview,
+    startReviewFromPrefetch,
     abandonInFlightReview,
     resetPipelineState
   };

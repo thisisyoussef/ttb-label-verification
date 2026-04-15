@@ -55,24 +55,19 @@ export function FieldRow({
         >
           chevron_right
         </span>
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 items-center">
-          <span className="md:col-span-4 font-body font-semibold text-on-surface">
+        <div className="flex-1 flex flex-col md:flex-row md:items-center gap-1 md:gap-4 min-w-0">
+          <span className="md:w-[30%] shrink-0 font-body font-semibold text-on-surface">
             {check.label}
           </span>
           {!standalone ? (
-            <span className="md:col-span-3 font-mono text-xs text-on-surface-variant truncate">
+            <span className="md:w-[25%] shrink-0 font-mono text-xs text-on-surface-variant truncate">
               {check.applicationValue || '—'}
             </span>
           ) : null}
-          <span
-            className={[
-              standalone ? 'md:col-span-8' : 'md:col-span-4',
-              'font-mono text-xs text-on-surface truncate'
-            ].join(' ')}
-          >
+          <span className="flex-1 font-mono text-xs text-on-surface truncate min-w-0">
             {check.extractedValue || '—'}
           </span>
-          <span className={['flex justify-start md:justify-end', standalone ? 'md:col-span-4' : 'md:col-span-1'].join(' ')}>
+          <span className="shrink-0 flex md:justify-end">
             <StatusBadge status={check.status} size="sm" />
           </span>
         </div>

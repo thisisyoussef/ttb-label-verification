@@ -25,6 +25,7 @@ import {
   type ReviewPipelineEvent,
   useSingleReviewPipeline
 } from './useSingleReviewPipeline';
+import { useSpeculativePrefetch } from './useSpeculativePrefetch';
 
 export interface SingleReviewFlow {
   image: LabelImage | null;
@@ -110,6 +111,9 @@ export function useSingleReviewFlow(options: {
     logReviewClientEvent(type, payload);
   }, []);
 
+  const speculativePrefetchEnabled =
+    import.meta.env.VITE_ENABLE_SPECULATIVE_PREFETCH === 'true';
+
   const {
     steps,
     phase,
@@ -119,6 +123,7 @@ export function useSingleReviewFlow(options: {
     setPhase,
     setFailureMessage,
     startReview,
+    startReviewFromPrefetch,
     abandonInFlightReview,
     resetPipelineState
   } = useSingleReviewPipeline({
@@ -138,8 +143,17 @@ export function useSingleReviewFlow(options: {
     onEvent: handlePipelineEvent
   });
 
+  const prefetch = useSpeculativePrefetch({
+    enabled: speculativePrefetchEnabled,
+    image,
+    beverage,
+    fields: fieldsState,
+    forceFailure
+  });
+
   const reset = useCallback(() => {
     abandonInFlightReview();
+    prefetch.clearPrefetch();
     reviewTraceIdRef.current = null;
     revokeImage(imageRef.current);
     setImage(null);
@@ -150,7 +164,7 @@ export function useSingleReviewFlow(options: {
     setVariantOverride('auto');
     setReport(null);
     resetPipelineState();
-  }, [abandonInFlightReview, resetPipelineState, revokeImage, setReport]);
+  }, [abandonInFlightReview, prefetch, resetPipelineState, revokeImage, setReport]);
 
   const variantOptions = useMemo(
     () =>
@@ -259,6 +273,13 @@ export function useSingleReviewFlow(options: {
     setForceFailure,
     setVariantOverride,
     onVerify: () => {
+      if (speculativePrefetchEnabled && image && !forceFailure) {
+        const hit = prefetch.consumeCacheHit(image, beverage, fieldsState);
+        if (hit) {
+          startReviewFromPrefetch(hit.report);
+          return;
+        }
+      }
       void startReview(forceFailure);
     },
     onCancel: () => {
@@ -282,6 +303,7 @@ export function useSingleReviewFlow(options: {
     },
     onImageChange: (next) => {
       revokeImage(image);
+      if (!next) prefetch.clearPrefetch();
       logReviewClientEvent('review.intake.image-selected', {
         scenarioId,
         filename: next?.file.name ?? null,
@@ -293,6 +315,7 @@ export function useSingleReviewFlow(options: {
     },
     onClear: () => {
       revokeImage(image);
+      prefetch.clearPrefetch();
       logReviewClientEvent('review.intake.cleared', {
         scenarioId
       });
