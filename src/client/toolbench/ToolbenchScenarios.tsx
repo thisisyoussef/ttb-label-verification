@@ -1,7 +1,6 @@
 import {
   TOOLBENCH_BATCH_SCENARIOS,
   TOOLBENCH_SINGLE_SCENARIOS,
-  type ToolbenchBatchScenario,
   type ToolbenchSingleScenario,
 } from './toolbenchFixtures';
 
@@ -9,7 +8,7 @@ interface ToolbenchScenariosProps {
   activeScenarioId: string;
   activeBatchSeedId: string;
   onSelectScenario: (scenario: ToolbenchSingleScenario) => void;
-  onSelectBatchSeed: (scenario: ToolbenchBatchScenario) => void;
+  onSelectBatchSeed: (id: string) => void;
 }
 
 const SECTION_HEADER = 'font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant';
@@ -51,7 +50,7 @@ export function ToolbenchScenarios({
           return (
             <button
               key={scenario.id}
-              onClick={() => onSelectBatchSeed(scenario)}
+              onClick={() => onSelectBatchSeed(scenario.id)}
               className={`${SCENARIO_BASE} ${isActive ? SCENARIO_ACTIVE : SCENARIO_IDLE}`}
             >
               <p className="text-xs font-body font-semibold leading-tight">{scenario.title}</p>

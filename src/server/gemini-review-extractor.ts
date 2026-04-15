@@ -13,6 +13,7 @@ import { applyReviewExtractorGuardrails } from './review-extractor-guardrails';
 import type { NormalizedReviewIntake } from './review-intake';
 import {
   buildReviewExtractionPrompt,
+  buildOcrAugmentedExtractionPrompt,
   normalizeReviewExtractionModelOutput,
   reviewExtractionModelOutputJsonSchema,
   reviewExtractionModelOutputSchema
@@ -110,14 +111,19 @@ export function buildGeminiReviewExtractionRequest(input: {
     extractionMode: ExtractionMode;
   };
 }): GenerateContentParameters {
+  const surface = input.context?.surface ?? '/api/review';
+  const extractionMode = input.context?.extractionMode ?? 'cloud';
+  const ocrText = input.intake.ocrText;
+
+  const promptText = ocrText
+    ? buildOcrAugmentedExtractionPrompt({ surface, extractionMode, ocrText })
+    : buildReviewExtractionPrompt({ surface, extractionMode });
+
   return {
     model: input.config.visionModel,
     contents: [
       {
-        text: buildReviewExtractionPrompt({
-          surface: input.context?.surface ?? '/api/review',
-          extractionMode: input.context?.extractionMode ?? 'cloud'
-        })
+        text: promptText
       },
       {
         inlineData: {
@@ -489,6 +495,5 @@ function readHttpHeader(
       return headerValue;
     }
   }
-
   return undefined;
 }

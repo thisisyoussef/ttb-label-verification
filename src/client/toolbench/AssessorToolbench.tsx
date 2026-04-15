@@ -3,19 +3,17 @@ import type { ExtractionMode, Mode } from '../appTypes';
 import { ToolbenchActions } from './ToolbenchActions';
 import { ToolbenchAssets } from './ToolbenchAssets';
 import { ToolbenchScenarios } from './ToolbenchScenarios';
-import type {
-  ToolbenchBatchScenario,
-  ToolbenchSingleScenario,
-} from './toolbenchFixtures';
+import type { ToolbenchSingleScenario } from './toolbenchFixtures';
 import { type ToolbenchTab, useToolbenchState } from './useToolbenchState';
 
 interface AssessorToolbenchProps {
   activeScenarioId: string;
   activeBatchSeedId: string;
   onSelectScenario: (scenario: ToolbenchSingleScenario) => void;
-  onSelectBatchSeed: (scenario: ToolbenchBatchScenario) => void;
+  onSelectBatchSeed: (id: string) => void;
   onLoadImage: (file: File) => void;
   onLoadCsv: (file: File) => void;
+  mode: Mode;
   extractionMode: ExtractionMode;
   onReset: () => void;
   onSwitchMode: (next: Mode) => void;
