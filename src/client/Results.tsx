@@ -166,7 +166,7 @@ export function Results({
       <ResultsPinnedColumn image={image} beverage={beverage} />
       <section
         ref={workingAreaRef}
-        className="md:col-span-8 lg:col-span-9 bg-background px-6 md:px-8 xl:px-14 py-6 xl:py-12 flex flex-col gap-6 xl:gap-8 overflow-y-auto"
+        className="md:col-span-7 lg:col-span-8 bg-background px-6 md:px-8 xl:px-14 py-6 xl:py-12 flex flex-col gap-6 xl:gap-8 overflow-y-auto"
       >
         <header className="flex items-center justify-between">
           <h1 className="font-headline text-2xl xl:text-4xl font-extrabold text-on-surface tracking-tight">
@@ -200,6 +200,21 @@ export function Results({
             />
 
             <section aria-label="Field checklist" className="flex flex-col gap-3">
+              {!report.standalone ? (
+                <div aria-hidden="true" className="hidden md:flex items-center gap-4 px-6 pb-1">
+                  <span className="w-6 shrink-0" />
+                  <div className="flex-1 flex items-center gap-4 min-w-0">
+                    <span className="w-[30%] shrink-0" />
+                    <span className="w-[25%] shrink-0 font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                      On Application
+                    </span>
+                    <span className="flex-1 font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                      On Label
+                    </span>
+                    <span className="shrink-0 w-[72px]" />
+                  </div>
+                </div>
+              ) : null}
               {report.checks.map((check) => (
                 <FieldRow
                   key={check.id}
