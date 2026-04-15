@@ -1,19 +1,21 @@
 import { useEffect, useRef } from 'react';
 import type { ExtractionMode, Mode } from '../appTypes';
-import type { SeedScenario } from '../scenarios';
 import { ToolbenchActions } from './ToolbenchActions';
 import { ToolbenchAssets } from './ToolbenchAssets';
 import { ToolbenchScenarios } from './ToolbenchScenarios';
+import type {
+  ToolbenchBatchScenario,
+  ToolbenchSingleScenario,
+} from './toolbenchFixtures';
 import { type ToolbenchTab, useToolbenchState } from './useToolbenchState';
 
 interface AssessorToolbenchProps {
   activeScenarioId: string;
   activeBatchSeedId: string;
-  onSelectScenario: (scenario: SeedScenario) => void;
-  onSelectBatchSeed: (id: string) => void;
+  onSelectScenario: (scenario: ToolbenchSingleScenario) => void;
+  onSelectBatchSeed: (scenario: ToolbenchBatchScenario) => void;
   onLoadImage: (file: File) => void;
   onLoadCsv: (file: File) => void;
-  mode: Mode;
   extractionMode: ExtractionMode;
   onReset: () => void;
   onSwitchMode: (next: Mode) => void;
@@ -34,7 +36,6 @@ export function AssessorToolbench({
   onSelectBatchSeed,
   onLoadImage,
   onLoadCsv,
-  mode,
   extractionMode,
   onReset,
   onSwitchMode,
@@ -52,22 +53,6 @@ export function AssessorToolbench({
     }
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [open, close]);
-
-  // Click outside to close
-  useEffect(() => {
-    if (!open) return;
-    function handleMouseDown(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        close();
-      }
-    }
-    // Defer so the same click that opens the panel doesn't immediately close it
-    const id = setTimeout(() => document.addEventListener('mousedown', handleMouseDown), 0);
-    return () => {
-      clearTimeout(id);
-      document.removeEventListener('mousedown', handleMouseDown);
-    };
   }, [open, close]);
 
   return (
@@ -109,7 +94,7 @@ export function AssessorToolbench({
           </div>
 
           {/* Tab content */}
-          <div role="tabpanel" className="flex h-full flex-1 min-h-0 overflow-hidden">
+          <div role="tabpanel" className="flex-1 min-h-0 overflow-y-auto">
             {tab === 'scenarios' && (
               <ToolbenchScenarios
                 activeScenarioId={activeScenarioId}
@@ -123,10 +108,9 @@ export function AssessorToolbench({
             )}
             {tab === 'actions' && (
               <ToolbenchActions
-                mode={mode}
                 extractionMode={extractionMode}
                 onReset={onReset}
-                onSwitchMode={onSwitchMode}
+                onOpenMode={onSwitchMode}
                 onToggleExtraction={onToggleExtraction}
                 onLaunchTour={onLaunchTour}
               />
