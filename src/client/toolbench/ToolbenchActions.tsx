@@ -70,7 +70,7 @@ export function ToolbenchActions({
   }
 
   return (
-    <div className="overflow-y-auto p-3 flex flex-col gap-1">
+    <div className="flex h-full min-h-0 flex-col gap-1 overflow-y-auto p-3">
       <ActionButton icon="restart_alt" label="Reset app" onClick={onReset} />
       <ActionButton
         icon={switchIcon}

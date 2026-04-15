@@ -74,7 +74,7 @@ export function AssessorToolbench({
     <div ref={containerRef} className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2">
       {/* Panel — renders above FAB in flex-col so it grows upward */}
       {open && (
-        <div className="w-[400px] max-h-[520px] rounded-xl border border-dashed border-outline-variant/60 bg-surface-container shadow-ambient flex flex-col overflow-hidden">
+        <div className="flex h-[min(520px,calc(100vh-96px))] w-[400px] min-h-0 flex-col overflow-hidden rounded-xl border border-dashed border-outline-variant/60 bg-surface-container shadow-ambient">
           {/* Header */}
           <div className="flex items-center justify-between px-3 py-2 border-b border-outline-variant/40 shrink-0">
             <span className="font-label text-xs font-semibold text-on-surface-variant uppercase tracking-widest">
@@ -109,7 +109,7 @@ export function AssessorToolbench({
           </div>
 
           {/* Tab content */}
-          <div role="tabpanel" className="flex-1 min-h-0 overflow-hidden">
+          <div role="tabpanel" className="flex h-full flex-1 min-h-0 overflow-hidden">
             {tab === 'scenarios' && (
               <ToolbenchScenarios
                 activeScenarioId={activeScenarioId}

@@ -10,7 +10,7 @@ const SECTION_HEADER = 'font-label text-[10px] font-bold uppercase tracking-wide
 
 export function ToolbenchAssets({ onLoadImage, onLoadCsv }: ToolbenchAssetsProps) {
   return (
-    <div className="h-full overflow-y-auto p-3 flex flex-col gap-4">
+    <div className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto p-3">
       <section className="flex flex-col gap-2">
         <div>
           <p className={SECTION_HEADER}>Label Images</p>
