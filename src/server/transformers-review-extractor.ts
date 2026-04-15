@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+
 import type { ReviewError } from '../shared/contracts/review';
 import {
   buildReviewExtractionPrompt,
@@ -59,6 +61,18 @@ export function readTransformersReviewExtractionConfig(
   const dtypeResult = readDtype(env.TRANSFORMERS_DTYPE);
   if (!dtypeResult.success) {
     return dtypeResult;
+  }
+
+  if (!existsSync(cacheDir)) {
+    return {
+      success: false,
+      status: 503,
+      error: {
+        kind: 'adapter',
+        message: `Local model cache not found at ${cacheDir}. Run "npm run model:cache" to download the model.`,
+        retryable: false
+      }
+    };
   }
 
   return {
