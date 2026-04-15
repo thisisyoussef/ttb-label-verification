@@ -1,17 +1,26 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useHint } from './useHint';
 import { CrossFieldChecks } from './CrossFieldChecks';
 import { FieldRow } from './FieldRow';
-import { FocusAreas } from './FocusAreas';
 import { NoTextState } from './NoTextState';
 import { ResultsPinnedColumn } from './ResultsPinnedColumn';
 import { StandaloneBanner } from './StandaloneBanner';
 import { VerdictBanner } from './VerdictBanner';
 import type {
   BeverageSelection,
+  CheckReview,
+  CheckStatus,
   LabelImage,
   UIVerificationReport
 } from './types';
+
+const STATUS_RANK: Record<CheckStatus, number> = { fail: 0, review: 1, pass: 2, info: 3 };
+const SEVERITY_RANK: Record<CheckReview['severity'], number> = {
+  blocker: 0,
+  major: 1,
+  minor: 2,
+  note: 3
+};
 
 interface ResultsProps {
   image: LabelImage;
@@ -47,23 +56,29 @@ export function Results({
   const workingAreaRef = useRef<HTMLElement | null>(null);
   const tourExpandTimeoutRef = useRef<number | null>(null);
 
+  const sortedChecks = useMemo(
+    () =>
+      [...report.checks].sort((a, b) => {
+        const statusDiff = STATUS_RANK[a.status] - STATUS_RANK[b.status];
+        if (statusDiff !== 0) return statusDiff;
+        return SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity];
+      }),
+    [report.checks]
+  );
+
+  const actionableBoundary = useMemo(
+    () => sortedChecks.findIndex((c) => c.status !== 'fail' && c.status !== 'review'),
+    [sortedChecks]
+  );
+
   const rowOrder = useMemo(
-    () => [...report.checks.map((c) => c.id), ...report.crossFieldChecks.map((c) => c.id)],
-    [report.checks, report.crossFieldChecks]
+    () => [...sortedChecks.map((c) => c.id), ...report.crossFieldChecks.map((c) => c.id)],
+    [sortedChecks, report.crossFieldChecks]
   );
 
   const toggleRow = useCallback((id: string) => {
     setExpandedId((previous) => (previous === id ? null : id));
   }, []);
-
-  const jumpToCheck = useCallback((id: string) => {
-    setExpandedId(id);
-    const row = rowRefs.get(id);
-    if (row) {
-      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      row.focus();
-    }
-  }, [rowRefs]);
 
   useEffect(() => {
     return () => {
@@ -193,12 +208,6 @@ export function Results({
               <StandaloneBanner onRunFullComparison={onRunFullComparison} />
             ) : null}
 
-            <FocusAreas
-              checks={report.checks}
-              crossFieldChecks={report.crossFieldChecks}
-              onJumpToCheck={jumpToCheck}
-            />
-
             <section aria-label="Field checklist" className="flex flex-col gap-3">
               {!report.standalone ? (
                 <div aria-hidden="true" className="hidden md:flex items-center gap-4 px-6 pb-1">
@@ -215,19 +224,26 @@ export function Results({
                   </div>
                 </div>
               ) : null}
-              {report.checks.map((check) => (
-                <FieldRow
-                  key={check.id}
-                  check={check}
-                  expanded={expandedId === check.id}
-                  onToggle={() => toggleRow(check.id)}
-                  standalone={report.standalone}
-                  rowRef={(node) => {
-                    if (node) rowRefs.set(check.id, node);
-                    else rowRefs.delete(check.id);
-                  }}
-                  onKeyNav={(event) => handleKeyNav(event, check.id)}
-                />
+              {sortedChecks.map((check, index) => (
+                <Fragment key={check.id}>
+                  {index === actionableBoundary && actionableBoundary > 0 ? (
+                    <div
+                      className="border-t border-outline-variant/15 my-0.5"
+                      aria-hidden="true"
+                    />
+                  ) : null}
+                  <FieldRow
+                    check={check}
+                    expanded={expandedId === check.id}
+                    onToggle={() => toggleRow(check.id)}
+                    standalone={report.standalone}
+                    rowRef={(node) => {
+                      if (node) rowRefs.set(check.id, node);
+                      else rowRefs.delete(check.id);
+                    }}
+                    onKeyNav={(event) => handleKeyNav(event, check.id)}
+                  />
+                </Fragment>
               ))}
             </section>
 
