@@ -27,7 +27,8 @@ function toolbenchLabelsPlugin(): PluginOption {
 
   return {
     name: 'toolbench-labels',
-    configureServer(server: { middlewares: { use: (handler: Function) => void } }) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    configureServer(server: any) {
       server.middlewares.use(handler);
     },
   };
