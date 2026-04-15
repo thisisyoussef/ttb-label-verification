@@ -1,6 +1,7 @@
 import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  REVIEW_LATENCY_BUDGET_MS,
   checkReviewSchema,
   reviewExtractionSchema,
   verificationReportSchema
@@ -14,14 +15,12 @@ function presentField(value: string, confidence = 0.96) {
     confidence
   } as const;
 }
-
 function absentField(confidence = 0.08) {
   return {
     present: false,
     confidence
   } as const;
 }
-
 function buildExtractionPayload(overrides: Record<string, unknown> = {}) {
   return reviewExtractionSchema.parse({
     id: 'trace-extract-001',
@@ -149,7 +148,7 @@ function buildReviewPayload(overrides: Record<string, unknown> = {}) {
     },
     checks: [buildWarningPayload()],
     crossFieldChecks: [],
-    latencyBudgetMs: 5000,
+    latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
     noPersistence: true,
     summary: 'Trace review passed all deterministic checks.',
     ...overrides

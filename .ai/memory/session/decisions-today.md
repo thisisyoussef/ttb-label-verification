@@ -103,3 +103,6 @@
 - For `TTB-208`, record route and batch timing as bounded spans plus outcome-path classification, and gate console emission behind `TTB_DEBUG_LATENCY=1`.
 - Use the Gemini-generated PNGs under `evals/labels/assets/` as internal smoke fixtures only; do not treat them as authoritative compliance-source media.
 - Leave the visible `latencyBudgetMs` contract at `5000` until `TTB-209` proves the optimized cloud path and the cutover to `4000`.
+- Close `TTB-209` around the measured 5-second contract instead of forcing an unproved `4000 ms` claim: keep `gemini-2.5-flash-lite`, keep the more accurate `cloud-cross-provider-v1` prompt, and keep priority tier disabled by default.
+- Raise the checked-in Gemini timeout default from `3000` to `5000` because the 20-case checked-in review slice returned `20/20` timeouts at `3000` and materially better completion at `5000`.
+- Treat any future sub-`4000 ms` push as a new measured follow-on rather than carrying the old stretch target forward as if it had been proved.

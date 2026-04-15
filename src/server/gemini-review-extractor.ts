@@ -1,4 +1,10 @@
-import { ApiError, GoogleGenAI, type GenerateContentParameters } from '@google/genai';
+import {
+  ApiError,
+  GoogleGenAI,
+  MediaResolution,
+  ServiceTier,
+  type GenerateContentParameters
+} from '@google/genai';
 
 import type { ReviewError } from '../shared/contracts/review';
 import type { NormalizedReviewIntake } from './review-intake';
@@ -16,12 +22,18 @@ import {
 } from './review-extraction';
 
 const DEFAULT_GEMINI_VISION_MODEL = 'gemini-2.5-flash-lite';
-const DEFAULT_GEMINI_TIMEOUT_MS = 3000;
+const DEFAULT_GEMINI_TIMEOUT_MS = 5000;
+
+type GeminiMediaResolution = 'low' | 'medium' | 'high';
+type GeminiServiceTier = 'standard' | 'priority' | 'flex';
 
 export interface GeminiReviewExtractionConfig {
   apiKey: string;
   visionModel: string;
   timeoutMs?: number;
+  mediaResolution?: GeminiMediaResolution;
+  serviceTier?: GeminiServiceTier;
+  thinkingBudget?: number;
 }
 
 type GeminiReviewExtractionConfigFailure = {
@@ -43,6 +55,13 @@ type GenerateContentClient = {
   generateContent: (request: GenerateContentParameters) => Promise<{
     text?: string;
     modelVersion?: string;
+    sdkHttpResponse?: {
+      headers?: Record<string, string>;
+    };
+    usageMetadata?: {
+      promptTokenCount?: number;
+      thoughtsTokenCount?: number;
+    };
   }>;
 };
 
@@ -62,12 +81,20 @@ export function readGeminiReviewExtractionConfig(
     };
   }
 
+  const visionModel = env.GEMINI_VISION_MODEL?.trim() || DEFAULT_GEMINI_VISION_MODEL;
+
   return {
     success: true,
     value: {
       apiKey,
-      visionModel: env.GEMINI_VISION_MODEL?.trim() || DEFAULT_GEMINI_VISION_MODEL,
-      timeoutMs: readGeminiTimeoutMs(env.GEMINI_TIMEOUT_MS)
+      visionModel,
+      timeoutMs: readGeminiTimeoutMs(env.GEMINI_TIMEOUT_MS),
+      mediaResolution: readGeminiMediaResolution(env.GEMINI_MEDIA_RESOLUTION),
+      serviceTier: readGeminiServiceTier(env.GEMINI_SERVICE_TIER),
+      thinkingBudget: readGeminiThinkingBudget({
+        rawValue: env.GEMINI_THINKING_BUDGET,
+        visionModel
+      })
     }
   };
 }
@@ -91,7 +118,22 @@ export function buildGeminiReviewExtractionRequest(input: {
     ],
     config: {
       responseMimeType: 'application/json',
-      responseJsonSchema: reviewExtractionModelOutputJsonSchema
+      responseJsonSchema: reviewExtractionModelOutputJsonSchema,
+      mediaResolution: toGeminiMediaResolution(
+        resolveGeminiMediaResolution({
+          configuredMediaResolution: input.config.mediaResolution,
+          mimeType: input.intake.label.mimeType
+        })
+      ),
+      serviceTier: input.config.serviceTier
+        ? toGeminiServiceTier(input.config.serviceTier)
+        : undefined,
+      thinkingConfig:
+        input.config.thinkingBudget === undefined
+          ? undefined
+          : {
+              thinkingBudget: input.config.thinkingBudget
+            }
     }
   };
 }
@@ -135,7 +177,17 @@ export function createGeminiReviewExtractor(input: {
     );
 
     const providerWaitStartedAt = performance.now();
-    let response: { text?: string; modelVersion?: string };
+    let response: {
+      text?: string;
+      modelVersion?: string;
+      sdkHttpResponse?: {
+        headers?: Record<string, string>;
+      };
+      usageMetadata?: {
+        promptTokenCount?: number;
+        thoughtsTokenCount?: number;
+      };
+    };
     try {
       response = await client.generateContent({
         ...request,
@@ -150,6 +202,8 @@ export function createGeminiReviewExtractor(input: {
       throw normalizeGeminiRuntimeFailure(error);
     }
     clearTimeout(timeout);
+
+    recordGeminiProviderMetadata(context, response);
 
     const responseText = response.text?.trim();
     if (!responseText) {
@@ -213,6 +267,90 @@ function readGeminiTimeoutMs(rawValue: string | undefined) {
   }
 
   return Math.round(parsedValue);
+}
+
+function readGeminiThinkingBudget(input: {
+  rawValue: string | undefined;
+  visionModel: string;
+}) {
+  const normalizedValue = input.rawValue?.trim();
+  if (!normalizedValue) {
+    return defaultGeminiThinkingBudget(input.visionModel);
+  }
+
+  const parsedValue = Number(normalizedValue);
+  if (!Number.isFinite(parsedValue) || parsedValue < -1) {
+    return defaultGeminiThinkingBudget(input.visionModel);
+  }
+
+  return Math.round(parsedValue);
+}
+
+function readGeminiMediaResolution(
+  rawValue: string | undefined
+): GeminiMediaResolution | undefined {
+  const normalizedValue = rawValue?.trim().toLowerCase();
+  switch (normalizedValue) {
+    case 'low':
+    case 'medium':
+    case 'high':
+      return normalizedValue;
+    default:
+      return undefined;
+  }
+}
+
+function readGeminiServiceTier(
+  rawValue: string | undefined
+): GeminiServiceTier | undefined {
+  const normalizedValue = rawValue?.trim().toLowerCase();
+  switch (normalizedValue) {
+    case 'standard':
+    case 'priority':
+    case 'flex':
+      return normalizedValue;
+    default:
+      return undefined;
+  }
+}
+
+function defaultGeminiThinkingBudget(visionModel: string) {
+  return /gemini-2\.5-flash/i.test(visionModel) ? 0 : undefined;
+}
+
+function resolveGeminiMediaResolution(input: {
+  configuredMediaResolution?: GeminiMediaResolution;
+  mimeType: string;
+}): GeminiMediaResolution {
+  if (input.configuredMediaResolution) {
+    return input.configuredMediaResolution;
+  }
+
+  return input.mimeType === 'application/pdf' ? 'medium' : 'low';
+}
+
+function toGeminiMediaResolution(
+  mediaResolution: GeminiMediaResolution
+): MediaResolution {
+  switch (mediaResolution) {
+    case 'low':
+      return MediaResolution.MEDIA_RESOLUTION_LOW;
+    case 'medium':
+      return MediaResolution.MEDIA_RESOLUTION_MEDIUM;
+    case 'high':
+      return MediaResolution.MEDIA_RESOLUTION_HIGH;
+  }
+}
+
+function toGeminiServiceTier(serviceTier: GeminiServiceTier): ServiceTier {
+  switch (serviceTier) {
+    case 'flex':
+      return ServiceTier.FLEX;
+    case 'priority':
+      return ServiceTier.PRIORITY;
+    case 'standard':
+      return ServiceTier.STANDARD;
+  }
 }
 
 function normalizeGeminiRuntimeFailure(error: unknown) {
@@ -282,4 +420,46 @@ function recordGeminiLatency(
     outcome,
     durationMs: performance.now() - startedAt
   });
+}
+
+function recordGeminiProviderMetadata(
+  context: ReviewExtractorContext | undefined,
+  response: {
+    sdkHttpResponse?: {
+      headers?: Record<string, string>;
+    };
+    usageMetadata?: {
+      promptTokenCount?: number;
+      thoughtsTokenCount?: number;
+    };
+  }
+) {
+  context?.latencyCapture?.recordProviderMetadata({
+    provider: 'gemini',
+    attempt: context.latencyAttempt,
+    serviceTier: readHttpHeader(
+      response.sdkHttpResponse?.headers,
+      'x-gemini-service-tier'
+    ),
+    promptTokenCount: response.usageMetadata?.promptTokenCount,
+    thoughtsTokenCount: response.usageMetadata?.thoughtsTokenCount
+  });
+}
+
+function readHttpHeader(
+  headers: Record<string, string> | undefined,
+  key: string
+) {
+  if (!headers) {
+    return undefined;
+  }
+
+  const normalizedKey = key.toLowerCase();
+  for (const [headerKey, headerValue] of Object.entries(headers)) {
+    if (headerKey.toLowerCase() === normalizedKey) {
+      return headerValue;
+    }
+  }
+
+  return undefined;
 }

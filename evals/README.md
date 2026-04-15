@@ -6,6 +6,7 @@ This project treats evaluation as part of the product contract.
 
 - `golden/manifest.json` is the canonical full golden eval set.
 - `labels/manifest.json` is the live image-backed core-six subset used for default demos, seeded UI, and the first live extraction slice.
+- `labels/latency-twenty.manifest.json` is the checked-in synthetic 20-case live image-backed latency slice used for Gemini hot-path benchmarking.
 
 ## Required baseline
 
@@ -25,6 +26,7 @@ The full golden set extends this baseline with beverage-specific, format, compar
 Run only the smallest applicable slice:
 
 - `core-six` for default live single-label regression, demo, and seeded UI
+- `latency-twenty` for broader live Gemini latency and hot-path regression against the checked-in 20-case synthetic slice
 - `beverage-type-coverage` for beverage-specific rules
 - `format-compliance` for net contents, ABV, and proof formatting
 - `deterministic-comparison` for string/numeric comparison behavior without real media
@@ -47,8 +49,9 @@ For endpoint slices, also record the extraction mode used. Today every checked-i
 - `llm-endpoint-matrix.md` — route-aware LLM surface mapping
 - `persona-scorecards.md` — user-promise scorecards for endpoint eval review
 - `labels/manifest.json` — live image-backed core-six subset
+- `labels/latency-twenty.manifest.json` — checked-in synthetic 20-case live image-backed latency subset
 - `labels/manifest.template.json` — shape reference for live image-backed subset files
-- `labels/assets/` — expected live-eval filenames and any checked-in media for the core-six live subset
+- `labels/assets/` — expected live-eval filenames and any checked-in media for the live image-backed subsets
 - `results/` — checked-in run logs for story-specific eval runs
 
 ## Rules
@@ -59,4 +62,4 @@ For endpoint slices, also record the extraction mode used. Today every checked-i
 - If a story exposes a new important failure mode, update `golden/manifest.json` or create a backlog item to do so.
 - Capture measured latency with each eval run for single-label critical-path work.
 - The endpoint-aware golden runner is fixture-backed on purpose. It complements, rather than replaces, any live image-backed eval slice required by a specific story.
-- Missing binaries under `labels/assets/` are only a blocker when the active story actually requires a live extraction or live eval run against the core-six subset.
+- Missing binaries under `labels/assets/` are only a blocker when the active story actually requires a live extraction or live eval run against one of the checked-in live subsets.

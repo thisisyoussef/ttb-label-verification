@@ -177,24 +177,45 @@ describe('OpenAI review extractor', () => {
     expect(result.status).toBe(503);
   });
 
+  it('defaults to the lower-latency OpenAI fallback profile and parses optional knobs', () => {
+    const result = readReviewExtractionConfig({
+      OPENAI_API_KEY: 'test-key',
+      OPENAI_STORE: 'false',
+      OPENAI_VISION_DETAIL: 'auto',
+      OPENAI_SERVICE_TIER: 'priority'
+    });
+
+    expect(result.success).toBe(true);
+    if (!result.success) {
+      throw new Error('Expected config loading to succeed.');
+    }
+
+    expect(result.value.visionModel).toBe('gpt-5.4-mini');
+    expect(result.value.imageDetail).toBe('auto');
+    expect(result.value.serviceTier).toBe('priority');
+  });
+
   it('builds an image extraction request with store disabled and structured output parsing', () => {
     const request = buildReviewExtractionRequest({
       intake: buildIntake(),
       config: {
         apiKey: 'test-key',
         visionModel: 'gpt-5.4',
-        store: false
+        store: false,
+        imageDetail: 'auto',
+        serviceTier: 'priority'
       }
     });
 
     expect(request.store).toBe(false);
     expect(request.model).toBe('gpt-5.4');
+    expect(request.service_tier).toBe('priority');
     expect(request.text).toBeDefined();
     const content = requestContent(request);
 
     expect(content[1]).toMatchObject({
       type: 'input_image',
-      detail: 'high'
+      detail: 'auto'
     });
     expect((content[1] as { image_url: string }).image_url).toContain('data:image/png;base64,');
   });

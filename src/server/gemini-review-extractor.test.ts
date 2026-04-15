@@ -1,7 +1,9 @@
+import { MediaResolution, ServiceTier } from '@google/genai';
 import { describe, expect, it, vi } from 'vitest';
 
 import { reviewExtractionSchema } from '../shared/contracts/review';
 import type { NormalizedReviewIntake } from './review-intake';
+import { createReviewLatencyCapture } from './review-latency';
 import {
   buildGeminiReviewExtractionRequest,
   createGeminiReviewExtractor,
@@ -175,18 +177,60 @@ describe('Gemini review extractor', () => {
     expect(result.value.visionModel).toBe('gemini-2.5-flash-lite');
   });
 
+  it('parses optional Gemini latency profile knobs from env', () => {
+    const result = readGeminiReviewExtractionConfig({
+      GEMINI_API_KEY: 'test-key',
+      GEMINI_VISION_MODEL: 'gemini-2.5-flash',
+      GEMINI_MEDIA_RESOLUTION: 'medium',
+      GEMINI_SERVICE_TIER: 'priority',
+      GEMINI_THINKING_BUDGET: '-1'
+    });
+
+    expect(result.success).toBe(true);
+    if (!result.success) {
+      throw new Error('Expected config loading to succeed.');
+    }
+
+    expect(result.value.visionModel).toBe('gemini-2.5-flash');
+    expect(result.value.mediaResolution).toBe('medium');
+    expect(result.value.serviceTier).toBe('priority');
+    expect(result.value.thinkingBudget).toBe(-1);
+  });
+
+  it('defaults Gemini 2.5 Flash-family models to thinkingBudget=0 for extraction', () => {
+    const result = readGeminiReviewExtractionConfig({
+      GEMINI_API_KEY: 'test-key',
+      GEMINI_VISION_MODEL: 'gemini-2.5-flash'
+    });
+
+    expect(result.success).toBe(true);
+    if (!result.success) {
+      throw new Error('Expected config loading to succeed.');
+    }
+
+    expect(result.value.thinkingBudget).toBe(0);
+  });
+
   it('builds an image extraction request with inline image bytes and structured output config', () => {
     const request = buildGeminiReviewExtractionRequest({
       intake: buildIntake(),
       config: {
         apiKey: 'test-key',
-        visionModel: 'gemini-2.5-flash-lite'
+        visionModel: 'gemini-2.5-flash-lite',
+        mediaResolution: 'high',
+        serviceTier: 'priority',
+        thinkingBudget: 0
       }
     });
 
     expect(request.model).toBe('gemini-2.5-flash-lite');
     expect(request.config).toMatchObject({
-      responseMimeType: 'application/json'
+      responseMimeType: 'application/json',
+      mediaResolution: MediaResolution.MEDIA_RESOLUTION_HIGH,
+      serviceTier: ServiceTier.PRIORITY,
+      thinkingConfig: {
+        thinkingBudget: 0
+      }
     });
     const contents = Array.isArray(request.contents)
       ? request.contents
@@ -214,6 +258,10 @@ describe('Gemini review extractor', () => {
       }
     });
 
+    expect(request.config?.mediaResolution).toBe(
+      MediaResolution.MEDIA_RESOLUTION_MEDIUM
+    );
+
     const contents = Array.isArray(request.contents)
       ? request.contents
       : [request.contents];
@@ -222,6 +270,20 @@ describe('Gemini review extractor', () => {
         mimeType: 'application/pdf'
       }
     });
+  });
+
+  it('defaults raster image requests to low media resolution when no override is set', () => {
+    const request = buildGeminiReviewExtractionRequest({
+      intake: buildIntake(),
+      config: {
+        apiKey: 'test-key',
+        visionModel: 'gemini-2.5-flash-lite'
+      }
+    });
+
+    expect(request.config?.mediaResolution).toBe(
+      MediaResolution.MEDIA_RESOLUTION_LOW
+    );
   });
 
   it('parses the model output and resolves the final beverage type', async () => {
@@ -254,6 +316,51 @@ describe('Gemini review extractor', () => {
     expect(payload.beverageTypeSource).toBe('class-type');
     expect(payload.model).toBe('gemini-2.5-flash-lite');
     expect(reviewExtractionSchema.parse(payload).summary).toContain('Structured extraction');
+  });
+
+  it('records Gemini service-tier and usage metadata in the latency summary', async () => {
+    const client = {
+      generateContent: vi.fn().mockResolvedValue({
+        text: JSON.stringify(buildModelOutput()),
+        sdkHttpResponse: {
+          headers: {
+            'x-gemini-service-tier': 'priority'
+          }
+        },
+        usageMetadata: {
+          promptTokenCount: 258,
+          thoughtsTokenCount: 0
+        }
+      })
+    };
+
+    const extractor = createGeminiReviewExtractor({
+      client,
+      config: {
+        apiKey: 'test-key',
+        visionModel: 'gemini-2.5-flash-lite'
+      }
+    });
+    const latencyCapture = createReviewLatencyCapture({
+      surface: '/api/review/extraction'
+    });
+
+    await extractor(buildIntake(), {
+      latencyAttempt: 'primary',
+      latencyCapture
+    });
+
+    const summary = latencyCapture.finalize();
+
+    expect(summary.providerMetadata).toEqual([
+      {
+        provider: 'gemini',
+        attempt: 'primary',
+        serviceTier: 'priority',
+        promptTokenCount: 258,
+        thoughtsTokenCount: 0
+      }
+    ]);
   });
 
   it('treats malformed JSON as a retryable adapter failure', async () => {

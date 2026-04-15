@@ -3,11 +3,11 @@
 ## Story
 
 - Story ID: `TTB-209`
-- Title: cloud/default single-label hot-path optimization to `<= 4 seconds`
+- Title: cloud/default Gemini hot-path tuning and latency policy hardening
 
 ## Goal
 
-Prove that the optimized latency profile meets the tighter timing target without materially regressing extraction quality.
+Pick the best measured Gemini latency profile for this repo, prove the public `5000 ms` budget remains the honest contract, and record the non-cutover evidence for the abandoned `4000 ms` stretch target.
 
 ## Evaluation focus
 
@@ -22,10 +22,11 @@ Prove that the optimized latency profile meets the tighter timing target without
 - low-latency model selection weakens beverage or field extraction
 - cache-friendly request shaping changes structured-output behavior
 - priority-tier downgrade hides a slower standard-tier result
-- the visible budget flips to `4000` before the measured route proves it
+- the default timeout remains so short that the repo self-fails before the real budget
+- the visible budget flips below `5000` before the measured route proves it
 
 ## Pass criteria
 
-- the optimized route meets the target envelope on the approved release-signoff fixture slice
+- the story records the winning profile and the losing experiments on the approved release-signoff slice
 - extraction quality remains acceptable against the existing eval set
-- the story packet records the winning profile and rollback condition
+- the story packet records the winning profile, the shipped timeout posture, and the non-cutover condition

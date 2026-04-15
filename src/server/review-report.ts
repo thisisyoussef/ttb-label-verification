@@ -1,4 +1,5 @@
 import {
+  REVIEW_LATENCY_BUDGET_MS,
   verificationReportSchema,
   type CheckReview,
   type ReviewExtraction,
@@ -42,7 +43,7 @@ export function buildVerificationReport(input: {
       },
       checks: [],
       crossFieldChecks: [],
-      latencyBudgetMs: 5000,
+      latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
       noPersistence: true,
       summary: 'No text could be extracted from the submitted label image.'
     });
@@ -76,7 +77,7 @@ export function buildVerificationReport(input: {
     counts,
     checks,
     crossFieldChecks,
-    latencyBudgetMs: 5000,
+    latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
     noPersistence: true,
     summary: deriveSummary({
       verdict,

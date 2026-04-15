@@ -18,7 +18,7 @@ Build a standalone web application that helps TTB reviewers verify alcohol bever
 - Any Gemini integration must use inline request payloads only with provider logging and data-sharing disabled; no Files API or other durable upload surface is allowed.
 - Default cloud single-label review must stay within a 5-second end-to-end target.
 - Any explicit local extraction mode must declare a separate slower budget, lower-confidence posture for layout and format claims, and may not silently replace the default reviewer path.
-- Planned latency-hardening stories `TTB-208` and `TTB-209` tighten the operational goal to `<= 4,000 ms`, but the current checked-in contract remains `<= 5,000 ms` until those stories land and are re-measured.
+- `TTB-208` and `TTB-209` now provide the latency measurement foundation, winning Gemini defaults, and checked-in 20-case latency corpus for the default cloud path, while keeping the public contract at `<= 5,000 ms`.
 - The model may extract and classify, but final compliance outcomes come from deterministic logic and typed contracts.
 - Uncertain visual judgments, especially boldness, same-field-of-vision, continuity, and separation, default to `review`.
 - Claude-direct UI development is the default in this repo. Automated Stitch and manual Comet remain available as explicit alternate flows when a story benefits from Stitch-generated references.
@@ -142,7 +142,7 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 - shared Zod contracts in `src/shared/contracts`
 - planned extraction routing should be two-stage so label extraction resolves an explicit execution mode (`cloud` or `local`) before choosing a provider path inside that mode
 - planned cloud routing should stay capability-based so label extraction can run Gemini-primary with OpenAI fallback while other model-backed capabilities remain OpenAI-primary with Gemini fallback
-- planned latency hardening should add stage-level timing and budget enforcement for the default cloud single-label path before the contract is cut over from `5,000 ms` to `4,000 ms`
+- latency hardening now uses stage-level timing, tuned Gemini defaults, and an honest timeout policy for the default cloud single-label path while keeping the public contract at `5,000 ms`
 - planned local extraction mode should run through a self-hosted Ollama-backed vision model and share the same typed extraction contract plus deterministic validators, while degrading weak formatting and spatial claims to uncertainty
 - planned prompt hardening should move extraction prompts behind persona-centered, endpoint-aware, mode-aware prompt profiles and structural guardrails so every model-backed route serves reviewer trust before raw field coverage
 - planned eval hardening should score all model-backed endpoints across cloud and local execution modes against persona-specific promises, not just generic extraction correctness
@@ -174,7 +174,7 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 - `TTB-206`: extraction mode routing foundation and privacy-safe cloud/local provider policy
 - `TTB-207`: cloud extraction mode: Gemini-primary with OpenAI fallback and cross-provider validation
 - `TTB-208`: cloud/default latency observability and sub-4-second budget framing
-- `TTB-209`: cloud/default single-label hot-path optimization to `<= 4 seconds`
+- `TTB-209`: cloud/default Gemini hot-path tuning and latency policy hardening
 - `TTB-212`: local extraction mode: Ollama-hosted Qwen2.5-VL with degraded-confidence guardrails
 - `TTB-210`: persona-centered prompt profiles and endpoint plus mode guardrails
 - `TTB-211`: LLM endpoint and mode eval matrix, persona scorecards, and trace regression gates

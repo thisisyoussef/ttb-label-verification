@@ -126,10 +126,10 @@ export function createReviewProviderFailure(input: {
 }
 
 export function fallbackWindowStillOpen(input: {
-  startedAt: number;
+  elapsedMs: number;
   maxRetryableFallbackElapsedMs: number;
 }) {
-  return performance.now() - input.startedAt <= input.maxRetryableFallbackElapsedMs;
+  return input.elapsedMs <= input.maxRetryableFallbackElapsedMs;
 }
 
 export function formatProviderName(provider: AiProvider) {

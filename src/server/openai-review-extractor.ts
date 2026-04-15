@@ -17,12 +17,17 @@ import {
 } from './review-extraction';
 
 const MODEL_OUTPUT_SCHEMA_NAME = 'ttb_label_extraction';
-const DEFAULT_OPENAI_VISION_MODEL = 'gpt-5.4';
+const DEFAULT_OPENAI_VISION_MODEL = 'gpt-5.4-mini';
+
+type OpenAiImageDetail = 'low' | 'high' | 'auto' | 'original';
+type OpenAiServiceTier = 'auto' | 'default' | 'flex' | 'scale' | 'priority';
 
 export interface ReviewExtractionConfig {
   apiKey: string;
   visionModel: string;
   store: false;
+  imageDetail?: OpenAiImageDetail;
+  serviceTier?: OpenAiServiceTier;
 }
 
 type ReviewExtractionConfigFailure = {
@@ -80,7 +85,9 @@ export function readReviewExtractionConfig(
     value: {
       apiKey,
       visionModel: env.OPENAI_VISION_MODEL?.trim() || DEFAULT_OPENAI_VISION_MODEL,
-      store: false
+      store: false,
+      imageDetail: readOpenAiImageDetail(env.OPENAI_VISION_DETAIL) ?? 'auto',
+      serviceTier: readOpenAiServiceTier(env.OPENAI_SERVICE_TIER)
     }
   };
 }
@@ -92,6 +99,7 @@ export function buildReviewExtractionRequest(input: {
   return {
     model: input.config.visionModel,
     store: input.config.store,
+    service_tier: input.config.serviceTier,
     text: {
       format: zodTextFormat(
         reviewExtractionModelOutputSchema,
@@ -106,7 +114,10 @@ export function buildReviewExtractionRequest(input: {
             type: 'input_text',
             text: buildReviewExtractionPrompt()
           },
-          buildLabelInputContent(input.intake)
+          buildLabelInputContent({
+            intake: input.intake,
+            config: input.config
+          })
         ]
       }
     ]
@@ -196,16 +207,55 @@ export function createOpenAIReviewExtractor(input: {
   };
 }
 
-// PDFs are converted to PNG upstream by pdf-label-converter.ts,
-// so this function always receives an image buffer.
-function buildLabelInputContent(intake: NormalizedReviewIntake) {
-  const base64Data = intake.label.buffer.toString('base64');
+function buildLabelInputContent(input: {
+  intake: NormalizedReviewIntake;
+  config: ReviewExtractionConfig;
+}) {
+  const base64Data = input.intake.label.buffer.toString('base64');
 
+  if (input.intake.label.mimeType === 'application/pdf') {
+    return {
+      type: 'input_file' as const,
+      filename: input.intake.label.originalName,
+      file_data: `data:${input.intake.label.mimeType};base64,${base64Data}`
+    };
+  }
   return {
     type: 'input_image' as const,
-    detail: 'high' as const,
-    image_url: `data:${intake.label.mimeType};base64,${base64Data}`
+    detail: input.config.imageDetail ?? 'auto',
+    image_url: `data:${input.intake.label.mimeType};base64,${base64Data}`
   };
+}
+
+function readOpenAiImageDetail(
+  rawValue: string | undefined
+): OpenAiImageDetail | undefined {
+  const normalizedValue = rawValue?.trim().toLowerCase();
+  switch (normalizedValue) {
+    case 'auto':
+    case 'high':
+    case 'low':
+    case 'original':
+      return normalizedValue;
+    default:
+      return undefined;
+  }
+}
+
+function readOpenAiServiceTier(
+  rawValue: string | undefined
+): OpenAiServiceTier | undefined {
+  const normalizedValue = rawValue?.trim().toLowerCase();
+  switch (normalizedValue) {
+    case 'auto':
+    case 'default':
+    case 'flex':
+    case 'priority':
+    case 'scale':
+      return normalizedValue;
+    default:
+      return undefined;
+  }
 }
 
 function recordOpenAiLatency(

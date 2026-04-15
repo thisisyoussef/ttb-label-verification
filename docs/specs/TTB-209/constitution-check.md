@@ -3,7 +3,7 @@
 ## Story
 
 - Story ID: `TTB-209`
-- Title: cloud/default single-label hot-path optimization to `<= 4 seconds`
+- Title: cloud/default Gemini hot-path tuning and latency policy hardening
 - Parent: `TTB-002`
 - Primary lane: Codex
 - Packet mode: standard
@@ -15,7 +15,7 @@
 - Gemini integrations must remain inline-only with logging/data-sharing disabled; no Files API or explicit cache TTL surfaces are allowed.
 - Explicit provider caching may not become the baseline solution for this story. Gemini explicit caching is out of bounds. OpenAI extended prompt caching may not be used on user-bearing requests.
 - The approved UI remains fixed input. Performance work may touch `src/client/**` only if a non-design integration seam absolutely requires it.
-- The visible `latencyBudgetMs` contract may only move from `5000` to `4000` after measured evidence proves the optimized path meets the tighter target.
+- The visible `latencyBudgetMs` contract stays at `5000` in this story and may move lower only after new measured evidence proves it.
 
 ## Required companion artifacts
 

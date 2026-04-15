@@ -65,6 +65,7 @@
 - LangSmith tracing is a local engineering tool, not runtime product behavior; it should only capture approved fixtures or sanitized inputs and should never be left on for staging or production traffic.
 - When the live core-six assets are missing, use sanitized locally generated media with traced extraction surfaces as the temporary provider-comparison seam, and record an explicit rollback condition instead of guessing production readiness.
 - Synthetic internal label assets generated from the manifest are acceptable for smoke testing and harness validation, but they must be clearly labeled as non-authoritative fixtures and not promoted as compliance-source evidence.
+- When provider latency does not prove a tighter public budget, ship the best measured profile and keep the contract truthful; in this repo that means `gemini-2.5-flash-lite`, smart media defaults, no priority default, and a `5000 ms` timeout rather than a self-defeating `3000 ms` fast-fail.
 - Every compliance rule should be traceable through `docs/rules/RULE_SOURCE_INDEX.md`.
 - Deterministic validation runs after extraction, not instead of it.
 - Warning text comparison should normalize whitespace only, keep punctuation/case literal, and shape phrase-level diff segments to match the approved UI evidence contract.

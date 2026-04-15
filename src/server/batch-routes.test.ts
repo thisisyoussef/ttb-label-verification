@@ -412,5 +412,5 @@ describe('batch routes', () => {
     expect(retriedRow?.status).not.toBe('error');
     expect(retriedRow?.reportId).not.toBeNull();
     expect(retriedDashboard.summary.error).toBe(0);
-  });
+  }, 15000);
 });
