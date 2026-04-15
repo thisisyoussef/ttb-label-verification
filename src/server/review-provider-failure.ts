@@ -140,6 +140,8 @@ export function formatProviderName(provider: AiProvider) {
       return 'Gemini';
     case 'ollama':
       return 'Ollama';
+    case 'transformers':
+      return 'Transformers.js';
   }
 }
 
