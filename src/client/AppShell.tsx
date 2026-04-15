@@ -4,15 +4,12 @@ import { BatchDashboard } from './BatchDashboard';
 import { BatchDrillInShell } from './BatchDrillInShell';
 import { BatchProcessing } from './BatchProcessing';
 import { BatchUpload } from './BatchUpload';
-import { DASHBOARD_SEEDS } from './batchDashboardScenarios';
-import { SEED_BATCHES, STREAM_SEEDS } from './batchScenarios';
 import { GuidedTourSpotlight } from './GuidedTourSpotlight';
 import { HelpLauncher } from './HelpLauncher';
 import { ImagePreviewOverlay } from './ImagePreviewOverlay';
 import { Intake } from './Intake';
 import { Processing } from './Processing';
 import { Results } from './Results';
-import { ScenarioPicker } from './ScenarioPicker';
 import { ExtractionModeSelector } from './ExtractionModeSelector';
 import { SessionTimeoutModal } from './SessionTimeoutModal';
 import { SignedInIdentity } from './SignedInIdentity';
@@ -25,7 +22,6 @@ import type { SingleReviewFlow } from './useSingleReviewFlow';
 interface AppShellProps {
   mode: Mode;
   view: View;
-  fixtureControlsEnabled: boolean;
   single: SingleReviewFlow;
   batch: BatchWorkflow;
   help: HelpTourFlow;
@@ -49,7 +45,6 @@ interface AppShellProps {
 export function AppShell({
   mode,
   view,
-  fixtureControlsEnabled,
   single,
   batch,
   help,
@@ -148,90 +143,6 @@ export function AppShell({
               disabled={extractionModeDisabled}
               onChange={onExtractionModeChange}
             />
-            {mode === 'single' ? (
-              fixtureControlsEnabled ? (
-                <>
-                  <ScenarioPicker
-                    scenarioId={single.scenarioId}
-                    onSelect={single.onSelectScenario}
-                  />
-                  <label className="flex items-center gap-2 text-xs font-label text-on-surface-variant">
-                    <span className="uppercase tracking-widest font-bold">Result variant</span>
-                    <select
-                      value={single.variantOverride}
-                      onChange={(event) =>
-                        single.setVariantOverride(event.target.value as typeof single.variantOverride)
-                      }
-                      className="bg-surface-container-lowest border border-outline-variant/40 rounded px-2 py-1 text-xs font-body font-semibold text-on-surface focus:ring-primary/40"
-                    >
-                      {single.variantOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="flex items-center gap-2 text-xs font-label text-on-surface-variant">
-                    <input
-                      type="checkbox"
-                      checked={single.forceFailure}
-                      onChange={(event) => single.setForceFailure(event.target.checked)}
-                      className="rounded text-primary focus:ring-primary/40"
-                    />
-                    <span className="uppercase tracking-widest font-bold">Force failure</span>
-                  </label>
-                </>
-              ) : null
-            ) : fixtureControlsEnabled ? (
-              <>
-                <label className="flex items-center gap-2 text-xs font-label text-on-surface-variant">
-                  <span className="uppercase tracking-widest font-bold">Batch scenario</span>
-                  <select
-                    value={batch.batchSeedId}
-                    onChange={(event) => batch.onSelectBatchSeed(event.target.value)}
-                    className="bg-surface-container-lowest border border-outline-variant/40 rounded px-2 py-1 text-xs font-body font-semibold text-on-surface focus:ring-primary/40"
-                  >
-                    {SEED_BATCHES.map((seed) => (
-                      <option key={seed.id} value={seed.id}>
-                        {seed.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                {view === 'batch-processing' ? (
-                  <label className="flex items-center gap-2 text-xs font-label text-on-surface-variant">
-                    <span className="uppercase tracking-widest font-bold">Stream variant</span>
-                    <select
-                      value={batch.batchStreamSeedId}
-                      onChange={(event) => batch.onSelectStreamSeed(event.target.value)}
-                      className="bg-surface-container-lowest border border-outline-variant/40 rounded px-2 py-1 text-xs font-body font-semibold text-on-surface focus:ring-primary/40"
-                    >
-                      {STREAM_SEEDS.map((seed) => (
-                        <option key={seed.id} value={seed.id}>
-                          {seed.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                ) : null}
-                {view === 'batch-dashboard' || view === 'batch-result' ? (
-                  <label className="flex items-center gap-2 text-xs font-label text-on-surface-variant">
-                    <span className="uppercase tracking-widest font-bold">Dashboard seed</span>
-                    <select
-                      value={batch.dashboardSeedId}
-                      onChange={(event) => batch.onSelectDashboardSeed(event.target.value)}
-                      className="bg-surface-container-lowest border border-outline-variant/40 rounded px-2 py-1 text-xs font-body font-semibold text-on-surface focus:ring-primary/40"
-                    >
-                      {DASHBOARD_SEEDS.map((seed) => (
-                        <option key={seed.id} value={seed.id}>
-                          {seed.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                ) : null}
-              </>
-            ) : null}
             <HelpLauncher
               active={help.tourOpen}
               showNudge={!help.helpNudgeDismissed && !help.tourOpen}
@@ -295,11 +206,11 @@ export function AppShell({
         ) : view === 'batch-intake' ? (
           <BatchUpload
             seed={batch.batchSeed}
-            interactive={!fixtureControlsEnabled}
+            interactive={true}
             onReturnToSingle={batch.onReturnToSingle}
             onStartBatch={batch.onStartBatchFromIntake}
-            onSelectImages={!fixtureControlsEnabled ? batch.onSelectLiveImages : undefined}
-            onSelectCsv={!fixtureControlsEnabled ? batch.onSelectLiveCsv : undefined}
+            onSelectImages={batch.onSelectLiveImages}
+            onSelectCsv={batch.onSelectLiveCsv}
             onPickAmbiguous={batch.onPickAmbiguous}
             onDropAmbiguous={batch.onDropAmbiguous}
             onPairUnmatchedImage={batch.onPairUnmatchedImage}

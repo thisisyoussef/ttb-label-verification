@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppShell } from './AppShell';
+import { AssessorToolbench } from './toolbench/AssessorToolbench';
+import type { LabelImage } from './types';
+import { formatFileSize } from '../shared/batch-file-meta';
 import { AuthScreen } from './AuthScreen';
 import {
   advanceAuthPhase,
@@ -234,6 +237,43 @@ export function App() {
     help.onFinishTour();
   }, [batch, help, single]);
 
+  const handleToolbenchLoadImage = useCallback(
+    (file: File) => {
+      const labelImage: LabelImage = {
+        file,
+        previewUrl: URL.createObjectURL(file),
+        sizeLabel: formatFileSize(file.size)
+      };
+      single.onImageChange(labelImage);
+      if (mode !== 'single') {
+        batch.onSelectMode('single', mode);
+      }
+    },
+    [batch, mode, single]
+  );
+
+  const handleToolbenchLoadCsv = useCallback(
+    (file: File) => {
+      batch.onSelectLiveCsv(file);
+      if (mode !== 'batch') {
+        batch.onSelectMode('batch', mode);
+      }
+    },
+    [batch, mode]
+  );
+
+  const handleToolbenchReset = useCallback(() => {
+    single.reset();
+    batch.reset();
+    setMode('single');
+    setView('intake');
+  }, [batch, single]);
+
+  const handleToolbenchSwitchMode = useCallback((next: Mode) => {
+    setMode(next);
+    setView(next === 'batch' ? 'batch-intake' : 'intake');
+  }, []);
+
   const performSignOut = useCallback(() => {
     setExtractionMode('local');
     setSessionRemainingMs(SESSION_TIMEOUTS.inactivityMs);
@@ -324,31 +364,46 @@ export function App() {
   }
 
   return (
-    <AppShell
-      help={{
-        ...help,
-        tourSteps: resolvedTourSteps
-      }}
-      mode={mode}
-      view={view}
-      fixtureControlsEnabled={fixtureControlsEnabled}
-      single={single}
-      batch={batch}
-      tourExpandedCheckId={tourExpandedCheckId}
-      tourNextDisabled={tourNextDisabled}
-      onSelectMode={(next) => batch.onSelectMode(next, mode)}
-      extractionMode={extractionMode}
-      extractionModeDisabled={view === 'processing' || view === 'batch-processing'}
-      sessionTimeoutOpen={sessionTimeoutOpen}
-      sessionTimeoutRemainingSeconds={sessionTimeoutRemainingSeconds}
-      onExtractionModeChange={setExtractionMode}
-      onSignOut={performSignOut}
-      onStaySignedIn={resetSessionTimeout}
-      onTourNext={onTourNext}
-      onTourAdvanceInteraction={onTourAdvanceInteraction}
-      onTourFinish={onTourFinish}
-      onTourShowMe={onTourShowMe}
-      onTourShowMeAndContinue={onTourShowMeAndContinue}
-    />
+    <>
+      <AppShell
+        help={{
+          ...help,
+          tourSteps: resolvedTourSteps
+        }}
+        mode={mode}
+        view={view}
+        single={single}
+        batch={batch}
+        tourExpandedCheckId={tourExpandedCheckId}
+        tourNextDisabled={tourNextDisabled}
+        onSelectMode={(next) => batch.onSelectMode(next, mode)}
+        extractionMode={extractionMode}
+        extractionModeDisabled={view === 'processing' || view === 'batch-processing'}
+        sessionTimeoutOpen={sessionTimeoutOpen}
+        sessionTimeoutRemainingSeconds={sessionTimeoutRemainingSeconds}
+        onExtractionModeChange={setExtractionMode}
+        onSignOut={performSignOut}
+        onStaySignedIn={resetSessionTimeout}
+        onTourNext={onTourNext}
+        onTourAdvanceInteraction={onTourAdvanceInteraction}
+        onTourFinish={onTourFinish}
+        onTourShowMe={onTourShowMe}
+        onTourShowMeAndContinue={onTourShowMeAndContinue}
+      />
+      <AssessorToolbench
+        activeScenarioId={single.scenarioId}
+        activeBatchSeedId={batch.batchSeedId}
+        onSelectScenario={single.onSelectScenario}
+        onSelectBatchSeed={batch.onSelectBatchSeed}
+        onLoadImage={handleToolbenchLoadImage}
+        onLoadCsv={handleToolbenchLoadCsv}
+        mode={mode}
+        extractionMode={extractionMode}
+        onReset={handleToolbenchReset}
+        onSwitchMode={handleToolbenchSwitchMode}
+        onToggleExtraction={(next) => setExtractionMode(next)}
+        onLaunchTour={help.onLaunchTour}
+      />
+    </>
   );
 }
