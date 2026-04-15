@@ -8,4 +8,4 @@
 - Known future dependency: any later push below the current `5000 ms` public budget needs a new measured story; `TTB-209` closed with an explicit non-cutover decision for the abandoned `4000 ms` target.
 - Known future dependency: `TTB-401` still remains blocked on `TTB-210` before the final submission pack can close.
 - Current tooling blocker: targeted mutation testing for `src/server/ai-provider-policy.ts` is still noisy under the current Stryker config; the attempted run on 2026-04-14 reached 41% with 16 timeouts before it was aborted.
-- Current active blocker for the broader queue: `TTB-210` traced evidence still cannot publish because the current LangSmith credentials fail with `401 Unauthorized` on `/datasets` in the tracked eval flow and `403 Forbidden` on direct trace upload.
+- Current active blocker for the broader queue after `TTB-303`: `TTB-210` traced evidence still cannot publish because the current LangSmith credentials fail with `401 Unauthorized` on `/datasets` in the tracked eval flow and `403 Forbidden` on direct trace upload.

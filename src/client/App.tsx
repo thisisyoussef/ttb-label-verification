@@ -27,6 +27,7 @@ import { useBatchWorkflow } from './useBatchWorkflow';
 import { useHelpTourState } from './useHelpTourState';
 import { useSingleReviewFlow } from './useSingleReviewFlow';
 import { fixturesEnabled } from './review-runtime';
+import { resolveToolbenchAssetRoute } from './toolbenchRouteState';
 
 export function App() {
   const fixtureControlsEnabled = fixturesEnabled({
@@ -239,6 +240,13 @@ export function App() {
 
   const handleToolbenchLoadImage = useCallback(
     (file: File) => {
+      const route = resolveToolbenchAssetRoute({ mode, kind: 'image' });
+
+      if (route === 'batch-image') {
+        batch.onSelectLiveImages([file]);
+        return;
+      }
+
       const labelImage: LabelImage = {
         file,
         previewUrl: URL.createObjectURL(file),
@@ -254,9 +262,13 @@ export function App() {
 
   const handleToolbenchLoadCsv = useCallback(
     (file: File) => {
-      batch.onSelectLiveCsv(file);
-      if (mode !== 'batch') {
-        batch.onSelectMode('batch', mode);
+      const route = resolveToolbenchAssetRoute({ mode, kind: 'csv' });
+
+      if (route === 'batch-csv') {
+        batch.onSelectLiveCsv(file);
+        if (mode !== 'batch') {
+          batch.onSelectMode('batch', mode);
+        }
       }
     },
     [batch, mode]

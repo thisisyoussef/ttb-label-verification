@@ -63,6 +63,8 @@
 - Model-backed routes should resolve through one typed provider-policy module plus one extractor factory, not by instantiating provider SDKs directly in route or batch code.
 - Seed fixtures unlock UI progress before live backend integration.
 - For established UI shells that need live wiring, add a pure client runtime adapter (`src/client/batch-runtime.ts`) so API-to-view-model mapping stays testable outside React components.
+- Repeated live batch image intake should append new files to the current live batch set and preserve existing object URLs until the reviewer explicitly clears or resets the batch.
+- Toolbench direct asset loads should resolve through a mode-aware helper: image loads follow the active review mode, while CSV loads remain batch-only.
 - The golden eval set is part of the product contract, not optional test garnish. The core-six live subset is only the first slice, not the whole corpus.
 - LangSmith tracing is a local engineering tool, not runtime product behavior; it should only capture approved fixtures or sanitized inputs and should never be left on for staging or production traffic.
 - When the live core-six assets are missing, use sanitized locally generated media with traced extraction surfaces as the temporary provider-comparison seam, and record an explicit rollback condition instead of guessing production readiness.

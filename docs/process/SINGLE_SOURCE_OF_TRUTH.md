@@ -1,6 +1,6 @@
 # Single Source of Truth
 
-Last updated: 2026-04-15 (`TTB-108` is complete with extraction-mode selection, mode-aware processing/failure states, session-timeout warning flow, and guided-tour follow-through fixes; `TTB-208` is complete with privacy-safe stage timing, route and batch latency summaries, and synthetic internal core-six smoke assets; `TTB-209` is now complete with smarter Gemini request defaults, checked-in `latency-twenty` assets, measured prompt and tier experiments, and a raised checked-in `GEMINI_TIMEOUT_MS=5000` default while the public `latencyBudgetMs` contract stays at `5000`; `TTB-210` now has centralized prompt-policy plus structural guardrails landed locally with tests, build, and fixture evals green, but its traced LangSmith evidence is blocked by current auth failures (`401 /datasets` in the Vitest flow and `403` on direct trace upload); `TTB-211` stays complete as the route-aware eval foundation; `TTB-212` local-model work was scrapped and its packet was moved to archive by user request; `TTB-302` is now complete with live-first batch runtime state, explicit fixture gating, no-store batch route headers, and local browser verification of the full upload -> processing -> dashboard flow)
+Last updated: 2026-04-15 (`TTB-108` is complete with extraction-mode selection, mode-aware processing/failure states, session-timeout warning flow, and guided-tour follow-through fixes; `TTB-208` is complete with privacy-safe stage timing, route and batch latency summaries, and synthetic internal core-six smoke assets; `TTB-209` is now complete with smarter Gemini request defaults, checked-in `latency-twenty` assets, measured prompt and tier experiments, and a raised checked-in `GEMINI_TIMEOUT_MS=5000` default while the public `latencyBudgetMs` contract stays at `5000`; `TTB-210` now has centralized prompt-policy plus structural guardrails landed locally with tests, build, and fixture evals green, but its traced LangSmith evidence is blocked by current auth failures (`401 /datasets` in the Vitest flow and `403` on direct trace upload); `TTB-211` stays complete as the route-aware eval foundation; `TTB-212` local-model work was scrapped and its packet was moved to archive by user request; `TTB-302` is complete; `TTB-303` is complete with live batch add-more image appends, mode-aware toolbench image routing, focused regression tests, and local browser verification)
 
 ## Continue resolution
 
@@ -41,7 +41,7 @@ Last updated: 2026-04-15 (`TTB-108` is complete with extraction-mode selection, 
 ## Active pointers
 
 - Active Claude story: none in progress (`TTB-108` Claude lane complete and approved 2026-04-14)
-- Active Codex story: `TTB-210` in progress
+- Active Codex story: none in progress
 - Next ready for Claude: none queued
 - Next preferred for Codex: `TTB-210`
 - Next blocking for Codex: `TTB-210`, then `TTB-401`
@@ -65,6 +65,7 @@ Last updated: 2026-04-15 (`TTB-108` is complete with extraction-mode selection, 
 | 10 | `TTB-104` | `TTB-003` | batch dashboard, drill-in shell, and export UI | Codex | `ready-parallel` | preserve the approved batch dashboard + drill-in shell (verbatim reuse of the `TTB-102` Results view) + session-scoped export UI as frozen input; backend execution still lands under `TTB-301` once `TTB-205` completes | none |
 | 11 | `TTB-301` | `TTB-003` | batch parser, matcher, orchestration, and session export | Codex | `done` | keep the packet, eval note, and live smoke record as the proof that the approved batch shells now run against the real session-scoped engine | none |
 | 11.5 | `TTB-302` | `TTB-003` | live-first batch runtime, workflow cleanup, and fixture demotion | Codex | `done` | keep the packet, route hardening, and local browser verification record as proof that batch now defaults to the live session path while fixtures stay explicit dev-only support | none |
+| 11.6 | `TTB-303` | `TTB-003` | batch input append and toolbench mode-routing regression fix | Codex | `done` | keep the packet, regression tests, and local browser verification record as proof that repeated live image intake appends and toolbench image loads stay in the active batch workflow | none |
 | 12 | `TTB-105` | `TTB-004` | accessibility, trust copy, and final UI polish | Codex | `ready-parallel` | preserve the approved polish (single-label Results `Back to Intake` breadcrumb, promoted Processing `Cancel review`) as frozen release-gate input for `TTB-401` | none |
 | 13 | `TTB-106` | `TTB-004` | guided tour, replayable help, and contextual info layer | Codex | `done` | keep the packet, help contract, manifest route, fallback runtime bridge, and enforced action-step gating as the record of the completed help-layer cutover | none |
 | 14 | `TTB-107` | `TTB-004` | mock Treasury auth entry and signed-in shell identity | Codex | `done` | keep the packet, handoff, and auth regression suite as the record of the completed mock-auth shell hardening | none |
