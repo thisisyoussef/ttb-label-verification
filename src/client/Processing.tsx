@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { ExtractionMode } from './appTypes';
 import type { BeverageSelection, LabelImage, ProcessingPhase, ProcessingStep } from './types';
+import { classifyCause } from './reviewFailureMessage';
+import { useElapsed } from './useElapsed';
+import { useReducedMotion } from './useReducedMotion';
 
 const LATE_STAGE_DELAY_MS = 4000;
 const LATE_STAGE_LABEL = 'Almost done \u2014 finishing the report\u2026';
@@ -43,6 +46,9 @@ export function Processing({
   const lastStep = steps[steps.length - 1];
   const lastStepActive = lastStep?.status === 'active';
 
+  const elapsed = useElapsed(phase === 'running');
+  const reducedMotion = useReducedMotion();
+
   const [lateStageLabel, setLateStageLabel] = useState<string | null>(null);
 
   useEffect(() => {
@@ -56,6 +62,17 @@ export function Processing({
     );
     return () => window.clearTimeout(timer);
   }, [lastStepActive, phase]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && phase === 'running') {
+        e.preventDefault();
+        onCancel();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [phase, onCancel]);
 
   const displaySteps = steps.map((step, index) =>
     index === steps.length - 1 && lateStageLabel
@@ -160,10 +177,16 @@ export function Processing({
         <ol role="list" aria-live="polite" className="flex flex-col gap-1 max-w-3xl">
           {displaySteps.map((step, index) => (
             <li key={step.id}>
-              <StepRow step={step} index={index + 1} />
+              <StepRow step={step} index={index + 1} reducedMotion={reducedMotion} />
             </li>
           ))}
         </ol>
+
+        {phase === 'running' && elapsed > 0 ? (
+          <p className="font-label text-xs text-on-surface-variant/60 tabular-nums">
+            {elapsed}s elapsed
+          </p>
+        ) : null}
 
         {localUnavailable ? (
           <div
@@ -217,6 +240,9 @@ export function Processing({
             <h2 className="font-headline text-2xl font-extrabold text-on-surface">
               We couldn't finish this review.
             </h2>
+            <p className="text-sm font-label font-semibold text-error/80 mt-1">
+              {classifyCause(failureMessage)}
+            </p>
             <p className="text-on-surface-variant font-body leading-relaxed max-w-lg">
               {failureMessage}
             </p>
@@ -245,7 +271,7 @@ export function Processing({
   );
 }
 
-function StepRow({ step, index }: { step: ProcessingStep; index: number }) {
+function StepRow({ step, index, reducedMotion }: { step: ProcessingStep; index: number; reducedMotion: boolean }) {
   const baseRow =
     'flex items-center gap-5 p-4 rounded-lg transition-colors';
   const variantClass =
@@ -277,7 +303,7 @@ function StepRow({ step, index }: { step: ProcessingStep; index: number }) {
 
   return (
     <div className={[baseRow, variantClass].join(' ')}>
-      <StepIcon step={step} index={index} />
+      <StepIcon step={step} index={index} reducedMotion={reducedMotion} />
       <div className="flex-1 flex flex-col">
         <span className="font-body font-semibold text-on-surface">
           {index}. {step.label}
@@ -295,7 +321,7 @@ function StepRow({ step, index }: { step: ProcessingStep; index: number }) {
   );
 }
 
-function StepIcon({ step, index }: { step: ProcessingStep; index: number }) {
+function StepIcon({ step, index, reducedMotion }: { step: ProcessingStep; index: number; reducedMotion: boolean }) {
   if (step.status === 'done') {
     return (
       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-tertiary-container text-on-tertiary-container flex-shrink-0">
@@ -312,7 +338,13 @@ function StepIcon({ step, index }: { step: ProcessingStep; index: number }) {
   if (step.status === 'active') {
     return (
       <div className="flex items-center justify-center w-8 h-8 flex-shrink-0">
-        <div className="step-ring animate-spin" aria-hidden="true" />
+        {reducedMotion ? (
+          <span className="material-symbols-outlined text-[20px] text-primary" aria-hidden="true">
+            pending
+          </span>
+        ) : (
+          <div className="step-ring animate-spin" aria-hidden="true" />
+        )}
         <span className="sr-only">In progress</span>
       </div>
     );
