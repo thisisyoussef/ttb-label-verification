@@ -9,3 +9,4 @@ dist
 .mcp.json
 .cursor/mcp.json
 *.log
+.cache

@@ -1,6 +1,6 @@
 [build]
 builder = "RAILPACK"
-buildCommand = "npm run build"
+buildCommand = "npm run model:cache && npm run build"
 
 [deploy]
 startCommand = "npm run start"

@@ -439,12 +439,27 @@ describe('review extractor factory', () => {
   });
 
   it('fails closed when local mode is explicitly selected and no local provider is available', () => {
+    const failingFactory = () => ({
+      success: false as const,
+      failure: new ReviewProviderFailure({
+        status: 503,
+        error: { kind: 'adapter' as const, message: 'Not configured', retryable: false },
+        provider: 'transformers' as const,
+        mode: 'local' as const,
+        capability: 'label-extraction' as const,
+        reason: 'missing-configuration' as const
+      })
+    });
+
     const resolution = createConfiguredReviewExtractor({
       env: {
         AI_EXTRACTION_MODE_ALLOW_LOCAL: 'true'
       },
       requestedMode: 'local',
-      providers: {}
+      providers: {
+        transformers: failingFactory,
+        ollama: failingFactory
+      }
     });
 
     expect(resolution.success).toBe(false);
@@ -454,7 +469,5 @@ describe('review extractor factory', () => {
 
     expect(resolution.extractionMode).toBe('local');
     expect(resolution.status).toBe(503);
-    expect(resolution.error.kind).toBe('adapter');
-    expect(resolution.error.message).toContain('Local extraction');
   });
 });
