@@ -14,30 +14,24 @@ const VERDICT_COPY: Record<Verdict, { headline: string; icon: string }> = {
   reject: { headline: 'Recommend rejection', icon: 'cancel' }
 };
 
-const VERDICT_SKIN: Record<
-  Verdict,
-  { banner: string; accent: string; iconBg: string; iconText: string; headline: string }
-> = {
+const VERDICT_SKIN: Record<Verdict, { bg: string; border: string; icon: string; text: string }> = {
   approve: {
-    banner: 'bg-tertiary-container/30',
-    accent: 'border-tertiary',
-    iconBg: 'bg-tertiary-container',
-    iconText: 'text-on-tertiary-container',
-    headline: 'text-on-tertiary-container'
+    bg: 'bg-tertiary-container/30',
+    border: 'border-tertiary',
+    icon: 'text-on-tertiary-container',
+    text: 'text-on-tertiary-container'
   },
   review: {
-    banner: 'bg-caution-container/50',
-    accent: 'border-caution',
-    iconBg: 'bg-caution-container',
-    iconText: 'text-on-caution-container',
-    headline: 'text-on-caution-container'
+    bg: 'bg-caution-container/50',
+    border: 'border-caution',
+    icon: 'text-on-caution-container',
+    text: 'text-on-caution-container'
   },
   reject: {
-    banner: 'bg-error-container/15',
-    accent: 'border-error',
-    iconBg: 'bg-error',
-    iconText: 'text-on-error',
-    headline: 'text-on-error-container'
+    bg: 'bg-error-container/15',
+    border: 'border-error',
+    icon: 'text-error',
+    text: 'text-on-error-container'
   }
 };
 
@@ -56,53 +50,59 @@ export function VerdictBanner({
     <section
       aria-label="Verdict"
       data-tour-target="tour-verdict-banner"
+      title={attribution ?? undefined}
       className={[
-        'relative rounded-lg border-l-4 p-6 flex flex-col gap-4',
-        skin.banner,
-        skin.accent
+        'flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border-l-4 px-4 py-2.5',
+        skin.bg,
+        skin.border
       ].join(' ')}
     >
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-start gap-4">
-          <div
-            className={[
-              'w-12 h-12 rounded flex items-center justify-center flex-shrink-0',
-              skin.iconBg,
-              skin.iconText
-            ].join(' ')}
-          >
-            <span
-              aria-hidden="true"
-              className="material-symbols-outlined text-3xl"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              {copy.icon}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <h2
-              className={[
-                'font-headline text-2xl font-extrabold tracking-tight',
-                skin.headline
-              ].join(' ')}
-            >
-              {copy.headline}
-            </h2>
-            {secondary ? (
-              <p className="mt-1 text-sm font-body text-on-surface-variant">{secondary}</p>
-            ) : null}
-          </div>
-        </div>
-        <CountsPills counts={counts} />
+      <div className="flex items-center gap-2.5 min-w-0">
+        <span
+          aria-hidden="true"
+          className={`material-symbols-outlined text-xl ${skin.icon}`}
+          style={{ fontVariationSettings: "'FILL' 1" }}
+        >
+          {copy.icon}
+        </span>
+        <h2
+          className={[
+            'font-headline text-base font-bold tracking-tight whitespace-nowrap',
+            skin.text
+          ].join(' ')}
+        >
+          {copy.headline}
+        </h2>
       </div>
-      {attribution ? (
-        <p className="flex items-center gap-2 text-xs font-mono text-on-surface-variant/70 border-t border-on-surface-variant/10 pt-3">
-          <span aria-hidden="true" className="material-symbols-outlined text-[14px]">
-            account_tree
-          </span>
-          {attribution}
-        </p>
+
+      {secondary ? (
+        <span className="text-xs font-body text-on-surface-variant leading-tight hidden md:inline">
+          {secondary}
+        </span>
       ) : null}
+
+      <div className="flex-1" />
+
+      <div
+        className="flex items-center gap-2.5 text-xs font-label font-bold whitespace-nowrap"
+        aria-label="Check counts"
+      >
+        <span className={counts.pass > 0 ? 'text-tertiary' : 'text-on-surface-variant/50'}>
+          {counts.pass} pass
+        </span>
+        <span className="text-on-surface-variant/30" aria-hidden="true">
+          ·
+        </span>
+        <span className={counts.review > 0 ? 'text-caution' : 'text-on-surface-variant/50'}>
+          {counts.review} review
+        </span>
+        <span className="text-on-surface-variant/30" aria-hidden="true">
+          ·
+        </span>
+        <span className={counts.fail > 0 ? 'text-error' : 'text-on-surface-variant/50'}>
+          {counts.fail} fail
+        </span>
+      </div>
     </section>
   );
 }
@@ -126,38 +126,5 @@ function buildAttribution(
         : 'flagged for human review by rules';
 
   parts.push(tail);
-  return parts.join(' \u00b7 ');
-}
-
-function CountsPills({ counts }: { counts: VerificationCounts }) {
-  const items = [
-    { label: 'Pass', value: counts.pass, tone: 'text-tertiary', border: 'border-tertiary' },
-    { label: 'Review', value: counts.review, tone: 'text-caution', border: 'border-caution' },
-    { label: 'Fail', value: counts.fail, tone: 'text-error', border: 'border-error' }
-  ];
-  return (
-    <ul className="flex items-stretch gap-3" aria-label="Check counts">
-      {items.map((item) => (
-        <li
-          key={item.label}
-          className={[
-            'text-center px-4 py-2 bg-surface-container-lowest rounded shadow-ambient border-b-2 min-w-[64px]',
-            item.border
-          ].join(' ')}
-        >
-          <span
-            className={[
-              'block text-2xl font-headline font-bold',
-              item.value > 0 ? item.tone : 'text-on-surface-variant'
-            ].join(' ')}
-          >
-            {item.value}
-          </span>
-          <span className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-            {item.label}
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
+  return parts.join(' · ');
 }

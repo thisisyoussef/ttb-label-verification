@@ -26,6 +26,7 @@ This file is the checked-in branch registry for normal story work.
 | `chore/TTB-WF-003-branch-tracker` | `TTB-WF-003` | `chore` | `draft-local` | add the branch tracker workflow and enforce branch metadata updates | - | `2026-04-15` | `2026-04-15` | `main` | isolated workflow worktree |
 | `claude/TTB-000-fix-toolbench-scroll` | `TTB-000` | `claude` | `open` | fix toolbench scroll — move overflow to tabpanel | #45 | `2026-04-15` | `2026-04-15` | `main` | - |
 | `codex/TTB-EVAL-001-corpus-accuracy-merge` | `TTB-EVAL-001` | `codex` | `ready-pr` | expand the real eval corpus and add report-level plus raw extraction benchmark harnesses | #47 | `2026-04-15` | `2026-04-15` | `main` | published via isolated clean worktree; ready to merge |
+| `claude/TTB-000-ux-compact-verdict-strip` | `TTB-000` | `claude` | `draft-local` | compact verdict strip and severity-sorted field checklist | - | `2026-04-15` | `2026-04-15` | `main` | - |
 <!-- ACTIVE_BRANCHES:END -->
 
 ## Closed branches
