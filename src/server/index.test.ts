@@ -292,7 +292,7 @@ describe('server deployment surfaces', () => {
       status: 503,
       error: {
         kind: 'adapter',
-        message: 'Live extraction is not configured for this environment.',
+        message: 'Cloud label reading is not set up on this workstation. Contact your administrator.',
         retryable: false
       }
     });

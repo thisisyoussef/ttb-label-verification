@@ -295,7 +295,7 @@ function summaryIntent(summary: BatchTerminalSummary): string {
     return `All ${summary.total} labels passed.`;
   }
   if (summary.fail === summary.total) {
-    return `All ${summary.total} labels failed.`;
+    return `All ${summary.total} labels were rejected. Open the dashboard to review each one.`;
   }
   return `All ${summary.total} labels reviewed. Nothing is stored.`;
 }

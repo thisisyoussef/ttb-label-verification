@@ -310,7 +310,7 @@ function resolveConfiguredProvider(input: {
         status: 503,
         error: {
           kind: 'adapter',
-          message: `${formatProviderName(input.provider)} does not support ${input.capability} in this environment yet.`,
+          message: 'This type of label check is not available on this workstation yet.',
           retryable: false
         },
         provider: input.provider,
