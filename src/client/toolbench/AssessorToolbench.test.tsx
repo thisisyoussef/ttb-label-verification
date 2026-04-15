@@ -33,7 +33,7 @@ describe('AssessorToolbench', () => {
     );
 
     expect(html).toContain('h-[min(520px,calc(100vh-96px))]');
-    expect(html).toContain('role="tabpanel" class="flex h-full flex-1 min-h-0 overflow-hidden"');
-    expect(html).toContain('flex h-full min-h-0 flex-col gap-4 overflow-y-auto p-3');
+    expect(html).toContain('role="tabpanel" class="flex-1 min-h-0 overflow-y-auto"');
+    expect(html).toContain('flex flex-col gap-4 p-3');
   });
 });
