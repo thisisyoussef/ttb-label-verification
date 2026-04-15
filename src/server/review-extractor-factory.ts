@@ -16,6 +16,11 @@ import {
   createOpenAIReviewExtractor,
   readReviewExtractionConfig
 } from './openai-review-extractor';
+import {
+  createTransformersReviewExtractor,
+  readTransformersReviewExtractionConfig
+} from './transformers-review-extractor';
+import { createTransformersInferenceFn } from './transformers-model-loader';
 import type { NormalizedReviewIntake } from './review-intake';
 import { REVIEW_MAX_RETRYABLE_FALLBACK_ELAPSED_MS } from './review-latency';
 import {
@@ -27,7 +32,6 @@ import {
   createReviewProviderFailure,
   createUnavailableProviderFailure,
   fallbackWindowStillOpen,
-  formatProviderName,
   normalizeProviderRuntimeFailure
 } from './review-provider-failure';
 
@@ -81,7 +85,8 @@ export type ConfiguredReviewExtractorResult =
 
 const DEFAULT_PROVIDER_FACTORIES: ReviewExtractorProviderFactories = {
   gemini: createGeminiReviewExtractorProvider,
-  openai: createOpenAiReviewExtractorProvider
+  openai: createOpenAiReviewExtractorProvider,
+  transformers: createTransformersReviewExtractorProvider
 };
 
 export { ReviewProviderFailure } from './review-provider-failure';
@@ -384,6 +389,40 @@ function createOpenAiReviewExtractorProvider(input: {
     success: true,
     provider: {
       provider: 'openai',
+      supports: (capability) => capability === 'label-extraction',
+      execute: (intake, context) => extractor(intake, context)
+    }
+  };
+}
+
+function createTransformersReviewExtractorProvider(input: {
+  env: Record<string, string | undefined>;
+  capability: AiCapability;
+}): ProviderFactorySuccess | ProviderFactoryFailure {
+  const configResult = readTransformersReviewExtractionConfig(input.env);
+  if (!configResult.success) {
+    return {
+      success: false,
+      failure: createReviewProviderFailure({
+        status: configResult.status,
+        error: configResult.error,
+        provider: 'transformers',
+        mode: 'local',
+        capability: input.capability,
+        reason: 'invalid-provider-config'
+      })
+    };
+  }
+
+  const extractor = createTransformersReviewExtractor({
+    config: configResult.value,
+    inferenceFn: createTransformersInferenceFn(configResult.value)
+  });
+
+  return {
+    success: true,
+    provider: {
+      provider: 'transformers',
       supports: (capability) => capability === 'label-extraction',
       execute: (intake, context) => extractor(intake, context)
     }

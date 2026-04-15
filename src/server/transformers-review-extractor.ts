@@ -1,5 +1,4 @@
 import type { ReviewError } from '../shared/contracts/review';
-import type { NormalizedReviewIntake } from './review-intake';
 import {
   buildReviewExtractionPrompt,
   normalizeReviewExtractionModelOutput,
