@@ -1,8 +1,37 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type PluginOption } from 'vite';
 import react from '@vitejs/plugin-react';
+import path from 'path';
+import fs from 'fs';
+
+const labelsDir = path.resolve(__dirname, 'evals/labels/assets');
+
+function toolbenchLabelsPlugin(): PluginOption {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handler = (req: any, res: any, next: any) => {
+    const prefix = '/toolbench/labels/';
+    if (!req.url?.startsWith(prefix)) return next();
+    const filename = req.url.slice(prefix.length);
+    if (!filename || filename.includes('..')) return next();
+    const filePath = path.join(labelsDir, filename);
+    try {
+      const data = fs.readFileSync(filePath);
+      res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=3600' });
+      res.end(data);
+    } catch {
+      next();
+    }
+  };
+
+  return {
+    name: 'toolbench-labels',
+    configureServer(server) {
+      server.middlewares.use(handler);
+    },
+  };
+}
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), toolbenchLabelsPlugin()],
   server: {
     host: '0.0.0.0',
     port: 5176,
