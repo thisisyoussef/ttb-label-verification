@@ -49,7 +49,7 @@ export function FieldRow({
         <span
           aria-hidden="true"
           className={[
-            'material-symbols-outlined text-on-surface-variant transition-transform duration-200',
+            'material-symbols-outlined text-on-surface-variant transition-transform duration-200 motion-reduce:transition-none',
             expanded ? 'rotate-90' : ''
           ].join(' ')}
         >
