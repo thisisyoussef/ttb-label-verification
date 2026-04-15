@@ -91,7 +91,9 @@ const tracedReviewExtraction = traceable(
   async (input: TracedReviewExtractionInput) => {
     annotateCurrentRun(input);
     const extraction = await input.extractor(input.intake, {
-      latencyCapture: input.latencyCapture
+      latencyCapture: input.latencyCapture,
+      surface: input.surface,
+      extractionMode: resolveTraceMetadata(input).extractionMode
     });
     const actualProvider = inferProviderFromModel(extraction.model);
 

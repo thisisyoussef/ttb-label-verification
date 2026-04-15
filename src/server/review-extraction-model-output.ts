@@ -5,6 +5,9 @@ import {
   type ReviewExtractionFields,
   type WarningVisualSignals
 } from '../shared/contracts/review';
+import type { ExtractionMode } from './ai-provider-policy';
+import type { LlmEndpointSurface } from './llm-policy';
+import { buildReviewExtractionPrompt as buildPolicyPrompt } from './review-prompt-policy';
 import { type ReviewExtractionModelOutput } from './review-extraction';
 
 const apiExtractionFieldSchema = z.object({
@@ -77,20 +80,15 @@ export const reviewExtractionModelOutputJsonSchema = z.toJSONSchema(
   reviewExtractionModelOutputSchema
 );
 
-export function buildReviewExtractionPrompt() {
-  return [
-    'You observe. You do not judge.',
-    'Extract label facts from this alcohol beverage label and return structured output only.',
-    'Never make a final compliance judgment.',
-    'Never compare extracted text against any "correct" or "expected" value.',
-    'Only report what is visibly supported by the submitted label image.',
-    'For every field, mark present=true only when the label image supports the extraction. If a field is absent, set present=false and omit the value.',
-    'Use confidence between 0 and 1.',
-    'Assess image quality, and set noTextDetected=true only when no readable label text can be extracted.',
-    'Estimate warning visual signals for all-caps prefix, bold prefix, continuous paragraph, and visual separation.',
-    'Provide a beverageTypeHint only when the label content supports it; otherwise use unknown.',
-    'Populate the structured fields exactly as named, including governmentWarning when warning text is visible.'
-  ].join(' ');
+export type ReviewExtractionModelOutputSchema = z.infer<
+  typeof reviewExtractionModelOutputSchema
+>;
+
+export function buildReviewExtractionPrompt(input: {
+  surface: LlmEndpointSurface;
+  extractionMode: ExtractionMode;
+}) {
+  return buildPolicyPrompt(input);
 }
 
 export function normalizeReviewExtractionModelOutput(

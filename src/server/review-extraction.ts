@@ -12,6 +12,8 @@ import {
   type ReviewIntakeBeverage,
   type WarningVisualSignals
 } from '../shared/contracts/review';
+import type { ExtractionMode } from './ai-provider-policy';
+import type { LlmEndpointSurface } from './llm-policy';
 import type { ReviewLatencyAttempt, ReviewLatencyCapture } from './review-latency';
 import type { NormalizedReviewIntake } from './review-intake';
 
@@ -38,6 +40,8 @@ export interface ReviewBeverageResolution {
 export interface ReviewExtractorContext {
   latencyAttempt?: ReviewLatencyAttempt;
   latencyCapture?: ReviewLatencyCapture;
+  surface?: LlmEndpointSurface;
+  extractionMode?: ExtractionMode;
 }
 
 export type ReviewExtractor = (

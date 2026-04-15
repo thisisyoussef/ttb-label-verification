@@ -3,6 +3,9 @@ import { zodTextFormat } from 'openai/helpers/zod';
 import { wrapOpenAI } from 'langsmith/wrappers';
 
 import type { ReviewError } from '../shared/contracts/review';
+import type { ExtractionMode } from './ai-provider-policy';
+import type { LlmEndpointSurface } from './llm-policy';
+import { applyReviewExtractorGuardrails } from './review-extractor-guardrails';
 import type { NormalizedReviewIntake } from './review-intake';
 import {
   buildReviewExtractionPrompt,
@@ -95,6 +98,10 @@ export function readReviewExtractionConfig(
 export function buildReviewExtractionRequest(input: {
   intake: NormalizedReviewIntake;
   config: ReviewExtractionConfig;
+  context?: {
+    surface: LlmEndpointSurface;
+    extractionMode: ExtractionMode;
+  };
 }): ResponsesParseRequest {
   return {
     model: input.config.visionModel,
@@ -112,7 +119,10 @@ export function buildReviewExtractionRequest(input: {
         content: [
           {
             type: 'input_text',
-            text: buildReviewExtractionPrompt()
+            text: buildReviewExtractionPrompt({
+              surface: input.context?.surface ?? '/api/review',
+              extractionMode: input.context?.extractionMode ?? 'cloud'
+            })
           },
           buildLabelInputContent({
             intake: input.intake,
@@ -150,7 +160,11 @@ export function createOpenAIReviewExtractor(input: {
     try {
       request = buildReviewExtractionRequest({
         intake,
-        config: input.config
+        config: input.config,
+        context: {
+          surface: context?.surface ?? '/api/review',
+          extractionMode: context?.extractionMode ?? 'cloud'
+        }
       });
     } catch (error) {
       recordOpenAiLatency(context, 'request-assembly', 'fast-fail', requestAssemblyStartedAt);
@@ -187,11 +201,26 @@ export function createOpenAIReviewExtractor(input: {
       });
     }
 
+    const guardrailResult = applyReviewExtractorGuardrails({
+      surface: context?.surface ?? '/api/review',
+      extractionMode: context?.extractionMode ?? 'cloud',
+      output: parsedOutput.data
+    });
+    if (!guardrailResult.success) {
+      recordOpenAiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
+      throw createReviewExtractionFailure({
+        status: guardrailResult.status,
+        kind: guardrailResult.error.kind,
+        message: guardrailResult.error.message,
+        retryable: guardrailResult.error.retryable
+      });
+    }
+
     try {
       const extraction = finalizeReviewExtraction({
         intake,
         model: input.config.visionModel,
-        extracted: normalizeReviewExtractionModelOutput(parsedOutput.data)
+        extracted: normalizeReviewExtractionModelOutput(guardrailResult.value)
       });
       recordOpenAiLatency(context, 'provider-wait', 'success', providerWaitStartedAt);
       return extraction;

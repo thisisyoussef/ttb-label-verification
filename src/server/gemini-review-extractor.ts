@@ -7,6 +7,9 @@ import {
 } from '@google/genai';
 
 import type { ReviewError } from '../shared/contracts/review';
+import type { ExtractionMode } from './ai-provider-policy';
+import type { LlmEndpointSurface } from './llm-policy';
+import { applyReviewExtractorGuardrails } from './review-extractor-guardrails';
 import type { NormalizedReviewIntake } from './review-intake';
 import {
   buildReviewExtractionPrompt,
@@ -102,12 +105,19 @@ export function readGeminiReviewExtractionConfig(
 export function buildGeminiReviewExtractionRequest(input: {
   intake: NormalizedReviewIntake;
   config: GeminiReviewExtractionConfig;
+  context?: {
+    surface: LlmEndpointSurface;
+    extractionMode: ExtractionMode;
+  };
 }): GenerateContentParameters {
   return {
     model: input.config.visionModel,
     contents: [
       {
-        text: buildReviewExtractionPrompt()
+        text: buildReviewExtractionPrompt({
+          surface: input.context?.surface ?? '/api/review',
+          extractionMode: input.context?.extractionMode ?? 'cloud'
+        })
       },
       {
         inlineData: {
@@ -161,7 +171,11 @@ export function createGeminiReviewExtractor(input: {
     try {
       request = buildGeminiReviewExtractionRequest({
         intake,
-        config: input.config
+        config: input.config,
+        context: {
+          surface: context?.surface ?? '/api/review',
+          extractionMode: context?.extractionMode ?? 'cloud'
+        }
       });
     } catch (error) {
       recordGeminiLatency(context, 'request-assembly', 'fast-fail', requestAssemblyStartedAt);
@@ -240,11 +254,26 @@ export function createGeminiReviewExtractor(input: {
       });
     }
 
+    const guardrailResult = applyReviewExtractorGuardrails({
+      surface: context?.surface ?? '/api/review',
+      extractionMode: context?.extractionMode ?? 'cloud',
+      output: normalizedOutput.data
+    });
+    if (!guardrailResult.success) {
+      recordGeminiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
+      throw createReviewExtractionFailure({
+        status: guardrailResult.status,
+        kind: guardrailResult.error.kind,
+        message: guardrailResult.error.message,
+        retryable: guardrailResult.error.retryable
+      });
+    }
+
     try {
       const extraction = finalizeReviewExtraction({
         intake,
         model: response.modelVersion ?? input.config.visionModel,
-        extracted: normalizeReviewExtractionModelOutput(normalizedOutput.data)
+        extracted: normalizeReviewExtractionModelOutput(guardrailResult.value)
       });
       recordGeminiLatency(context, 'provider-wait', 'success', providerWaitStartedAt);
       return extraction;

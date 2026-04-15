@@ -43,4 +43,24 @@ A shared extraction baseline plus small endpoint overlays and structural guardra
   - shared baseline only
   - shared baseline + endpoint overlays
   - shared baseline + endpoint overlays + structural guardrails
-- record the winning configuration, trace ids, and any remaining persona tradeoffs here during implementation
+- winning local implementation:
+  - shared baseline + endpoint overlays + structural guardrails
+  - review route profile: `review-extraction/review-cloud-v1`
+  - extraction route profile: `review-extraction/extraction-cloud-v1`
+  - warning route profile: `review-extraction/warning-cloud-v1`
+  - batch route profile: `review-extraction/batch-cloud-v1`
+  - guardrail policy: `review-extraction/structural-guardrails-cloud-v1`
+- winning local behavior:
+  - route and batch surfaces now resolve prompt policy centrally from endpoint surface + extraction mode
+  - contradictory no-text outputs are sanitized into explicit uncertainty instead of surfacing fake certainty
+  - warning-absent outputs preserve absence while downgrading unsupported warning-signal certainty
+  - local-mode overlays and guardrails now downgrade formatting/spatial claims instead of promoting them
+- attempted traced evidence:
+  - direct route-surface probe root id: `019d8f14-2b7c-7000-8000-00a681dfeb29`
+  - nested extraction span id: `019d8f14-2b81-7000-8000-034d26f75baa`
+- current blocker:
+  - `LANGSMITH_TRACING=true LANGSMITH_TEST_TRACKING=true npm run eval:golden` fails with `401 Unauthorized` on `/datasets`
+  - direct traced probe generates local trace ids but upload returns `403 Forbidden`
+- remaining persona tradeoffs:
+  - none observed in fixture-backed evals
+  - external trace publication is still blocked by LangSmith auth, so the story cannot yet record a published winning trace set

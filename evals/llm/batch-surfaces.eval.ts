@@ -2,16 +2,20 @@ import { afterEach, expect } from 'vitest';
 import * as ls from 'langsmith/vitest';
 
 import {
-  REVIEW_EXTRACTION_GUARDRAIL_POLICY,
   REVIEW_EXTRACTION_MODE,
-  REVIEW_EXTRACTION_PROMPT_PROFILE,
   REVIEW_EXTRACTION_PROVIDER
 } from '../../src/server/llm-policy';
+import { resolveReviewPromptPolicy } from '../../src/server/review-prompt-policy';
 import { batchEndpointCases, type BatchEndpointCase } from './support/endpoint-cases';
 import { summarizeBatchSummary } from './support/output-summaries';
 import { cleanupTestResources, runBatchEvalCase } from './support/route-runner';
 
 afterEach(cleanupTestResources);
+
+const BATCH_PROMPT_POLICY = resolveReviewPromptPolicy({
+  surface: '/api/batch/run',
+  extractionMode: REVIEW_EXTRACTION_MODE
+});
 
 function requireBatchCase(caseId: string): BatchEndpointCase {
   const caseItem = batchEndpointCases.find((entry) => entry.caseId === caseId);
@@ -47,8 +51,8 @@ ls.describe('TTB batch route golden evals', () => {
       title: caseItem.title,
       extractionMode: REVIEW_EXTRACTION_MODE,
       provider: REVIEW_EXTRACTION_PROVIDER,
-      promptProfile: REVIEW_EXTRACTION_PROMPT_PROFILE,
-      guardrailPolicy: REVIEW_EXTRACTION_GUARDRAIL_POLICY,
+      promptProfile: BATCH_PROMPT_POLICY.promptProfile,
+      guardrailPolicy: BATCH_PROMPT_POLICY.guardrailPolicy,
       fixtureMode: 'golden-fixture',
       runLatencyMs: result.runLatencyMs,
       retryLatencyMs: result.retryLatencyMs,

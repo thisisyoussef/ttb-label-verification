@@ -220,6 +220,10 @@ describe('Gemini review extractor', () => {
         mediaResolution: 'high',
         serviceTier: 'priority',
         thinkingBudget: 0
+      },
+      context: {
+        surface: '/api/batch/run',
+        extractionMode: 'local'
       }
     });
 
@@ -235,6 +239,11 @@ describe('Gemini review extractor', () => {
     const contents = Array.isArray(request.contents)
       ? request.contents
       : [request.contents];
+    expect(contents[0]).toMatchObject({
+      text: expect.stringContaining(
+        'Keep degradation item-local and concise so one weak label does not inflate session-wide noise.'
+      )
+    });
     expect(contents[1]).toMatchObject({
       inlineData: {
         mimeType: 'image/png'

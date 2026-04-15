@@ -1,6 +1,6 @@
 # Single Source of Truth
 
-Last updated: 2026-04-15 (`TTB-108` is complete with extraction-mode selection, mode-aware processing/failure states, session-timeout warning flow, and guided-tour follow-through fixes; `TTB-208` is complete with privacy-safe stage timing, route and batch latency summaries, and synthetic internal core-six smoke assets; `TTB-209` is now complete with smarter Gemini request defaults, checked-in `latency-twenty` assets, measured prompt and tier experiments, and a raised checked-in `GEMINI_TIMEOUT_MS=5000` default while the public `latencyBudgetMs` contract stays at `5000`; `TTB-211` stays complete as the route-aware eval foundation; `TTB-212` local-model work was scrapped and its packet was moved to archive by user request)
+Last updated: 2026-04-15 (`TTB-108` is complete with extraction-mode selection, mode-aware processing/failure states, session-timeout warning flow, and guided-tour follow-through fixes; `TTB-208` is complete with privacy-safe stage timing, route and batch latency summaries, and synthetic internal core-six smoke assets; `TTB-209` is now complete with smarter Gemini request defaults, checked-in `latency-twenty` assets, measured prompt and tier experiments, and a raised checked-in `GEMINI_TIMEOUT_MS=5000` default while the public `latencyBudgetMs` contract stays at `5000`; `TTB-210` now has centralized prompt-policy plus structural guardrails landed locally with tests, build, and fixture evals green, but its traced LangSmith evidence is blocked by current auth failures (`401 /datasets` in the Vitest flow and `403` on direct trace upload); `TTB-211` stays complete as the route-aware eval foundation; `TTB-212` local-model work was scrapped and its packet was moved to archive by user request)
 
 ## Continue resolution
 
@@ -41,12 +41,12 @@ Last updated: 2026-04-15 (`TTB-108` is complete with extraction-mode selection, 
 ## Active pointers
 
 - Active Claude story: none in progress (`TTB-108` Claude lane complete and approved 2026-04-14)
-- Active Codex story: none in progress
+- Active Codex story: `TTB-210` in progress
 - Next ready for Claude: none queued
 - Next preferred for Codex: none queued
 - Next blocking for Codex: `TTB-210`, then `TTB-401`
-- Current blocker owner: none
-- Current manual user action: none
+- Current blocker owner: user
+- Current manual user action: refresh the repo-local LangSmith credentials so traced `TTB-210` evidence can publish cleanly
 
 ## Story queue snapshot
 
@@ -72,7 +72,7 @@ Last updated: 2026-04-15 (`TTB-108` is complete with extraction-mode selection, 
 | 17 | `TTB-207` | `TTB-002` | cloud extraction mode: Gemini-primary with OpenAI fallback and cross-provider validation | Codex | `done` | keep the packet, sanitized LangSmith comparison traces, and manual AI Studio logging-verification note as the record of the Gemini-primary cloud cutover | none |
 | 18 | `TTB-208` | `TTB-002` | cloud/default latency observability and sub-4-second budget framing | Codex | `done` | keep the packet, latency observer path, eval result, and synthetic internal core-six asset note as the record of the completed timing foundation | none |
 | 19 | `TTB-209` | `TTB-002` | cloud/default Gemini hot-path tuning and latency policy hardening | Codex | `done` | keep the winning Gemini defaults, the 20-case latency corpus, the eval result, and the explicit non-cutover note as the record of the completed cloud-baseline hardening slice | none |
-| 21 | `TTB-210` | `TTB-002` | persona-centered prompt profiles and endpoint plus mode guardrails | Codex | `ready` | harden the shared extraction path with endpoint-aware prompt profiles plus structural guardrails on the shipped cloud path | none |
+| 21 | `TTB-210` | `TTB-002` | persona-centered prompt profiles and endpoint plus mode guardrails | Codex | `in-progress` | publish the remaining traced evidence after refreshing LangSmith auth; local code, tests, build, and fixture evals are already green | LangSmith auth currently fails with `401 /datasets` in the tracked eval flow and `403` on direct trace upload |
 | 22 | `TTB-211` | `TTB-002` | LLM endpoint and mode eval matrix, persona scorecards, and trace regression gates | Codex | `done` | keep the endpoint-aware eval harness, route-surface trace evidence, persona scorecards, trace guidance, and CI golden gate as the record of the completed route-aware regression slice | none |
 | 23 | `TTB-401` | `TTB-004` | final privacy, performance, eval, and submission pack | Codex | `blocked-by-dependency` | run the release gate and package the submission | `TTB-208`, `TTB-209`, and `TTB-210` complete |
 

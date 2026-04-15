@@ -204,6 +204,10 @@ describe('OpenAI review extractor', () => {
         store: false,
         imageDetail: 'auto',
         serviceTier: 'priority'
+      },
+      context: {
+        surface: '/api/review/warning',
+        extractionMode: 'cloud'
       }
     });
 
@@ -212,6 +216,12 @@ describe('OpenAI review extractor', () => {
     expect(request.service_tier).toBe('priority');
     expect(request.text).toBeDefined();
     const content = requestContent(request);
+    expect(content[0]).toMatchObject({
+      type: 'input_text'
+    });
+    expect((content[0] as { text: string }).text).toContain(
+      'Prioritize exact government warning text, punctuation, and warning visual signals.'
+    );
 
     expect(content[1]).toMatchObject({
       type: 'input_image',

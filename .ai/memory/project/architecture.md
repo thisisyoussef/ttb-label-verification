@@ -46,5 +46,6 @@
 - Explicit local-mode selection must stay local-only; no silent cloud escape hatch once the user picks `local`
 - Latency instrumentation must stay privacy-safe: no raw prompt/input logging, no raw filenames, and no durable timing artifacts that contain user content
 - Prompt and eval hardening should stay centralized: one shared extraction baseline, small endpoint/mode overlays, structural guardrails, and endpoint-aware eval scorecards rather than route-local prompt strings
+- Prompt-policy hardening slice: `src/server/review-prompt-policy.ts` now resolves provider-agnostic prompt intent from route surface (`review`, `extraction`, `warning`, `batch`) plus extraction mode (`cloud`, `local`), and `src/server/review-extractor-guardrails.ts` applies structural post-parse degradation before the adapters finalize `ReviewExtraction`
 - Low-confidence visual judgments downgrade to `review`
 - Workflow and eval foundations gate later story pickup; once those are clear, ready approved `TTB-1xx` handoffs are preferred before later blocking `TTB-2xx+` Codex work

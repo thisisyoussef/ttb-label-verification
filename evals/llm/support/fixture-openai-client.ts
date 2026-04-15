@@ -1,10 +1,9 @@
 import { traceable } from 'langsmith/traceable';
 
 import {
-  REVIEW_EXTRACTION_GUARDRAIL_POLICY,
-  REVIEW_EXTRACTION_PROMPT_PROFILE,
   REVIEW_EXTRACTION_PROVIDER
 } from '../../../src/server/llm-policy';
+import { resolveReviewPromptPolicy } from '../../../src/server/review-prompt-policy';
 import type { RawReviewModelOutput } from '../../../src/server/testing/llm-fixture-builders';
 
 type FixtureParseRequest = {
@@ -86,6 +85,38 @@ function summarizeOutput(output: RawReviewModelOutput) {
   };
 }
 
+function inferFixturePromptPolicy(request: FixtureParseRequest) {
+  const firstMessage = request.input?.[0];
+  const content = Array.isArray(firstMessage?.content) ? firstMessage.content : [];
+  const promptText = content.find(
+    (part): part is Exclude<(typeof content)[number], string> =>
+      typeof part !== 'string' && part?.type === 'input_text'
+  );
+  const prompt = (promptText as { text?: string } | undefined)?.text;
+
+  const surfaces = [
+    '/api/review',
+    '/api/review/extraction',
+    '/api/review/warning',
+    '/api/batch/run'
+  ] as const;
+
+  for (const surface of surfaces) {
+    const policy = resolveReviewPromptPolicy({
+      surface,
+      extractionMode: 'cloud'
+    });
+    if (policy.prompt === prompt) {
+      return policy;
+    }
+  }
+
+  return resolveReviewPromptPolicy({
+    surface: '/api/review',
+    extractionMode: 'cloud'
+  });
+}
+
 export function createFixtureOpenAIClient(
   scripts: FixtureOpenAIResponseScript[]
 ) {
@@ -133,11 +164,12 @@ export function createFixtureOpenAIClient(
       processInputs: (request) => {
         const byteSignature = extractByteSignature(request);
         const script = scriptsBySignature.get(byteSignature);
+        const promptPolicy = inferFixturePromptPolicy(request);
 
         return {
           provider: REVIEW_EXTRACTION_PROVIDER,
-          promptProfile: REVIEW_EXTRACTION_PROMPT_PROFILE,
-          guardrailPolicy: REVIEW_EXTRACTION_GUARDRAIL_POLICY,
+          promptProfile: promptPolicy.promptProfile,
+          guardrailPolicy: promptPolicy.guardrailPolicy,
           model: request.model,
           store: request.store,
           fixtureId: script?.fixtureId ?? 'unknown-fixture',

@@ -51,6 +51,7 @@
 - Stage timing should stay behind one typed capture seam (`src/server/review-latency.ts`) that records bounded spans, provider order, fallback classification, and total duration, then emits through an observer so route handlers and evals can inspect latency without expanding the public response contract.
 - Debug timing visibility should stay environment-gated (`TTB_DEBUG_LATENCY=1`) and feed console or eval observers rather than becoming a stable reviewer-facing API surface.
 - Prompt hardening should follow the same central-policy pattern as extraction routing: one shared extraction baseline, route-specific overlays for review/extraction/warning/batch, mode-specific overlays for cloud/local limits, and structural guardrails after schema parse instead of prompt strings embedded in route handlers.
+- When no-text extraction output is internally contradictory, prefer sanitizing it into explicit uncertainty over raising an adapter error, unless the route truly cannot shape a safe typed payload afterward.
 - LLM evaluation should stay endpoint-aware, mode-aware, and persona-aware: score the route graph the way Sarah, Dave, Jenny, Marcus, and Janet experience it instead of relying on corpus accuracy alone.
 - Endpoint-aware eval and trace artifacts must record extraction mode alongside endpoint surface, provider, prompt profile, and guardrail policy, even when only one live mode is implemented today.
 - Shared extraction tracing should wrap the capability once and feed the route surface into the wrapper instead of duplicating trace plumbing in each handler.
