@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppShell } from './AppShell';
 import { AuthScreen } from './AuthScreen';
 import {
   advanceAuthPhase,
-  advanceSessionTimeoutCountdown,
   applyMockAuthSignOutReset,
   getSessionTimeoutSeconds,
   SESSION_TIMEOUTS,
@@ -37,6 +36,8 @@ export function App() {
   const [sessionRemainingMs, setSessionRemainingMs] = useState<number>(
     SESSION_TIMEOUTS.inactivityMs
   );
+  const lastActivityRef = useRef(Date.now());
+  const [sessionExpired, setSessionExpired] = useState(false);
   const [pendingVerifyTourAdvance, setPendingVerifyTourAdvance] = useState(false);
 
   const single = useSingleReviewFlow({
@@ -234,21 +235,26 @@ export function App() {
     help.onFinishTour();
   }, [batch, help, single]);
 
-  const performSignOut = useCallback(() => {
-    setExtractionMode('local');
-    setSessionRemainingMs(SESSION_TIMEOUTS.inactivityMs);
-    applyMockAuthSignOutReset({
-      setPendingVerifyTourAdvance,
-      resetSingle: single.reset,
-      resetBatch: batch.reset,
-      resetHelp: help.reset,
-      setMode,
-      setView,
-      setAuthPhase
-    });
-  }, [batch, help.reset, setAuthPhase, single.reset]);
+  const performSignOut = useCallback(
+    (reason?: 'timeout') => {
+      setExtractionMode('local');
+      setSessionRemainingMs(SESSION_TIMEOUTS.inactivityMs);
+      setSessionExpired(reason === 'timeout');
+      applyMockAuthSignOutReset({
+        setPendingVerifyTourAdvance,
+        resetSingle: single.reset,
+        resetBatch: batch.reset,
+        resetHelp: help.reset,
+        setMode,
+        setView,
+        setAuthPhase
+      });
+    },
+    [batch, help.reset, setAuthPhase, single.reset]
+  );
 
   const resetSessionTimeout = useCallback(() => {
+    lastActivityRef.current = Date.now();
     setSessionRemainingMs(SESSION_TIMEOUTS.inactivityMs);
   }, []);
 
@@ -258,8 +264,11 @@ export function App() {
       return;
     }
 
+    lastActivityRef.current = Date.now();
+
     const handle = window.setInterval(() => {
-      setSessionRemainingMs((current) => advanceSessionTimeoutCountdown(current));
+      const elapsed = Date.now() - lastActivityRef.current;
+      setSessionRemainingMs(Math.max(0, SESSION_TIMEOUTS.inactivityMs - elapsed));
     }, SESSION_TIMEOUTS.tickMs);
 
     return () => window.clearInterval(handle);
@@ -275,6 +284,7 @@ export function App() {
     }
 
     const onActivity = () => {
+      lastActivityRef.current = Date.now();
       setSessionRemainingMs(SESSION_TIMEOUTS.inactivityMs);
     };
 
@@ -297,11 +307,24 @@ export function App() {
   }, [authPhase, sessionRemainingMs]);
 
   useEffect(() => {
+    if (authPhase !== 'signed-in') return;
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState !== 'visible') return;
+      const elapsed = Date.now() - lastActivityRef.current;
+      setSessionRemainingMs(Math.max(0, SESSION_TIMEOUTS.inactivityMs - elapsed));
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, [authPhase]);
+
+  useEffect(() => {
     if (authPhase !== 'signed-in' || sessionRemainingMs > 0) {
       return;
     }
 
-    performSignOut();
+    performSignOut('timeout');
   }, [authPhase, performSignOut, sessionRemainingMs]);
 
   const sessionTimeoutOpen =
@@ -312,10 +335,17 @@ export function App() {
     return (
       <AuthScreen
         phase={authPhase}
+        sessionExpired={sessionExpired}
         extractionMode={extractionMode}
         onExtractionModeChange={setExtractionMode}
-        onStartPiv={() => setAuthPhase('piv-loading')}
-        onStartSsoForm={() => setAuthPhase('sso-form')}
+        onStartPiv={() => {
+          setSessionExpired(false);
+          setAuthPhase('piv-loading');
+        }}
+        onStartSsoForm={() => {
+          setSessionExpired(false);
+          setAuthPhase('sso-form');
+        }}
         onBackFromSso={() => setAuthPhase('signed-out')}
         onSubmitSso={() => setAuthPhase('sso-loading')}
         onPhaseComplete={() => setAuthPhase((previous) => advanceAuthPhase(previous))}
@@ -342,7 +372,7 @@ export function App() {
       sessionTimeoutOpen={sessionTimeoutOpen}
       sessionTimeoutRemainingSeconds={sessionTimeoutRemainingSeconds}
       onExtractionModeChange={setExtractionMode}
-      onSignOut={performSignOut}
+      onSignOut={() => performSignOut()}
       onStaySignedIn={resetSessionTimeout}
       onTourNext={onTourNext}
       onTourAdvanceInteraction={onTourAdvanceInteraction}

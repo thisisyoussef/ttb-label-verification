@@ -27,7 +27,7 @@ export function SessionTimeoutModal({
         <div className="flex items-start gap-3">
           <span
             aria-hidden="true"
-            className="material-symbols-outlined text-[24px] text-primary"
+            className="material-symbols-outlined text-[24px] text-caution"
           >
             schedule
           </span>
@@ -42,9 +42,15 @@ export function SessionTimeoutModal({
               id="session-timeout-description"
               className="text-sm leading-6 text-on-surface-variant"
             >
-              For security, this prototype signs out after 15 minutes of inactivity.
-              You will be signed out in {remainingSeconds} second
-              {remainingSeconds === 1 ? '' : 's'} unless you choose to stay signed in.
+              For security, sessions expire after 15 minutes of inactivity.
+              You will be signed out in{' '}
+              <span className="font-semibold text-on-surface tabular-nums">
+                {remainingSeconds}
+              </span>{' '}
+              second{remainingSeconds === 1 ? '' : 's'}.
+            </p>
+            <p className="text-sm leading-6 text-on-surface-variant">
+              Select <strong className="text-on-surface">Yes, continue session</strong> to stay signed in.
             </p>
           </div>
         </div>
@@ -59,9 +65,10 @@ export function SessionTimeoutModal({
           <button
             type="button"
             onClick={onStaySignedIn}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-label font-semibold text-on-primary hover:brightness-110 transition-all"
+            autoFocus
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-label font-semibold text-on-primary hover:brightness-110 transition-all focus-visible:outline-2 focus-visible:outline-offset-2"
           >
-            Stay signed in
+            Yes, continue session
           </button>
         </div>
       </div>

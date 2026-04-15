@@ -100,6 +100,44 @@ describe('AuthScreen', () => {
     expect(html).toContain('Mock auth — either path simulates success. No real credentials are checked.');
   });
 
+  it('renders the session-expired banner after inactivity timeout', () => {
+    const html = renderToStaticMarkup(
+      <AuthScreen
+        phase="signed-out"
+        sessionExpired={true}
+        extractionMode="local"
+        onExtractionModeChange={vi.fn()}
+        onStartPiv={vi.fn()}
+        onStartSsoForm={vi.fn()}
+        onBackFromSso={vi.fn()}
+        onSubmitSso={vi.fn()}
+        onPhaseComplete={vi.fn()}
+      />
+    );
+
+    expect(html).toContain('Your session has expired');
+    expect(html).toContain('15 minutes of inactivity');
+    expect(html).toContain('Sign in again to continue');
+  });
+
+  it('does not render the session-expired banner on normal sign-out', () => {
+    const html = renderToStaticMarkup(
+      <AuthScreen
+        phase="signed-out"
+        sessionExpired={false}
+        extractionMode="local"
+        onExtractionModeChange={vi.fn()}
+        onStartPiv={vi.fn()}
+        onStartSsoForm={vi.fn()}
+        onBackFromSso={vi.fn()}
+        onSubmitSso={vi.fn()}
+        onPhaseComplete={vi.fn()}
+      />
+    );
+
+    expect(html).not.toContain('Your session has expired');
+  });
+
   it('renders the SSO form guidance and placeholder copy', () => {
     const html = renderToStaticMarkup(
       <AuthScreen
@@ -165,7 +203,7 @@ describe('SessionTimeoutModal', () => {
     const html = renderToStaticMarkup(
       <SessionTimeoutModal
         open={true}
-        remainingSeconds={60}
+        remainingSeconds={120}
         onStaySignedIn={vi.fn()}
         onSignOut={vi.fn()}
       />
@@ -173,8 +211,8 @@ describe('SessionTimeoutModal', () => {
 
     expect(html).toContain('Your session is about to expire');
     expect(html).toContain('15 minutes of inactivity');
-    expect(html).toContain('You will be signed out in 60 seconds');
-    expect(html).toContain('Stay signed in');
+    expect(html).toContain('120');
+    expect(html).toContain('Yes, continue session');
   });
 });
 

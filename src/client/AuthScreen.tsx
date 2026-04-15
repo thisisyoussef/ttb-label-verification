@@ -7,6 +7,7 @@ import { AuthScreenGovernmentBanner } from './AuthScreenGovernmentBanner';
 
 interface AuthScreenProps {
   phase: AuthPhase;
+  sessionExpired?: boolean;
   extractionMode: ExtractionMode;
   onExtractionModeChange: (mode: ExtractionMode) => void;
   onStartPiv: () => void;
@@ -18,6 +19,7 @@ interface AuthScreenProps {
 
 export function AuthScreen({
   phase,
+  sessionExpired,
   extractionMode,
   onExtractionModeChange,
   onStartPiv,
@@ -56,6 +58,30 @@ export function AuthScreen({
         onToggle={() => setDisclosureOpen((prev) => !prev)}
       />
       <main className="flex-1 flex items-center justify-center px-6 py-8 xl:py-12">
+        {sessionExpired && phase === 'signed-out' && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="absolute top-[60px] left-1/2 -translate-x-1/2 z-10 w-full max-w-[440px] px-4"
+          >
+            <div className="flex items-start gap-3 rounded-lg border border-caution/30 bg-caution/8 px-4 py-3 shadow-ambient">
+              <span
+                aria-hidden="true"
+                className="material-symbols-outlined text-[20px] text-caution mt-0.5"
+              >
+                schedule
+              </span>
+              <div>
+                <p className="font-label text-sm font-semibold text-on-surface">
+                  Your session has expired
+                </p>
+                <p className="mt-0.5 font-body text-xs text-on-surface-variant leading-relaxed">
+                  You were signed out after 15 minutes of inactivity. Sign in again to continue.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         <section
           role="main"
           aria-labelledby="auth-card-heading"
