@@ -28,11 +28,13 @@
     "stitch:smoke": "tsx scripts/stitch-smoke-test.ts",
     "stitch:mcp-proxy": "tsx scripts/stitch-mcp-proxy.ts",
     "stitch:story": "tsx scripts/stitch-story.ts",
-    "generate:label-assets": "tsx scripts/generate-live-label-assets.ts"
+    "generate:label-assets": "tsx scripts/generate-live-label-assets.ts",
+    "model:cache": "tsx scripts/cache-local-model.ts"
   },
   "dependencies": {
     "@google/genai": "^1.50.0",
     "@google/stitch-sdk": "^0.1.0",
+    "@huggingface/transformers": "^4.0.1",
     "@types/multer": "^2.1.0",
     "express": "^4.21.2",
     "langsmith": "^0.5.18",
