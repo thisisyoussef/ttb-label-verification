@@ -40,7 +40,7 @@ export function BatchUpload(props: BatchUploadProps) {
   );
 
   return (
-    <div className="max-w-[1400px] mx-auto w-full px-6 py-10">
+    <div className="max-w-[1400px] mx-auto w-full px-6 py-6 xl:py-10">
       <div className="flex flex-col gap-6">
         <header className="flex flex-col gap-2">
           <h1 className="font-headline text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight">

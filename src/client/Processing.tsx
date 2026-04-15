@@ -1,5 +1,9 @@
+import { useEffect, useState } from 'react';
 import type { ExtractionMode } from './appTypes';
 import type { BeverageSelection, LabelImage, ProcessingPhase, ProcessingStep } from './types';
+
+const LATE_STAGE_DELAY_MS = 4000;
+const LATE_STAGE_LABEL = 'Still assembling the verification report\u2026';
 
 const BEVERAGE_LABELS: Record<BeverageSelection, string> = {
   auto: 'Auto-detect',
@@ -36,9 +40,32 @@ export function Processing({
   onBackToIntake,
   onSwitchToCloud
 }: ProcessingProps) {
+  const lastStep = steps[steps.length - 1];
+  const lastStepActive = lastStep?.status === 'active';
+
+  const [lateStageLabel, setLateStageLabel] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!lastStepActive || phase !== 'running') {
+      setLateStageLabel(null);
+      return;
+    }
+    const timer = window.setTimeout(
+      () => setLateStageLabel(LATE_STAGE_LABEL),
+      LATE_STAGE_DELAY_MS
+    );
+    return () => window.clearTimeout(timer);
+  }, [lastStepActive, phase]);
+
+  const displaySteps = steps.map((step, index) =>
+    index === steps.length - 1 && lateStageLabel
+      ? { ...step, label: lateStageLabel }
+      : step
+  );
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-12 min-h-[calc(100vh-56px)]">
-      <aside className="md:col-span-4 lg:col-span-3 bg-surface-container-low p-6 lg:p-8 flex flex-col gap-6 border-r border-outline-variant/15">
+    <div className="grid grid-cols-1 md:grid-cols-12 h-[calc(100dvh-var(--header-h))]">
+      <aside className="md:col-span-4 lg:col-span-3 bg-surface-container-low p-4 lg:p-6 xl:p-8 flex flex-col gap-4 xl:gap-6 border-r border-outline-variant/15 overflow-y-auto">
         <h2 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
           Intake context
         </h2>
@@ -115,9 +142,9 @@ export function Processing({
         </div>
       </aside>
 
-      <section className="md:col-span-8 lg:col-span-9 bg-background px-6 md:px-10 lg:px-16 py-10 lg:py-12 flex flex-col gap-10">
+      <section className="md:col-span-8 lg:col-span-9 bg-background px-6 md:px-8 xl:px-16 py-6 xl:py-12 flex flex-col gap-6 xl:gap-10 overflow-y-auto">
         <header>
-          <h1 className="font-headline text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight">
+          <h1 className="font-headline text-2xl xl:text-4xl font-extrabold text-on-surface tracking-tight">
             Reviewing this label
             {extractionMode === 'local' ? (
               <span className="text-on-surface-variant font-semibold"> — local extraction</span>
@@ -131,7 +158,7 @@ export function Processing({
         </header>
 
         <ol role="list" aria-live="polite" className="flex flex-col gap-1 max-w-3xl">
-          {steps.map((step, index) => (
+          {displaySteps.map((step, index) => (
             <li key={step.id}>
               <StepRow step={step} index={index + 1} />
             </li>

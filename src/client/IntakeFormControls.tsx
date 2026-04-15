@@ -97,7 +97,7 @@ export function TextField({
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
         className={[
-          'bg-surface-container-lowest border-0 border-b-2 border-outline-variant/20 focus:border-primary focus:ring-0 text-on-surface py-3 px-3 rounded-t-sm transition-colors',
+          'bg-surface-container-lowest border-0 border-b-2 border-outline-variant/20 focus:border-primary focus:ring-0 text-on-surface py-3.5 px-3 rounded-t-sm transition-colors min-h-[46px]',
           monospace ? 'font-mono' : 'font-body'
         ].join(' ')}
       />
@@ -135,7 +135,7 @@ export function TextAreaField({
         rows={3}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="bg-surface-container-lowest border border-outline-variant/20 focus:border-primary focus:ring-0 text-on-surface py-3 px-3 rounded-lg font-body resize-none"
+        className="bg-surface-container-lowest border border-outline-variant/20 focus:border-primary focus:ring-0 text-on-surface py-3.5 px-3 rounded-lg font-body resize-none"
       />
       {hint ? (
         <span className="text-xs text-on-surface-variant/80 font-label">

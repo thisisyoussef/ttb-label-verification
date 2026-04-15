@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useRef } from 'react';
 import { BackBreadcrumb } from './BackBreadcrumb';
 import { BatchDashboard } from './BatchDashboard';
 import { BatchDrillInShell } from './BatchDrillInShell';
@@ -68,6 +69,24 @@ export function AppShell({
   onTourShowMe,
   onTourShowMeAndContinue
 }: AppShellProps) {
+  const headerRef = useRef<HTMLElement>(null);
+
+  const syncHeaderHeight = useCallback(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const h = el.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--header-h', `${h}px`);
+  }, []);
+
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    syncHeaderHeight();
+    const ro = new ResizeObserver(syncHeaderHeight);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [syncHeaderHeight]);
+
   return (
     <div className="min-h-full flex flex-col bg-background">
       <SessionTimeoutModal
@@ -76,7 +95,7 @@ export function AppShell({
         onStaySignedIn={onStaySignedIn}
         onSignOut={onSignOut}
       />
-      <header className="bg-surface-container-low border-b border-outline-variant/15 sticky top-0 z-40">
+      <header ref={headerRef} className="bg-surface-container-low border-b border-outline-variant/15 sticky top-0 z-40">
         <div className="max-w-[1400px] mx-auto w-full px-6 py-3 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-8">
             <div className="flex flex-col">

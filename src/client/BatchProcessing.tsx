@@ -36,7 +36,7 @@ export function BatchProcessing(props: BatchProcessingProps) {
     progress.total > 0 ? Math.min(100, Math.round((progress.done / progress.total) * 100)) : 0;
 
   return (
-    <div className="max-w-[1400px] mx-auto w-full px-6 py-10">
+    <div className="max-w-[1400px] mx-auto w-full px-6 py-6 xl:py-10">
       <div className="flex flex-col gap-8">
         <Header
           phase={phase}

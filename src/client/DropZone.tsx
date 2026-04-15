@@ -143,7 +143,7 @@ export function DropZone({ image, disabled, onAccept, onRemove }: DropZoneProps)
         onDragLeave={onDragLeave}
         onDrop={onDrop}
         className={[
-          'relative flex flex-col items-center justify-center text-center rounded-lg px-12 py-16 transition-colors cursor-pointer',
+          'relative flex flex-col items-center justify-center text-center rounded-lg px-8 py-10 xl:px-12 xl:py-16 transition-colors cursor-pointer',
           'border-2 border-dashed',
           isDragOver
             ? 'border-primary bg-primary-container/40'
