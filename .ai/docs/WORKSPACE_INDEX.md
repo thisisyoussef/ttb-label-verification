@@ -2,6 +2,7 @@
 
 - `AGENTS.md` — canonical execution contract
 - `docs/process/SINGLE_SOURCE_OF_TRUTH.md` — canonical checked-in active story, owner, and handoff tracker
+- `docs/process/BRANCH_TRACKER.md` — canonical checked-in branch registry for description, status, PR state, and closeout notes
 - `docs/specs/FULL_PRODUCT_SPEC.md` — product-wide blueprint and leaf-story decomposition
 - `docs/reference/env-audit-2026-04-13.md` — current local env and API-key audit for this repo
 - `docs/process/TRACE_DRIVEN_DEVELOPMENT.md` — LangSmith-backed trace loop for prompt, model, tool-call, and agentic tuning
@@ -15,6 +16,8 @@
 - `stryker.config.mjs` — targeted mutation-testing configuration for high-risk pure logic
 - `scripts/validate-evals.ts` — validates the full golden manifest against the live core-six subset
 - `scripts/git-story-gate.ts` — shared local commit, push, and publish gate command implementation
+- `scripts/branch-tracker.ts` — branch-tracker helpers for active-row upsert, closeout, and branch-name parsing
+- `scripts/story-branch.ts` — helper CLI for opening, updating, and closing tracked story branches
 - `scripts/install-git-hooks.ts` — installs repo-managed git hooks by setting `core.hooksPath=.githooks`
 - `.githooks/pre-commit` — automatically runs `npm run gate:commit`
 - `.githooks/pre-push` — automatically runs `npm run gate:push`
@@ -42,6 +45,7 @@
 - `docs/backlog/codex-handoffs/TEMPLATE.md` — template Claude fills before Codex engineering starts
 - `docs/specs/README.md` — standard feature artifact layout
 - `docs/specs/TTB-WF-001/` — current workflow-foundation spec packet
+- `docs/specs/TTB-WF-003/` — branch tracker and story-branch workflow packet
 - `.ai/codex.md` — Codex execution mirror
 - `.ai/agents/claude.md` — Claude execution mirror
 - `.ai/workflows/README.md` — lookup, sizing, spec, eval, handoff, and TDD gates

@@ -118,3 +118,4 @@
 - Treat any future sub-`4000 ms` push as a new measured follow-on rather than carrying the old stretch target forward as if it had been proved.
 - Pull the user-requested `TTB-WF-002` follow-on immediately after `TTB-209` merged, and keep that maintenance story narrowly focused on shrinking large mixed-responsibility files plus preserving the 500-line source-size guard in repo gates.
 - For maintenance cleanup in this repo, prefer flat sibling extraction (`AuthScreen*`, `GuidedTour*`, `register-*.ts`) over nested folders or barrel indirection so the refactor improves reviewability without changing the codebase shape.
+- Add `docs/process/BRANCH_TRACKER.md` as the checked-in branch registry separate from `docs/process/SINGLE_SOURCE_OF_TRUTH.md`, and require story branches to create, update, and close their own tracker row through `npm run story:branch -- open|update|close`.

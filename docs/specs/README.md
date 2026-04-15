@@ -66,6 +66,7 @@ Current checked-in packet:
 - `FULL_PRODUCT_SPEC.md` — full product blueprint, architecture shape, env needs, and leaf-story map
 - `PROJECT_STORY_INDEX.md` — project completion story queue
 - `TTB-WF-001/` — workflow foundation upgrade
+- `TTB-WF-003/` — branch tracker and story-branch workflow
 - `TTB-EVAL-001/` — golden eval set foundation and run discipline
 - `TTB-001/` — single-label reviewer workflow and evidence surfaces
 - `TTB-002/` — single-label compliance engine and recommendation API

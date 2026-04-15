@@ -15,9 +15,10 @@ This file is the canonical operating contract for this project. `.ai/` mirrors i
 9. `docs/reference/product-docs/README.md`
 10. `docs/process/DEPLOYMENT_FLOW.md`
 11. `docs/process/GIT_HYGIENE.md`
-12. `CLAUDE.md`
-13. `.ai/docs/WORKSPACE_INDEX.md`
-14. `src/shared/contracts/review.ts`
+12. `docs/process/BRANCH_TRACKER.md`
+13. `CLAUDE.md`
+14. `.ai/docs/WORKSPACE_INDEX.md`
+15. `src/shared/contracts/review.ts`
 
 ## Working model
 
@@ -26,6 +27,7 @@ This file is the canonical operating contract for this project. `.ai/` mirrors i
 - Treat `docs/specs/` as the checked-in home for standard feature planning artifacts.
 - Treat `docs/rules/` and `evals/` as project-specific quality rails for compliance traceability and model/validator evaluation.
 - Treat `docs/process/SINGLE_SOURCE_OF_TRUTH.md` as the canonical checked-in tracker for lane status, active story, and handoff gates.
+- Treat `docs/process/BRANCH_TRACKER.md` as the canonical checked-in tracker for branch lifecycle metadata, description, and PR state.
 
 ## Documentation sources
 
@@ -40,6 +42,7 @@ Use the checked-in docs deliberately, not as background noise:
 - `docs/process/STITCH_AUTOMATION.md` for the Claude-direct default UI flow plus automated/manual Stitch alternatives
 - `docs/process/DEPLOYMENT_FLOW.md` for repo bootstrap, Railway CLI flow, and story-to-deploy wiring
 - `docs/process/GIT_HYGIENE.md` for branch, commit, push, and merge gates
+- `docs/process/BRANCH_TRACKER.md` for active branch metadata and lifecycle state
 - `docs/design/MASTER_DESIGN.md` for durable UI direction
 - `docs/rules/` for rule traceability and source mapping
 - `evals/` for required label scenarios, expected outcomes, and run records
@@ -95,6 +98,7 @@ Use the checked-in docs deliberately, not as background noise:
 - Run `.ai/workflows/story-lookup.md` before meaningful implementation.
 - Run `.ai/workflows/story-sizing.md` to classify the task as `trivial` or `standard`.
 - Starting any new story, feature, or tightly-coupled workflow item requires creating or switching to a fresh story-scoped branch before packet or code edits, even if the current branch is another valid story branch.
+- Starting any new story, feature, or tightly-coupled workflow item also requires adding or updating that branch in `docs/process/BRANCH_TRACKER.md`; use `npm run story:branch -- open ...` or `update ...` instead of leaving branch metadata implicit.
 - Before implementation, map the blast radius for the surfaces the story will touch. Search for dependent routes, shared contracts, fixtures, evals, packet docs, handoff docs, and adjacent user flows that consume those surfaces instead of assuming the change is local.
 - Treat `docs/specs/<story-id>/` as the universal story packet for both frontend and backend work. Claude and Codex read the same packet and update the parts owned by their lane.
 - Use `docs/specs/FULL_PRODUCT_SPEC.md` plus `docs/specs/PROJECT_STORY_INDEX.md` as the full checked-in map of the product. The legacy `TTB-001` through `TTB-004` folders are umbrella packets; the `TTB-1xx`, `TTB-2xx`, `TTB-3xx`, and `TTB-4xx` stories are the executable leaf queue.
@@ -102,6 +106,7 @@ Use the checked-in docs deliberately, not as background noise:
 - Deployment scaffolding lives in repo code and process docs: `.github/workflows/`, `railway.toml`, `scripts/bootstrap-github-repo.sh`, and `docs/process/DEPLOYMENT_FLOW.md`.
 - Use the local `railway` CLI for Railway bootstrap, status, logs, and manual spot checks. Do not treat ad hoc dashboard clicks as the harness source of truth.
 - Follow `docs/process/GIT_HYGIENE.md` before committing, pushing, or merging. Use `npm run gate:commit` before reviewable commits, `npm run gate:push` before reviewable pushes, and `npm run gate:publish` before any handoff or final response that claims the branch is available on GitHub. Story work happens on story-scoped branches, not directly on `main` or `production`.
+- A reviewable story branch is not workflow-valid unless its active row exists in `docs/process/BRANCH_TRACKER.md` with a non-placeholder description.
 - If a story branch is opened as a PR, the PR description must use `.github/pull_request_template.md` and stay production-grade: list changed surfaces, tests added or updated, exact validation run, risks, screenshots or manual QA, and follow-ups with no placeholder sections.
 - Story branches that reach GitHub must open and merge through GitHub PRs. Do not update `main` or `production` with direct ref pushes such as `<branch>:main`; rely on the checked-in GitHub Actions enforcement when native branch protection is unavailable on the current plan. Use the authenticated `gh` CLI explicitly for PR inspection, editing, checks, and merge actions.
 - `main` history is intentionally linear and story-shaped. Story branches merge to `main` via rebase only; do not squash story work or rely on merge commits if you want GitHub history to stay truthful.
@@ -162,6 +167,7 @@ Use the checked-in docs deliberately, not as background noise:
 Refresh the smallest set needed after each story:
 
 - `docs/process/SINGLE_SOURCE_OF_TRUTH.md`
+- `docs/process/BRANCH_TRACKER.md`
 - `.ai/memory/project/architecture.md`
 - `.ai/memory/project/patterns.md`
 - `.ai/memory/project/anti-patterns.md`

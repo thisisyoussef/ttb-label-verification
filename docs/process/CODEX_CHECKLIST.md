@@ -11,6 +11,7 @@ Use this checklist whenever Codex is the active lane owner for a story.
 - [ ] If the story is an approved `TTB-1xx` handoff marked `ready-parallel`, confirm it is the preferred Codex pick ahead of later blocking `TTB-2xx+` work under the tracker rules.
 - [ ] Confirm the task belongs to the engineering lane, not a net-new frontend direction or broad redesign.
 - [ ] Before packet or code edits, confirm the current branch is story-scoped. If the worktree is on `main` or `production`, switch immediately to `codex/<story-id>-<summary>`.
+- [ ] Record the branch in `docs/process/BRANCH_TRACKER.md` with a non-placeholder description as soon as it is opened, preferably via `npm run story:branch -- open ...`.
 - [ ] If the story only has `story-packet.md`, expand it into the standard working docs before implementation begins.
 - [ ] Before declaring missing local model credentials, run `npm run env:bootstrap`.
 - [ ] If the story changes prompt/model/tool-call or agentic LLM behavior, run `npm run langsmith:smoke` before starting the trace loop.

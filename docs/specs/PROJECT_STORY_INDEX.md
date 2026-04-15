@@ -25,6 +25,7 @@ This file is the checked-in leaf-story queue for completing the TTB Label Verifi
 | --- | --- | --- | --- |
 | W1 | `TTB-WF-001` | workflow foundation upgrade | baseline harness and process story |
 | W2 | `TTB-WF-002` | source cleanup and reviewer-oriented refactor pass | user-directed maintenance story for structural cleanup and file-size enforcement |
+| W3 | `TTB-WF-003` | branch tracker and story-branch workflow | checked-in branch registry plus helper flow for open/update/close metadata |
 
 ## Delivery order
 

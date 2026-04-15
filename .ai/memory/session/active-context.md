@@ -1,5 +1,8 @@
 # Active Context
 
+- Current focus: `TTB-WF-003` branch tracker and story-branch workflow in `/Users/youss/Development/gauntlet/ttb-label-verification-wf-003`.
+- Current story branch: `chore/TTB-WF-003-branch-tracker`.
+- `TTB-WF-003` adds `docs/process/BRANCH_TRACKER.md`, a `story:branch` helper for branch open/update/close actions, and gate enforcement so story branches cannot commit or push without an active tracker row and real description.
 - Current focus: `TTB-303` batch input regression hardening in `/Users/youss/Development/gauntlet/ttb-label-verification-302` is complete locally with append-safe live image intake and mode-aware toolbench image insertion.
 - Current story branch: `codex/TTB-303-batch-input-regressions`.
 - `TTB-209` kept the public `latencyBudgetMs` contract at `5000`, locked the winning Gemini profile (`gemini-2.5-flash-lite`, raster `low`, PDF `medium`, Flash-family `thinkingBudget=0`), and raised the checked-in `GEMINI_TIMEOUT_MS` default from `3000` to `5000`.
