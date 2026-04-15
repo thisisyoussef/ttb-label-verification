@@ -3,7 +3,7 @@ import type { ExtractionMode } from './appTypes';
 import type { BeverageSelection, LabelImage, ProcessingPhase, ProcessingStep } from './types';
 
 const LATE_STAGE_DELAY_MS = 4000;
-const LATE_STAGE_LABEL = 'Still assembling the verification report\u2026';
+const LATE_STAGE_LABEL = 'Almost done \u2014 finishing the report\u2026';
 
 const BEVERAGE_LABELS: Record<BeverageSelection, string> = {
   auto: 'Auto-detect',
@@ -152,8 +152,8 @@ export function Processing({
           </h1>
           <p className="mt-2 text-on-surface-variant font-body">
             {extractionMode === 'local'
-              ? 'Running extraction locally. This may take longer than cloud mode and may produce more Review outcomes on layout and formatting checks.'
-              : 'The system is running a deterministic extraction and compliance pipeline.'}
+              ? 'Running locally. This may take a bit longer and may flag more items for review on layout and formatting checks.'
+              : 'Reading your label, checking fields, and preparing the compliance report.'}
           </p>
         </header>
 
@@ -238,21 +238,7 @@ export function Processing({
             </div>
           </div>
         ) : (
-          <div className="max-w-3xl mt-2 bg-surface-container-low/70 rounded-xl border-2 border-dashed border-outline-variant/30 px-8 py-10 flex flex-col items-center justify-center text-center gap-3">
-            <span
-              className="material-symbols-outlined text-3xl text-on-surface-variant/40"
-              aria-hidden="true"
-            >
-              analytics
-            </span>
-            <p className="font-headline font-bold text-on-surface-variant">
-              Results will render here
-            </p>
-            <p className="text-xs text-on-surface-variant/70 font-label max-w-sm">
-              Once the pipeline finishes, the full verification report renders in this frame
-              (story TTB-102).
-            </p>
-          </div>
+          <ReportSkeleton />
         )}
       </section>
     </div>
@@ -343,6 +329,67 @@ function StepIcon({ step, index }: { step: ProcessingStep; index: number }) {
   return (
     <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-outline-variant/60 text-outline-variant flex-shrink-0">
       <span className="text-xs font-bold">{index}</span>
+    </div>
+  );
+}
+
+function SkeletonBar({
+  className,
+  style
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <div
+      className={[
+        'rounded bg-surface-container-highest/60 skeleton-shimmer',
+        className
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      style={style}
+    />
+  );
+}
+
+function ReportSkeleton() {
+  return (
+    <div
+      className="max-w-3xl mt-2 flex flex-col gap-5"
+      aria-hidden="true"
+      role="presentation"
+    >
+      {/* Verdict banner skeleton */}
+      <div className="rounded-lg border-l-4 border-outline-variant/25 bg-surface-container-low/50 p-6 flex items-center gap-4">
+        <SkeletonBar className="w-12 h-12 rounded flex-shrink-0" />
+        <div className="flex flex-col gap-2 flex-1">
+          <SkeletonBar className="h-5 w-56" />
+          <SkeletonBar className="h-3 w-36" />
+        </div>
+      </div>
+
+      {/* Field row skeletons — five rows matching the typical check count */}
+      <div className="flex flex-col gap-3">
+        {[0.92, 0.78, 1, 0.85, 0.7].map((widthFraction, index) => (
+          <div
+            key={index}
+            className="rounded-lg bg-surface-container-low/40 p-4 flex items-center gap-4"
+          >
+            <SkeletonBar className="w-8 h-8 rounded-full flex-shrink-0" />
+            <SkeletonBar
+              className="h-4"
+              style={{ width: `${widthFraction * 100}%` }}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Footer action bar skeleton */}
+      <div className="flex items-center gap-3 pt-3 border-t border-outline-variant/15">
+        <SkeletonBar className="h-10 w-32 rounded-lg" />
+        <SkeletonBar className="h-10 w-28 rounded-lg" />
+      </div>
     </div>
   );
 }

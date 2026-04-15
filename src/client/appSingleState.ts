@@ -15,6 +15,23 @@ const STEP_TEMPLATE: { id: ProcessingStepId; label: string }[] = [
   { id: 'preparing-evidence', label: 'Preparing evidence' }
 ];
 
+/**
+ * Per-step delay schedule (ms). Each entry is the delay *before* the
+ * corresponding step index completes and the next one activates.
+ *
+ * Index 0 → "Reading label image" completes after 400 ms (first visible advancement).
+ * Index 1 → "Extracting structured fields" completes after 800 ms.
+ * Index 2 → "Detecting beverage type" completes after 1 100 ms.
+ * Index 3 → "Running deterministic checks" completes after 1 200 ms.
+ * Index 4 → final step idles; the pipeline waits for the API response.
+ *
+ * Cumulative: 0 → 400 → 1 200 → 2 300 → 3 500 ms.
+ * The last step ("Preparing evidence") appears at ~3.5 s and stays
+ * active until the real response lands, targeting a total of ~4.5 s.
+ */
+export const STEP_DELAYS_MS: number[] = [400, 800, 1100, 1200, 1000];
+
+/** @deprecated Use STEP_DELAYS_MS for per-step scheduling. */
 export const STEP_ADVANCE_MS = 900;
 
 const EXTRACTED_TO_FIELD: Array<{ checkId: string; field: keyof IntakeFields }> = [
