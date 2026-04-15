@@ -20,7 +20,7 @@ export function ToolbenchScenarios({
   onSelectBatchSeed,
 }: ToolbenchScenariosProps) {
   return (
-    <div className="overflow-y-auto p-3 flex flex-col gap-4">
+    <div className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto p-3">
       <section className="flex flex-col gap-1">
         <p className={SECTION_HEADER}>Single Review</p>
         {seedScenarios.map((scenario) => {
