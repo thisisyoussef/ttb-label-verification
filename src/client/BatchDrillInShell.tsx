@@ -243,11 +243,11 @@ function UnavailablePanel({ onBack }: { onBack: () => void }) {
             info
           </span>
           <h2 className="font-headline text-xl font-bold text-on-surface">
-            This label's details aren't available.
+            We couldn't load this label's details.
           </h2>
         </div>
         <p className="font-body text-on-surface-variant">
-          It may have errored during processing. Nothing is stored.
+          Something went wrong while reviewing this label. Go back to the batch results to retry it.
         </p>
         <div className="pt-2">
           <button

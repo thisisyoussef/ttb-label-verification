@@ -4,6 +4,10 @@
 
 Add a fully local label-extraction path on top of the new extraction-mode router so the app can run the same deterministic validation pipeline without outbound cloud model calls.
 
+## Current status
+
+This plan is deferred. The user explicitly scrapped the in-progress local-model implementation on 2026-04-15 and asked to revisit it later. Treat the modules below as planning notes only until the story is resumed.
+
 ## Planned modules and files
 
 - `src/server/ai-provider-policy.ts`
@@ -30,7 +34,7 @@ Add a fully local label-extraction path on top of the new extraction-mode router
   - `local` -> local-only execution, no automatic cloud escape hatch
 - Default local engine:
   - Ollama local API
-  - default model target `Qwen2.5-VL 7B`
+  - model target intentionally undecided until the user resumes the story
 - Output contract:
   - identical `ReviewExtraction` schema
   - mode/provider provenance stays available in traces and eval logs; only add API-surface metadata if the contract story later requires it
@@ -57,8 +61,8 @@ That keeps the deterministic validator pipeline honest: more `review`, fewer fal
   - Fallback: measure warm and cold separately, document warm-up behavior, and keep local mode opt-in.
 - Risk: local mode silently drifts into cloud fallback when errors occur.
   - Fallback: keep mode as the top-level resolver and fail closed across mode boundaries.
-- Risk: Qwen2.5-VL is unavailable or too heavy on target hardware.
-  - Fallback: allow a lighter local model only if the packet records the exact capability loss and the degraded-confidence policy still prevents false certainty.
+- Risk: the eventual local vision model is unavailable or too heavy on target hardware.
+  - Fallback: keep the model choice explicit and deferred until the packet records the exact capability tradeoffs and the degraded-confidence policy still prevents false certainty.
 
 ## Testing strategy
 

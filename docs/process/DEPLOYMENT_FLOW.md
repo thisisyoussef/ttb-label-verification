@@ -120,7 +120,7 @@ Do not store app data, uploads, or results in Railway volumes or attached databa
 - `.github/workflows/promote-production.yml`
   - manual promotion workflow
   - updates the `production` branch to the selected source ref
-  - the subsequent `ci` and `railway-deploy` workflows deploy production after verification passes
+  - explicitly dispatches `ci` on `production` after updating the branch so the subsequent `railway-deploy` workflow runs even though the branch update came from GitHub Actions
 
 ## Story-completion wiring
 

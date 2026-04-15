@@ -4,6 +4,7 @@
 
 - Story ID: `TTB-212`
 - Title: local extraction mode: Ollama-hosted Qwen2.5-VL with degraded-confidence guardrails
+- Status: deferred by user on 2026-04-15; budget remains planning-only
 
 ## Local-mode target
 
@@ -32,3 +33,7 @@ If the first request pays a model-load penalty, record it separately. Cold-start
   - one batch item
 - capture at least one cold-load timing separately
 - compare the totals with the default cloud path in story artifacts and `evals/results/`
+
+## Current note
+
+No live budget work is active for this packet until the user resumes the local-mode story.

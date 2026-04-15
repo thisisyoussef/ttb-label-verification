@@ -83,7 +83,7 @@ function ComparisonBlock({ check }: { check: CheckReview }) {
       </h4>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ComparisonCell label="Application data" value={check.applicationValue} toneClass={toneClass} />
-        <ComparisonCell label="Extracted from label" value={check.extractedValue} toneClass={toneClass} />
+        <ComparisonCell label="Read from label" value={check.extractedValue} toneClass={toneClass} />
       </div>
       {comparison.note ? (
         <p className="font-body text-xs text-on-surface-variant">{comparison.note}</p>

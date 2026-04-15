@@ -63,13 +63,13 @@ const TOUR_STEPS: TourStep[] = [
     anchorKey: 'warning-evidence',
     stepIndex: 6,
     totalSteps: 8,
-    title: 'Warning evidence',
+    title: 'What rejection looks like',
     body:
-      'The government warning is one of the fastest ways a label can be rejected. The tool checks it five ways. If something is wrong, this section highlights the exact wording, punctuation, or capitalization to review. Use Load failing label to open an example.',
+      'That label passed — but the government warning is the most common reason one won\u2019t. The tool checks it five ways: presence, exact text, uppercase heading, continuous paragraph, and legibility. Let\u2019s switch to a label with issues so you can see how problems are surfaced.',
     target: 'tour-warning-row',
     requires: { expandRowId: 'government-warning' },
     showMe: {
-      label: 'Load failing label',
+      label: 'See failing example',
       action: 'load-scenario',
       payload: { scenarioId: 'spirit-warning-errors' }
     }

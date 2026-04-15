@@ -18,8 +18,6 @@ Harden the shared extraction path with endpoint-aware and mode-aware prompt poli
   - consume the prompt-policy and guardrail modules instead of embedding a route-agnostic prompt string
 - `src/server/gemini-review-extractor.ts`
   - consume the same prompt-policy and guardrail modules once the Gemini path exists
-- `src/server/ollama-review-extractor.ts`
-  - consume the same policy module while applying the local-mode prompt overlay
 - `src/server/review-extractor-factory.ts`
   - pass endpoint intent through the shared extraction entry point
 - `src/server/index.ts`
@@ -46,7 +44,7 @@ Use one shared prompt-policy contract:
   - `cloud`
   - `local`
 - provider surface:
-  - OpenAI, Gemini, and Ollama consume the same policy intent, even if request serialization differs
+  - OpenAI and Gemini consume the same policy intent on the shipped path
 
 This keeps the repo from growing separate prompt strings per route or per execution mode while still acknowledging that route goals and model limits differ.
 

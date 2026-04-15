@@ -12,8 +12,10 @@ on:
     branches:
       - main
       - production
+  workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
   pull-requests: read
 

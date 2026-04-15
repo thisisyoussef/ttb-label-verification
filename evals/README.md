@@ -40,7 +40,7 @@ Run only the smallest applicable slice:
 - `endpoint-warning` for `/api/review/warning`
 - `endpoint-batch` for `/api/batch/run` and `/api/batch/retry`
 
-For endpoint slices, also record the extraction mode used. Today every checked-in endpoint eval run is `cloud`; add `local` counterparts once `TTB-212` lands.
+For endpoint slices, also record the extraction mode used. Today every checked-in endpoint eval run is `cloud`. Do not plan local counterparts unless the archived `TTB-212` packet is explicitly revived later.
 
 ## Structure
 

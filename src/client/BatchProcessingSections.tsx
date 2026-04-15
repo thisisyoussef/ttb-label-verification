@@ -38,7 +38,7 @@ export function Header({
   const heading =
     phase === 'terminal'
       ? summary && summary.total > 0
-        ? 'Batch Processing · complete'
+        ? 'Batch review complete'
         : 'Batch Processing'
       : 'Batch Processing';
   const intent =

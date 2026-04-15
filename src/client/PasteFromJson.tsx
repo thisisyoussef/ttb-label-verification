@@ -51,11 +51,11 @@ function parseJsonFields(
   try {
     parsed = JSON.parse(raw);
   } catch {
-    return { fields: {}, error: 'Invalid JSON. Paste a JSON object with field names as keys.' };
+    return { fields: {}, error: 'That text is not valid JSON. Check the format and try again.' };
   }
 
   if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-    return { fields: {}, error: 'Expected a JSON object, not an array or primitive.' };
+    return { fields: {}, error: 'Expected a JSON object with curly braces { }, not a list or single value.' };
   }
 
   const fields: Partial<IntakeFields> = {};

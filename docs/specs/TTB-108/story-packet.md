@@ -9,7 +9,7 @@
 - Claude lane status: `done` (UI approved 2026-04-14)
 - Codex lane status: `ready-for-codex`
 - Packet mode: expanded working packet
-- Depends on: `TTB-107` approved; Codex integration also depends on `TTB-206` (extraction mode routing) and `TTB-212` (local extraction mode)
+- Depends on: `TTB-107` approved; Codex integration also depends on `TTB-206` (extraction mode routing). The archived `TTB-212` packet documents a discarded local-model direction and is not an active dependency.
 
 ## Problem
 
@@ -50,4 +50,4 @@ The current workstation exposes one implicit extraction path. The dual-mode arch
 - New result cards or a second evidence model
 - Exposing provider names in the reviewer surface
 - Settings screens, configuration drawers, or admin panels
-- Backend provider implementation (belongs to `TTB-206`, `TTB-207`, `TTB-212`)
+- Backend provider implementation (belongs to `TTB-206` and `TTB-207`; archived `TTB-212` is out of scope)

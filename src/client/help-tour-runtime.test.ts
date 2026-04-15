@@ -220,7 +220,7 @@ describe('help tour runtime', () => {
 
     expect(liveResolved.cta).toMatch(/failing label/i);
     expect(liveResolved.showMe).toEqual({
-      label: 'Load failing label',
+      label: 'See failing example',
       action: 'advance-view',
       payload: {
         mode: 'single',
@@ -230,7 +230,7 @@ describe('help tour runtime', () => {
     });
     expect(otherWarningResolved.cta).toMatch(/failing label/i);
     expect(otherWarningResolved.showMe).toEqual({
-      label: 'Load failing label',
+      label: 'See failing example',
       action: 'advance-view',
       payload: {
         mode: 'single',
@@ -240,7 +240,7 @@ describe('help tour runtime', () => {
     });
   });
 
-  it('removes the stale Load failing label action when the warning-defect results are already loaded', () => {
+  it('clears the show-me action when the warning-defect results are already loaded', () => {
     const resolved = resolveTourStep(step('warning-evidence'), {
       mode: 'single',
       view: 'results',
@@ -250,7 +250,7 @@ describe('help tour runtime', () => {
     });
 
     expect(resolved.showMe).toBeUndefined();
-    expect(resolved.cta).toMatch(/expanded warning evidence/i);
+    expect(resolved.cta).toMatch(/failing label is loaded/i);
   });
 
   it('disables Next on the verify step until the reviewer actually reaches results', () => {

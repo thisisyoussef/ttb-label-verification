@@ -59,7 +59,7 @@ export function passCheck(
   citations: string[] = CITATIONS_SPIRITS,
   confidence = 0.97,
   summary = 'Matches the application value.',
-  details = 'Application value and extracted value match exactly within normalization.'
+  details = 'The application value matches the text read from the label.'
 ): CheckReview {
   return {
     id,

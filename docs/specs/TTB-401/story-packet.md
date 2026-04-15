@@ -25,16 +25,16 @@ The product is not done when the features exist. It is done when the finished sy
 
 - Final privacy verification proves no persistence and `store: false` behavior.
 - Final timing proof covers the single-label path against the active post-hardening latency target.
-- Final eval artifacts cover the six-label baseline, one representative batch run, and the latest endpoint-aware plus mode-aware LLM scorecards produced after `TTB-211`.
-- Final release evidence includes the latest successful `npm run eval:golden` run log plus the endpoint-and-mode matrix and persona scorecards introduced by `TTB-211`.
-- Submission docs explain the cloud vs local extraction modes honestly, including where local mode is slower or more conservative.
+- Final eval artifacts cover the six-label baseline, one representative batch run, and the latest endpoint-aware LLM scorecards produced after `TTB-211`.
+- Final release evidence includes the latest successful `npm run eval:golden` run log plus the endpoint matrix and persona scorecards introduced by `TTB-211`.
+- Submission docs explain the shipped cloud extraction path honestly and do not describe the archived local-model packet as active product scope.
 - README and submission-facing docs match the actual product behavior and limitations.
 
 ## Technical plan
 
 - Use the parent hardening packet plus real implementation evidence from prior stories.
 - Update `README.md`, `docs/reference/submission-baseline.md`, `evals/results/`, and any supporting architecture notes.
-- Close remaining rule-source, privacy, performance, and endpoint-and-mode eval gaps before final handoff, including the tightened latency target once `TTB-208` and `TTB-209` are complete, the local-mode packet `TTB-212` is resolved, and the endpoint-aware plus mode-aware LLM hardening evidence from `TTB-210` and `TTB-211` is available.
+- Close remaining rule-source, privacy, performance, and endpoint-aware eval gaps before final handoff, including the tightened latency target once `TTB-208` and `TTB-209` are complete and the hardening evidence from `TTB-210` and `TTB-211` is available. Treat archived `TTB-212` as out of release scope unless the user explicitly revives it later.
 - Treat the CI golden LLM gate as part of release readiness; staging evidence is incomplete if the last route-aware endpoint run is stale or missing.
 
 ## Task breakdown
