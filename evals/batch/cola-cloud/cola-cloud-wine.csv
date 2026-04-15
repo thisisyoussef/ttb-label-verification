@@ -1,0 +1,11 @@
+filename,beverage_type,brand_name,fanciful_name,class_type,alcohol_content,net_contents,applicant_address,origin,country,formula_id,appellation,vintage
+leitz-rottland-wine.webp,wine,Leitz,Rottland,table white wine,12.5% Alc./Vol.,750 mL,,imported,germany,,Rheingau,2023
+leitz-magdalenenkreuz-wine.webp,wine,Leitz,Magdalenenkreuz,table white wine,8% Alc./Vol.,750 mL,,imported,germany,,Rheingau,2025
+leitz-klosterlay-wine.webp,wine,Leitz,Klosterlay,table white wine,8.5% Alc./Vol.,750 mL,,imported,germany,,Rheingau,2025
+uncorked-in-mayberry-otis-own-wine.webp,wine,Uncorked In Mayberry,Otis' Own,table white wine,12.5% Alc./Vol.,750 mL,,domestic,,,North Carolina,
+stormwood-wines-semillon-wine.webp,wine,Stormwood Wines,Semillon,table white wine,13% Alc./Vol.,750 mL,,imported,new zealand,,Waiheke Island,2025
+forlorn-hope-san-hercurmer-delle-frecce-wine.webp,wine,Forlorn Hope,San Hercurmer Delle Frecce,table red wine,12.5% Alc./Vol.,750 mL,,domestic,,,Sierra Foothills,2020
+manzone-giovanni-barolo-perno-wine.webp,wine,Manzone Giovanni,Barolo Perno,table red wine,13.5% Alc./Vol.,750 mL,,imported,italy,,Barolo,1998
+ana-luisa-gran-reserva-parcelas-blend-wine.webp,wine,Ana Luisa,Gran Reserva Parcelas Blend,table red wine,14% Alc./Vol.,750 mL,,imported,chile,,Valle De Curico,2023
+carousel-winery-fairy-floss-cotton-candy-wine.webp,wine,Carousel Winery,Fairy Floss Cotton Candy,table flavored wine,9% Alc./Vol.,750 mL,,domestic,,,American,
+venture-studios-null-wine.webp,wine,Venture Studios,,table white wine,14% Alc./Vol.,750 mL,,imported,france,,,

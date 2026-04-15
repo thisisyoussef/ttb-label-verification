@@ -1,0 +1,190 @@
+{
+  "version": 1,
+  "sourceManifest": "../golden/manifest.json",
+  "sliceId": "supplemental-negative",
+  "description": "Deterministic negative and low-confidence fixtures derived from real COLA Cloud labels.",
+  "cases": [
+    {
+      "id": "lake-placid-shredder-abv-negative",
+      "goldenCaseId": "G-69",
+      "title": "Lake Placid — Shredder — ABV Overlay",
+      "assetPath": "assets/supplemental-generated/lake-placid-shredder-abv-negative.webp",
+      "beverageType": "malt-beverage",
+      "scenario": "Injects a false 5% ABV overlay into a real approved label. Source: Lake Placid — Shredder.",
+      "expectedRecommendation": "reject",
+      "sourceCaseId": "lake-placid-shredder-malt-beverage",
+      "mutation": {
+        "kind": "abv-overlay",
+        "note": "Injects a false 5% ABV overlay into a real approved label."
+      },
+      "batchCsv": {
+        "brandName": "Lake Placid",
+        "fancifulName": "Shredder",
+        "classType": "IPA",
+        "alcoholContent": "5% Alc./Vol.",
+        "netContents": "12 FL OZ",
+        "origin": "domestic",
+        "country": "",
+        "formulaId": "",
+        "appellation": "",
+        "vintage": ""
+      }
+    },
+    {
+      "id": "simply-elegant-warning-occluded-negative",
+      "goldenCaseId": "G-70",
+      "title": "Simply Elegant — Simply Elegant Spirits — Warning Occluded",
+      "assetPath": "assets/supplemental-generated/simply-elegant-warning-occluded-negative.webp",
+      "beverageType": "distilled-spirits",
+      "scenario": "Covers the lower warning region with a light sticker block. Source: Simply Elegant — Simply Elegant Spirits.",
+      "expectedRecommendation": "reject",
+      "sourceCaseId": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+      "mutation": {
+        "kind": "warning-occlusion",
+        "note": "Covers the lower warning region with a light sticker block."
+      },
+      "batchCsv": {
+        "brandName": "Simply Elegant",
+        "fancifulName": "Simply Elegant Spirits",
+        "classType": "straight bourbon whisky",
+        "alcoholContent": "67% Alc./Vol.",
+        "netContents": "750 mL",
+        "origin": "domestic",
+        "country": "",
+        "formulaId": "",
+        "appellation": "",
+        "vintage": ""
+      }
+    },
+    {
+      "id": "leitz-rottland-warning-crop-negative",
+      "goldenCaseId": "G-71",
+      "title": "Leitz — Rottland — Warning Crop",
+      "assetPath": "assets/supplemental-generated/leitz-rottland-warning-crop-negative.webp",
+      "beverageType": "wine",
+      "scenario": "Trims the lower section and pads with blank space to remove label evidence. Source: Leitz — Rottland.",
+      "expectedRecommendation": "reject",
+      "sourceCaseId": "leitz-rottland-wine",
+      "mutation": {
+        "kind": "warning-crop",
+        "note": "Trims the lower section and pads with blank space to remove label evidence."
+      },
+      "batchCsv": {
+        "brandName": "Leitz",
+        "fancifulName": "Rottland",
+        "classType": "table white wine",
+        "alcoholContent": "12.5% Alc./Vol.",
+        "netContents": "750 mL",
+        "origin": "imported",
+        "country": "germany",
+        "formulaId": "",
+        "appellation": "Rheingau",
+        "vintage": "2023"
+      }
+    },
+    {
+      "id": "lake-placid-ridge-runner-warning-occluded-negative",
+      "goldenCaseId": "G-72",
+      "title": "Lake Placid — Ridge Runner — Warning Occluded",
+      "assetPath": "assets/supplemental-generated/lake-placid-ridge-runner-warning-occluded-negative.webp",
+      "beverageType": "malt-beverage",
+      "scenario": "Blocks the lower third of the label with an opaque shape. Source: Lake Placid — Ridge Runner.",
+      "expectedRecommendation": "reject",
+      "sourceCaseId": "lake-placid-ridge-runner-malt-beverage",
+      "mutation": {
+        "kind": "warning-occlusion",
+        "note": "Blocks the lower third of the label with an opaque shape."
+      },
+      "batchCsv": {
+        "brandName": "Lake Placid",
+        "fancifulName": "Ridge Runner",
+        "classType": "ale",
+        "alcoholContent": "",
+        "netContents": "12 FL OZ",
+        "origin": "domestic",
+        "country": "",
+        "formulaId": "",
+        "appellation": "",
+        "vintage": ""
+      }
+    },
+    {
+      "id": "persian-empire-black-widow-blur-review",
+      "goldenCaseId": "G-73",
+      "title": "Persian Empire — Black Widow — Global Blur",
+      "assetPath": "assets/supplemental-generated/persian-empire-black-widow-blur-review.webp",
+      "beverageType": "distilled-spirits",
+      "scenario": "Applies heavy global blur to simulate unreadable label capture. Source: Persian Empire — Black Widow.",
+      "expectedRecommendation": "review",
+      "sourceCaseId": "persian-empire-black-widow-distilled-spirits",
+      "mutation": {
+        "kind": "global-blur",
+        "note": "Applies heavy global blur to simulate unreadable label capture."
+      },
+      "batchCsv": {
+        "brandName": "Persian Empire",
+        "fancifulName": "Black Widow",
+        "classType": "other specialties & proprietaries",
+        "alcoholContent": "40% Alc./Vol.",
+        "netContents": "750 mL",
+        "origin": "imported",
+        "country": "canada",
+        "formulaId": "",
+        "appellation": "",
+        "vintage": ""
+      }
+    },
+    {
+      "id": "uncorked-in-mayberry-low-contrast-review",
+      "goldenCaseId": "G-74",
+      "title": "Uncorked In Mayberry — Otis' Own — Low Contrast",
+      "assetPath": "assets/supplemental-generated/uncorked-in-mayberry-low-contrast-review.webp",
+      "beverageType": "wine",
+      "scenario": "Reduces saturation and contrast to create a borderline legibility case. Source: Uncorked In Mayberry — Otis' Own.",
+      "expectedRecommendation": "review",
+      "sourceCaseId": "uncorked-in-mayberry-otis-own-wine",
+      "mutation": {
+        "kind": "low-contrast",
+        "note": "Reduces saturation and contrast to create a borderline legibility case."
+      },
+      "batchCsv": {
+        "brandName": "Uncorked In Mayberry",
+        "fancifulName": "Otis' Own",
+        "classType": "table white wine",
+        "alcoholContent": "12.5% Alc./Vol.",
+        "netContents": "750 mL",
+        "origin": "domestic",
+        "country": "",
+        "formulaId": "",
+        "appellation": "North Carolina",
+        "vintage": ""
+      }
+    },
+    {
+      "id": "recluse-brew-works-shy-guy-overprint-negative",
+      "goldenCaseId": "G-75",
+      "title": "Recluse Brew Works — Shy Guy — Overprint Sticker",
+      "assetPath": "assets/supplemental-generated/recluse-brew-works-shy-guy-overprint-negative.webp",
+      "beverageType": "malt-beverage",
+      "scenario": "Adds a synthetic sticker over label text to mimic an illegitimate post-approval edit. Source: Recluse Brew Works — Shy Guy.",
+      "expectedRecommendation": "reject",
+      "sourceCaseId": "recluse-brew-works-shy-guy-malt-beverage",
+      "mutation": {
+        "kind": "label-overprint",
+        "note": "Adds a synthetic sticker over label text to mimic an illegitimate post-approval edit."
+      },
+      "batchCsv": {
+        "brandName": "Recluse Brew Works",
+        "fancifulName": "Shy Guy",
+        "classType": "beer",
+        "alcoholContent": "6.5% Alc./Vol.",
+        "netContents": "12 FL OZ",
+        "origin": "domestic",
+        "country": "",
+        "formulaId": "",
+        "appellation": "",
+        "vintage": ""
+      }
+    }
+  ]
+}

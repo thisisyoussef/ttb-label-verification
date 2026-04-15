@@ -1,0 +1,614 @@
+{
+  "version": 1,
+  "sourceManifests": [
+    "evals/golden/manifest.json",
+    "evals/labels/cola-cloud.manifest.json",
+    "evals/labels/supplemental-negative.manifest.json"
+  ],
+  "description": "Live batch fixture packs built from the real COLA Cloud image subset plus deterministic supplemental negative candidates.",
+  "sets": [
+    {
+      "id": "cola-cloud-all",
+      "title": "COLA Cloud All",
+      "description": "All 28 real approved labels in one batch.",
+      "csvFile": "cola-cloud-all.csv",
+      "imageCases": [
+        {
+          "id": "persian-empire-black-widow-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/persian-empire-black-widow-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "persian-empire-arak-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/persian-empire-arak-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/simply-elegant-simply-elegant-spirits-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "crafy-elk-cranberry-blueberry-acai-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/crafy-elk-cranberry-blueberry-acai-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "leitz-rottland-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/leitz-rottland-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "leitz-magdalenenkreuz-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/leitz-magdalenenkreuz-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "leitz-klosterlay-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/leitz-klosterlay-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "uncorked-in-mayberry-otis-own-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/uncorked-in-mayberry-otis-own-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "lake-placid-shredder-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/lake-placid-shredder-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "lake-placid-ridge-runner-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/lake-placid-ridge-runner-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "recluse-brew-works-shy-guy-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/recluse-brew-works-shy-guy-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "pleasant-prairie-brewing-peach-sour-ale-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/pleasant-prairie-brewing-peach-sour-ale-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "crafty-elk-mango-honey-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/crafty-elk-mango-honey-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "the-wine-trust-rum-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/the-wine-trust-rum-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "flaviar-columbia-creek-tennessee-whiskey-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/flaviar-columbia-creek-tennessee-whiskey-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "old-station-31-orange-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/old-station-31-orange-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "west-peak-tequila-paloma-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/west-peak-tequila-paloma-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "stormwood-wines-semillon-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/stormwood-wines-semillon-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "forlorn-hope-san-hercurmer-delle-frecce-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/forlorn-hope-san-hercurmer-delle-frecce-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "manzone-giovanni-barolo-perno-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/manzone-giovanni-barolo-perno-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "ana-luisa-gran-reserva-parcelas-blend-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/ana-luisa-gran-reserva-parcelas-blend-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "carousel-winery-fairy-floss-cotton-candy-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/carousel-winery-fairy-floss-cotton-candy-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "venture-studios-null-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/venture-studios-null-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "sapwood-cellars-albura-lager-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/sapwood-cellars-albura-lager-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "drekker-brewing-company-piano-necktie-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/drekker-brewing-company-piano-necktie-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "pilok-broumy-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/pilok-broumy-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "1840-original-lager-1840-original-lager-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/1840-original-lager-1840-original-lager-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "harpoon-ale-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/harpoon-ale-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        }
+      ]
+    },
+    {
+      "id": "cola-cloud-spirits",
+      "title": "COLA Cloud Spirits",
+      "description": "9 distilled spirits labels.",
+      "csvFile": "cola-cloud-spirits.csv",
+      "imageCases": [
+        {
+          "id": "persian-empire-black-widow-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/persian-empire-black-widow-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "persian-empire-arak-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/persian-empire-arak-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/simply-elegant-simply-elegant-spirits-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "crafy-elk-cranberry-blueberry-acai-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/crafy-elk-cranberry-blueberry-acai-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "crafty-elk-mango-honey-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/crafty-elk-mango-honey-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "the-wine-trust-rum-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/the-wine-trust-rum-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "flaviar-columbia-creek-tennessee-whiskey-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/flaviar-columbia-creek-tennessee-whiskey-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "old-station-31-orange-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/old-station-31-orange-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "west-peak-tequila-paloma-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/west-peak-tequila-paloma-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        }
+      ]
+    },
+    {
+      "id": "cola-cloud-wine",
+      "title": "COLA Cloud Wine",
+      "description": "10 wine labels.",
+      "csvFile": "cola-cloud-wine.csv",
+      "imageCases": [
+        {
+          "id": "leitz-rottland-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/leitz-rottland-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "leitz-magdalenenkreuz-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/leitz-magdalenenkreuz-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "leitz-klosterlay-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/leitz-klosterlay-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "uncorked-in-mayberry-otis-own-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/uncorked-in-mayberry-otis-own-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "stormwood-wines-semillon-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/stormwood-wines-semillon-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "forlorn-hope-san-hercurmer-delle-frecce-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/forlorn-hope-san-hercurmer-delle-frecce-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "manzone-giovanni-barolo-perno-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/manzone-giovanni-barolo-perno-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "ana-luisa-gran-reserva-parcelas-blend-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/ana-luisa-gran-reserva-parcelas-blend-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "carousel-winery-fairy-floss-cotton-candy-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/carousel-winery-fairy-floss-cotton-candy-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "venture-studios-null-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/venture-studios-null-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        }
+      ]
+    },
+    {
+      "id": "cola-cloud-malt",
+      "title": "COLA Cloud Malt Beverage",
+      "description": "9 malt beverage labels.",
+      "csvFile": "cola-cloud-malt.csv",
+      "imageCases": [
+        {
+          "id": "lake-placid-shredder-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/lake-placid-shredder-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "lake-placid-ridge-runner-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/lake-placid-ridge-runner-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "recluse-brew-works-shy-guy-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/recluse-brew-works-shy-guy-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "pleasant-prairie-brewing-peach-sour-ale-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/pleasant-prairie-brewing-peach-sour-ale-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "sapwood-cellars-albura-lager-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/sapwood-cellars-albura-lager-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "drekker-brewing-company-piano-necktie-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/drekker-brewing-company-piano-necktie-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "pilok-broumy-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/pilok-broumy-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "1840-original-lager-1840-original-lager-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/1840-original-lager-1840-original-lager-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "harpoon-ale-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/harpoon-ale-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        }
+      ]
+    },
+    {
+      "id": "cola-cloud-mixed",
+      "title": "COLA Cloud Mixed",
+      "description": "Mixed real-label sample across all three beverage types.",
+      "csvFile": "cola-cloud-mixed.csv",
+      "imageCases": [
+        {
+          "id": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/simply-elegant-simply-elegant-spirits-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "leitz-rottland-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/leitz-rottland-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "lake-placid-shredder-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/lake-placid-shredder-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        }
+      ]
+    },
+    {
+      "id": "supplemental-negative",
+      "title": "Supplemental Negative",
+      "description": "7 deterministic negative and low-confidence fixtures derived from real labels.",
+      "csvFile": "supplemental-negative.csv",
+      "imageCases": [
+        {
+          "id": "lake-placid-shredder-abv-negative",
+          "assetPath": "evals/labels/assets/supplemental-generated/lake-placid-shredder-abv-negative.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "reject",
+          "source": "supplemental-generated"
+        },
+        {
+          "id": "simply-elegant-warning-occluded-negative",
+          "assetPath": "evals/labels/assets/supplemental-generated/simply-elegant-warning-occluded-negative.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "reject",
+          "source": "supplemental-generated"
+        },
+        {
+          "id": "leitz-rottland-warning-crop-negative",
+          "assetPath": "evals/labels/assets/supplemental-generated/leitz-rottland-warning-crop-negative.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "reject",
+          "source": "supplemental-generated"
+        },
+        {
+          "id": "lake-placid-ridge-runner-warning-occluded-negative",
+          "assetPath": "evals/labels/assets/supplemental-generated/lake-placid-ridge-runner-warning-occluded-negative.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "reject",
+          "source": "supplemental-generated"
+        },
+        {
+          "id": "persian-empire-black-widow-blur-review",
+          "assetPath": "evals/labels/assets/supplemental-generated/persian-empire-black-widow-blur-review.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "review",
+          "source": "supplemental-generated"
+        },
+        {
+          "id": "uncorked-in-mayberry-low-contrast-review",
+          "assetPath": "evals/labels/assets/supplemental-generated/uncorked-in-mayberry-low-contrast-review.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "review",
+          "source": "supplemental-generated"
+        },
+        {
+          "id": "recluse-brew-works-shy-guy-overprint-negative",
+          "assetPath": "evals/labels/assets/supplemental-generated/recluse-brew-works-shy-guy-overprint-negative.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "reject",
+          "source": "supplemental-generated"
+        }
+      ]
+    },
+    {
+      "id": "supplemental-negative-reject",
+      "title": "Supplemental Negative Reject",
+      "description": "Only deterministic reject-expected supplemental negatives.",
+      "csvFile": "supplemental-negative-reject.csv",
+      "imageCases": [
+        {
+          "id": "lake-placid-shredder-abv-negative",
+          "assetPath": "evals/labels/assets/supplemental-generated/lake-placid-shredder-abv-negative.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "reject",
+          "source": "supplemental-generated"
+        },
+        {
+          "id": "simply-elegant-warning-occluded-negative",
+          "assetPath": "evals/labels/assets/supplemental-generated/simply-elegant-warning-occluded-negative.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "reject",
+          "source": "supplemental-generated"
+        },
+        {
+          "id": "leitz-rottland-warning-crop-negative",
+          "assetPath": "evals/labels/assets/supplemental-generated/leitz-rottland-warning-crop-negative.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "reject",
+          "source": "supplemental-generated"
+        },
+        {
+          "id": "lake-placid-ridge-runner-warning-occluded-negative",
+          "assetPath": "evals/labels/assets/supplemental-generated/lake-placid-ridge-runner-warning-occluded-negative.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "reject",
+          "source": "supplemental-generated"
+        },
+        {
+          "id": "recluse-brew-works-shy-guy-overprint-negative",
+          "assetPath": "evals/labels/assets/supplemental-generated/recluse-brew-works-shy-guy-overprint-negative.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "reject",
+          "source": "supplemental-generated"
+        }
+      ]
+    },
+    {
+      "id": "cola-cloud-mixed-negative",
+      "title": "COLA Cloud Mixed Negative",
+      "description": "Mixed positive and negative sample for composition sensitivity checks.",
+      "csvFile": "cola-cloud-mixed-negative.csv",
+      "imageCases": [
+        {
+          "id": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/simply-elegant-simply-elegant-spirits-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "leitz-rottland-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/leitz-rottland-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "lake-placid-shredder-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/lake-placid-shredder-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "lake-placid-shredder-abv-negative",
+          "assetPath": "evals/labels/assets/supplemental-generated/lake-placid-shredder-abv-negative.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "reject",
+          "source": "supplemental-generated"
+        },
+        {
+          "id": "simply-elegant-warning-occluded-negative",
+          "assetPath": "evals/labels/assets/supplemental-generated/simply-elegant-warning-occluded-negative.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "reject",
+          "source": "supplemental-generated"
+        },
+        {
+          "id": "leitz-rottland-warning-crop-negative",
+          "assetPath": "evals/labels/assets/supplemental-generated/leitz-rottland-warning-crop-negative.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "reject",
+          "source": "supplemental-generated"
+        }
+      ]
+    }
+  ]
+}
