@@ -196,16 +196,10 @@ export function createOpenAIReviewExtractor(input: {
   };
 }
 
+// PDFs are converted to PNG upstream by pdf-label-converter.ts,
+// so this function always receives an image buffer.
 function buildLabelInputContent(intake: NormalizedReviewIntake) {
   const base64Data = intake.label.buffer.toString('base64');
-
-  if (intake.label.mimeType === 'application/pdf') {
-    return {
-      type: 'input_file' as const,
-      filename: intake.label.originalName,
-      file_data: `data:${intake.label.mimeType};base64,${base64Data}`
-    };
-  }
 
   return {
     type: 'input_image' as const,

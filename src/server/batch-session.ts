@@ -19,6 +19,7 @@ import {
   createReviewExtractionFailure,
   type ReviewExtractor
 } from './review-extraction';
+import { convertPdfLabelToImage } from './pdf-label-converter';
 import { createNormalizedReviewIntake } from './review-intake';
 import {
   buildDashboardRow,
@@ -265,10 +266,14 @@ export class BatchSessionStore {
     try {
       const normalizationStartedAt = performance.now();
       const parsedFields = buildParsedReviewFields(input.assignment.row);
-      const intake = createNormalizedReviewIntake({
+      const rawIntake = createNormalizedReviewIntake({
         file: toMemoryUploadedLabel(input.assignment.image),
         fields: parsedFields
       });
+      const intake = {
+        ...rawIntake,
+        label: await convertPdfLabelToImage(rawIntake.label)
+      };
       latencyCapture.recordSpan({
         stage: 'intake-normalization',
         outcome: 'success',
