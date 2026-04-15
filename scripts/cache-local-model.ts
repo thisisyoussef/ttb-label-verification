@@ -27,5 +27,10 @@ async function cacheModel() {
 
 cacheModel().catch((error) => {
   console.error('[model:cache] Failed to cache model:', error);
-  process.exit(1);
+  if (process.env.TRANSFORMERS_CACHE_REQUIRED === 'true') {
+    process.exit(1);
+  }
+  console.warn(
+    '[model:cache] Continuing without local model. Local extraction will be unavailable.'
+  );
 });
