@@ -78,6 +78,7 @@ export function DropZone({ image, disabled, onAccept, onRemove }: DropZoneProps)
     isDragOver,
     openPicker,
     onInputChange,
+    onDragEnter,
     onDragOver,
     onDragLeave,
     onDrop,
@@ -97,12 +98,20 @@ export function DropZone({ image, disabled, onAccept, onRemove }: DropZoneProps)
     openPicker();
   }, [openPicker]);
 
-  const clearErrorOnDragOver = useCallback(
+  const clearErrorOnDrag = useCallback(
     (e: React.DragEvent<HTMLElement>) => {
       setError(null);
       onDragOver(e);
     },
     [onDragOver]
+  );
+
+  const clearErrorOnDragEnter = useCallback(
+    (e: React.DragEvent<HTMLElement>) => {
+      setError(null);
+      onDragEnter(e);
+    },
+    [onDragEnter]
   );
 
   if (uploading) {
@@ -175,7 +184,8 @@ export function DropZone({ image, disabled, onAccept, onRemove }: DropZoneProps)
         data-tour-target="tour-drop-zone"
         onClick={clearErrorAndOpen}
         onKeyDown={onKeyDown}
-        onDragOver={clearErrorOnDragOver}
+        onDragEnter={clearErrorOnDragEnter}
+        onDragOver={clearErrorOnDrag}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
         className={[

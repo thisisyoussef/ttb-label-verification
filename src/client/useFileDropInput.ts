@@ -1,6 +1,10 @@
 import { useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent, KeyboardEvent } from 'react';
-import { TOOLBENCH_DRAG_MIME, fetchAsFile } from './toolbench/useToolbenchDrag';
+import {
+  TOOLBENCH_DRAG_MIME,
+  TOOLBENCH_PLAIN_PREFIX,
+  fetchAsFile
+} from './toolbench/useToolbenchDrag';
 
 interface UseFileDropInputOptions {
   interactive: boolean;
@@ -40,44 +44,33 @@ export function useFileDropInput(options: UseFileDropInputOptions) {
     event.target.value = '';
   };
 
+  const onDragEnter = (event: DragEvent<HTMLElement>) => {
+    event.preventDefault();
+    if (!options.interactive) return;
+    if (options.trackDragState) setIsDragOver(true);
+  };
+
   const onDragOver = (event: DragEvent<HTMLElement>) => {
     event.preventDefault();
-    if (!options.interactive) {
-      return;
-    }
-
-    if (options.trackDragState) {
-      setIsDragOver(true);
-    }
+    if (!options.interactive) return;
+    if (options.trackDragState) setIsDragOver(true);
   };
 
   const onDragLeave = () => {
-    if (options.trackDragState) {
-      setIsDragOver(false);
-    }
+    if (options.trackDragState) setIsDragOver(false);
   };
 
   const onDrop = (event: DragEvent<HTMLElement>) => {
     event.preventDefault();
-    if (options.trackDragState) {
-      setIsDragOver(false);
-    }
+    if (options.trackDragState) setIsDragOver(false);
+    if (!options.interactive) return;
 
-    if (!options.interactive) {
-      return;
-    }
-
-    // Check for toolbench asset drag
-    const toolbenchData = event.dataTransfer.getData(TOOLBENCH_DRAG_MIME);
-    if (toolbenchData) {
-      try {
-        const { url, filename } = JSON.parse(toolbenchData) as { url: string; filename: string };
-        fetchAsFile(url, filename).then((file) => {
-          emitSelectedFiles([file]);
-        });
-      } catch {
-        // Ignore malformed drag data
-      }
+    // Check for toolbench asset drag — try custom MIME first, then text/plain fallback (Safari)
+    const toolbenchPayload = extractToolbenchPayload(event);
+    if (toolbenchPayload) {
+      fetchAsFile(toolbenchPayload.url, toolbenchPayload.filename).then((file) => {
+        emitSelectedFiles([file]);
+      });
       return;
     }
 
@@ -101,9 +94,37 @@ export function useFileDropInput(options: UseFileDropInputOptions) {
     isDragOver,
     openPicker,
     onInputChange,
+    onDragEnter,
     onDragOver,
     onDragLeave,
     onDrop,
     onKeyDown
   };
+}
+
+function extractToolbenchPayload(
+  event: DragEvent<HTMLElement>
+): { url: string; filename: string } | null {
+  // Try the custom MIME type first (works in Chrome/Firefox)
+  const custom = event.dataTransfer.getData(TOOLBENCH_DRAG_MIME);
+  if (custom) {
+    try {
+      return JSON.parse(custom) as { url: string; filename: string };
+    } catch {
+      /* ignore */
+    }
+  }
+  // Fallback: text/plain with prefix (Safari compat)
+  const plain = event.dataTransfer.getData('text/plain');
+  if (plain?.startsWith(TOOLBENCH_PLAIN_PREFIX)) {
+    try {
+      return JSON.parse(plain.slice(TOOLBENCH_PLAIN_PREFIX.length)) as {
+        url: string;
+        filename: string;
+      };
+    } catch {
+      /* ignore */
+    }
+  }
+  return null;
 }
