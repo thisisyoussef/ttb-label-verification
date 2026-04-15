@@ -102,8 +102,8 @@ export function createUnavailableProviderFailure(input: {
       kind: 'adapter',
       message:
         mode === 'local'
-          ? 'Local extraction is not configured for this environment.'
-          : `${formatProviderName(input.provider)} extraction is not configured for this environment.`,
+          ? 'Local label reading is not available on this workstation.'
+          : 'Cloud label reading is not available on this workstation. Contact your administrator.',
       retryable: false
     },
     provider: input.provider,

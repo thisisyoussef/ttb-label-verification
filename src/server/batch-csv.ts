@@ -55,26 +55,26 @@ export function parseBatchCsv(input: {
     const rows = parseCsvRecords(stripBom(input.text));
 
     if (rows.length === 0) {
-      return failure('This CSV could not be read. Check the headers and try again.');
+      return failure('We could not read this CSV. Check the headers and try again.');
     }
 
     const rawHeaders = rows[0]!.map((value) => value.trim());
     if (rawHeaders.length === 0 || rawHeaders.every((value) => value.length === 0)) {
-      return failure('This CSV could not be read. Check the headers and try again.');
+      return failure('We could not read this CSV. Check the headers and try again.');
     }
 
     const missingRequired = BATCH_CSV_REQUIRED_HEADERS.filter(
       (header) => !rawHeaders.includes(header)
     );
     if (missingRequired.length > 0) {
-      return failure(`Missing required: ${missingRequired.join(', ')}`);
+      return failure(`This CSV is missing required headers: ${missingRequired.join(', ')}`);
     }
 
     const dataRows = rows
       .slice(1)
       .filter((row) => row.some((value) => value.trim().length > 0));
     if (dataRows.length === 0) {
-      return failure('This CSV could not be read. Check the headers and try again.');
+      return failure('We could not read this CSV. Check the headers and try again.');
     }
 
     const headerIndex = new Map<string, number>();
@@ -85,7 +85,7 @@ export function parseBatchCsv(input: {
     const parsedRows = dataRows.map((row, index) => {
       if (row.length !== rawHeaders.length) {
         throw new BatchCsvParseError(
-          `Row ${index + 1} did not match the header column count.`
+          `Row ${index + 1} has a different number of columns than the header row.`
         );
       }
 
@@ -224,7 +224,7 @@ function parseCsvRecords(value: string) {
   }
 
   if (inQuotes) {
-    throw new BatchCsvParseError('This CSV could not be read. Check the headers and try again.');
+    throw new BatchCsvParseError('We could not read this CSV. Check the headers and try again.');
   }
 
   if (currentField.length > 0 || currentRecord.length > 0) {

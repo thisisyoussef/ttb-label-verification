@@ -61,7 +61,7 @@ export function readReviewExtractionConfig(
       status: 503,
       error: {
         kind: 'adapter',
-        message: 'Live extraction is not configured for this environment.',
+        message: 'Cloud label reading is not set up on this workstation. Contact your administrator.',
         retryable: false
       }
     };
@@ -74,7 +74,7 @@ export function readReviewExtractionConfig(
       status: 500,
       error: {
         kind: 'adapter',
-        message: 'OpenAI extraction must run with OPENAI_STORE=false.',
+        message: 'This workstation is not configured correctly for label reading. Contact your administrator.',
         retryable: false
       }
     };
@@ -200,7 +200,7 @@ export function createOpenAIReviewExtractor(input: {
       throw createReviewExtractionFailure({
         status: 500,
         kind: 'adapter',
-        message: 'We could not normalize the OpenAI extraction output.',
+        message: 'We could not finish reading this label. Try again or use a different image.',
         retryable: false
       });
     }

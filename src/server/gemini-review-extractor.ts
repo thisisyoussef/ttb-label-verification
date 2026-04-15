@@ -75,7 +75,7 @@ export function readGeminiReviewExtractionConfig(
       status: 503,
       error: {
         kind: 'adapter',
-        message: 'Gemini extraction is not configured for this environment.',
+        message: 'Cloud label reading is not set up on this workstation. Contact your administrator.',
         retryable: false
       }
     };
@@ -211,7 +211,7 @@ export function createGeminiReviewExtractor(input: {
       throw createReviewExtractionFailure({
         status: 502,
         kind: 'adapter',
-        message: 'Gemini returned an empty structured response.',
+        message: 'The label reading service returned an empty result. Try again.',
         retryable: true
       });
     }
@@ -224,7 +224,7 @@ export function createGeminiReviewExtractor(input: {
       throw createReviewExtractionFailure({
         status: 502,
         kind: 'adapter',
-        message: 'Gemini returned malformed structured output.',
+        message: 'We could not read the response from the label reading service. Try again.',
         retryable: true
       });
     }
@@ -235,7 +235,7 @@ export function createGeminiReviewExtractor(input: {
       throw createReviewExtractionFailure({
         status: 502,
         kind: 'adapter',
-        message: 'Gemini returned malformed structured output.',
+        message: 'We could not read the response from the label reading service. Try again.',
         retryable: true
       });
     }
@@ -253,7 +253,7 @@ export function createGeminiReviewExtractor(input: {
       throw createReviewExtractionFailure({
         status: 500,
         kind: 'adapter',
-        message: 'We could not normalize the Gemini extraction output.',
+        message: 'We could not finish reading this label. Try again or use a different image.',
         retryable: false
       });
     }

@@ -142,7 +142,7 @@ export function resolveExtractionMode(input: {
   if (requestedMode === 'local' && !input.policy.allowLocal) {
     return createAdapterFailure({
       status: 503,
-      message: 'Local extraction mode is not enabled for this environment.'
+      message: 'Local mode is not available on this workstation.'
     });
   }
 

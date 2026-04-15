@@ -164,7 +164,7 @@ export async function streamBatchRun(options: {
   }
 
   if (!response.body) {
-    throw new Error('We could not read the batch stream.');
+    throw new Error('We could not start the batch review. Try again.');
   }
 
   const reader = response.body.getReader();

@@ -235,7 +235,7 @@ describe('review extractor factory', () => {
       createReviewExtractionFailure({
         status: 502,
         kind: 'adapter',
-        message: 'Gemini returned malformed structured output.',
+        message: 'We could not read the response from the label reading service. Try again.',
         retryable: true
       })
     );
@@ -285,7 +285,7 @@ describe('review extractor factory', () => {
           status: 503,
           error: {
             kind: 'adapter',
-            message: 'Gemini extraction is not configured for this environment.',
+            message: 'Cloud label reading is not set up on this workstation. Contact your administrator.',
             retryable: false
           },
           provider: 'gemini',

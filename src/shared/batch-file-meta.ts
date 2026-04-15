@@ -79,7 +79,7 @@ export function buildBatchFileError(input: {
         filename: input.filename,
         reason: input.reason,
         message:
-          'This proof of concept accepts up to 50 labels per batch. Remove some to continue.'
+          'The batch limit is 50 labels. Remove some to continue.'
       };
   }
 }
