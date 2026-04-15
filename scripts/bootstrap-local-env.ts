@@ -7,10 +7,16 @@ import { parseDotEnvFile } from '../src/server/load-local-env';
 
 const DEFAULT_ENV_VALUES = {
   OPENAI_MODEL: 'gpt-5.4-mini',
-  OPENAI_VISION_MODEL: 'gpt-5.4',
+  OPENAI_VISION_MODEL: 'gpt-5.4-mini',
+  OPENAI_VISION_DETAIL: 'auto',
+  OPENAI_SERVICE_TIER: '',
   OPENAI_STORE: 'false',
   GEMINI_API_KEY: '',
   GEMINI_VISION_MODEL: 'gemini-2.5-flash-lite',
+  GEMINI_TIMEOUT_MS: '5000',
+  GEMINI_MEDIA_RESOLUTION: '',
+  GEMINI_SERVICE_TIER: '',
+  GEMINI_THINKING_BUDGET: '',
   GEMINI_TEXT_MODEL: '',
   GEMINI_EMBEDDING_MODEL: '',
   AI_CAPABILITY_DEFAULT_ORDER: 'openai,gemini',

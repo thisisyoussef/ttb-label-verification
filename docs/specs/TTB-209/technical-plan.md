@@ -2,7 +2,7 @@
 
 ## Scope
 
-Use the timing foundation from `TTB-208` to tune the single-label critical path down to `<= 4,000 ms` while preserving deterministic review behavior and no-persistence constraints.
+Use the timing foundation from `TTB-208` to tune the default Gemini path to its best measured profile, harden the timeout policy around the repo’s `<= 5,000 ms` contract, and record the evidence for not cutting the public budget to `4000`.
 
 ## Planned modules and files
 
@@ -17,15 +17,15 @@ Use the timing foundation from `TTB-208` to tune the single-label critical path 
 - `src/server/review-latency.ts`
   - deadline-aware fallback decisions based on remaining budget
 - `src/server/index.ts`
-  - route-level budget enforcement
+  - route-level budget and timeout policy observation
 - `src/server/batch-session.ts`
   - tuned per-item budget handling
 - `src/shared/contracts/review-base.ts`
-  - `latencyBudgetMs` contract cutover from `5000` to `4000` once proven
+  - keep `latencyBudgetMs` at `5000` unless a later story proves a lower contract honestly
 - `src/shared/contracts/review-seed.ts`
-  - fixture alignment for the new budget
+  - no contract cutover in this story
 - `src/shared/contracts/review.test.ts`
-  - contract and fixture updates
+  - contract stays aligned with the `5000` budget
 
 ## Optimization levers
 
@@ -46,6 +46,7 @@ Use the timing foundation from `TTB-208` to tune the single-label critical path 
 - Evaluate Gemini global `media_resolution` settings where the docs indicate a latency/detail tradeoff.
 - Keep any reduced-resolution path conditional on quality proof for small warning text and dense label layouts.
 - Do not use Gemini explicit caching or OpenAI extended prompt caching as the baseline latency mechanism.
+- For Gemini 2.5 Flash-family models, explicitly control thinking budget for extraction-oriented requests when speed is the priority.
 
 ### Priority-tier support
 
@@ -72,13 +73,27 @@ Use the timing foundation from `TTB-208` to tune the single-label critical path 
 ## Testing strategy
 
 - unit:
-  - remaining-budget / fallback-cutoff logic
   - tuned request-profile selection
+  - Gemini timeout and telemetry defaults
 - integration:
   - optimized review route on primary success
   - fast-fail fallback inside budget
   - late-fail retryable exit inside budget
-- contract:
-  - `latencyBudgetMs` cutover from `5000` to `4000`
 - eval + trace:
   - compare baseline `TTB-207`/`TTB-208` timing against the optimized profiles on the approved fixture slice
+
+## 2026-04-14 implementation notes
+
+- Implemented request-profile tuning in `src/server/gemini-review-extractor.ts`:
+  - raster labels now default to Gemini `mediaResolution=low`
+  - PDFs now default to Gemini `mediaResolution=medium`
+  - Gemini 2.5 Flash-family models now default to `thinkingBudget=0` unless explicitly overridden
+  - successful Gemini calls now record internal latency metadata for observed service tier and prompt/thought token usage
+- Measured comparison on the 20-case local image slice:
+  - `gemini-2.5-flash-lite` with smart media defaults and `6000 ms` timeout is the current winner
+  - requesting Gemini `priority` did not improve the slice; successful responses still reported `serviceTier=standard`
+  - `gemini-2.5-flash` remained slower even with `thinkingBudget=0`
+  - exploratory `gemini-2.0-flash-lite` calls returned `404` and are not viable in this environment
+- Shipped decision:
+  - the improved Gemini profile is materially better than the prior baseline, but it still does not prove a `<= 4000 ms` public target
+  - the checked-in default timeout is therefore raised to `5000 ms`, the public contract remains `5000`, and the tighter cutover is explicitly deferred

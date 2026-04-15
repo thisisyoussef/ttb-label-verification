@@ -7,6 +7,7 @@ import type {
 } from './review-base';
 import {
   CANONICAL_GOVERNMENT_WARNING,
+  REVIEW_LATENCY_BUDGET_MS,
   verificationReportSchema
 } from './review-base';
 
@@ -31,7 +32,7 @@ export const seedVerificationReport: VerificationReport = {
     review: 3,
     fail: 0
   },
-  latencyBudgetMs: 5000,
+  latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
   noPersistence: true,
   summary:
     'Scaffold result only. The shared contract now mirrors the approved TTB-102 results UI while live extraction and validators land in later stories.',
@@ -183,7 +184,7 @@ const standaloneSeedVerificationReport: VerificationReport = {
     review: 2,
     fail: 0
   },
-  latencyBudgetMs: 5000,
+  latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
   noPersistence: true,
   summary:
     'Standalone scaffold result only. Extracted values are available without application-data comparisons.',

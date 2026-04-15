@@ -27,6 +27,10 @@ The eval harness now has two layers:
    - stable runtime slugs used by seeded UI states
    - the subset that blocks only when a story truly needs real label binaries
 
+3. `evals/labels/latency-twenty.manifest.json`
+   - checked-in synthetic 20-case live image-backed latency subset
+   - used for broader Gemini hot-path benchmarking without changing the default core-six UI/demo baseline
+
 ## Slice guidance
 
 Use the smallest applicable slice:
@@ -35,6 +39,11 @@ Use the smallest applicable slice:
   - default demo set
   - default seeded UI baseline
   - default live single-label extraction/validation regression slice
+
+- `latency-twenty`
+  - checked-in synthetic live 20-case latency slice
+  - broader Gemini extraction and review benchmarking
+  - extends the core-six with beverage, format, dependency, and warning coverage
 
 - `beverage-type-coverage`
   - beverage-specific rule checks
@@ -92,4 +101,4 @@ Deterministic comparison fixtures, batch summaries, and error-state expectations
 
 ## Validation
 
-Run `npm run evals:validate` after changing `evals/golden/manifest.json` or `evals/labels/manifest.json`.
+Run `npm run evals:validate` after changing `evals/golden/manifest.json` or any checked-in `evals/labels/*manifest.json` file.

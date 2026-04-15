@@ -17,6 +17,7 @@ import {
   readReviewExtractionConfig
 } from './openai-review-extractor';
 import type { NormalizedReviewIntake } from './review-intake';
+import { REVIEW_MAX_RETRYABLE_FALLBACK_ELAPSED_MS } from './review-latency';
 import {
   type ReviewExtractor,
   type ReviewExtractorContext
@@ -29,8 +30,6 @@ import {
   formatProviderName,
   normalizeProviderRuntimeFailure
 } from './review-provider-failure';
-
-const DEFAULT_MAX_RETRYABLE_FALLBACK_ELAPSED_MS = 2000;
 
 export interface ReviewExtractorProvider {
   provider: AiProvider;
@@ -98,7 +97,7 @@ export function createConfiguredReviewExtractor(input: {
   const capability = input.capability ?? 'label-extraction';
   const maxRetryableFallbackElapsedMs =
     input.maxRetryableFallbackElapsedMs ??
-    DEFAULT_MAX_RETRYABLE_FALLBACK_ELAPSED_MS;
+    REVIEW_MAX_RETRYABLE_FALLBACK_ELAPSED_MS;
   const policyResult = readExtractionRoutingPolicy(input.env);
   if (!policyResult.success) {
     return policyResult;
@@ -172,6 +171,7 @@ export function createConfiguredReviewExtractor(input: {
     success: true,
     value: {
       extractor: async (intake, context) => {
+        const extractorStartedAt = performance.now();
         const latencyCapture = context?.latencyCapture;
         latencyCapture?.setProviderOrder(
           availableProviders.map((provider) => provider.provider)
@@ -186,7 +186,6 @@ export function createConfiguredReviewExtractor(input: {
 
         for (const [index, provider] of availableProviders.entries()) {
           const attempt = index === 0 ? 'primary' : 'fallback';
-          const attemptStartedAt = performance.now();
 
           try {
             const extraction = await provider.execute(intake, {
@@ -220,7 +219,9 @@ export function createConfiguredReviewExtractor(input: {
             lastProviderFailure = providerFailure;
             const nextProvider = availableProviders[index + 1]?.provider;
             const fallbackWindowOpen = fallbackWindowStillOpen({
-              startedAt: attemptStartedAt,
+              elapsedMs:
+                latencyCapture?.getElapsedMs() ??
+                performance.now() - extractorStartedAt,
               maxRetryableFallbackElapsedMs
             });
 

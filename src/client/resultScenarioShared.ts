@@ -1,3 +1,4 @@
+import { REVIEW_LATENCY_BUDGET_MS } from '../shared/contracts/review';
 import type {
   CheckReview,
   DiffSegment,
@@ -44,7 +45,7 @@ export function withReportDefaults(
 ): UIVerificationReport {
   return {
     mode: 'single-label',
-    latencyBudgetMs: 5000,
+    latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
     noPersistence: true,
     ...report
   };

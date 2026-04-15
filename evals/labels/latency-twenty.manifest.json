@@ -1,0 +1,188 @@
+{
+  "version": 2,
+  "sourceManifest": "../golden/manifest.json",
+  "sliceId": "latency-twenty",
+  "description": "Checked-in synthetic 20-case live image-backed latency slice used for Gemini hot-path benchmarking beyond the default core-six baseline.",
+  "cases": [
+    {
+      "id": "perfect-spirit-label",
+      "goldenCaseId": "G-01",
+      "title": "Perfect Spirit Label",
+      "assetPath": "assets/perfect-spirit-label.png",
+      "beverageType": "distilled-spirits",
+      "scenario": "baseline happy path",
+      "expectedRecommendation": "approve"
+    },
+    {
+      "id": "spirit-warning-errors",
+      "goldenCaseId": "G-02",
+      "title": "Spirit Label With Warning Errors",
+      "assetPath": "assets/spirit-warning-errors.png",
+      "beverageType": "distilled-spirits",
+      "scenario": "government warning title case plus punctuation defect",
+      "expectedRecommendation": "reject"
+    },
+    {
+      "id": "spirit-brand-case-mismatch",
+      "goldenCaseId": "G-03",
+      "title": "Spirit Label With Brand Name Case Mismatch",
+      "assetPath": "assets/spirit-brand-case-mismatch.png",
+      "beverageType": "distilled-spirits",
+      "scenario": "cosmetic brand mismatch should downgrade to review, not fail",
+      "expectedRecommendation": "review"
+    },
+    {
+      "id": "wine-missing-appellation",
+      "goldenCaseId": "G-04",
+      "title": "Wine Label Missing Appellation",
+      "assetPath": "assets/wine-missing-appellation.png",
+      "beverageType": "wine",
+      "scenario": "vintage and varietal present without appellation",
+      "expectedRecommendation": "reject"
+    },
+    {
+      "id": "beer-forbidden-abv-format",
+      "goldenCaseId": "G-05",
+      "title": "Beer Label With Forbidden ABV Format",
+      "assetPath": "assets/beer-forbidden-abv-format.png",
+      "beverageType": "malt-beverage",
+      "scenario": "ABV uses forbidden format",
+      "expectedRecommendation": "reject"
+    },
+    {
+      "id": "low-quality-image",
+      "goldenCaseId": "G-06",
+      "title": "Low Quality Image",
+      "assetPath": "assets/low-quality-image.png",
+      "beverageType": "unknown",
+      "scenario": "blurry or low-confidence extraction should surface review",
+      "expectedRecommendation": "review"
+    },
+    {
+      "id": "perfect-beer-label",
+      "goldenCaseId": "G-07",
+      "title": "Perfect Beer Label",
+      "assetPath": "assets/perfect-beer-label.png",
+      "beverageType": "malt-beverage",
+      "scenario": "beer-specific happy path without ABV requirement",
+      "expectedRecommendation": "approve"
+    },
+    {
+      "id": "beer-unqualified-geographic-style",
+      "goldenCaseId": "G-08",
+      "title": "Beer With Geographic Style Unqualified",
+      "assetPath": "assets/beer-unqualified-geographic-style.png",
+      "beverageType": "malt-beverage",
+      "scenario": "foreign geographic style name without style qualifier",
+      "expectedRecommendation": "review"
+    },
+    {
+      "id": "wine-multiple-varietals-valid",
+      "goldenCaseId": "G-09",
+      "title": "Wine With Multiple Varietals Valid",
+      "assetPath": "assets/wine-multiple-varietals-valid.png",
+      "beverageType": "wine",
+      "scenario": "compliant multi-varietal wine",
+      "expectedRecommendation": "approve"
+    },
+    {
+      "id": "wine-multiple-varietals-invalid-total",
+      "goldenCaseId": "G-10",
+      "title": "Wine With Multiple Varietals Invalid Total",
+      "assetPath": "assets/wine-multiple-varietals-invalid-total.png",
+      "beverageType": "wine",
+      "scenario": "varietal percentages total 90 instead of 100",
+      "expectedRecommendation": "reject"
+    },
+    {
+      "id": "wine-table-wine-exemption",
+      "goldenCaseId": "G-11",
+      "title": "Wine Label Table Wine Exemption",
+      "assetPath": "assets/wine-table-wine-exemption.png",
+      "beverageType": "wine",
+      "scenario": "table wine designation stands in for explicit ABV",
+      "expectedRecommendation": "approve"
+    },
+    {
+      "id": "spirits-abv-abbreviation",
+      "goldenCaseId": "G-12",
+      "title": "Spirits With ABV Abbreviation",
+      "assetPath": "assets/spirits-abv-abbreviation.png",
+      "beverageType": "distilled-spirits",
+      "scenario": "same forbidden ABV abbreviation rule applied to spirits",
+      "expectedRecommendation": "reject"
+    },
+    {
+      "id": "spirits-net-contents-us-measures",
+      "goldenCaseId": "G-13",
+      "title": "Spirits Net Contents In U.S. Measures",
+      "assetPath": "assets/spirits-net-contents-us-measures.png",
+      "beverageType": "distilled-spirits",
+      "scenario": "spirits use U.S. measures instead of metric standards of fill",
+      "expectedRecommendation": "reject"
+    },
+    {
+      "id": "beer-net-contents-metric-primary",
+      "goldenCaseId": "G-14",
+      "title": "Beer Net Contents In Metric Primary",
+      "assetPath": "assets/beer-net-contents-metric-primary.png",
+      "beverageType": "malt-beverage",
+      "scenario": "metric-primary net contents should downgrade to review",
+      "expectedRecommendation": "review"
+    },
+    {
+      "id": "spirits-proof-not-parenthesized",
+      "goldenCaseId": "G-15",
+      "title": "Spirits Proof Not In Parentheses",
+      "assetPath": "assets/spirits-proof-not-parenthesized.png",
+      "beverageType": "distilled-spirits",
+      "scenario": "proof is not distinguished from the percentage statement",
+      "expectedRecommendation": "review"
+    },
+    {
+      "id": "imported-without-country-of-origin",
+      "goldenCaseId": "G-23",
+      "title": "Imported Spirit Without Country Of Origin",
+      "assetPath": "assets/imported-without-country-of-origin.png",
+      "beverageType": "distilled-spirits",
+      "scenario": "imported product omits a country-of-origin statement",
+      "expectedRecommendation": "reject"
+    },
+    {
+      "id": "whisky-age-ambiguity",
+      "goldenCaseId": "G-24",
+      "title": "Whisky Under 4 Years Without Age Statement",
+      "assetPath": "assets/whisky-age-ambiguity.png",
+      "beverageType": "distilled-spirits",
+      "scenario": "age claim language is ambiguous without a clear numeric statement",
+      "expectedRecommendation": "review"
+    },
+    {
+      "id": "wine-varietal-without-appellation",
+      "goldenCaseId": "G-25",
+      "title": "Wine With Varietal But No Appellation",
+      "assetPath": "assets/wine-varietal-without-appellation.png",
+      "beverageType": "wine",
+      "scenario": "varietal designation appears without appellation",
+      "expectedRecommendation": "reject"
+    },
+    {
+      "id": "wine-vintage-with-appellation",
+      "goldenCaseId": "G-26",
+      "title": "Wine With Vintage And Appellation",
+      "assetPath": "assets/wine-vintage-with-appellation.png",
+      "beverageType": "wine",
+      "scenario": "compliant vintage and appellation counterpart to the missing-appellation case",
+      "expectedRecommendation": "approve"
+    },
+    {
+      "id": "warning-completely-missing",
+      "goldenCaseId": "G-27",
+      "title": "Government Warning Completely Missing",
+      "assetPath": "assets/warning-completely-missing.png",
+      "beverageType": "any",
+      "scenario": "label omits the government warning entirely",
+      "expectedRecommendation": "reject"
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 import type { AiProvider } from './ai-provider-policy';
 import type { LlmEndpointSurface } from './llm-policy';
 
+export const REVIEW_MAX_RETRYABLE_FALLBACK_ELAPSED_MS = 550;
+
 export type ReviewLatencyStage =
   | 'intake-parse'
   | 'intake-normalization'
@@ -35,11 +37,20 @@ export type ReviewLatencySpan = {
   attempt?: ReviewLatencyAttempt;
 };
 
+export type ReviewLatencyProviderMetadata = {
+  provider: AiProvider;
+  attempt?: ReviewLatencyAttempt;
+  serviceTier?: string;
+  promptTokenCount?: number;
+  thoughtsTokenCount?: number;
+};
+
 export type ReviewLatencySummary = {
   surface: LlmEndpointSurface;
   outcomePath: ReviewLatencyPath;
   totalDurationMs: number;
   spans: ReviewLatencySpan[];
+  providerMetadata: ReviewLatencyProviderMetadata[];
   providerOrder: AiProvider[];
   fallbackAttempted: boolean;
   clientTraceId?: string;
@@ -51,6 +62,7 @@ export type ReviewLatencyObserver = (summary: ReviewLatencySummary) => void;
 export class ReviewLatencyCapture {
   private readonly startedAt = performance.now();
   private readonly spans: ReviewLatencySpan[] = [];
+  private readonly providerMetadata: ReviewLatencyProviderMetadata[] = [];
   private providerOrder: AiProvider[] = [];
   private outcomePath?: ReviewLatencyPath;
   private finalized?: ReviewLatencySummary;
@@ -75,6 +87,10 @@ export class ReviewLatencyCapture {
     return this.outcomePath;
   }
 
+  getElapsedMs() {
+    return performance.now() - this.startedAt;
+  }
+
   hasFallbackAttempt() {
     return this.spans.some(
       (span) => span.stage === 'fallback-handoff' && span.outcome === 'success'
@@ -92,6 +108,16 @@ export class ReviewLatencyCapture {
     });
   }
 
+  recordProviderMetadata(metadata: ReviewLatencyProviderMetadata) {
+    if (this.finalized) {
+      return;
+    }
+
+    this.providerMetadata.push({
+      ...metadata
+    });
+  }
+
   finalize() {
     if (this.finalized) {
       return this.finalized;
@@ -102,6 +128,7 @@ export class ReviewLatencyCapture {
       outcomePath: this.outcomePath ?? 'primary-hard-fail',
       totalDurationMs: normalizeDuration(performance.now() - this.startedAt),
       spans: [...this.spans],
+      providerMetadata: [...this.providerMetadata],
       providerOrder: [...this.providerOrder],
       fallbackAttempted: this.hasFallbackAttempt(),
       clientTraceId: this.metadata.clientTraceId,

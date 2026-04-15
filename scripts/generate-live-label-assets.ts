@@ -4,6 +4,8 @@ import process from 'node:process';
 
 import { GoogleGenAI } from '@google/genai';
 
+import { loadLocalEnv } from '../src/server/load-local-env';
+
 type LabelManifest = {
   cases: Array<{
     id: string;
@@ -14,6 +16,7 @@ type LabelManifest = {
 
 const DEFAULT_MODEL =
   process.env.GEMINI_IMAGE_MODEL?.trim() || 'gemini-3.1-flash-image-preview';
+const DEFAULT_MANIFEST_PATH = 'evals/labels/manifest.json';
 
 const PROMPTS: Record<string, string> = {
   'perfect-spirit-label': [
@@ -85,12 +88,170 @@ const PROMPTS: Record<string, string> = {
     "Show a simple spirits label with partial readable text such as STONE'S THROW, 750 mL, and a government warning block, but make the overall image hard to read.",
     'Plain neutral background, no people, no bottle glamour shot, internal QA style.',
     'The goal is a realistic poor-quality capture that should trigger low-confidence extraction.'
+  ].join(' '),
+  'perfect-beer-label': [
+    'Create a synthetic internal QA fixture: a flat front-facing 2D printed malt beverage label only.',
+    'No can, bottle, hands, shelf, or background scene.',
+    'One centered rectangular paper label on white with crisp readable black text.',
+    'Brand name: HARBOR LIGHT.',
+    'Class/type line: Lager Beer.',
+    'Net contents line: 12 FL OZ.',
+    'No ABV statement.',
+    'Brewed by line: Harbor Light Brewing Co., Milwaukee, WI.',
+    'Include the full exact U.S. government warning with the all-caps heading as one readable paragraph.',
+    'Keep the layout compliant-looking, clean, and typographic only.'
+  ].join(' '),
+  'beer-unqualified-geographic-style': [
+    'Create a synthetic internal QA fixture: a flat front-facing 2D printed malt beverage label only.',
+    'One centered rectangular paper label on white with crisp readable text.',
+    'Brand name: LAKE SHORE.',
+    'Class/type line: Bavarian Lager.',
+    'Do not include the word style anywhere near Bavarian Lager.',
+    'Net contents line: 12 FL OZ.',
+    'Brewed by line: Lake Shore Brewing Co., Chicago, IL.',
+    'Include the full exact U.S. government warning with the all-caps heading.',
+    'No decorative graphics.'
+  ].join(' '),
+  'wine-multiple-varietals-valid': [
+    'Create a synthetic internal QA fixture: a flat front-facing 2D printed wine label only.',
+    'One centered paper label on white with crisp readable text.',
+    'Brand name: NORTH RIDGE CELLARS.',
+    'Class/type line: Red Wine.',
+    'Vintage year: 2021.',
+    'Appellation: Napa Valley.',
+    'Varietal line: Cabernet Sauvignon 75%, Merlot 25%.',
+    'Alcohol line: 13.5% Alc. by Vol.',
+    'Net contents line: 750 mL.',
+    'Bottled by line: North Ridge Cellars, Napa, CA.',
+    'Include the full exact U.S. government warning with the all-caps heading.',
+    'No vineyard art or medals.'
+  ].join(' '),
+  'wine-multiple-varietals-invalid-total': [
+    'Create a synthetic internal QA fixture: a flat front-facing 2D printed wine label only.',
+    'One centered paper label on white with crisp readable text.',
+    'Brand name: NORTH RIDGE CELLARS.',
+    'Class/type line: Red Wine.',
+    'Vintage year: 2021.',
+    'Appellation: Napa Valley.',
+    'Varietal line: Cabernet Sauvignon 60%, Merlot 30%.',
+    'Alcohol line: 13.5% Alc. by Vol.',
+    'Net contents line: 750 mL.',
+    'Bottled by line: North Ridge Cellars, Napa, CA.',
+    'Include the full exact U.S. government warning with the all-caps heading.'
+  ].join(' '),
+  'wine-table-wine-exemption': [
+    'Create a synthetic internal QA fixture: a flat front-facing 2D printed wine label only.',
+    'One centered paper label on white with crisp readable text.',
+    'Brand name: VALLEY TABLE.',
+    'Class/type line: Table Wine.',
+    'Do not include any explicit alcohol percentage statement.',
+    'Net contents line: 750 mL.',
+    'Bottled by line: Valley Table Wines, Lodi, CA.',
+    'Include the full exact U.S. government warning with the all-caps heading.',
+    'Keep the design simple and compliant-looking.'
+  ].join(' '),
+  'spirits-abv-abbreviation': [
+    'Create a synthetic internal QA fixture: a flat front-facing 2D printed distilled spirits label only.',
+    'One centered rectangular paper label on white with crisp readable text.',
+    'Brand name: STONE RIDGE.',
+    'Class/type line: Gin.',
+    'Alcohol line: 40% ABV.',
+    'Net contents line: 750 mL.',
+    'Bottled by line: Stone Ridge Spirits, Austin, TX.',
+    'Include the full exact U.S. government warning with the all-caps heading.'
+  ].join(' '),
+  'spirits-net-contents-us-measures': [
+    'Create a synthetic internal QA fixture: a flat front-facing 2D printed distilled spirits label only.',
+    'One centered paper label on white with crisp readable text.',
+    'Brand name: HERITAGE OAK.',
+    'Class/type line: Bourbon Whiskey.',
+    'Alcohol line: 45% Alc./Vol.',
+    'Net contents line: 25.4 FL OZ.',
+    'Bottled by line: Heritage Oak Distilling, Bardstown, KY.',
+    'Include the full exact U.S. government warning with the all-caps heading.'
+  ].join(' '),
+  'beer-net-contents-metric-primary': [
+    'Create a synthetic internal QA fixture: a flat front-facing 2D printed malt beverage label only.',
+    'One centered paper label on white with crisp readable text.',
+    'Brand name: HARBOR LIGHT.',
+    'Class/type line: Lager Beer.',
+    'Net contents line: 355 mL (12 FL OZ).',
+    'Brewed by line: Harbor Light Brewing Co., Milwaukee, WI.',
+    'Include the full exact U.S. government warning with the all-caps heading.'
+  ].join(' '),
+  'spirits-proof-not-parenthesized': [
+    'Create a synthetic internal QA fixture: a flat front-facing 2D printed distilled spirits label only.',
+    'One centered paper label on white with crisp readable text.',
+    'Brand name: STONE RIDGE.',
+    'Class/type line: Gin.',
+    'Alcohol line: 45% Alc./Vol. 90 Proof.',
+    'Net contents line: 750 mL.',
+    'Bottled by line: Stone Ridge Spirits, Austin, TX.',
+    'Include the full exact U.S. government warning with the all-caps heading.'
+  ].join(' '),
+  'imported-without-country-of-origin': [
+    'Create a synthetic internal QA fixture: a flat front-facing 2D printed distilled spirits label only.',
+    'One centered paper label on white with crisp readable text.',
+    'Brand name: CASA DEL MAR.',
+    'Class/type line: Tequila.',
+    'Alcohol line: 40% Alc./Vol.',
+    'Net contents line: 750 mL.',
+    'Importer line: Imported by Coastal Imports, Miami, FL.',
+    'Do not include any country of origin statement.',
+    'Include the full exact U.S. government warning with the all-caps heading.'
+  ].join(' '),
+  'whisky-age-ambiguity': [
+    'Create a synthetic internal QA fixture: a flat front-facing 2D printed distilled spirits label only.',
+    'One centered paper label on white with crisp readable text.',
+    'Brand name: HIGHLAND CREEK.',
+    'Class/type line: Blended Scotch Whisky.',
+    'A prominent headline should read: Aged to Perfection Since 1890.',
+    'Do not include a clear numeric age statement like 12 years old.',
+    'Alcohol line: 43% Alc./Vol.',
+    'Net contents line: 750 mL.',
+    'Imported by Highland Creek Imports, New York, NY.',
+    'Include the full exact U.S. government warning with the all-caps heading.'
+  ].join(' '),
+  'wine-varietal-without-appellation': [
+    'Create a synthetic internal QA fixture: a flat front-facing 2D printed wine label only.',
+    'One centered paper label on white with crisp readable text.',
+    'Brand name: NORTH RIDGE CELLARS.',
+    'Class/type line: Pinot Noir.',
+    'Do not include any appellation or AVA text.',
+    'Alcohol line: 13.5% Alc. by Vol.',
+    'Net contents line: 750 mL.',
+    'Bottled by line: North Ridge Cellars, Napa, CA.',
+    'Include the full exact U.S. government warning with the all-caps heading.'
+  ].join(' '),
+  'wine-vintage-with-appellation': [
+    'Create a synthetic internal QA fixture: a flat front-facing 2D printed wine label only.',
+    'One centered paper label on white with crisp readable text.',
+    'Brand name: NORTH RIDGE CELLARS.',
+    'Class/type line: Pinot Noir.',
+    'Vintage year: 2021.',
+    'Appellation: Russian River Valley.',
+    'Alcohol line: 13.5% Alc. by Vol.',
+    'Net contents line: 750 mL.',
+    'Bottled by line: North Ridge Cellars, Napa, CA.',
+    'Include the full exact U.S. government warning with the all-caps heading.'
+  ].join(' '),
+  'warning-completely-missing': [
+    'Create a synthetic internal QA fixture: a flat front-facing 2D printed distilled spirits label only.',
+    'One centered rectangular paper label on white with crisp readable text.',
+    'Brand name: STONE RIDGE.',
+    'Class/type line: Bourbon Whiskey.',
+    'Alcohol line: 45% Alc./Vol.',
+    'Net contents line: 750 mL.',
+    'Bottled by line: Stone Ridge Distilling, Louisville, KY.',
+    'Do not include any government warning text anywhere on the label.',
+    'No decorative graphics.'
   ].join(' ')
 };
 
 function parseArgs(argv: string[]) {
   const selectedCaseIds = new Set<string>();
   let force = false;
+  let manifestPath = DEFAULT_MANIFEST_PATH;
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
@@ -108,9 +269,19 @@ function parseArgs(argv: string[]) {
       index += 1;
       continue;
     }
+
+    if (arg === '--manifest') {
+      const nextValue = argv[index + 1]?.trim();
+      if (!nextValue) {
+        throw new Error('Expected a manifest path after --manifest.');
+      }
+      manifestPath = nextValue;
+      index += 1;
+      continue;
+    }
   }
 
-  return { force, selectedCaseIds };
+  return { force, selectedCaseIds, manifestPath };
 }
 
 async function fileExists(filePath: string) {
@@ -154,14 +325,23 @@ async function generateImage(ai: GoogleGenAI, prompt: string, model: string) {
 }
 
 async function main() {
+  loadLocalEnv();
+
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY is required to generate label assets.');
   }
 
-  const { force, selectedCaseIds } = parseArgs(process.argv.slice(2));
+  const { force, selectedCaseIds, manifestPath: manifestPathArg } = parseArgs(
+    process.argv.slice(2)
+  );
   const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
-  const manifestPath = path.join(repoRoot, 'evals/labels/manifest.json');
+  const manifestPath = path.isAbsolute(manifestPathArg)
+    ? manifestPathArg
+    : path.join(
+        repoRoot,
+        manifestPathArg.includes(path.sep) ? manifestPathArg : path.join('evals/labels', manifestPathArg)
+      );
   const manifest = JSON.parse(
     await readFile(manifestPath, 'utf8')
   ) as LabelManifest;
@@ -201,6 +381,7 @@ async function main() {
     JSON.stringify(
       {
         model,
+        manifestPath,
         generated
       },
       null,

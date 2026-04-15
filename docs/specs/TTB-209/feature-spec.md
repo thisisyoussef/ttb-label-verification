@@ -3,35 +3,33 @@
 ## Story
 
 - Story ID: `TTB-209`
-- Title: cloud/default single-label hot-path optimization to `<= 4 seconds`
+- Title: cloud/default Gemini hot-path tuning and latency policy hardening
 
 ## Problem statement
 
-The current product-level contract and existing provider cutover plans still target a `<= 5,000 ms` single-label path. The repo also already contains a warning-route spot check at `7632 ms`, which shows the extraction leg can miss even the old target. The system needs explicit hot-path optimization work to bring real response times down to `<= 4,000 ms`.
+The current product-level contract targets a `<= 5,000 ms` single-label path, but the checked-in Gemini default was still configured to time out at `3000 ms` and the real cloud route still varied enough that a `<= 4,000 ms` cutover could not be proved honestly. This story tunes the default Gemini request profile, records the winning and losing latency experiments, checks in a larger image-backed eval slice, and locks the product to a truthful `<= 5,000 ms` baseline instead of claiming an unproved `4000 ms` budget.
 
 ## User-facing outcomes
 
-- The normal single-label review path returns within `4 seconds` on the approved latency fixture slice.
-- Slow primary-provider failures do not drag the user into a long fallback chain; they fail fast with a retryable error when the remaining budget is insufficient.
-- The visible report budget matches the measured target instead of advertising a stale `5000 ms` ceiling.
+- The default Gemini path uses the best measured profile for this repo: `gemini-2.5-flash-lite`, smart media defaults, Flash-family `thinkingBudget=0`, and no priority tier by default.
+- The shipped timeout posture matches the real product budget better than the old `3000 ms` self-fail setting.
+- The visible report budget remains truthful at `5000 ms`; the repo does not claim `4000 ms` without proof.
 
 ## Acceptance criteria
 
-1. The optimized `POST /api/review` happy path completes within `<= 4,000 ms` on the approved release-signoff fixture slice.
-2. `POST /api/review/extraction` and `POST /api/review/warning` remain at or below the same target envelope and should normally beat the full review route.
-3. Deadline-aware fallback prevents a second full provider call when the remaining budget cannot support it; the late-fail path returns a structured retryable error inside the target window.
-4. The story evaluates and records the winning primary Gemini profile and the winning OpenAI fallback profile for the latency-sensitive path.
-5. Prompt/schema/request-shape work removes unnecessary latency sources and keeps static content structured for cache friendliness without depending on durable provider-side storage.
-6. Optional priority-tier and media-resolution tuning remain config-gated and are enabled only if they improve latency without breaking privacy, quality, or cost expectations.
-7. After measured proof exists, the shared contract, report builder, and seed fixtures cut over `latencyBudgetMs` from `5000` to `4000`.
-8. Tests prove non-default submitted values still survive both the optimized primary path and the allowed fallback path.
+1. The story records the winning Gemini profile and the losing latency experiments on the approved 20-case image-backed slice.
+2. The runtime defaults cut over to the best measured baseline for this repo: `gemini-2.5-flash-lite`, raster `low`, PDF `medium`, Flash-family `thinkingBudget=0`, no priority tier by default, and `GEMINI_TIMEOUT_MS=5000`.
+3. The checked-in eval corpus expands beyond the local-only `.tmp` set through `evals/labels/latency-twenty.manifest.json` plus the matching assets under `evals/labels/assets/`.
+4. Prompt and request-profile tuning keeps the more accurate `cloud-cross-provider-v1` prompt active because the slimmer prompt did not materially improve route latency.
+5. The story packet, eval result, and tracker record the explicit non-cutover decision to keep `latencyBudgetMs` at `5000`.
+6. Tests prove the tuned Gemini config, telemetry capture, and eval-manifest validation behavior.
 
 ## Edge cases
 
 - clear image vs low-quality image
 - PDF vs raster upload
 - priority-tier downgrade back to standard processing
-- cache miss vs repeated static-prefix request
+- timeout policy too short for the real provider wait distribution
 - batch-item execution under the same tuned provider profile
 - low-latency model choice improves speed but weakens warning-text fidelity
 
@@ -40,3 +38,4 @@ The current product-level contract and existing provider cutover plans still tar
 - UI redesign or new reviewer-facing evidence fields
 - database, queue, or async background processing
 - Gemini Files API, Gemini explicit caching, or any other durable provider-side storage workaround
+- claiming a `4000 ms` public budget without new measured proof

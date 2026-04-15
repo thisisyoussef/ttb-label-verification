@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { reviewExtractionSchema } from '../shared/contracts/review';
 import type { NormalizedReviewIntake } from './review-intake';
+import { createReviewLatencyCapture } from './review-latency';
 import { createReviewExtractionFailure } from './review-extraction';
 import {
   ReviewProviderFailure,
@@ -369,6 +370,69 @@ describe('review extractor factory', () => {
     });
 
     await vi.advanceTimersByTimeAsync(101);
+    await rejection;
+    expect(geminiExecute).toHaveBeenCalledTimes(1);
+    expect(openAiExecute).not.toHaveBeenCalled();
+  });
+
+  it('counts total route elapsed time before allowing fallback', async () => {
+    vi.useFakeTimers();
+
+    const geminiExecute = vi.fn().mockImplementation(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 401));
+      throw createReviewExtractionFailure({
+        status: 502,
+        kind: 'network',
+        message: 'Gemini is temporarily unavailable.',
+        retryable: true
+      });
+    });
+    const openAiExecute = vi.fn().mockResolvedValue(buildExtractionPayload());
+
+    const providers: ReviewExtractorProviderFactories = {
+      gemini: () => ({
+        success: true,
+        provider: provider({
+          provider: 'gemini',
+          execute: geminiExecute
+        })
+      }),
+      openai: () => ({
+        success: true,
+        provider: provider({
+          provider: 'openai',
+          execute: openAiExecute
+        })
+      })
+    };
+
+    const resolution = createConfiguredReviewExtractor({
+      env: {},
+      providers,
+      maxRetryableFallbackElapsedMs: 400
+    });
+
+    expect(resolution.success).toBe(true);
+    if (!resolution.success) {
+      throw new Error('Expected extractor resolution to succeed.');
+    }
+
+    const latencyCapture = createReviewLatencyCapture({
+      surface: '/api/review'
+    });
+
+    const extractionPromise = resolution.value.extractor(buildIntake(), {
+      latencyCapture
+    });
+    const rejection = expect(extractionPromise).rejects.toMatchObject({
+      status: 502,
+      error: {
+        kind: 'network',
+        retryable: true
+      }
+    });
+
+    await vi.advanceTimersByTimeAsync(401);
     await rejection;
     expect(geminiExecute).toHaveBeenCalledTimes(1);
     expect(openAiExecute).not.toHaveBeenCalled();
