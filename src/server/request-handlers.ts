@@ -11,6 +11,7 @@ import {
 import {
   isReviewExtractionFailure
 } from './review-extraction';
+import { convertPdfLabelToImage } from './pdf-label-converter';
 import {
   createNormalizedReviewIntake,
   parseOptionalReviewFields,
@@ -166,12 +167,17 @@ export function handleReviewUpload(
   onReady: (intake: NormalizedReviewIntake) => Promise<void>
 ) {
   void prepareReviewUpload(request, response)
-    .then((prepared) => {
+    .then(async (prepared) => {
       if (!prepared.success) {
         return;
       }
 
-      return onReady(prepared.intake);
+      const intake: NormalizedReviewIntake = {
+        ...prepared.intake,
+        label: await convertPdfLabelToImage(prepared.intake.label)
+      };
+
+      return onReady(intake);
     })
     .catch((handlerError) => {
       respondToReviewExecutionError(handlerError, response);
