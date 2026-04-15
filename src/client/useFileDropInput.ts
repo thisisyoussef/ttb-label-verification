@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent, KeyboardEvent } from 'react';
+import { TOOLBENCH_DRAG_MIME, fetchAsFile } from './toolbench/useToolbenchDrag';
 
 interface UseFileDropInputOptions {
   interactive: boolean;
@@ -66,6 +67,21 @@ export function useFileDropInput(options: UseFileDropInputOptions) {
       return;
     }
 
+    // Check for toolbench asset drag
+    const toolbenchData = event.dataTransfer.getData(TOOLBENCH_DRAG_MIME);
+    if (toolbenchData) {
+      try {
+        const { url, filename } = JSON.parse(toolbenchData) as { url: string; filename: string };
+        fetchAsFile(url, filename).then((file) => {
+          emitSelectedFiles([file]);
+        });
+      } catch {
+        // Ignore malformed drag data
+      }
+      return;
+    }
+
+    // Normal file drop
     emitSelectedFiles(Array.from(event.dataTransfer.files));
   };
 
