@@ -12,6 +12,10 @@ import {
   diffGovernmentWarningText,
   normalizeGovernmentWarningText
 } from './government-warning-diff';
+import {
+  applyOcrCrossCheckToConfidence,
+  type OcrCrossCheckResult
+} from './warning-ocr-cross-check';
 
 const WARNING_TEXT_CONFIDENCE_THRESHOLD = 0.8;
 const WARNING_VISUAL_CONFIDENCE_THRESHOLD = 0.75;
@@ -24,7 +28,8 @@ const WARNING_CITATIONS = [
 export { diffGovernmentWarningText, normalizeGovernmentWarningText };
 
 export function buildGovernmentWarningCheck(
-  extraction: ReviewExtraction
+  extraction: ReviewExtraction,
+  ocrCrossCheck?: OcrCrossCheckResult
 ): CheckReview {
   const extractedField = extraction.fields.governmentWarning;
   const extractedText = normalizeGovernmentWarningText(extractedField.value);
@@ -79,7 +84,7 @@ export function buildGovernmentWarningCheck(
       exactMatch
     }),
     details: buildWarningDetails(subChecks),
-    confidence: deriveWarningConfidence(extraction),
+    confidence: deriveWarningConfidence(extraction, ocrCrossCheck),
     citations: [...WARNING_CITATIONS],
     extractedValue: hasWarningText ? extractedText : undefined,
     warning: {
@@ -331,7 +336,10 @@ function summarizeWarningStatus(subChecks: WarningSubCheck[]): CheckStatus {
   return 'pass';
 }
 
-function deriveWarningConfidence(extraction: ReviewExtraction) {
+function deriveWarningConfidence(
+  extraction: ReviewExtraction,
+  ocrCrossCheck?: OcrCrossCheckResult
+) {
   const average =
     (extraction.fields.governmentWarning.confidence +
       extraction.imageQuality.score +
@@ -341,7 +349,16 @@ function deriveWarningConfidence(extraction: ReviewExtraction) {
       extraction.warningSignals.separateFromOtherContent.confidence) /
     6;
 
-  return Math.max(0, Math.min(1, Number(average.toFixed(2))));
+  const baseConfidence = Math.max(0, Math.min(1, Number(average.toFixed(2))));
+
+  if (!ocrCrossCheck) {
+    return baseConfidence;
+  }
+
+  return Math.max(
+    0,
+    Math.min(1, Number(applyOcrCrossCheckToConfidence(baseConfidence, ocrCrossCheck).toFixed(2)))
+  );
 }
 
 function buildWarningSummary(input: {
