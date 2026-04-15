@@ -27,7 +27,7 @@ export const AUTH_TIMINGS = {
 
 export const SESSION_TIMEOUTS = {
   inactivityMs: 15 * 60 * 1000,
-  warningMs: 60 * 1000,
+  warningMs: 2 * 60 * 1000,
   tickMs: 1000
 } as const;
 
