@@ -52,6 +52,7 @@ interface DropZoneProps {
 
 export function DropZone({ image, disabled, onAccept, onRemove }: DropZoneProps) {
   const [error, setError] = useState<DropZoneError | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const handleFile = useCallback(
     (file: File) => {
@@ -61,8 +62,13 @@ export function DropZone({ image, disabled, onAccept, onRemove }: DropZoneProps)
         return;
       }
       setError(null);
+      const isLarge = file.size > 2 * 1024 * 1024;
+      if (isLarge) setUploading(true);
       const previewUrl = URL.createObjectURL(file);
-      onAccept({ file, previewUrl, sizeLabel: formatSize(file.size) });
+      requestAnimationFrame(() => {
+        setUploading(false);
+        onAccept({ file, previewUrl, sizeLabel: formatSize(file.size) });
+      });
     },
     [onAccept]
   );
@@ -85,6 +91,36 @@ export function DropZone({ image, disabled, onAccept, onRemove }: DropZoneProps)
       }
     }
   });
+
+  const clearErrorAndOpen = useCallback(() => {
+    setError(null);
+    openPicker();
+  }, [openPicker]);
+
+  const clearErrorOnDragOver = useCallback(
+    (e: React.DragEvent<HTMLElement>) => {
+      setError(null);
+      onDragOver(e);
+    },
+    [onDragOver]
+  );
+
+  if (uploading) {
+    return (
+      <div className="flex flex-col gap-3">
+        <div
+          aria-label="Processing file"
+          data-tour-target="tour-drop-zone"
+          className="relative flex flex-col items-center justify-center text-center rounded-lg px-8 py-10 xl:px-12 xl:py-16 border-2 border-primary bg-primary-container/20"
+        >
+          <div className="mb-3 w-8 h-1 rounded-full bg-primary/30 overflow-hidden">
+            <div className="h-full w-1/2 bg-primary rounded-full animate-pulse" />
+          </div>
+          <p className="font-body text-sm text-on-surface-variant">Preparing image...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (image) {
     return (
@@ -137,9 +173,9 @@ export function DropZone({ image, disabled, onAccept, onRemove }: DropZoneProps)
         tabIndex={0}
         aria-label="Drop a label image or click to browse"
         data-tour-target="tour-drop-zone"
-        onClick={openPicker}
+        onClick={clearErrorAndOpen}
         onKeyDown={onKeyDown}
-        onDragOver={onDragOver}
+        onDragOver={clearErrorOnDragOver}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
         className={[
