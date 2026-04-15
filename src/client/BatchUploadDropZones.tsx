@@ -15,7 +15,7 @@ export function ImagesDropZone({
   onPreviewImage: (image: BatchLabelImage) => void;
 }) {
   const empty = images.length === 0;
-  const { inputRef, openPicker, onInputChange, onDragOver, onDrop, onKeyDown } =
+  const { inputRef, openPicker, onInputChange, onDragEnter, onDragOver, onDrop, onKeyDown } =
     useFileDropInput({
       interactive,
       multiple: true,
@@ -48,6 +48,7 @@ export function ImagesDropZone({
         tabIndex={interactive ? 0 : -1}
         onClick={openPicker}
         onKeyDown={onKeyDown}
+        onDragEnter={onDragEnter}
         onDragOver={onDragOver}
         onDrop={onDrop}
         className={[
@@ -155,7 +156,7 @@ export function CsvDropZone({
   onSelectCsv?: (file: File) => void;
 }) {
   const hasError = csvError !== null;
-  const { inputRef, openPicker, onInputChange, onDragOver, onDrop, onKeyDown } =
+  const { inputRef, openPicker, onInputChange, onDragEnter, onDragOver, onDrop, onKeyDown } =
     useFileDropInput({
       interactive,
       filterFiles: (files) =>
@@ -193,6 +194,7 @@ export function CsvDropZone({
         tabIndex={interactive ? 0 : -1}
         onClick={openPicker}
         onKeyDown={onKeyDown}
+        onDragEnter={onDragEnter}
         onDragOver={onDragOver}
         onDrop={onDrop}
         className={[
