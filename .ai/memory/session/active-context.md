@@ -1,7 +1,8 @@
 # Active Context
 
-- Current focus: `TTB-208` is complete with privacy-safe stage timing, routed fallback-path classification, batch-item latency summaries, and synthetic internal core-six smoke assets; `TTB-209` is now the next ready Codex story, `TTB-108` remains the next Claude story, and the restricted-network local mode remains planned as `TTB-212`.
-- Current story branch: `codex/TTB-208-latency-observability` in the clean sibling worktree `/Users/youss/Development/gauntlet/ttb-label-verification-207`.
+- Current focus: `TTB-208` is complete with privacy-safe stage timing, routed fallback-path classification, batch-item latency summaries, and synthetic internal core-six smoke assets; active Codex work has moved onto the sibling latency branch `codex/TTB-209-hot-path-optimization` for hot-path tuning, and the restricted-network local mode still remains planned as `TTB-212`.
+- Current story branch: `codex/TTB-209-hot-path-optimization` in the clean sibling worktree `/Users/youss/Development/gauntlet/ttb-label-verification-207`.
+- User requested that `TTB-WF-002` be pulled forward as the next maintenance story after the active latency branch is finalized and merged.
 - `TTB-208` implementation landed in the shared route graph: `src/server/review-latency.ts`, `src/server/review-extractor-factory.ts`, `src/server/openai-review-extractor.ts`, `src/server/gemini-review-extractor.ts`, `src/server/llm-trace.ts`, `src/server/index.ts`, `src/server/request-handlers.ts`, and `src/server/batch-session.ts` now emit typed internal timing summaries for single-label and batch work.
 - The shared timing model records stage ids, provider ids, attempt labels, bounded outcomes, fallback-path classification, and total duration without changing the public `VerificationReport` contract.
 - Repo-local Gemini runtime config is still present through ignored local env files; bootstrap defaults still seed `GEMINI_VISION_MODEL=gemini-2.5-flash-lite` and `AI_CAPABILITY_LABEL_EXTRACTION_ORDER=gemini,openai`.
