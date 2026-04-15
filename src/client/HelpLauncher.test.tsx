@@ -15,7 +15,7 @@ describe('HelpLauncher', () => {
     );
 
     expect(html).toContain('Guided tour introduction');
-    expect(html).toContain('First time here?');
+    expect(html).toContain('How this works');
     expect(html).toContain('Take the tour');
   });
 });
