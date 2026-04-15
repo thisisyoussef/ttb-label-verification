@@ -10,6 +10,7 @@ import {
   TextAreaField,
   TextField
 } from './IntakeFormControls';
+import { PasteFromJson } from './PasteFromJson';
 import { VarietalsTable } from './VarietalsTable';
 import type {
   BeverageSelection,
@@ -63,7 +64,7 @@ export function Intake({
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto w-full px-6 py-10">
+    <div className="max-w-[1400px] mx-auto w-full px-6 py-6 xl:py-10">
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -78,33 +79,44 @@ export function Intake({
         </section>
 
         <section className="lg:col-span-7 flex flex-col">
-          <FieldGroupHeading>Application data</FieldGroupHeading>
+          <FieldGroupHeading>Declared values from COLA application</FieldGroupHeading>
+          <p className="text-xs text-on-surface-variant/80 font-label mb-3 -mt-1">
+            Enter the declared values from the COLA application. The tool will compare them against
+            what it extracts from the label.
+          </p>
 
-          <div className="bg-surface-container-low rounded-lg p-6 md:p-8 flex flex-col gap-8">
-            <BeverageTypeField value={beverage} onChange={onBeverageChange} />
+          <div className="bg-surface-container-low rounded-lg p-5 md:p-6 xl:p-8 flex flex-col gap-6 xl:gap-8">
+            <div className="flex flex-col gap-4">
+              <BeverageTypeField value={beverage} onChange={onBeverageChange} />
+              <PasteFromJson
+                fields={fields}
+                onFieldsChange={onFieldsChange}
+                onBeverageChange={onBeverageChange}
+              />
+            </div>
 
-            <FieldGroup title="Identity">
+            <FieldGroup title="Identity & classification">
               <IntakeFieldRow>
                 <TextField
                   label="Brand name"
-                  placeholder="e.g., Stone's Throw"
+                  placeholder="Stone's Throw"
                   value={fields.brandName}
                   onChange={(value) => setField('brandName', value)}
                 />
               </IntakeFieldRow>
               <IntakeFieldRow columns={2}>
                 <TextField
-                  label="Fanciful name"
-                  hint="Optional"
-                  placeholder="e.g., Small Batch Reserve"
-                  value={fields.fancifulName}
-                  onChange={(value) => setField('fancifulName', value)}
-                />
-                <TextField
                   label="Class / type"
-                  placeholder="e.g., Kentucky Straight Bourbon"
+                  placeholder="Kentucky Straight Bourbon"
                   value={fields.classType}
                   onChange={(value) => setField('classType', value)}
+                />
+                <TextField
+                  label="Fanciful name"
+                  hint="Optional"
+                  placeholder="Small Batch Reserve"
+                  value={fields.fancifulName}
+                  onChange={(value) => setField('fancifulName', value)}
                 />
               </IntakeFieldRow>
             </FieldGroup>
@@ -113,8 +125,8 @@ export function Intake({
               <IntakeFieldRow columns={2}>
                 <TextField
                   label="Alcohol content"
-                  hint="e.g., 45% Alc./Vol."
-                  placeholder="e.g., 45% Alc./Vol."
+                  hint="Exact format from the COLA"
+                  placeholder="45% Alc./Vol."
                   tag={abvTag}
                   monospace
                   value={fields.alcoholContent}
@@ -122,8 +134,8 @@ export function Intake({
                 />
                 <TextField
                   label="Net contents"
-                  hint="e.g., 750 mL"
-                  placeholder="e.g., 750 mL"
+                  hint="Exact format from the COLA"
+                  placeholder="750 mL"
                   monospace
                   value={fields.netContents}
                   onChange={(value) => setField('netContents', value)}
@@ -132,15 +144,6 @@ export function Intake({
             </FieldGroup>
 
             <FieldGroup title="Origin and applicant">
-              <IntakeFieldRow>
-                <TextAreaField
-                  label="Applicant name & address"
-                  hint="Name, city, and state exactly as on the permit."
-                  placeholder={'Stone Throw Distilling Co.\nLouisville, KY'}
-                  value={fields.applicantAddress}
-                  onChange={(value) => setField('applicantAddress', value)}
-                />
-              </IntakeFieldRow>
               <IntakeFieldRow columns={2}>
                 <OriginField
                   value={fields.origin}
@@ -149,7 +152,7 @@ export function Intake({
                 {fields.origin === 'imported' ? (
                   <TextField
                     label="Country"
-                    placeholder="e.g., France"
+                    placeholder="France"
                     value={fields.country}
                     onChange={(value) => setField('country', value)}
                   />
@@ -162,6 +165,15 @@ export function Intake({
                     onChange={(value) => setField('formulaId', value)}
                   />
                 )}
+              </IntakeFieldRow>
+              <IntakeFieldRow>
+                <TextAreaField
+                  label="Applicant name & address"
+                  hint="Name, city, and state exactly as on the permit."
+                  placeholder={'Stone Throw Distilling Co.\nLouisville, KY'}
+                  value={fields.applicantAddress}
+                  onChange={(value) => setField('applicantAddress', value)}
+                />
               </IntakeFieldRow>
               {fields.origin === 'imported' ? (
                 <IntakeFieldRow>
@@ -181,13 +193,13 @@ export function Intake({
                 <IntakeFieldRow columns={2}>
                   <TextField
                     label="Appellation"
-                    placeholder="e.g., Napa Valley"
+                    placeholder="Napa Valley"
                     value={fields.appellation}
                     onChange={(value) => setField('appellation', value)}
                   />
                   <TextField
                     label="Vintage"
-                    placeholder="e.g., 2021"
+                    placeholder="2021"
                     monospace
                     value={fields.vintage}
                     onChange={(value) => setField('vintage', value)}
@@ -200,6 +212,10 @@ export function Intake({
               </FieldGroup>
             ) : null}
           </div>
+
+          <p className="text-[11px] text-on-surface-variant/60 font-label mt-3">
+            Or upload just an image for standalone format checking.
+          </p>
         </section>
 
         <section className="lg:col-span-12 mt-2">

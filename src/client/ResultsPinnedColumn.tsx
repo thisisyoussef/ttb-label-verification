@@ -16,7 +16,7 @@ interface ResultsPinnedColumnProps {
 
 export function ResultsPinnedColumn({ image, beverage }: ResultsPinnedColumnProps) {
   return (
-    <aside className="md:col-span-4 lg:col-span-3 bg-surface-container-low p-6 lg:p-8 flex flex-col gap-6 border-r border-outline-variant/15">
+    <aside className="md:col-span-4 lg:col-span-3 bg-surface-container-low p-4 lg:p-6 xl:p-8 flex flex-col gap-4 xl:gap-6 border-r border-outline-variant/15 overflow-y-auto">
       <h2 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
         Intake context
       </h2>

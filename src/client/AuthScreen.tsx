@@ -53,7 +53,7 @@ export function AuthScreen({
         open={disclosureOpen}
         onToggle={() => setDisclosureOpen((prev) => !prev)}
       />
-      <main className="flex-1 flex items-center justify-center px-6 py-12">
+      <main className="flex-1 flex items-center justify-center px-6 py-8 xl:py-12">
         <section
           role="main"
           aria-labelledby="auth-card-heading"

@@ -149,14 +149,14 @@ export function Results({
     (lowConfidenceSecondary ? lowConfidenceSecondary : undefined);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-12 min-h-[calc(100vh-56px)]">
+    <div className="grid grid-cols-1 md:grid-cols-12 h-[calc(100dvh-var(--header-h))]">
       <ResultsPinnedColumn image={image} beverage={beverage} />
       <section
         ref={workingAreaRef}
-        className="md:col-span-8 lg:col-span-9 bg-background px-6 md:px-10 lg:px-14 py-10 lg:py-12 flex flex-col gap-8"
+        className="md:col-span-8 lg:col-span-9 bg-background px-6 md:px-8 xl:px-14 py-6 xl:py-12 flex flex-col gap-6 xl:gap-8 overflow-y-auto"
       >
         <header className="flex items-center justify-between">
-          <h1 className="font-headline text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight">
+          <h1 className="font-headline text-2xl xl:text-4xl font-extrabold text-on-surface tracking-tight">
             Results
           </h1>
         </header>
@@ -204,7 +204,7 @@ export function Results({
               onKeyNav={handleKeyNav}
             />
 
-            <div className="flex items-center justify-between gap-4 pt-6 border-t border-outline-variant/20">
+            <div className="flex items-center justify-between gap-4 pt-4 xl:pt-6 border-t border-outline-variant/20">
               <div className="flex flex-wrap items-center gap-3">
                 {report.standalone ? (
                   <button

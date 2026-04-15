@@ -233,7 +233,7 @@ function DrillInFrame({
 
 function UnavailablePanel({ onBack }: { onBack: () => void }) {
   return (
-    <div className="max-w-[1400px] mx-auto w-full px-6 py-16">
+    <div className="max-w-[1400px] mx-auto w-full px-6 py-8 xl:py-16">
       <div className="bg-surface-container-lowest border-l-4 border-outline-variant/40 rounded-lg p-8 flex flex-col gap-4 shadow-ambient">
         <div className="flex items-center gap-3">
           <span
