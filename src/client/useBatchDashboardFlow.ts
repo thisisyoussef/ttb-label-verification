@@ -39,11 +39,13 @@ export interface BatchDashboardFlow {
   onCancelExport: () => void;
   onRetryExport: () => void;
   onConfirmExport: () => void;
+  resetDashboardSeed: () => void;
   reset: () => void;
 }
 
 export function useBatchDashboardFlow(options: {
   fixtureControlsEnabled: boolean;
+  fixtureModeActive: boolean;
   setView: (view: View) => void;
   batchSessionId: string | null;
   batchSeedImages: BatchLabelImage[];
@@ -64,6 +66,27 @@ export function useBatchDashboardFlow(options: {
   const [drillInReport, setDrillInReport] = useState<UIVerificationReport | null>(null);
   const [exportState, setExportState] = useState<ExportState>({ kind: 'idle' });
 
+  const resetDashboardState = useCallback(() => {
+    setReviewedRowIds(new Set<string>());
+    setDrillInRowId(null);
+    setDrillInFilter('all');
+    setDrillInRows([]);
+    setDrillInReport(null);
+    setExportState({ kind: 'idle' });
+  }, []);
+
+  const applyDashboardSeed = useCallback(
+    (id: string, openDashboard: boolean) => {
+      setDashboardSeedId(id);
+      setDashboardSeed(findDashboardSeed(id));
+      resetDashboardState();
+      if (openDashboard) {
+        options.setView('batch-dashboard');
+      }
+    },
+    [options.setView, resetDashboardState]
+  );
+
   const moveDrillIn = useCallback(
     async (rows: BatchDashboardRow[], currentRowId: string | null, offset: -1 | 1) => {
       if (currentRowId === null) {
@@ -79,7 +102,7 @@ export function useBatchDashboardFlow(options: {
       const nextRow = rows[nextIndex]!;
       let nextReport: UIVerificationReport | null = null;
       try {
-        if (!options.fixtureControlsEnabled && options.batchSessionId && nextRow.reportId) {
+        if (!options.fixtureModeActive && options.batchSessionId && nextRow.reportId) {
           nextReport = await fetchBatchReport(options.batchSessionId, nextRow.reportId);
         }
       } catch {
@@ -94,7 +117,7 @@ export function useBatchDashboardFlow(options: {
       setDrillInReport(nextReport);
       setDrillInRowId(nextRow.rowId);
     },
-    [options.batchSessionId, options.fixtureControlsEnabled]
+    [options.batchSessionId, options.fixtureModeActive]
   );
 
   return {
@@ -108,7 +131,7 @@ export function useBatchDashboardFlow(options: {
     exportState,
     setExportState,
     onBatchOpenDashboard: () => {
-      if (options.fixtureControlsEnabled) {
+      if (options.fixtureModeActive) {
         const matchingDashboardId = options.batchStreamSeedId.includes('all-pass')
           ? 'dash-terminal-all-pass'
           : options.batchStreamSeedId.includes('all-fail')
@@ -116,11 +139,7 @@ export function useBatchDashboardFlow(options: {
             : options.batchStreamSeedId.includes('cancelled')
               ? 'dash-cancelled-partial'
               : DEFAULT_DASHBOARD_SEED_ID;
-        setDashboardSeedId(matchingDashboardId);
-        setDashboardSeed(findDashboardSeed(matchingDashboardId));
-        setReviewedRowIds(new Set<string>());
-        setExportState({ kind: 'idle' });
-        options.setView('batch-dashboard');
+        applyDashboardSeed(matchingDashboardId, true);
         return;
       }
 
@@ -138,8 +157,7 @@ export function useBatchDashboardFlow(options: {
               images: options.batchSeedImages
             })
           );
-          setReviewedRowIds(new Set<string>());
-          setExportState({ kind: 'idle' });
+          resetDashboardState();
           options.setView('batch-dashboard');
         } catch {
           options.setBatchSeedError('We could not load this batch right now.');
@@ -147,19 +165,17 @@ export function useBatchDashboardFlow(options: {
       })();
     },
     onSelectDashboardSeed: (id) => {
-      setDashboardSeedId(id);
-      setDashboardSeed(findDashboardSeed(id));
-      setReviewedRowIds(new Set<string>());
-      setExportState({ kind: 'idle' });
-      setDrillInRowId(null);
-      setDrillInReport(null);
-      options.setView('batch-dashboard');
+      if (!options.fixtureControlsEnabled) {
+        return;
+      }
+
+      applyDashboardSeed(id, true);
     },
     onOpenDashboardRow: (row, filter, rowsInView) => {
       void (async () => {
         let nextReport: UIVerificationReport | null = null;
         try {
-          if (!options.fixtureControlsEnabled && options.batchSessionId && row.reportId) {
+          if (!options.fixtureModeActive && options.batchSessionId && row.reportId) {
             nextReport = await fetchBatchReport(options.batchSessionId, row.reportId);
           }
         } catch {
@@ -185,7 +201,7 @@ export function useBatchDashboardFlow(options: {
       void moveDrillIn(drillInRows, drillInRowId, 1);
     },
     onRetryDashboardRow: (row) => {
-      if (options.fixtureControlsEnabled) {
+      if (options.fixtureModeActive) {
         setDashboardSeed((previous) => {
           const nextRows = previous.rows.map((candidate) =>
             candidate.rowId === row.rowId && candidate.status === 'error'
@@ -240,10 +256,7 @@ export function useBatchDashboardFlow(options: {
       options.setView('batch-dashboard');
     },
     onStartAnotherBatch: () => {
-      setDrillInRowId(null);
-      setDrillInReport(null);
-      setExportState({ kind: 'idle' });
-      setReviewedRowIds(new Set<string>());
+      resetDashboardState();
       options.resetLiveBatch();
       options.setView('batch-intake');
     },
@@ -254,7 +267,7 @@ export function useBatchDashboardFlow(options: {
       void (async () => {
         setExportState({ kind: 'in-progress' });
         try {
-          if (!options.fixtureControlsEnabled && options.batchSessionId) {
+          if (!options.fixtureModeActive && options.batchSessionId) {
             const response = await fetch(`/api/batch/${options.batchSessionId}/export`);
             if (!response.ok) {
               throw new Error(await parseApiError(response, "Export didn't complete. Try again."));
@@ -313,12 +326,11 @@ export function useBatchDashboardFlow(options: {
         }
       })();
     },
+    resetDashboardSeed: () => {
+      applyDashboardSeed(DEFAULT_DASHBOARD_SEED_ID, false);
+    },
     reset: () => {
-      setDrillInRowId(null);
-      setDrillInRows([]);
-      setDrillInReport(null);
-      setReviewedRowIds(new Set<string>());
-      setExportState({ kind: 'idle' });
+      resetDashboardState();
     }
   };
 }

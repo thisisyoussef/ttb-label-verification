@@ -9,6 +9,10 @@ import {
 } from './request-handlers';
 import type { ResolvedExtractor } from './register-review-routes';
 
+function setNoStore(response: express.Response) {
+  response.setHeader('cache-control', 'no-store');
+}
+
 export function registerBatchRoutes(input: {
   app: express.Express;
   batchSessions: BatchSessionStore;
@@ -24,6 +28,7 @@ export function registerBatchRoutes(input: {
         csvFile
       });
 
+      setNoStore(response);
       response.json(preflight);
     });
   });
@@ -45,7 +50,7 @@ export function registerBatchRoutes(input: {
     }
 
     response.setHeader('content-type', 'application/x-ndjson; charset=utf-8');
-    response.setHeader('cache-control', 'no-store');
+    setNoStore(response);
 
     try {
       await batchSessions.run(payload.data, async (frame) => {
@@ -65,6 +70,7 @@ export function registerBatchRoutes(input: {
   app.post('/api/batch/:batchSessionId/cancel', (request, response) => {
     try {
       batchSessions.cancel(request.params.batchSessionId);
+      setNoStore(response);
       response.status(202).json({ status: 'cancelling' });
     } catch (error) {
       sendBatchError(response, error);
@@ -73,6 +79,7 @@ export function registerBatchRoutes(input: {
 
   app.get('/api/batch/:batchSessionId/summary', (request, response) => {
     try {
+      setNoStore(response);
       response.json(batchSessions.getSummary(request.params.batchSessionId));
     } catch (error) {
       sendBatchError(response, error);
@@ -81,6 +88,7 @@ export function registerBatchRoutes(input: {
 
   app.get('/api/batch/:batchSessionId/report/:reportId', (request, response) => {
     try {
+      setNoStore(response);
       response.json(
         batchSessions.getReport(
           request.params.batchSessionId,
@@ -94,6 +102,7 @@ export function registerBatchRoutes(input: {
 
   app.get('/api/batch/:batchSessionId/export', (request, response) => {
     try {
+      setNoStore(response);
       response.setHeader(
         'content-disposition',
         `attachment; filename="ttb-batch-${request.params.batchSessionId}.json"`
@@ -111,6 +120,7 @@ export function registerBatchRoutes(input: {
     }
 
     try {
+      setNoStore(response);
       response.json(
         await batchSessions.retry(
           request.params.batchSessionId,

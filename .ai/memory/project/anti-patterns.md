@@ -29,6 +29,7 @@
 - Re-parsing optional multipart `fields` ad hoc inside route handlers instead of using the shared intake normalizer
 - Treating standalone review requests as invalid just because the multipart `fields` part is omitted
 - Leaving dev-only fixture controls visible in normal runtime mode so seeded behavior silently overrides the live path
+- Letting the batch dashboard, retry, export, or processing path branch directly on `fixtureControlsEnabled` instead of the active batch source, so dev mode silently falls back to seeded data even during a live session
 - Treating a seed or staging adapter as “wired” because the schema parses, while non-default submitted values are still dropped before they reach the visible result
 - Leaving the main `POST /api/review` route on a seed fixture after extraction and validator slices already exist, instead of composing those live modules into the real report path
 - Rebuilding batch matching or dashboard shaping separately in the client after the server has already produced a typed canonical payload

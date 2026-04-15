@@ -91,6 +91,10 @@
 - For `TTB-210`, centralize prompt intent in one provider-agnostic module keyed by route surface plus extraction mode instead of letting OpenAI, Gemini, and batch routes keep their own prompt strings.
 - For `TTB-210`, handle contradictory `noTextDetected` outputs by sanitizing them into explicit uncertainty rather than failing the route outright; approved fixture behavior needs reversible no-text extraction, not adapter errors.
 - For `TTB-210`, keep route-specific prompt provenance dynamic in trace/eval metadata (`review-cloud-v1`, `extraction-cloud-v1`, `warning-cloud-v1`, `batch-cloud-v1`) rather than continuing the old static placeholder identifiers from `TTB-211`.
+- For `TTB-302`, treat batch fixture support as a separate source state instead of a global environment branch; live batch must stay the default even when dev fixtures are available.
+- For `TTB-302`, split silent dashboard resets from explicit fixture-dashboard navigation so selecting live files cannot bounce the reviewer into a seeded dashboard view.
+- For `TTB-302`, harden every batch response surface with `cache-control: no-store`, not just the NDJSON run route.
+- For `TTB-302`, accept the real browser flow as complete only after the live dashboard shows submitted CSV identities, not just after preflight succeeds.
 
 - For `TTB-207`, implement Gemini through the native `@google/genai` SDK, but keep OpenAI as the bounded cloud fallback inside the shared provider factory instead of forking route-local logic.
 - For `TTB-207`, extract the API-facing extraction schema, prompt text, JSON-schema conversion, and normalization into one shared module so Gemini and OpenAI stay contract-aligned.
