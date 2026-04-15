@@ -7,21 +7,27 @@ Clean up the highest-complexity source files by extracting focused helpers and s
 ## Implemented modules and files
 
 - `src/client/Intake.tsx` now delegates field-group and input rendering to `src/client/IntakeFormControls.tsx`
+- `src/client/AuthScreen.tsx` now delegates the government banner and phase-specific card rendering to `src/client/AuthScreenGovernmentBanner.tsx`, `src/client/AuthScreenCardBody.tsx`, and `src/client/AuthScreenPrimitives.tsx`
 - `src/client/DropZone.tsx` and `src/client/BatchUploadDropZones.tsx` now share picker/drag state through `src/client/useFileDropInput.ts`
 - `src/client/help-tour-runtime.ts` now delegates types, actions, and deterministic demo recovery to `src/client/help-tour-types.ts`, `src/client/help-tour-actions.ts`, and `src/client/help-tour-demo.ts`
+- `src/client/GuidedTourSpotlight.tsx` now delegates spotlight targeting and callout rendering to `src/client/useGuidedTourSpotlightTarget.ts` and `src/client/GuidedTourCallout.tsx`
 - `src/client/useSingleReviewFlow.ts` now delegates async request lifecycle and export shaping to `src/client/useSingleReviewPipeline.ts` and `src/client/single-review-export.ts`
 - `src/client/useBatchWorkflow.ts` now delegates live run/preflight/retry behavior to `src/client/batchWorkflowLive.ts`
 - `src/server/batch-session.ts` now delegates preflight/session construction and assignment resolution to `src/server/batch-session-preflight.ts` and `src/server/batch-session-assignments.ts`
+- `src/server/index.ts` now delegates route wiring to `src/server/register-app-routes.ts`, `src/server/register-review-routes.ts`, and `src/server/register-batch-routes.ts`
 - `scripts/check-source-size.ts` enforces the 500-line cap for runtime/tooling files
 - `scripts/git-story-gate.ts` and `package.json` wire the guard into `npm run gate:commit` and `npm run gate:push`
 
 ## Measured outcomes
 
 - `src/client/Intake.tsx`: `438 -> 282`
+- `src/client/AuthScreen.tsx`: `479 -> 103`
+- `src/client/GuidedTourSpotlight.tsx`: `458 -> 141`
 - `src/client/help-tour-runtime.ts`: `395 -> 250`
 - `src/client/useSingleReviewFlow.ts`: `478 -> 283`
 - `src/client/useBatchWorkflow.ts`: `482 -> 344`
-- `src/server/batch-session.ts`: `496 -> 308`
+- `src/server/batch-session.ts`: `496 -> 353`
+- `src/server/index.ts`: `443 -> 133`
 - `npm run guard:source-size` now passes with no file over 500 lines
 
 ## Dependency boundaries

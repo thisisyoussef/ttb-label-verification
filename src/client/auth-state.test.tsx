@@ -183,6 +183,9 @@ describe('auth privacy invariants', () => {
     const combinedSource = [
       readFileSync(new URL('./App.tsx', import.meta.url), 'utf8'),
       readFileSync(new URL('./AuthScreen.tsx', import.meta.url), 'utf8'),
+      readFileSync(new URL('./AuthScreenCardBody.tsx', import.meta.url), 'utf8'),
+      readFileSync(new URL('./AuthScreenGovernmentBanner.tsx', import.meta.url), 'utf8'),
+      readFileSync(new URL('./AuthScreenPrimitives.tsx', import.meta.url), 'utf8'),
       readFileSync(new URL('./SignedInIdentity.tsx', import.meta.url), 'utf8'),
       readFileSync(new URL('./SessionTimeoutModal.tsx', import.meta.url), 'utf8'),
       readFileSync(new URL('./authState.ts', import.meta.url), 'utf8')

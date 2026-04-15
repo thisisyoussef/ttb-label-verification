@@ -7,4 +7,5 @@
 - Known future dependency: `TTB-210` still needs to replace the current hard-coded prompt-profile and guardrail identifiers with the planned shared policy module before the full hardening sequence can close cleanly.
 - Known future dependency: any later push below the current `5000 ms` public budget needs a new measured story; `TTB-209` closed with an explicit non-cutover decision for the abandoned `4000 ms` target.
 - Known future dependency: `TTB-401` still remains blocked on the remaining extraction-mode hardening chain (`TTB-212` and `TTB-210`) before the final submission pack can close.
+- Immediate next-story dependency: `TTB-212` is now the next Codex pickup once this maintenance branch is published and merged.
 - Current tooling blocker: targeted mutation testing for `src/server/ai-provider-policy.ts` is still noisy under the current Stryker config; the attempted run on 2026-04-14 reached 41% with 16 timeouts before it was aborted.
