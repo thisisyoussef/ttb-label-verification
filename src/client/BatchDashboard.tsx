@@ -19,6 +19,7 @@ import {
   filterRows
 } from './BatchDashboardControls';
 import { EmptyFilter, TriageTable } from './BatchDashboardTable';
+import { TriageGuidance } from './TriageGuidance';
 
 interface BatchDashboardProps {
   seed: BatchDashboardSeed;
@@ -81,6 +82,12 @@ export function BatchDashboard(props: BatchDashboardProps) {
           pass={seed.summary.pass}
           review={seed.summary.review}
           fail={seed.summary.fail}
+        />
+
+        <TriageGuidance
+          summary={seed.summary}
+          rows={seed.rows}
+          onFilterTo={setFilter}
         />
 
         <section

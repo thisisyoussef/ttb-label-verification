@@ -36,7 +36,7 @@ export function HelpLauncher({
           role="dialog"
           aria-modal="false"
           aria-label="Guided tour introduction"
-          className="absolute top-[calc(100%+12px)] right-0 z-30 w-72 bg-surface-container-lowest border border-outline-variant/30 rounded-lg shadow-ambient p-4 flex flex-col gap-3"
+          className="absolute top-[calc(100%+12px)] right-0 z-30 w-80 bg-surface-container-lowest border border-outline-variant/30 rounded-lg shadow-ambient p-4 flex flex-col gap-3"
         >
           <span
             aria-hidden="true"
@@ -49,22 +49,25 @@ export function HelpLauncher({
             >
               school
             </span>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2">
               <p className="text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant">
-                First time here?
+                How this works
               </p>
               <p className="text-sm text-on-surface font-body leading-relaxed">
-                Start with the guided tour. It points out the main review flow and the evidence views in about 2 minutes.
+                AI reads the label. Deterministic rules make every decision. You review the evidence and have the final word.
+              </p>
+              <p className="text-xs text-on-surface-variant font-mono">
+                Nothing is stored. Inputs and results are discarded when you close the tab.
               </p>
             </div>
           </div>
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex items-center justify-end gap-2 border-t border-outline-variant/10 pt-3">
             <button
               type="button"
               onClick={onDismissNudge}
               className="text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant hover:text-on-surface transition-colors"
             >
-              Dismiss
+              Got it
             </button>
             <button
               type="button"

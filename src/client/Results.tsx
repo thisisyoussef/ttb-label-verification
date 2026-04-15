@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CrossFieldChecks } from './CrossFieldChecks';
 import { FieldRow } from './FieldRow';
+import { FocusAreas } from './FocusAreas';
 import { NoTextState } from './NoTextState';
 import { ResultsPinnedColumn } from './ResultsPinnedColumn';
 import { StandaloneBanner } from './StandaloneBanner';
@@ -51,6 +52,15 @@ export function Results({
   const toggleRow = useCallback((id: string) => {
     setExpandedId((previous) => (previous === id ? null : id));
   }, []);
+
+  const jumpToCheck = useCallback((id: string) => {
+    setExpandedId(id);
+    const row = rowRefs.get(id);
+    if (row) {
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      row.focus();
+    }
+  }, [rowRefs]);
 
   useEffect(() => {
     return () => {
@@ -172,11 +182,19 @@ export function Results({
               verdict={report.verdict}
               counts={report.counts}
               secondary={secondary}
+              extractedFieldCount={report.checks.length}
+              rulesAppliedCount={report.checks.length + report.crossFieldChecks.length}
             />
 
             {report.standalone ? (
               <StandaloneBanner onRunFullComparison={onRunFullComparison} />
             ) : null}
+
+            <FocusAreas
+              checks={report.checks}
+              crossFieldChecks={report.crossFieldChecks}
+              onJumpToCheck={jumpToCheck}
+            />
 
             <section aria-label="Field checklist" className="flex flex-col gap-3">
               {report.checks.map((check) => (
