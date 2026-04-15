@@ -8,6 +8,7 @@ on:
       - completed
 
 permissions:
+  actions: write
   contents: write
   pull-requests: write
 
@@ -91,6 +92,23 @@ jobs:
                   merge_method: 'rebase',
                 });
                 core.notice(`Rebase-merged PR #${pull.number}.`);
+
+                // GITHUB_TOKEN merges do not trigger 'on: push' in other
+                // workflows, so CI (and therefore Railway deploy) would
+                // never run on the merged main.  Dispatch CI explicitly.
+                try {
+                  await github.rest.actions.createWorkflowDispatch({
+                    owner,
+                    repo,
+                    workflow_id: 'ci.yml',
+                    ref: 'main',
+                  });
+                  core.notice('Dispatched CI on main to trigger deploy chain.');
+                } catch (dispatchError) {
+                  core.warning(
+                    `Merged PR #${pull.number} but failed to dispatch CI: ${dispatchError instanceof Error ? dispatchError.message : String(dispatchError)}`,
+                  );
+                }
               } catch (error) {
                 core.warning(
                   `Could not merge PR #${pull.number}: ${error instanceof Error ? error.message : String(error)}`,
