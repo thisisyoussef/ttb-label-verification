@@ -46,7 +46,7 @@ export function MatchingReview(props: MatchingReviewProps) {
       <EmptyPanel
         icon="hourglass_empty"
         heading="Waiting for a batch."
-        body="Drop label images and an application CSV to see how the system matched them."
+        body="Drop label images and an application CSV to get started."
         tone="neutral"
       />
     );

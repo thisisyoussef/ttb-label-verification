@@ -71,7 +71,7 @@ export function PrivacyActionBar({
             Nothing is stored. Images, CSV rows, and results are discarded when you leave.
           </p>
           <p className="text-xs font-body">
-            Resolve every ambiguous or unmatched item before processing the batch.
+            Fix any ambiguous or unmatched items above before starting the batch.
           </p>
         </div>
       </div>

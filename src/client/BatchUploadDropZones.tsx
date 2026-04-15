@@ -184,7 +184,7 @@ export function CsvDropZone({
           </span>
         </div>
         <p className="text-sm text-on-surface-variant font-body">
-          Include one row per label. Required headers stay fixed for the review contract.
+          Include one row per label with the required column headers shown below.
         </p>
       </header>
 

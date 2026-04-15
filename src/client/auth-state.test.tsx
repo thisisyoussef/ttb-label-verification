@@ -171,7 +171,7 @@ describe('SessionTimeoutModal', () => {
       />
     );
 
-    expect(html).toContain('Your session is about to timeout');
+    expect(html).toContain('Your session is about to expire');
     expect(html).toContain('15 minutes of inactivity');
     expect(html).toContain('You will be signed out in 60 seconds');
     expect(html).toContain('Stay signed in');

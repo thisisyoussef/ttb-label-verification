@@ -118,10 +118,10 @@ export function GuidedTourCallout({
         {step.target && !rect ? (
           <p className="text-xs font-label text-on-surface-variant">
             {nextDisabled
-              ? 'This control is not visible from the current app state or viewport. Complete the required action on the live surface or use the recovery action below to continue.'
+              ? 'This item isn\u2019t on screen right now. Complete the step above, then continue.'
               : replaceNextWithRecovery
-                ? 'This control is not visible from the current app state or viewport. Use the primary action below to continue.'
-                : 'This control is not visible from the current app state or viewport. Use the recovery action below or continue to the next step.'}
+                ? 'This item isn\u2019t on screen right now. Use the button below to continue.'
+                : 'This item isn\u2019t on screen right now. You can skip ahead or use the button below.'}
           </p>
         ) : null}
         {step.cta ? (

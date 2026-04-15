@@ -52,7 +52,7 @@ export function WarningEvidencePanel({ check }: WarningEvidencePanelProps) {
           <h4 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
             Confidence
           </h4>
-          <ConfidenceMeter confidence={check.confidence} label="Warning extraction" />
+          <ConfidenceMeter confidence={check.confidence} label="Reading accuracy" />
           <div className="flex flex-col gap-1.5 pt-2">
             <h4 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
               Citations

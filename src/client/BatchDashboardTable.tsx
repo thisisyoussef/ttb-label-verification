@@ -209,8 +209,8 @@ function IssuesCell({ row }: { row: BatchDashboardRow }) {
 
 function formatIssues(issues: BatchDashboardIssues): string {
   const parts = [
-    issues.blocker > 0 ? `${issues.blocker} blocker` : null,
-    issues.major > 0 ? `${issues.major} major` : null,
+    issues.blocker > 0 ? `${issues.blocker} must fix` : null,
+    issues.major > 0 ? `${issues.major} important` : null,
     issues.minor > 0 ? `${issues.minor} minor` : null,
     issues.note > 0 ? `${issues.note} note` : null
   ].filter((part): part is string => part !== null);
