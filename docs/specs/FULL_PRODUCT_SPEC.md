@@ -181,6 +181,7 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 - `TTB-104`: batch dashboard, drill-in shell, and export UI
 - `TTB-301`: batch parser, matcher, orchestration, and session export
 - `TTB-302`: live-first batch runtime, workflow cleanup, and fixture demotion
+- `TTB-303`: batch input append and toolbench mode-routing regression fix
 - `TTB-105`: accessibility, trust copy, and final UI polish
 - `TTB-106`: guided review, replayable help, and contextual info layer
 - `TTB-107`: mock Treasury auth entry and signed-in shell identity

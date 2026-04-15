@@ -6,8 +6,7 @@ import { DEFAULT_DASHBOARD_SEED_ID } from './batchDashboardScenarios';
 import {
   buildBatchLabelImage,
   buildDashboardSeedFromResponse,
-  buildStreamItem,
-  revokeBatchLabelImages
+  buildStreamItem
 } from './batch-runtime';
 import {
   countRunnableBatchItems,
@@ -37,11 +36,11 @@ export function selectLiveImages(input: {
   setPreviewImage: (value: BatchLabelImage | null) => void;
   resetDashboardSeed: (id: string) => void;
 }) {
-  const nextImages = input.files.map((file, index) =>
+  const incomingImages = input.files.map((file, index) =>
     buildBatchLabelImage(file, `image-${index + 1}-${crypto.randomUUID()}`)
   );
+  const nextImages = [...input.batchSeedImages, ...incomingImages];
 
-  revokeBatchLabelImages(input.batchSeedImages);
   input.setBatchSessionId(null);
   input.setBatchSeed((previous) => ({
     ...previous,

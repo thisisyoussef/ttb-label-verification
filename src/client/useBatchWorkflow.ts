@@ -211,6 +211,8 @@ export function useBatchWorkflow(options: {
       options.setView('batch-processing');
     },
     onSelectLiveImages: (files) => {
+      const liveBatchImages = fixtureModeActive ? [] : batchSeed.images;
+
       if (fixtureModeActive) {
         setBatchSource((current) =>
           nextBatchWorkflowSource({ current, event: 'live-input-selected' })
@@ -231,7 +233,7 @@ export function useBatchWorkflow(options: {
 
       selectLiveImages({
         files,
-        batchSeedImages: batchSeed.images,
+        batchSeedImages: liveBatchImages,
         batchCsvFile,
         batchPreflightRequestRef,
         setBatchSessionId,
