@@ -171,7 +171,7 @@ export function lowQualityImageReport(): UIVerificationReport {
       label: 'Brand name',
       status: 'review',
       severity: 'minor',
-      summary: 'Low extraction confidence.',
+      summary: 'Hard to read from this image.',
       details: 'The image is blurry at this region. Please verify the brand name manually before approving.',
       confidence: 0.54,
       citations: CITATIONS_SPIRITS,
@@ -184,7 +184,7 @@ export function lowQualityImageReport(): UIVerificationReport {
       label: 'Class / Type',
       status: 'review',
       severity: 'minor',
-      summary: 'Low extraction confidence.',
+      summary: 'Hard to read from this image.',
       details: 'Class/type text is partially occluded.',
       confidence: 0.48,
       citations: CITATIONS_SPIRITS,
@@ -197,7 +197,7 @@ export function lowQualityImageReport(): UIVerificationReport {
       label: 'Alcohol content',
       status: 'review',
       severity: 'minor',
-      summary: 'Low extraction confidence on digits.',
+      summary: 'Digits are hard to read from this image.',
       details: 'Could be 40% or 45%; resolution prevents a confident read.',
       confidence: 0.58,
       citations: CITATIONS_SPIRITS,
@@ -213,7 +213,7 @@ export function lowQualityImageReport(): UIVerificationReport {
       severity: 'minor',
       summary: 'Warning text detected but sub-checks are inconclusive.',
       details:
-        'The warning paragraph is present, but extraction confidence is insufficient to verify exact wording at this resolution.',
+        'The warning paragraph is present, but the image quality is too low to verify exact wording at this resolution.',
       confidence: 0.62,
       citations: CITATIONS_WARNING,
       extractedValue: CANONICAL_WARNING,
@@ -229,13 +229,13 @@ export function lowQualityImageReport(): UIVerificationReport {
             id: 'exact-text',
             label: 'Warning text matches required wording',
             status: 'review',
-            reason: 'Inconclusive — extraction confidence is low.'
+            reason: 'Inconclusive — image is too hard to read reliably.'
           },
           {
             id: 'uppercase-bold-heading',
             label: 'Warning heading is uppercase and bold',
             status: 'review',
-            reason: 'Inconclusive — extraction confidence is low.'
+            reason: 'Inconclusive — image is too hard to read reliably.'
           },
           {
             id: 'continuous-paragraph',
@@ -261,7 +261,7 @@ export function lowQualityImageReport(): UIVerificationReport {
     id: 'low-quality-image',
     beverageType: 'unknown',
     verdict: 'review',
-    verdictSecondary: 'Low extraction confidence — review carefully.',
+    verdictSecondary: 'The image was hard to read — please review these results carefully.',
     standalone: false,
     extractionQuality: {
       globalConfidence: 0.54,
@@ -271,6 +271,6 @@ export function lowQualityImageReport(): UIVerificationReport {
     counts: countsFor(checks, crossFieldChecks),
     checks,
     crossFieldChecks,
-    summary: 'Low-confidence extraction keeps the label in review.'
+    summary: 'Image quality was too low for a confident verdict — label stays in review.'
   });
 }
