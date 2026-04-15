@@ -1,0 +1,711 @@
+{
+  "slice": {
+    "cola-cloud-real": {
+      "description": "Real TTB-approved labels from COLA Cloud API covering spirits, wine, and malt beverages.",
+      "caseIds": [
+        "G-41",
+        "G-42",
+        "G-43",
+        "G-44",
+        "G-45",
+        "G-46",
+        "G-47",
+        "G-48",
+        "G-49",
+        "G-50",
+        "G-51",
+        "G-52",
+        "G-53",
+        "G-54",
+        "G-55",
+        "G-56",
+        "G-57",
+        "G-58",
+        "G-59",
+        "G-60",
+        "G-61",
+        "G-62",
+        "G-63",
+        "G-64",
+        "G-65",
+        "G-66",
+        "G-67",
+        "G-68"
+      ]
+    }
+  },
+  "cases": [
+    {
+      "id": "G-41",
+      "slug": "persian-empire-black-widow-distilled-spirits",
+      "title": "Persian Empire — Black Widow",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "distilled-spirits",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/persian-empire-black-widow-distilled-spirits.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000115 — other specialties & proprietaries from canada. Approved 2026-04-11."
+    },
+    {
+      "id": "G-42",
+      "slug": "persian-empire-arak-distilled-spirits",
+      "title": "Persian Empire — Arak ",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "distilled-spirits",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/persian-empire-arak-distilled-spirits.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000084 — arack/raki from canada. Approved 2026-04-11."
+    },
+    {
+      "id": "G-43",
+      "slug": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+      "title": "Simply Elegant — Simply Elegant Spirits",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "distilled-spirits",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/simply-elegant-simply-elegant-spirits-distilled-spirits.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000152 — straight bourbon whisky from kentucky. Approved 2026-04-10."
+    },
+    {
+      "id": "G-44",
+      "slug": "crafy-elk-cranberry-blueberry-acai-distilled-spirits",
+      "title": "Crafy Elk — Cranberry, Blueberry, & Acai",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "distilled-spirits",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/crafy-elk-cranberry-blueberry-acai-distilled-spirits.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000150 — vodka specialties from wisconsin. Approved 2026-04-10."
+    },
+    {
+      "id": "G-45",
+      "slug": "leitz-rottland-wine",
+      "title": "Leitz — Rottland",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "wine",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/leitz-rottland-wine.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26092001000992 — table white wine from germany. Approved 2026-04-13."
+    },
+    {
+      "id": "G-46",
+      "slug": "leitz-magdalenenkreuz-wine",
+      "title": "Leitz — Magdalenenkreuz",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "wine",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/leitz-magdalenenkreuz-wine.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26092001000912 — table white wine from germany. Approved 2026-04-13."
+    },
+    {
+      "id": "G-47",
+      "slug": "leitz-klosterlay-wine",
+      "title": "Leitz — Klosterlay",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "wine",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/leitz-klosterlay-wine.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26092001000896 — table white wine from germany. Approved 2026-04-13."
+    },
+    {
+      "id": "G-48",
+      "slug": "uncorked-in-mayberry-otis-own-wine",
+      "title": "Uncorked In Mayberry — Otis' Own",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "wine",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/uncorked-in-mayberry-otis-own-wine.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26094001000045 — table white wine from north carolina. Approved 2026-04-12."
+    },
+    {
+      "id": "G-49",
+      "slug": "lake-placid-shredder-malt-beverage",
+      "title": "Lake Placid — Shredder",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "malt-beverage",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/lake-placid-shredder-malt-beverage.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000608 — ale from new york. Approved 2026-04-10."
+    },
+    {
+      "id": "G-50",
+      "slug": "lake-placid-ridge-runner-malt-beverage",
+      "title": "Lake Placid — Ridge Runner",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "malt-beverage",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/lake-placid-ridge-runner-malt-beverage.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000588 — ale from new york. Approved 2026-04-10."
+    },
+    {
+      "id": "G-51",
+      "slug": "recluse-brew-works-shy-guy-malt-beverage",
+      "title": "Recluse Brew Works — Shy Guy",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "malt-beverage",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/recluse-brew-works-shy-guy-malt-beverage.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000512 — beer from washington. Approved 2026-04-10."
+    },
+    {
+      "id": "G-52",
+      "slug": "pleasant-prairie-brewing-peach-sour-ale-malt-beverage",
+      "title": "Pleasant Prairie Brewing — Peach Sour Ale",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "malt-beverage",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/pleasant-prairie-brewing-peach-sour-ale-malt-beverage.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000406 — malt beverages specialities - flavored from montana. Approved 2026-04-10."
+    },
+    {
+      "id": "G-53",
+      "slug": "crafty-elk-mango-honey-distilled-spirits",
+      "title": "Crafty Elk — Mango & Honey",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "distilled-spirits",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/crafty-elk-mango-honey-distilled-spirits.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000138 — vodka specialties from wisconsin. Approved 2026-04-10."
+    },
+    {
+      "id": "G-54",
+      "slug": "the-wine-trust-rum-distilled-spirits",
+      "title": "The Wine Trust — Rum",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "distilled-spirits",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/the-wine-trust-rum-distilled-spirits.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000104 — other rum gold fb from trinidad/tobago. Approved 2026-04-10."
+    },
+    {
+      "id": "G-55",
+      "slug": "flaviar-columbia-creek-tennessee-whiskey-distilled-spirits",
+      "title": "Flaviar — Columbia Creek Tennessee Whiskey",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "distilled-spirits",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/flaviar-columbia-creek-tennessee-whiskey-distilled-spirits.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000100 — whisky from new york. Approved 2026-04-10."
+    },
+    {
+      "id": "G-56",
+      "slug": "old-station-31-orange-distilled-spirits",
+      "title": "Old Station 31 — Orange",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "distilled-spirits",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/old-station-31-orange-distilled-spirits.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000003 — vodka - orange flavored from wisconsin. Approved 2026-04-10."
+    },
+    {
+      "id": "G-57",
+      "slug": "west-peak-tequila-paloma-distilled-spirits",
+      "title": "West Peak — Tequila Paloma",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "distilled-spirits",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/west-peak-tequila-paloma-distilled-spirits.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000002 — other specialties & proprietaries from california. Approved 2026-04-10."
+    },
+    {
+      "id": "G-58",
+      "slug": "stormwood-wines-semillon-wine",
+      "title": "Stormwood Wines — Semillon",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "wine",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/stormwood-wines-semillon-wine.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26089001000783 — table white wine from new zealand. Approved 2026-04-12."
+    },
+    {
+      "id": "G-59",
+      "slug": "forlorn-hope-san-hercurmer-delle-frecce-wine",
+      "title": "Forlorn Hope — San Hercurmer Delle Frecce",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "wine",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/forlorn-hope-san-hercurmer-delle-frecce-wine.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26096001000685 — table red wine from california. Approved 2026-04-11."
+    },
+    {
+      "id": "G-60",
+      "slug": "manzone-giovanni-barolo-perno-wine",
+      "title": "Manzone Giovanni — Barolo Perno",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "wine",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/manzone-giovanni-barolo-perno-wine.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26094001000054 — table red wine from italy. Approved 2026-04-11."
+    },
+    {
+      "id": "G-61",
+      "slug": "ana-luisa-gran-reserva-parcelas-blend-wine",
+      "title": "Ana Luisa — Gran Reserva Parcelas Blend",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "wine",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/ana-luisa-gran-reserva-parcelas-blend-wine.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26093001000283 — table red wine from chile. Approved 2026-04-11."
+    },
+    {
+      "id": "G-62",
+      "slug": "carousel-winery-fairy-floss-cotton-candy-wine",
+      "title": "Carousel Winery — Fairy Floss Cotton Candy",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "wine",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/carousel-winery-fairy-floss-cotton-candy-wine.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000443 — table flavored wine from indiana. Approved 2026-04-10."
+    },
+    {
+      "id": "G-63",
+      "slug": "venture-studios-null-wine",
+      "title": "Venture Studios — null",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "wine",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/venture-studios-null-wine.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26097001000965 — table white wine from france. Approved 2026-04-10."
+    },
+    {
+      "id": "G-64",
+      "slug": "sapwood-cellars-albura-lager-malt-beverage",
+      "title": "Sapwood Cellars — Albura Lager",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "malt-beverage",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/sapwood-cellars-albura-lager-malt-beverage.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000393 — beer from maryland. Approved 2026-04-10."
+    },
+    {
+      "id": "G-65",
+      "slug": "drekker-brewing-company-piano-necktie-malt-beverage",
+      "title": "Drekker Brewing Company — Piano Necktie",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "malt-beverage",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/drekker-brewing-company-piano-necktie-malt-beverage.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000387 — ale from north dakota. Approved 2026-04-10."
+    },
+    {
+      "id": "G-66",
+      "slug": "pilok-broumy-malt-beverage",
+      "title": "Pilok — Broumy",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "malt-beverage",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/pilok-broumy-malt-beverage.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000381 — beer from czech republic. Approved 2026-04-10."
+    },
+    {
+      "id": "G-67",
+      "slug": "1840-original-lager-1840-original-lager-malt-beverage",
+      "title": "1840 Original Lager — 1840 Original Lager",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "malt-beverage",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/1840-original-lager-1840-original-lager-malt-beverage.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000363 — beer from pennsylvania. Approved 2026-04-10."
+    },
+    {
+      "id": "G-68",
+      "slug": "harpoon-ale-malt-beverage",
+      "title": "Harpoon — Ale",
+      "suiteIds": [
+        "cola-cloud-real"
+      ],
+      "mode": "comparison",
+      "beverageType": "malt-beverage",
+      "requiresLiveAsset": true,
+      "requiresApplicationData": false,
+      "assetPath": "../labels/assets/cola-cloud/harpoon-ale-malt-beverage.webp",
+      "applicableTo": [
+        "live-extraction",
+        "qa",
+        "cola-cloud-regression"
+      ],
+      "expectedPrimaryResult": "approve",
+      "expectedSummary": null,
+      "focus": [
+        "real-label-extraction"
+      ],
+      "notes": "Real TTB COLA 26100001000362 — ale from massachusetts. Approved 2026-04-10."
+    }
+  ]
+}

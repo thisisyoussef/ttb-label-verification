@@ -1,0 +1,3722 @@
+{
+  "generatedAt": "2026-04-15T16:24:12.255Z",
+  "totals": {
+    "rows": 35,
+    "errors": 0
+  },
+  "fieldMetrics": {
+    "beverageType": {
+      "total": 35,
+      "present": 35,
+      "exact": 34,
+      "cosmetic": 0,
+      "mismatch": 1,
+      "missing": 0
+    },
+    "brandName": {
+      "total": 35,
+      "present": 33,
+      "exact": 2,
+      "cosmetic": 14,
+      "mismatch": 17,
+      "missing": 2
+    },
+    "fancifulName": {
+      "total": 34,
+      "present": 25,
+      "exact": 3,
+      "cosmetic": 5,
+      "mismatch": 17,
+      "missing": 9
+    },
+    "classType": {
+      "total": 35,
+      "present": 32,
+      "exact": 1,
+      "cosmetic": 0,
+      "mismatch": 31,
+      "missing": 3
+    },
+    "alcoholContent": {
+      "total": 34,
+      "present": 23,
+      "exact": 0,
+      "cosmetic": 5,
+      "mismatch": 18,
+      "missing": 11
+    },
+    "netContents": {
+      "total": 35,
+      "present": 21,
+      "exact": 2,
+      "cosmetic": 7,
+      "mismatch": 12,
+      "missing": 14
+    },
+    "appellation": {
+      "total": 12,
+      "present": 10,
+      "exact": 0,
+      "cosmetic": 3,
+      "mismatch": 7,
+      "missing": 2
+    },
+    "vintage": {
+      "total": 8,
+      "present": 8,
+      "exact": 8,
+      "cosmetic": 0,
+      "mismatch": 0,
+      "missing": 0
+    }
+  },
+  "rows": [
+    {
+      "id": "persian-empire-black-widow-distilled-spirits",
+      "title": "Persian Empire — Black Widow",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for 'Black Widow' Arak Saggi, a distilled spirit from Canada made from grapes, dates, and raisins. It has 40% alcohol by volume and a net content of 750 mL. The class type is clearly stated. No other specific fields like applicant address, age statement, sulfite declaration, appellation, vintage, or government warning are present. The brand name is bold, and the descriptive text is in a continuous paragraph, visually separated from other elements.",
+      "imageQuality": {
+        "score": 0.9,
+        "state": "ok",
+        "issues": [],
+        "note": "The image is clear and readable."
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The text 'SPIRITS DISTILLED FROM GRAPES WITH DATES AND RAISINS' is not in all caps. Downgraded because warning text was not extracted from the label."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The brand name 'Black Widow' appears to be in a bold font. Downgraded because warning text was not extracted from the label."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The description of the spirit ('Spirits distilled from grapes...') is presented in a paragraph-like format. Downgraded because warning text was not extracted from the label."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The class type and other descriptive text are visually separated from the brand name and other elements. Downgraded because warning text was not extracted from the label."
+        }
+      },
+      "beverageType": {
+        "expected": "distilled-spirits",
+        "present": true,
+        "extracted": "distilled-spirits",
+        "comparison": "exact",
+        "confidence": 0.9,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Persian Empire",
+          "present": true,
+          "extracted": "Black Widow",
+          "comparison": "mismatch",
+          "confidence": 0.97,
+          "note": "The brand name 'Black Widow' is prominently displayed in the center of the label."
+        },
+        "fancifulName": {
+          "expected": "Black Widow",
+          "present": true,
+          "extracted": "ARAQ SAGGI",
+          "comparison": "mismatch",
+          "confidence": 0.93,
+          "note": "Fanciful name 'ARAQ SAGGI' is present above the brand name, with Persian script below."
+        },
+        "classType": {
+          "expected": "other specialties & proprietaries",
+          "present": true,
+          "extracted": "SPIRITS DISTILLED FROM GRAPES WITH DATES AND RAISINS",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": "The class type is explicitly stated below the brand name."
+        },
+        "alcoholContent": {
+          "expected": "40% Alc./Vol.",
+          "present": true,
+          "extracted": "40% ALC. / VOL.",
+          "comparison": "mismatch",
+          "confidence": 0.98,
+          "note": "Alcohol content is clearly indicated at the bottom right of the label."
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": true,
+          "extracted": "750 mL",
+          "comparison": "exact",
+          "confidence": 0.99,
+          "note": "Net contents are shown at the bottom left of the label."
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "No appellation is specified on the label."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Vintage year is not indicated on the label."
+        }
+      }
+    },
+    {
+      "id": "persian-empire-arak-distilled-spirits",
+      "title": "Persian Empire — Arak ",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for 'GOLD ARAKI', a type of 'DISTILLED SPIRITS'. It indicates 'PERSIAN' origin and an '18 Months' age statement. The alcohol content is '40% ALC/VOL' and net contents are '750 ML'.",
+      "imageQuality": {
+        "score": 0.95,
+        "state": "ok",
+        "issues": [],
+        "note": "The image is clear and contains readable text."
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "No distinct warning text with an all-caps prefix is visible. Downgraded because warning text was not extracted from the label."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "No distinct warning text with a bold prefix is visible. Downgraded because warning text was not extracted from the label."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "No warning text is present to assess as a continuous paragraph. Downgraded because warning text was not extracted from the label."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "No warning text is present to assess for separation from other content. Downgraded because warning text was not extracted from the label."
+        }
+      },
+      "beverageType": {
+        "expected": "distilled-spirits",
+        "present": true,
+        "extracted": "distilled-spirits",
+        "comparison": "exact",
+        "confidence": 0.95,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Persian Empire",
+          "present": true,
+          "extracted": "ARAKI",
+          "comparison": "mismatch",
+          "confidence": 0.93,
+          "note": "The word 'ARAKI' is clearly visible below 'GOLD'."
+        },
+        "fancifulName": {
+          "expected": "Arak ",
+          "present": true,
+          "extracted": "GOLD ARAKI",
+          "comparison": "mismatch",
+          "confidence": 0.93,
+          "note": "The words 'GOLD' and 'ARAKI' appear together and seem to function as a fanciful name."
+        },
+        "classType": {
+          "expected": "arack/raki",
+          "present": true,
+          "extracted": "SPIRITS",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": "The label clearly states 'DISTILLED SPIRITS'."
+        },
+        "alcoholContent": {
+          "expected": "40% Alc./Vol.",
+          "present": true,
+          "extracted": "40% ALC/VOL",
+          "comparison": "cosmetic",
+          "confidence": 0.99,
+          "note": "The alcohol content is clearly stated at the bottom right of the label."
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": true,
+          "extracted": "750 ML",
+          "comparison": "cosmetic",
+          "confidence": 0.99,
+          "note": "The net contents are clearly stated at the bottom left of the label."
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "No appellation is visible on the label."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "No vintage year is visible on the label."
+        }
+      }
+    },
+    {
+      "id": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+      "title": "Simply Elegant — Simply Elegant Spirits",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for Simply Elegant, a single barrel Kentucky Straight Bourbon Whiskey. It has an alcohol by volume of 67% and is 750 ML. The whiskey is aged 8 years. The number '134' appears under 'Barrel' and '750 ML' is listed below the main text.",
+      "imageQuality": {
+        "score": 0.95,
+        "state": "ok",
+        "issues": []
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "There are no government warnings present on the label. Downgraded because warning text was not extracted from the label."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "There are no government warnings present on the label. Downgraded because warning text was not extracted from the label."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "There are no government warnings present on the label. Downgraded because warning text was not extracted from the label."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "There are no government warnings present on the label. Downgraded because warning text was not extracted from the label."
+        }
+      },
+      "beverageType": {
+        "expected": "distilled-spirits",
+        "present": true,
+        "extracted": "distilled-spirits",
+        "comparison": "exact",
+        "confidence": 0.95,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Simply Elegant",
+          "present": true,
+          "extracted": "SIMPLY ELEGANT",
+          "comparison": "cosmetic",
+          "confidence": 0.98,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Simply Elegant Spirits",
+          "present": true,
+          "extracted": "A SINGLE BARREL",
+          "comparison": "mismatch",
+          "confidence": 0.98,
+          "note": null
+        },
+        "classType": {
+          "expected": "straight bourbon whisky",
+          "present": true,
+          "extracted": "KENTUCKY STRAIGHT BOURBON WHISKEY",
+          "comparison": "mismatch",
+          "confidence": 0.98,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "67% Alc./Vol.",
+          "present": true,
+          "extracted": "ALC/VOL 67%",
+          "comparison": "mismatch",
+          "confidence": 0.98,
+          "note": null
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": true,
+          "extracted": "750 ML",
+          "comparison": "cosmetic",
+          "confidence": 0.98,
+          "note": null
+        },
+        "appellation": {
+          "expected": "",
+          "present": true,
+          "extracted": "KENTUCKY",
+          "comparison": "mismatch",
+          "confidence": 0.98,
+          "note": "Label states 'KENTUCKY STRAIGHT BOURBON WHISKEY', implying origin."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Vintage year not found on the label."
+        }
+      }
+    },
+    {
+      "id": "crafy-elk-cranberry-blueberry-acai-distilled-spirits",
+      "title": "Crafy Elk — Cranberry, Blueberry, & Acai",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "This is an organic Crafty Elk Hard Juice, a vodka cocktail with 12% alcohol by volume, in a 750 mL bottle. It is manufactured by Crafty Elk in Verona, WI, USA and contains a mix of organic ingredients including vodka, cane sugar, cranberry, blueberry, raspberry, ginger, lemon, and acerola. The label includes a government warning about pregnancy risks and impaired driving.",
+      "imageQuality": {
+        "score": 0.9,
+        "state": "ok",
+        "issues": []
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "GOVERNMENT WARNING"
+        },
+        "prefixBold": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "GOVERNMENT WARNING"
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 0.8,
+          "note": "The government warning is presented as a continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The government warning is clearly separated from other label text."
+        }
+      },
+      "beverageType": {
+        "expected": "distilled-spirits",
+        "present": true,
+        "extracted": "distilled-spirits",
+        "comparison": "exact",
+        "confidence": 0.9,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Crafy Elk",
+          "present": true,
+          "extracted": "CRAFTY ELK",
+          "comparison": "mismatch",
+          "confidence": 0.94,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Cranberry, Blueberry, & Acai",
+          "present": true,
+          "extracted": "HARD JUICE",
+          "comparison": "mismatch",
+          "confidence": 0.88,
+          "note": null
+        },
+        "classType": {
+          "expected": "vodka specialties",
+          "present": true,
+          "extracted": "VODKA COCKTAIL",
+          "comparison": "mismatch",
+          "confidence": 0.88,
+          "note": "Combined from \"VODKA\" and \"COCKTAIL\""
+        },
+        "alcoholContent": {
+          "expected": "4.5% Alc./Vol.",
+          "present": true,
+          "extracted": "12% ALC. BY VOL.",
+          "comparison": "mismatch",
+          "confidence": 0.96,
+          "note": null
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": true,
+          "extracted": "750 mL",
+          "comparison": "exact",
+          "confidence": 0.96,
+          "note": null
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": null
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": null
+        }
+      }
+    },
+    {
+      "id": "leitz-rottland-wine",
+      "title": "Leitz — Rottland",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for Leitz Hinterhaus wine from 2023. It is from Berg Röttland, Rüdesheim, with the designation VDP. GROSSE LAGE. The brand name Leitz is present in all caps and bold. The fanciful name Hinterhaus is in all caps. The appellation Rüdesheim is present. The vintage 2023 is present. The designation VDP. GROSSE LAGE is present in all caps and bold, and separated from other content.",
+      "imageQuality": {
+        "score": 0.95,
+        "state": "ok",
+        "issues": []
+      },
+      "beverageTypeSource": "model-hint",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "VDP. GROSSE LAGE Downgraded because warning text was not extracted from the label."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "VDP. GROSSE LAGE Downgraded because warning text was not extracted from the label."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "VDP. GROSSE LAGE is on a separate line from the rest of the text. Downgraded because warning text was not extracted from the label."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "VDP. GROSSE LAGE is visually separated from the rest of the label text. Downgraded because warning text was not extracted from the label."
+        }
+      },
+      "beverageType": {
+        "expected": "wine",
+        "present": true,
+        "extracted": "wine",
+        "comparison": "exact",
+        "confidence": 0.95,
+        "note": "model-hint"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Leitz",
+          "present": true,
+          "extracted": "LEITZ",
+          "comparison": "cosmetic",
+          "confidence": 1,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Rottland",
+          "present": true,
+          "extracted": "HINTERHAUS",
+          "comparison": "mismatch",
+          "confidence": 1,
+          "note": null
+        },
+        "classType": {
+          "expected": "table white wine",
+          "present": true,
+          "extracted": "BERG RÖTTLAND",
+          "comparison": "mismatch",
+          "confidence": 1,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "12.5% Alc./Vol.",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "appellation": {
+          "expected": "Rheingau",
+          "present": true,
+          "extracted": "Rüdesheim",
+          "comparison": "mismatch",
+          "confidence": 1,
+          "note": null
+        },
+        "vintage": {
+          "expected": "2023",
+          "present": true,
+          "extracted": "2023",
+          "comparison": "exact",
+          "confidence": 1,
+          "note": null
+        }
+      }
+    },
+    {
+      "id": "leitz-magdalenenkreuz-wine",
+      "title": "Leitz — Magdalenenkreuz",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label indicates it is a 2025 Rüdesheimer Magdalenenkreuz Spätlese Riesling from the brand LEITZ.",
+      "imageQuality": {
+        "score": 0.9,
+        "state": "ok",
+        "issues": []
+      },
+      "beverageTypeSource": "model-hint",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "Downgraded because warning text was not extracted from the label."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "Downgraded because warning text was not extracted from the label."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "Downgraded because warning text was not extracted from the label."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "Downgraded because warning text was not extracted from the label."
+        }
+      },
+      "beverageType": {
+        "expected": "wine",
+        "present": true,
+        "extracted": "wine",
+        "comparison": "exact",
+        "confidence": 0.9,
+        "note": "model-hint"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Leitz",
+          "present": true,
+          "extracted": "LEITZ",
+          "comparison": "cosmetic",
+          "confidence": 0.95,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Magdalenenkreuz",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "classType": {
+          "expected": "table white wine",
+          "present": true,
+          "extracted": "RIESLING",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "8% Alc./Vol.",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "appellation": {
+          "expected": "Rheingau",
+          "present": true,
+          "extracted": "Rüdesheimer Magdalenenkreuz",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": null
+        },
+        "vintage": {
+          "expected": "2025",
+          "present": true,
+          "extracted": "2025",
+          "comparison": "exact",
+          "confidence": 0.95,
+          "note": null
+        }
+      }
+    },
+    {
+      "id": "leitz-klosterlay-wine",
+      "title": "Leitz — Klosterlay",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label displays \"LEITZ WEINGUT\" as the brand name, \"2025\" as the vintage, \"Rüdesheimer Klosterlay\" as the appellation, and \"KABINETT\" as the class type. The varietal \"RIESLING\" is also present. Other fields are not supported by the visible label.",
+      "imageQuality": {
+        "score": 0.9,
+        "state": "ok",
+        "issues": []
+      },
+      "beverageTypeSource": "model-hint",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The text 'RIESLING' is all caps, but it is not a prefix. Downgraded because warning text was not extracted from the label."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "No text is bolded as a prefix. Downgraded because warning text was not extracted from the label."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The text is not arranged in a continuous paragraph. Downgraded because warning text was not extracted from the label."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The Riesling varietal is visually separated from other text elements. Downgraded because warning text was not extracted from the label."
+        }
+      },
+      "beverageType": {
+        "expected": "wine",
+        "present": true,
+        "extracted": "wine",
+        "comparison": "exact",
+        "confidence": 0.9,
+        "note": "model-hint"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Leitz",
+          "present": true,
+          "extracted": "LEITZ WEINGUT",
+          "comparison": "mismatch",
+          "confidence": 0.98,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Klosterlay",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "classType": {
+          "expected": "table white wine",
+          "present": true,
+          "extracted": "KABINETT",
+          "comparison": "mismatch",
+          "confidence": 0.98,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "8.5% Alc./Vol.",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "appellation": {
+          "expected": "Rheingau",
+          "present": true,
+          "extracted": "Rüdesheimer Klosterlay",
+          "comparison": "mismatch",
+          "confidence": 0.99,
+          "note": null
+        },
+        "vintage": {
+          "expected": "2025",
+          "present": true,
+          "extracted": "2025",
+          "comparison": "exact",
+          "confidence": 0.99,
+          "note": null
+        }
+      }
+    },
+    {
+      "id": "uncorked-in-mayberry-otis-own-wine",
+      "title": "Uncorked In Mayberry — Otis' Own",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "This label is for a wine called 'UN CORKED IN MAYBERRY' by 'OTIS' OWN'. It is a semi-dry white wine with 12.5% alcohol by volume, from North Carolina. No net contents or country of origin are specified.",
+      "imageQuality": {
+        "score": 0.8,
+        "state": "low-confidence",
+        "issues": [
+          "Slight blurriness in the image."
+        ]
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "Brand name 'UN CORKED' is in all caps. Downgraded because warning text was not extracted from the label."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The text 'OTIS' OWN' and 'SEMI-DRY WHITE WINE' are in bold. Downgraded because warning text was not extracted from the label."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The text 'OTIS' OWN', 'SEMI-DRY WHITE WINE', and 'NORTH CAROLINA' appear to be in a continuous block. Downgraded because warning text was not extracted from the label."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The government warning information is separate from other text on the label. Downgraded because warning text was not extracted from the label."
+        }
+      },
+      "beverageType": {
+        "expected": "wine",
+        "present": true,
+        "extracted": "wine",
+        "comparison": "exact",
+        "confidence": 0.8,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Uncorked In Mayberry",
+          "present": true,
+          "extracted": "UN CORKED",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Otis' Own",
+          "present": true,
+          "extracted": "IN MAYBERRY",
+          "comparison": "mismatch",
+          "confidence": 0.92,
+          "note": null
+        },
+        "classType": {
+          "expected": "table white wine",
+          "present": true,
+          "extracted": "SEMI-DRY WHITE WINE",
+          "comparison": "mismatch",
+          "confidence": 0.85,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "12.5% Alc./Vol.",
+          "present": true,
+          "extracted": "12.5% BY VOL.",
+          "comparison": "mismatch",
+          "confidence": 0.98,
+          "note": null
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "appellation": {
+          "expected": "North Carolina",
+          "present": true,
+          "extracted": "NORTH CAROLINA",
+          "comparison": "cosmetic",
+          "confidence": 0.95,
+          "note": "This is a state appellation, not a specific region."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": null
+        }
+      }
+    },
+    {
+      "id": "lake-placid-shredder-malt-beverage",
+      "title": "Lake Placid — Shredder",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for Lake Placid Shredder IPA, with an alcohol content of 6.0% ALC/VOL and net contents of 12 FL. OZ. The applicant address is LAKE PLACID BREWING CO. PLATTSBURGH, NY 12901, USA. There are no visible age statements, sulfite declarations, appellations, vintages, or government warnings. The warning signals indicate that the text is in a continuous paragraph and visually separated from other content, with no bold or all-caps prefix.",
+      "imageQuality": {
+        "score": 0.98,
+        "state": "ok",
+        "issues": [],
+        "note": "The image is clear and the text is readable."
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The warning text, if present, does not start with all caps. Downgraded because warning text was not extracted from the label."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The warning text, if present, does not start with bold. Downgraded because warning text was not extracted from the label."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The text on the right side appears to be in a continuous paragraph. Downgraded because warning text was not extracted from the label."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The text on the right side is visually separated from the main branding elements. Downgraded because warning text was not extracted from the label."
+        }
+      },
+      "beverageType": {
+        "expected": "malt-beverage",
+        "present": true,
+        "extracted": "malt-beverage",
+        "comparison": "exact",
+        "confidence": 0.98,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Lake Placid",
+          "present": true,
+          "extracted": "LAKE PLACID",
+          "comparison": "cosmetic",
+          "confidence": 0.99,
+          "note": "The brand name is located above the fanciful name."
+        },
+        "fancifulName": {
+          "expected": "Shredder",
+          "present": true,
+          "extracted": "SHREDDER",
+          "comparison": "cosmetic",
+          "confidence": 0.99,
+          "note": "The fanciful name is the most prominent text on the label."
+        },
+        "classType": {
+          "expected": "ale",
+          "present": true,
+          "extracted": "IPA",
+          "comparison": "mismatch",
+          "confidence": 0.99,
+          "note": "The class type is located below the fanciful name."
+        },
+        "alcoholContent": {
+          "expected": "",
+          "present": true,
+          "extracted": "6.0% ALC/VOL",
+          "comparison": "mismatch",
+          "confidence": 0.99,
+          "note": "The alcohol content is found on the left side of the label."
+        },
+        "netContents": {
+          "expected": "12 FL OZ",
+          "present": true,
+          "extracted": "12 FL. OZ.",
+          "comparison": "cosmetic",
+          "confidence": 0.99,
+          "note": "The net contents are found on the left side of the label, below the alcohol content."
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "No appellation is visible on the label."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "No vintage is visible on the label."
+        }
+      }
+    },
+    {
+      "id": "lake-placid-ridge-runner-malt-beverage",
+      "title": "Lake Placid — Ridge Runner",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for Lake Placid Ridge Runner India Pale Ale, with 4% alcohol by volume and 12 fl oz net content. It is brewed by Lake Placid Brewing Company in Hamburg, NY. A government warning is present.",
+      "imageQuality": {
+        "score": 0.8,
+        "state": "ok",
+        "issues": [
+          "low contrast",
+          "text too small",
+          "text distorted"
+        ],
+        "note": "The image quality is moderate, with some text being difficult to read due to size and resolution."
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The words 'WARNING:' are in all caps."
+        },
+        "prefixBold": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The word 'WARNING:' is in bold."
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The government warning text appears as a continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The government warning is visually separated from other content on the label."
+        }
+      },
+      "beverageType": {
+        "expected": "malt-beverage",
+        "present": true,
+        "extracted": "malt-beverage",
+        "comparison": "exact",
+        "confidence": 0.8,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Lake Placid",
+          "present": true,
+          "extracted": "LAKE PLACID",
+          "comparison": "cosmetic",
+          "confidence": 0.99,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Ridge Runner",
+          "present": true,
+          "extracted": "RIDGE RUNNER",
+          "comparison": "cosmetic",
+          "confidence": 0.99,
+          "note": null
+        },
+        "classType": {
+          "expected": "ale",
+          "present": true,
+          "extracted": "INDIA PALE ALE",
+          "comparison": "mismatch",
+          "confidence": 0.99,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "4% Alc./Vol.",
+          "present": true,
+          "extracted": "4% ALC/VOL",
+          "comparison": "cosmetic",
+          "confidence": 1,
+          "note": null
+        },
+        "netContents": {
+          "expected": "12 FL OZ",
+          "present": true,
+          "extracted": "12 FL. OZ.",
+          "comparison": "cosmetic",
+          "confidence": 0.99,
+          "note": null
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Appellation is not present on the label."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Vintage is not present on the label."
+        }
+      }
+    },
+    {
+      "id": "recluse-brew-works-shy-guy-malt-beverage",
+      "title": "Recluse Brew Works — Shy Guy",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for RECLUSE SHY GUY IPA, a malt beverage with 6.5% alcohol by volume and a net content of 1 pint. The applicant address is RECLUSE BREW WORKS, 4035 SEGRANT STREET, WASHOUGAL, WA 98671. The government warning is present and includes information about pregnancy risks and operating machinery. There are no varietals listed. The warning signals indicate a bold, all-caps prefix, a continuous paragraph, and separation from other content. The image quality is high with no detected text issues.",
+      "imageQuality": {
+        "score": 0.99,
+        "state": "ok",
+        "issues": []
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "no",
+          "confidence": 0.9,
+          "note": "The government warning has an all-caps prefix."
+        },
+        "prefixBold": {
+          "status": "yes",
+          "confidence": 0.95,
+          "note": "The government warning prefix is bold."
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 0.98,
+          "note": "The government warning is presented as a continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 0.95,
+          "note": "The government warning is visually separated from other content."
+        }
+      },
+      "beverageType": {
+        "expected": "malt-beverage",
+        "present": true,
+        "extracted": "malt-beverage",
+        "comparison": "exact",
+        "confidence": 0.99,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Recluse Brew Works",
+          "present": true,
+          "extracted": "RECLUSE",
+          "comparison": "mismatch",
+          "confidence": 0.96,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Shy Guy",
+          "present": true,
+          "extracted": "SHY GUY",
+          "comparison": "cosmetic",
+          "confidence": 0.98,
+          "note": null
+        },
+        "classType": {
+          "expected": "beer",
+          "present": true,
+          "extracted": "IPA",
+          "comparison": "mismatch",
+          "confidence": 0.99,
+          "note": "India Pale Ale"
+        },
+        "alcoholContent": {
+          "expected": "6.5% Alc./Vol.",
+          "present": true,
+          "extracted": "6.5% ALC. BY VOL.",
+          "comparison": "mismatch",
+          "confidence": 0.99,
+          "note": null
+        },
+        "netContents": {
+          "expected": "12 FL OZ",
+          "present": true,
+          "extracted": "1 PINT",
+          "comparison": "mismatch",
+          "confidence": 0.99,
+          "note": null
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Appellation not found."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Vintage not found."
+        }
+      }
+    },
+    {
+      "id": "pleasant-prairie-brewing-peach-sour-ale-malt-beverage",
+      "title": "Pleasant Prairie Brewing — Peach Sour Ale",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "This label is for Pleasant Prairie Peach Sour.Ale, a malt beverage. It has a net content of 5.16 U.S. Gallons and includes a government warning. The applicant's address is also provided.",
+      "imageQuality": {
+        "score": 0.9,
+        "state": "ok",
+        "issues": [],
+        "note": "The image is clear, well-lit, and contains readable text."
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The 'GOVERNMENT WARNING' prefix is in all caps."
+        },
+        "prefixBold": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The 'GOVERNMENT WARNING' prefix is in bold."
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The warning text is presented as a continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 0.95,
+          "note": "The warning text is clearly separated from other information on the label, positioned in a distinct box."
+        }
+      },
+      "beverageType": {
+        "expected": "malt-beverage",
+        "present": true,
+        "extracted": "malt-beverage",
+        "comparison": "exact",
+        "confidence": 0.9,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Pleasant Prairie Brewing",
+          "present": true,
+          "extracted": "PLEASANT PRAIRIE",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": "Brand name clearly visible in large font at the top of the label."
+        },
+        "fancifulName": {
+          "expected": "Peach Sour Ale",
+          "present": true,
+          "extracted": "Peach Sour.Ale",
+          "comparison": "mismatch",
+          "confidence": 0.9,
+          "note": "Fanciful name 'Peach Sour.Ale' is present below the brand name and net contents."
+        },
+        "classType": {
+          "expected": "malt beverages specialities - flavored",
+          "present": true,
+          "extracted": "Ale",
+          "comparison": "mismatch",
+          "confidence": 0.85,
+          "note": "The label explicitly states 'Ale' as part of the fanciful name."
+        },
+        "alcoholContent": {
+          "expected": "5.9% Alc./Vol.",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "Alcohol content is not visibly present on the label."
+        },
+        "netContents": {
+          "expected": "12 FL OZ",
+          "present": true,
+          "extracted": "5.16 U.S. Gallons",
+          "comparison": "mismatch",
+          "confidence": 0.9,
+          "note": "Net contents '5.16 U.S. Gallons' are clearly indicated."
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "No appellation information is present on the label."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "No vintage information is visible on the label."
+        }
+      }
+    },
+    {
+      "id": "crafty-elk-mango-honey-distilled-spirits",
+      "title": "Crafty Elk — Mango & Honey",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for 'CRAFTY ELK HARD JUICE', a vodka cocktail with 4.5% alcohol content and 12 fl oz net contents. It lists 'MANGO & HONEY' as a flavor. The label includes a government warning and a sulfite declaration. The brand name and product name are prominent.",
+      "imageQuality": {
+        "score": 0.85,
+        "state": "ok",
+        "issues": [
+          "Some text is small and may be difficult to read at lower resolutions."
+        ],
+        "note": "Image is clear overall, but some fine print is challenging."
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The text 'GOVERNMENT WARNING' is in all caps."
+        },
+        "prefixBold": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The text 'GOVERNMENT WARNING' is bold."
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The warning text is presented as a continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 0.95,
+          "note": "The government warning is located on the side panel and visually separated from the main branding."
+        }
+      },
+      "beverageType": {
+        "expected": "distilled-spirits",
+        "present": true,
+        "extracted": "distilled-spirits",
+        "comparison": "exact",
+        "confidence": 0.85,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Crafty Elk",
+          "present": true,
+          "extracted": "CRAFTY ELK",
+          "comparison": "cosmetic",
+          "confidence": 0.95,
+          "note": "Brand name text is large and prominent."
+        },
+        "fancifulName": {
+          "expected": "Mango & Honey",
+          "present": true,
+          "extracted": "HARD JUICE",
+          "comparison": "mismatch",
+          "confidence": 0.9,
+          "note": "Text is large and prominent, below brand name."
+        },
+        "classType": {
+          "expected": "vodka specialties",
+          "present": true,
+          "extracted": "VODKA COCKTAIL",
+          "comparison": "mismatch",
+          "confidence": 0.85,
+          "note": "Text 'VODKA COCKTAIL' is present below 'HARD JUICE'."
+        },
+        "alcoholContent": {
+          "expected": "4.5% Alc./Vol.",
+          "present": true,
+          "extracted": "4.5% ALC. BY VOL.",
+          "comparison": "mismatch",
+          "confidence": 0.9,
+          "note": "Alcohol content is clearly stated."
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": true,
+          "extracted": "12 FL. OZ.",
+          "comparison": "mismatch",
+          "confidence": 0.9,
+          "note": "Net contents are clearly stated."
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0.1,
+          "note": "No appellation is visible."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0.1,
+          "note": "No vintage year is visible."
+        }
+      }
+    },
+    {
+      "id": "the-wine-trust-rum-distilled-spirits",
+      "title": "The Wine Trust — Rum",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for \"the wine trust\" brand, which is a RUM from TRINIDAD. It has 60% alcohol by volume and is 700ml. It is imported by The Wine Trust in NEW YORK, NY. It also contains a government warning and a sulfite declaration.",
+      "imageQuality": {
+        "score": 0.9,
+        "state": "ok",
+        "issues": []
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "yes",
+          "confidence": 1,
+          "note": "GOVERNMENT WARNING"
+        },
+        "prefixBold": {
+          "status": "no",
+          "confidence": 1
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 1
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 1
+        }
+      },
+      "beverageType": {
+        "expected": "distilled-spirits",
+        "present": true,
+        "extracted": "distilled-spirits",
+        "comparison": "exact",
+        "confidence": 0.9,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "The Wine Trust",
+          "present": true,
+          "extracted": "the wine trust",
+          "comparison": "cosmetic",
+          "confidence": 0.95,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Rum",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "classType": {
+          "expected": "other rum gold fb",
+          "present": true,
+          "extracted": "RUM",
+          "comparison": "mismatch",
+          "confidence": 1,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "60% Alc./Vol.",
+          "present": true,
+          "extracted": "60% by vol.",
+          "comparison": "mismatch",
+          "confidence": 1,
+          "note": null
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": true,
+          "extracted": "700ml",
+          "comparison": "mismatch",
+          "confidence": 1,
+          "note": null
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": null
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": null
+        }
+      }
+    },
+    {
+      "id": "flaviar-columbia-creek-tennessee-whiskey-distilled-spirits",
+      "title": "Flaviar — Columbia Creek Tennessee Whiskey",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for Columbia Creek Flaviar, a Tennessee Whiskey with 47.8% alcohol content and 50mL net contents, bottled by Trythis Westfield, NY. It includes a government warning.",
+      "imageQuality": {
+        "score": 0.7,
+        "state": "low-confidence",
+        "issues": [
+          "rotation_issues",
+          "text_legibility_issues"
+        ],
+        "note": "The label has rotated text which impacts overall clarity and extraction confidence."
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "yes",
+          "confidence": 0.95,
+          "note": "GOVERNMENT WARNING text is in all caps."
+        },
+        "prefixBold": {
+          "status": "no",
+          "confidence": 0.7,
+          "note": "No text appears to be in bold."
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 0.95,
+          "note": "The government warning text is presented as a continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The government warning is visually separated from other label elements by being rotated and placed in a distinct area."
+        }
+      },
+      "beverageType": {
+        "expected": "distilled-spirits",
+        "present": true,
+        "extracted": "distilled-spirits",
+        "comparison": "exact",
+        "confidence": 0.7,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Flaviar",
+          "present": true,
+          "extracted": "COLUMBIA CREEK",
+          "comparison": "mismatch",
+          "confidence": 0.94,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Columbia Creek Tennessee Whiskey",
+          "present": true,
+          "extracted": "Flaviar",
+          "comparison": "mismatch",
+          "confidence": 0.94,
+          "note": null
+        },
+        "classType": {
+          "expected": "whisky",
+          "present": true,
+          "extracted": "TENNESSEE WHISKEY",
+          "comparison": "mismatch",
+          "confidence": 0.97,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "47.8% Alc./Vol.",
+          "present": true,
+          "extracted": "47.8%",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": null
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": true,
+          "extracted": "50mL",
+          "comparison": "mismatch",
+          "confidence": 0.96,
+          "note": null
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": null
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": null
+        }
+      }
+    },
+    {
+      "id": "old-station-31-orange-distilled-spirits",
+      "title": "Old Station 31 — Orange",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for Old Station 31 Orange, an orange flavored vodka. It is 40% alcohol by volume and comes in a 750ml bottle. The brand name is in all caps.",
+      "imageQuality": {
+        "score": 0.95,
+        "state": "ok",
+        "issues": []
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The brand name 'OLD STATION 31' is in all caps. Downgraded because warning text was not extracted from the label."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "No specific bold prefix detected for warning signals. Downgraded because warning text was not extracted from the label."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The text is not presented as a continuous paragraph for warning. Downgraded because warning text was not extracted from the label."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The text does not appear to be separated from other content in a way that suggests a warning. Downgraded because warning text was not extracted from the label."
+        }
+      },
+      "beverageType": {
+        "expected": "distilled-spirits",
+        "present": true,
+        "extracted": "distilled-spirits",
+        "comparison": "exact",
+        "confidence": 0.95,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Old Station 31",
+          "present": true,
+          "extracted": "OLD STATION 31",
+          "comparison": "cosmetic",
+          "confidence": 0.99,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Orange",
+          "present": true,
+          "extracted": "Orange",
+          "comparison": "exact",
+          "confidence": 0.99,
+          "note": null
+        },
+        "classType": {
+          "expected": "vodka - orange flavored",
+          "present": true,
+          "extracted": "ORANGE FLAVORED VODKA",
+          "comparison": "mismatch",
+          "confidence": 0.99,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "40% Alc./Vol.",
+          "present": true,
+          "extracted": "40% ALC./VOL.",
+          "comparison": "cosmetic",
+          "confidence": 0.99,
+          "note": null
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": true,
+          "extracted": "750 ML",
+          "comparison": "cosmetic",
+          "confidence": 0.99,
+          "note": null
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Appellation not found on the label."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Vintage not found on the label."
+        }
+      }
+    },
+    {
+      "id": "west-peak-tequila-paloma-distilled-spirits",
+      "title": "West Peak — Tequila Paloma",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for West Peak Sparkling Spirits Tequila Paloma, a distilled spirit with 6% alcohol by volume and 12 fl oz net contents. It includes a standard government warning and hints at tequila as an ingredient. The image quality is excellent.",
+      "imageQuality": {
+        "score": 0.95,
+        "state": "ok",
+        "issues": [],
+        "note": "The image is clear, well-lit, and has high resolution, allowing for accurate text extraction."
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The government warning text has 'GOVERNMENT WARNING:' in all caps as a prefix."
+        },
+        "prefixBold": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The government warning text has 'GOVERNMENT WARNING:' in bold as a prefix."
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The government warning text is presented as a continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 0.95,
+          "note": "The government warning is visually separated from other label elements."
+        }
+      },
+      "beverageType": {
+        "expected": "distilled-spirits",
+        "present": true,
+        "extracted": "distilled-spirits",
+        "comparison": "exact",
+        "confidence": 0.95,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "West Peak",
+          "present": true,
+          "extracted": "WEST PEAK",
+          "comparison": "cosmetic",
+          "confidence": 0.91,
+          "note": "The brand name appears prominently in large, bold font."
+        },
+        "fancifulName": {
+          "expected": "Tequila Paloma",
+          "present": true,
+          "extracted": "TEQUILA PALOMA",
+          "comparison": "cosmetic",
+          "confidence": 0.89,
+          "note": "This appears to be the specific product name, below the brand."
+        },
+        "classType": {
+          "expected": "other specialties & proprietaries",
+          "present": true,
+          "extracted": "SPARKLING SPIRITS",
+          "comparison": "mismatch",
+          "confidence": 0.88,
+          "note": "This is a descriptive class type located below the brand name."
+        },
+        "alcoholContent": {
+          "expected": "6% Alc./Vol.",
+          "present": true,
+          "extracted": "6% ALC/VOL",
+          "comparison": "cosmetic",
+          "confidence": 0.95,
+          "note": "Clearly stated as 6% ALC/VOL."
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": true,
+          "extracted": "12 FL. OZ. (355 mL)",
+          "comparison": "mismatch",
+          "confidence": 0.92,
+          "note": "Net contents are clearly stated in both fluid ounces and milliliters."
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "No appellation is specified on the label."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "No vintage year is present on the label."
+        }
+      }
+    },
+    {
+      "id": "stormwood-wines-semillon-wine",
+      "title": "Stormwood Wines — Semillon",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label indicates the brand name 'STORMWOOD' in all caps and bold. It specifies the wine varietal as 'SEMILLON' and the vintage as '2025'. The appellation or origin is identified as 'WAIHEKE ISLAND'.",
+      "imageQuality": {
+        "score": 0.95,
+        "state": "ok",
+        "issues": []
+      },
+      "beverageTypeSource": "model-hint",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "STORMWOOD is in all caps. Downgraded because warning text was not extracted from the label."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "STORMWOOD is in bold. Downgraded because warning text was not extracted from the label."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The text is not in a continuous paragraph. Downgraded because warning text was not extracted from the label."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The brand name is visually separated from other text. Downgraded because warning text was not extracted from the label."
+        }
+      },
+      "beverageType": {
+        "expected": "wine",
+        "present": true,
+        "extracted": "wine",
+        "comparison": "exact",
+        "confidence": 0.95,
+        "note": "model-hint"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Stormwood Wines",
+          "present": true,
+          "extracted": "STORMWOOD",
+          "comparison": "mismatch",
+          "confidence": 0.97,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Semillon",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "classType": {
+          "expected": "table white wine",
+          "present": true,
+          "extracted": "SEMILLON",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "13% Alc./Vol.",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "appellation": {
+          "expected": "Waiheke Island",
+          "present": true,
+          "extracted": "WAIHEKE ISLAND",
+          "comparison": "cosmetic",
+          "confidence": 0.92,
+          "note": null
+        },
+        "vintage": {
+          "expected": "2025",
+          "present": true,
+          "extracted": "2025",
+          "comparison": "exact",
+          "confidence": 0.98,
+          "note": null
+        }
+      }
+    },
+    {
+      "id": "forlorn-hope-san-hercurmer-delle-frecce-wine",
+      "title": "Forlorn Hope — San Hercurmer Delle Frecce",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "This is a wine label for 'forlorn hope' brand, with the fanciful name 'San Hercummer delle Freccce'. It is a 2020 Barbera vintage, with 12.5% alcohol by volume, produced by Rorick Heritage Vineyards in Calavaras County, Murphys CA. The label includes a government warning and a sulfite declaration. The image quality is generally good but has some minor blurriness.",
+      "imageQuality": {
+        "score": 0.85,
+        "state": "low-confidence",
+        "issues": [
+          "Slightly blurry text in some areas."
+        ],
+        "note": "The image is mostly clear but has some minor blurriness affecting certain text elements."
+      },
+      "beverageTypeSource": "model-hint",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "yes",
+          "confidence": 0.95,
+          "note": "The \"GOVERNMENT WARNING\" text is in all caps."
+        },
+        "prefixBold": {
+          "status": "no",
+          "confidence": 0.85,
+          "note": "The text following the all caps prefix is not bolded."
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 0.98,
+          "note": "The government warning text is presented as a continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 0.99,
+          "note": "The government warning is clearly separated from other text on the label and occupies its own distinct block."
+        }
+      },
+      "beverageType": {
+        "expected": "wine",
+        "present": true,
+        "extracted": "wine",
+        "comparison": "exact",
+        "confidence": 0.85,
+        "note": "model-hint"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Forlorn Hope",
+          "present": true,
+          "extracted": "forlorn hope",
+          "comparison": "cosmetic",
+          "confidence": 0.98,
+          "note": "Text appears in a distressed, stylized font at the top of the label."
+        },
+        "fancifulName": {
+          "expected": "San Hercurmer Delle Frecce",
+          "present": true,
+          "extracted": "San Hercummer delle Freccce",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": "Text is located at the bottom of the label in a large, bold, sans-serif font."
+        },
+        "classType": {
+          "expected": "table red wine",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "No specific class type is mentioned for the wine."
+        },
+        "alcoholContent": {
+          "expected": "12.5% Alc./Vol.",
+          "present": true,
+          "extracted": "12.5% by Vol.",
+          "comparison": "mismatch",
+          "confidence": 0.99,
+          "note": "Alcohol content is clearly stated below the producer information."
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "Net contents are not visible on the label."
+        },
+        "appellation": {
+          "expected": "Sierra Foothills",
+          "present": true,
+          "extracted": "RORICK HERITAGE VINEYARDS",
+          "comparison": "mismatch",
+          "confidence": 0.98,
+          "note": "Appellation is listed as part of the producer information."
+        },
+        "vintage": {
+          "expected": "2020",
+          "present": true,
+          "extracted": "2020",
+          "comparison": "exact",
+          "confidence": 0.99,
+          "note": "Vintage is clearly stated at the beginning of the producer information."
+        }
+      }
+    },
+    {
+      "id": "manzone-giovanni-barolo-perno-wine",
+      "title": "Manzone Giovanni — Barolo Perno",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "This label is for Manzone Barolo wine from Italy, vintage 1998, with 13.5% alcohol content and 750ml net contents. It carries the DOCG classification and includes a sulfite declaration. The applicant address indicates it was estate bottled by Giovanni Manzone in Monforte d'Alba.",
+      "imageQuality": {
+        "score": 0.9,
+        "state": "ok",
+        "issues": []
+      },
+      "beverageTypeSource": "model-hint",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "MANZONE and BAROLO are in all caps. Downgraded because warning text was not extracted from the label."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "MANZONE and BAROLO are in bold. Downgraded because warning text was not extracted from the label."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "Information is presented in distinct lines and sections. Downgraded because warning text was not extracted from the label."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The government warning is presented separately from other text elements. Downgraded because warning text was not extracted from the label."
+        }
+      },
+      "beverageType": {
+        "expected": "wine",
+        "present": true,
+        "extracted": "wine",
+        "comparison": "exact",
+        "confidence": 0.9,
+        "note": "model-hint"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Manzone Giovanni",
+          "present": true,
+          "extracted": "MANZONE",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Barolo Perno",
+          "present": true,
+          "extracted": "BAROLO",
+          "comparison": "mismatch",
+          "confidence": 0.9,
+          "note": null
+        },
+        "classType": {
+          "expected": "table red wine",
+          "present": true,
+          "extracted": "DENOMINAZIONE DI ORIGINE CONTROLLATA E GARANTITA",
+          "comparison": "mismatch",
+          "confidence": 0.85,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "13.5% Alc./Vol.",
+          "present": true,
+          "extracted": "13.5% VOL",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": null
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": true,
+          "extracted": "750 ML",
+          "comparison": "cosmetic",
+          "confidence": 0.95,
+          "note": null
+        },
+        "appellation": {
+          "expected": "Barolo",
+          "present": true,
+          "extracted": "S. Stefano",
+          "comparison": "mismatch",
+          "confidence": 0.9,
+          "note": null
+        },
+        "vintage": {
+          "expected": "1998",
+          "present": true,
+          "extracted": "1998",
+          "comparison": "exact",
+          "confidence": 0.95,
+          "note": null
+        }
+      }
+    },
+    {
+      "id": "ana-luisa-gran-reserva-parcelas-blend-wine",
+      "title": "Ana Luisa — Gran Reserva Parcelas Blend",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for a wine named 'Ana Luisa Gran Reserva', a 'PARCELAS BLEND' from 'VALLE DE CURICO - CHILE' with a vintage of '2023'. The brand name 'Ana Luisa' is prominent. The term 'GRAN RESERVA' is in all caps but does not appear to be a government warning. Other required fields are not present on the visible portion of the label.",
+      "imageQuality": {
+        "score": 0.9,
+        "state": "ok",
+        "issues": [],
+        "note": "The image is clear and most text is readable."
+      },
+      "beverageTypeSource": "model-hint",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The words 'GRAN RESERVA' are in all caps, but are part of a name/descriptor and not a warning. No other text suggests a warning prefix in all caps. Downgraded because warning text was not extracted from the label."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "No warning text with a bold prefix is present. Downgraded because warning text was not extracted from the label."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "No warning text presented in a continuous paragraph is visible. Downgraded because warning text was not extracted from the label."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "No warning text is visually separated from other content in a way that suggests a mandated warning. Downgraded because warning text was not extracted from the label."
+        }
+      },
+      "beverageType": {
+        "expected": "wine",
+        "present": true,
+        "extracted": "wine",
+        "comparison": "exact",
+        "confidence": 0.9,
+        "note": "model-hint"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Ana Luisa",
+          "present": true,
+          "extracted": "Ana Luisa",
+          "comparison": "exact",
+          "confidence": 0.95,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Gran Reserva Parcelas Blend",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "classType": {
+          "expected": "table red wine",
+          "present": true,
+          "extracted": "PARCELAS BLEND",
+          "comparison": "mismatch",
+          "confidence": 0.8,
+          "note": "Type of wine blend indicated as 'PARCELAS BLEND'."
+        },
+        "alcoholContent": {
+          "expected": "14% Alc./Vol.",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "Alcohol content is not visible on the label."
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "Net contents are not visible on the label."
+        },
+        "appellation": {
+          "expected": "Valle De Curico",
+          "present": true,
+          "extracted": "VALLE DE CURICO",
+          "comparison": "cosmetic",
+          "confidence": 0.9,
+          "note": "Appellation is indicated as 'VALLE DE CURICO'."
+        },
+        "vintage": {
+          "expected": "2023",
+          "present": true,
+          "extracted": "2023",
+          "comparison": "exact",
+          "confidence": 0.95,
+          "note": "Vintage is indicated as '2023'."
+        }
+      }
+    },
+    {
+      "id": "carousel-winery-fairy-floss-cotton-candy-wine",
+      "title": "Carousel Winery — Fairy Floss Cotton Candy",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for Carousel Winery, Fairy Floss Cotton Candy, a Sweet White Grape Wine with 9% alcohol by volume. No other information is present.",
+      "imageQuality": {
+        "score": 0.9,
+        "state": "ok",
+        "issues": []
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "Downgraded because warning text was not extracted from the label."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "Downgraded because warning text was not extracted from the label."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "Downgraded because warning text was not extracted from the label."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The \"ALC. 9% BY VOL\" text is separated from other text. Downgraded because warning text was not extracted from the label."
+        }
+      },
+      "beverageType": {
+        "expected": "wine",
+        "present": true,
+        "extracted": "wine",
+        "comparison": "exact",
+        "confidence": 0.9,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Carousel Winery",
+          "present": true,
+          "extracted": "Carousel Winery",
+          "comparison": "exact",
+          "confidence": 0.91,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Fairy Floss Cotton Candy",
+          "present": true,
+          "extracted": "Fairy Floss",
+          "comparison": "mismatch",
+          "confidence": 0.8,
+          "note": null
+        },
+        "classType": {
+          "expected": "table flavored wine",
+          "present": true,
+          "extracted": "Sweet White Grape Wine",
+          "comparison": "mismatch",
+          "confidence": 0.85,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "9% Alc./Vol.",
+          "present": true,
+          "extracted": "9% BY VOL",
+          "comparison": "mismatch",
+          "confidence": 0.9,
+          "note": "Label text reads 'ALC. 9% BY VOL'"
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "Net contents not found on the label."
+        },
+        "appellation": {
+          "expected": "American",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "Appellation not found on the label."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Vintage not found on the label."
+        }
+      }
+    },
+    {
+      "id": "venture-studios-null-wine",
+      "title": "Venture Studios — null",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "Guardrail downgraded contradictory no-text output to explicit uncertainty.",
+      "imageQuality": {
+        "score": 0.1,
+        "state": "no-text-extracted",
+        "issues": [
+          "No text detected"
+        ],
+        "note": "The image contains abstract art with no discernible text."
+      },
+      "beverageTypeSource": "strict-fallback",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.2,
+          "note": "Guardrail downgraded visual certainty because no readable text was detected."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.2,
+          "note": "Guardrail downgraded visual certainty because no readable text was detected."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.2,
+          "note": "Guardrail downgraded visual certainty because no readable text was detected."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.2,
+          "note": "Guardrail downgraded visual certainty because no readable text was detected."
+        }
+      },
+      "beverageType": {
+        "expected": "wine",
+        "present": true,
+        "extracted": "distilled-spirits",
+        "comparison": "mismatch",
+        "confidence": 0.1,
+        "note": "strict-fallback"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Venture Studios",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0.12,
+          "note": "Guardrail sanitized contradictory no-text output."
+        },
+        "fancifulName": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0.12,
+          "note": "Guardrail sanitized contradictory no-text output."
+        },
+        "classType": {
+          "expected": "table white wine",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0.12,
+          "note": "Guardrail sanitized contradictory no-text output."
+        },
+        "alcoholContent": {
+          "expected": "14% Alc./Vol.",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0.12,
+          "note": "Guardrail sanitized contradictory no-text output."
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0.12,
+          "note": "Guardrail sanitized contradictory no-text output."
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0.12,
+          "note": "Guardrail sanitized contradictory no-text output."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0.12,
+          "note": "Guardrail sanitized contradictory no-text output."
+        }
+      }
+    },
+    {
+      "id": "sapwood-cellars-albura-lager-malt-beverage",
+      "title": "Sapwood Cellars — Albura Lager",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "This is a label for Albura Corn Lager, a malt beverage with 4.6% ABV and 1 pint net contents, brewed in Columbia, MD. It includes a standard government warning about alcohol consumption during pregnancy and while operating machinery. The brand name 'Albura' is prominent. The beer is described as 'Designed this beer to pair with the food from Albura' and contains 'locally grown heirloom malt from Virginia and a local Pilsner Malt.' The combination is described as 'rich, clean, with a Cchly savory,' followed by '¡salud!' and 'Albura Taqueria'. The label also states 'THIS BEER IS VEGAN' and 'REFRIGERATE DRINK FRESH'.",
+      "imageQuality": {
+        "score": 0.85,
+        "state": "ok",
+        "issues": [
+          "Text on the right side (warning) is slightly distorted due to curvature."
+        ],
+        "note": "Most text is clear, but some fine print on the right is slightly curved."
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The words 'SURGEON GENERAL'S WARNING' are in all caps."
+        },
+        "prefixBold": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The words 'SURGEON GENERAL'S WARNING' appear to be in bold."
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The warning text forms a continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The warning is visually separated from other label text by a box and spacing."
+        }
+      },
+      "beverageType": {
+        "expected": "malt-beverage",
+        "present": true,
+        "extracted": "malt-beverage",
+        "comparison": "exact",
+        "confidence": 0.85,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Sapwood Cellars",
+          "present": true,
+          "extracted": "Albura",
+          "comparison": "mismatch",
+          "confidence": 0.98,
+          "note": "The main vertical text appears to be the brand name."
+        },
+        "fancifulName": {
+          "expected": "Albura Lager",
+          "present": true,
+          "extracted": "Corn Lager",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": "This appears to be the specific style/name of the beer."
+        },
+        "classType": {
+          "expected": "beer",
+          "present": true,
+          "extracted": "Lager",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": "Identified from 'Corn Lager' and confirmed by the 'Lager' text."
+        },
+        "alcoholContent": {
+          "expected": "4.6% Alc./Vol.",
+          "present": true,
+          "extracted": "4.6%",
+          "comparison": "mismatch",
+          "confidence": 0.98,
+          "note": "Alcohol by Volume (ABV) is clearly stated."
+        },
+        "netContents": {
+          "expected": "12 FL OZ",
+          "present": true,
+          "extracted": "1 PINT",
+          "comparison": "mismatch",
+          "confidence": 0.98,
+          "note": "Net contents are clearly stated."
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Appellation information is not present."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "No vintage year is indicated."
+        }
+      }
+    },
+    {
+      "id": "drekker-brewing-company-piano-necktie-malt-beverage",
+      "title": "Drekker Brewing Company — Piano Necktie",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "This label is for DREKKER PIANO NECK TIE, an INDIA PALE ALE. It has net contents of 15.5 U.S. GALLONS and an approximate address of 1600 N. UNIVERSITY DRIVE, FARGO ND 58102. A government warning is present stating that women should not drink alcoholic beverages during pregnancy due to the risk of birth defects and that consumption of alcoholic beverages impairs the ability to drive or operate machinery and may cause health problems.",
+      "imageQuality": {
+        "score": 0.85,
+        "state": "low-confidence",
+        "issues": [
+          "ADDRESS PARTIALLY OBSCURED"
+        ],
+        "note": "The label has some minor obstructions affecting text readability in certain areas."
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "yes",
+          "confidence": 0.97,
+          "note": "The government warning text starts with 'GOVERNMENT WARNING:' in all caps."
+        },
+        "prefixBold": {
+          "status": "no",
+          "confidence": 0.9,
+          "note": "The government warning text is not in bold."
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 0.97,
+          "note": "The government warning text is presented as a continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 0.97,
+          "note": "The government warning text is visually separated from other content on the label."
+        }
+      },
+      "beverageType": {
+        "expected": "malt-beverage",
+        "present": true,
+        "extracted": "malt-beverage",
+        "comparison": "exact",
+        "confidence": 0.85,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Drekker Brewing Company",
+          "present": true,
+          "extracted": "DREKKER",
+          "comparison": "mismatch",
+          "confidence": 0.97,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Piano Necktie",
+          "present": true,
+          "extracted": "PIANO NECK TIE",
+          "comparison": "mismatch",
+          "confidence": 0.97,
+          "note": null
+        },
+        "classType": {
+          "expected": "ale",
+          "present": true,
+          "extracted": "INDIA PALE ALE",
+          "comparison": "mismatch",
+          "confidence": 0.97,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "6.5% Alc./Vol.",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "Alcohol content not found on the label."
+        },
+        "netContents": {
+          "expected": "12 FL OZ",
+          "present": true,
+          "extracted": "15.5 U.S. GALLONS",
+          "comparison": "mismatch",
+          "confidence": 0.97,
+          "note": null
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Appellation not found on the label."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Vintage not found on the label."
+        }
+      }
+    },
+    {
+      "id": "pilok-broumy-malt-beverage",
+      "title": "Pilok — Broumy",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label shows Broumy Pilok, a malt beverage from Czechia, with 4.8% ALC/VOL and 5.28 GAL net contents. It is imported by Lime Ventures in Concord, CA. The label includes a government warning regarding alcohol consumption during pregnancy and while operating machinery.",
+      "imageQuality": {
+        "score": 0.9,
+        "state": "ok",
+        "issues": []
+      },
+      "beverageTypeSource": "model-hint",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "GOVERNMENT WARNING is in all caps"
+        },
+        "prefixBold": {
+          "status": "yes",
+          "confidence": 0.95,
+          "note": "GOVERNMENT WARNING is in bold"
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The warning text appears as a continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 0.95,
+          "note": "The warning text is clearly separated from other label elements."
+        }
+      },
+      "beverageType": {
+        "expected": "malt-beverage",
+        "present": true,
+        "extracted": "malt-beverage",
+        "comparison": "exact",
+        "confidence": 0.9,
+        "note": "model-hint"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Pilok",
+          "present": true,
+          "extracted": "Broumy",
+          "comparison": "mismatch",
+          "confidence": 0.99,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Broumy",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "classType": {
+          "expected": "beer",
+          "present": true,
+          "extracted": "Pilok",
+          "comparison": "mismatch",
+          "confidence": 0.85,
+          "note": "This is likely a beer style"
+        },
+        "alcoholContent": {
+          "expected": "4.8% Alc./Vol.",
+          "present": true,
+          "extracted": "4.8% ALC/VOL",
+          "comparison": "cosmetic",
+          "confidence": 0.98,
+          "note": null
+        },
+        "netContents": {
+          "expected": "12 FL OZ",
+          "present": true,
+          "extracted": "5.28 GAL",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": null
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": null
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": null
+        }
+      }
+    },
+    {
+      "id": "1840-original-lager-1840-original-lager-malt-beverage",
+      "title": "1840 Original Lager — 1840 Original Lager",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for Aldus Brewing Co. 1840 Original Lager. It contains a government warning, net contents of 15.5 U.S. Gallons, and the applicant's address. The beverage type is likely a malt beverage.",
+      "imageQuality": {
+        "score": 0.8,
+        "state": "low-confidence",
+        "issues": [
+          "Rotation"
+        ]
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "yes",
+          "confidence": 1
+        },
+        "prefixBold": {
+          "status": "yes",
+          "confidence": 1
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 0.8,
+          "note": "The government warning is presented as a continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 1,
+          "note": "The government warning is visually separated from other content on the label."
+        }
+      },
+      "beverageType": {
+        "expected": "malt-beverage",
+        "present": true,
+        "extracted": "malt-beverage",
+        "comparison": "exact",
+        "confidence": 0.8,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "1840 Original Lager",
+          "present": true,
+          "extracted": "Aldus Brewing Co.",
+          "comparison": "mismatch",
+          "confidence": 1,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "1840 Original Lager",
+          "present": true,
+          "extracted": "1840 Original Lager",
+          "comparison": "exact",
+          "confidence": 1,
+          "note": null
+        },
+        "classType": {
+          "expected": "beer",
+          "present": true,
+          "extracted": "Lager",
+          "comparison": "mismatch",
+          "confidence": 1,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Alcohol content not found on the label."
+        },
+        "netContents": {
+          "expected": "12 FL OZ",
+          "present": true,
+          "extracted": "15.5 U.S. Gallons",
+          "comparison": "mismatch",
+          "confidence": 1,
+          "note": "There are two net content values, 5.16 and 15.5. 15.5 seems to be the intended value."
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Appellation not found on the label."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Vintage not found on the label."
+        }
+      }
+    },
+    {
+      "id": "harpoon-ale-malt-beverage",
+      "title": "Harpoon — Ale",
+      "sliceId": "cola-cloud-real",
+      "source": "cola-cloud",
+      "expectedRecommendation": "approve",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for Harpoon 40 Years of Ale, a limited edition original ale with 5.0% alcohol content and a net content of 1 pint (16 fl oz). It is brewed by Harpoon Brewery in Boston, MA. The label includes a government warning.",
+      "imageQuality": {
+        "score": 0.95,
+        "state": "ok",
+        "issues": [],
+        "note": "The label image is clear and readable."
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The 'GOVERNMENT WARNING' prefix is in all caps."
+        },
+        "prefixBold": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The 'GOVERNMENT WARNING' prefix is bold."
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The warning text appears to be a continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The warning text is separated from the main label content by a border."
+        }
+      },
+      "beverageType": {
+        "expected": "malt-beverage",
+        "present": true,
+        "extracted": "malt-beverage",
+        "comparison": "exact",
+        "confidence": 0.95,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Harpoon",
+          "present": true,
+          "extracted": "HARPOON",
+          "comparison": "cosmetic",
+          "confidence": 0.99,
+          "note": "Logo text is prominently displayed."
+        },
+        "fancifulName": {
+          "expected": "Ale",
+          "present": true,
+          "extracted": "Ale",
+          "comparison": "exact",
+          "confidence": 0.85,
+          "note": "Appears stylized and distinct from brand name."
+        },
+        "classType": {
+          "expected": "ale",
+          "present": true,
+          "extracted": "ORIGINAL ALE",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": "Clearly labeled as 'ORIGINAL ALE'."
+        },
+        "alcoholContent": {
+          "expected": "5% Alc./Vol.",
+          "present": true,
+          "extracted": "5.0% ALC/VOL",
+          "comparison": "mismatch",
+          "confidence": 0.98,
+          "note": "Standard location and format for alcohol content."
+        },
+        "netContents": {
+          "expected": "12 FL OZ",
+          "present": true,
+          "extracted": "1 PINT (16 FL OZ)",
+          "comparison": "mismatch",
+          "confidence": 0.99,
+          "note": "Standard location and format for net contents."
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "No appellation information is present."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "No vintage year is indicated."
+        }
+      }
+    },
+    {
+      "id": "lake-placid-shredder-abv-negative",
+      "title": "Lake Placid — Shredder — ABV Overlay",
+      "sliceId": "supplemental-negative",
+      "source": "supplemental-generated",
+      "expectedRecommendation": "reject",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "This label is for Lake Placid Shredder IPA, a malt beverage with 5% ABV. The brand is Lake Placid Pub & Brewery. The government warning is present on the right side of the label. Net contents are not specified.",
+      "imageQuality": {
+        "score": 0.85,
+        "state": "ok",
+        "issues": [
+          "text is small and difficult to read in some areas"
+        ]
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The government warning begins with text in all caps."
+        },
+        "prefixBold": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The government warning text appears to be in bold."
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The government warning text is presented as a continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 0.95,
+          "note": "The government warning is visually separated from other text and graphics by its placement and font size."
+        }
+      },
+      "beverageType": {
+        "expected": "malt-beverage",
+        "present": true,
+        "extracted": "malt-beverage",
+        "comparison": "exact",
+        "confidence": 0.85,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Lake Placid",
+          "present": true,
+          "extracted": "LAKE PLACID PUB & BREWERY",
+          "comparison": "mismatch",
+          "confidence": 0.93,
+          "note": "The brand name is printed in a smaller font above the fanciful name."
+        },
+        "fancifulName": {
+          "expected": "Shredder",
+          "present": true,
+          "extracted": "SHREDDER IPA",
+          "comparison": "mismatch",
+          "confidence": 0.97,
+          "note": "The fanciful name is printed prominently in large white letters."
+        },
+        "classType": {
+          "expected": "IPA",
+          "present": true,
+          "extracted": "IPA",
+          "comparison": "exact",
+          "confidence": 0.97,
+          "note": "IPA is part of the fanciful name."
+        },
+        "alcoholContent": {
+          "expected": "5% Alc./Vol.",
+          "present": true,
+          "extracted": "5% ABV",
+          "comparison": "mismatch",
+          "confidence": 0.97,
+          "note": "The alcohol content is clearly visible in large font."
+        },
+        "netContents": {
+          "expected": "12 FL OZ",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": null
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": null
+        }
+      }
+    },
+    {
+      "id": "simply-elegant-warning-occluded-negative",
+      "title": "Simply Elegant — Simply Elegant Spirits — Warning Occluded",
+      "sliceId": "supplemental-negative",
+      "source": "supplemental-generated",
+      "expectedRecommendation": "reject",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for SIMPLY ELEGANT KENTUCKY STRAIGHT BOURBON WHISKEY. The brand name is in all caps and appears bold. Other details like alcohol content, net contents, applicant address, age statement, sulfite declaration, appellation, vintage, and government warning are not visible on the label.",
+      "imageQuality": {
+        "score": 0.9,
+        "state": "ok",
+        "issues": []
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The primary brand name 'SIMPLY ELEGANT' is in all caps. Other text is not clearly in all caps. Downgraded because warning text was not extracted from the label."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The primary brand name 'SIMPLY ELEGANT' and the class type 'KENTUCKY STRAIGHT BOURBON WHISKEY' appear to be bold. Downgraded because warning text was not extracted from the label."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "Text seems to be presented in a continuous block rather than distinct phrases. Downgraded because warning text was not extracted from the label."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The government warning, if present, is not visible and appears to be separate from the main branding elements. Downgraded because warning text was not extracted from the label."
+        }
+      },
+      "beverageType": {
+        "expected": "distilled-spirits",
+        "present": true,
+        "extracted": "distilled-spirits",
+        "comparison": "exact",
+        "confidence": 0.9,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Simply Elegant",
+          "present": true,
+          "extracted": "SIMPLY ELEGANT",
+          "comparison": "cosmetic",
+          "confidence": 0.99,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Simply Elegant Spirits",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "classType": {
+          "expected": "straight bourbon whisky",
+          "present": true,
+          "extracted": "KENTUCKY STRAIGHT BOURBON WHISKEY",
+          "comparison": "mismatch",
+          "confidence": 0.99,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "67% Alc./Vol.",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "Alcohol content not found on label."
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "Net contents not found on label."
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Appellation not found on label."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Vintage not found on label."
+        }
+      }
+    },
+    {
+      "id": "leitz-rottland-warning-crop-negative",
+      "title": "Leitz — Rottland — Warning Crop",
+      "sliceId": "supplemental-negative",
+      "source": "supplemental-generated",
+      "expectedRecommendation": "reject",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label displays \"LEITZ WEINGUT\" at the top, with \"2023\", \"BERG RÖTTLAND\", \"RüDESHEIM\", and \"GG\" below it. The beverage type is wine, indicated by \"WEINGUT\" and the appellation information. Brand name is \"LEITZ\" and the vintage is \"2023\". Appellation includes \"BERG RÖTTLAND\" and \"RüDESHEIM\". Several elements have a bolded presentation.",
+      "imageQuality": {
+        "score": 0.85,
+        "state": "ok",
+        "issues": []
+      },
+      "beverageTypeSource": "model-hint",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "Downgraded because warning text was not extracted from the label."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "LEITZ, BERG RÖTTLAND, GG Downgraded because warning text was not extracted from the label."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "Text is mostly single words or short phrases. Downgraded because warning text was not extracted from the label."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "GG is visually separated. Downgraded because warning text was not extracted from the label."
+        }
+      },
+      "beverageType": {
+        "expected": "wine",
+        "present": true,
+        "extracted": "wine",
+        "comparison": "exact",
+        "confidence": 0.85,
+        "note": "model-hint"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Leitz",
+          "present": true,
+          "extracted": "LEITZ",
+          "comparison": "cosmetic",
+          "confidence": 0.99,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Rottland",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "classType": {
+          "expected": "table white wine",
+          "present": true,
+          "extracted": "WEINGUT",
+          "comparison": "mismatch",
+          "confidence": 0.9,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "12.5% Alc./Vol.",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": null
+        },
+        "appellation": {
+          "expected": "Rheingau",
+          "present": true,
+          "extracted": "RÜDESHEIM",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": "BERG RÖTTLAND"
+        },
+        "vintage": {
+          "expected": "2023",
+          "present": true,
+          "extracted": "2023",
+          "comparison": "exact",
+          "confidence": 0.99,
+          "note": null
+        }
+      }
+    },
+    {
+      "id": "lake-placid-ridge-runner-warning-occluded-negative",
+      "title": "Lake Placid — Ridge Runner — Warning Occluded",
+      "sliceId": "supplemental-negative",
+      "source": "supplemental-generated",
+      "expectedRecommendation": "reject",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "This is a label for Lake Placid Ridge Runner India Pale Ale, with 4% alcohol content and 12 fl. oz. net contents. It includes a government warning and the applicant address for Lake Placid Brewing Co.",
+      "imageQuality": {
+        "score": 0.9,
+        "state": "ok",
+        "issues": [
+          "minor visual obstructions on warning text"
+        ]
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The text 'SURGEON GENERAL WARNING' is in all caps."
+        },
+        "prefixBold": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The text 'SURGEON GENERAL WARNING' appears to be in a bolder font."
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 0.8,
+          "note": "The warning text is presented as a continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The warning text is visually separated from other content on the label."
+        }
+      },
+      "beverageType": {
+        "expected": "malt-beverage",
+        "present": true,
+        "extracted": "malt-beverage",
+        "comparison": "exact",
+        "confidence": 0.9,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Lake Placid",
+          "present": true,
+          "extracted": "LAKE PLACID",
+          "comparison": "cosmetic",
+          "confidence": 0.95,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Ridge Runner",
+          "present": true,
+          "extracted": "RIDGE RUNNER",
+          "comparison": "cosmetic",
+          "confidence": 0.98,
+          "note": null
+        },
+        "classType": {
+          "expected": "ale",
+          "present": true,
+          "extracted": "INDIA PALE ALE",
+          "comparison": "mismatch",
+          "confidence": 0.97,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "",
+          "present": true,
+          "extracted": "4% ALC / VOL",
+          "comparison": "mismatch",
+          "confidence": 0.99,
+          "note": null
+        },
+        "netContents": {
+          "expected": "12 FL OZ",
+          "present": true,
+          "extracted": "12 FL. OZ.",
+          "comparison": "cosmetic",
+          "confidence": 0.99,
+          "note": null
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Appellation not found on the label."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Vintage year not found on the label."
+        }
+      }
+    },
+    {
+      "id": "persian-empire-black-widow-blur-review",
+      "title": "Persian Empire — Black Widow — Global Blur",
+      "sliceId": "supplemental-negative",
+      "source": "supplemental-generated",
+      "expectedRecommendation": "review",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label image is too blurry and indistinct to extract any specific information about the beverage, its brand, contents, or warnings.",
+      "imageQuality": {
+        "score": 0,
+        "state": "no-text-extracted",
+        "issues": [
+          "Blurry image",
+          "Low contrast",
+          "Indistinct text"
+        ],
+        "note": "The label is extremely blurry and lacks sufficient detail for text extraction."
+      },
+      "beverageTypeSource": "strict-fallback",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0,
+          "note": "No warning text found to assess prefix all caps."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0,
+          "note": "No warning text found to assess prefix bold."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0,
+          "note": "No warning text found to assess continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0,
+          "note": "No warning text found to assess separation from other content."
+        }
+      },
+      "beverageType": {
+        "expected": "distilled-spirits",
+        "present": true,
+        "extracted": "distilled-spirits",
+        "comparison": "exact",
+        "confidence": 0,
+        "note": "strict-fallback"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Persian Empire",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "No readable brand name found on the label."
+        },
+        "fancifulName": {
+          "expected": "Black Widow",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "No readable fanciful name found on the label."
+        },
+        "classType": {
+          "expected": "other specialties & proprietaries",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "No readable class type found on the label."
+        },
+        "alcoholContent": {
+          "expected": "40% Alc./Vol.",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "No readable alcohol content found on the label."
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "No readable net contents found on the label."
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "No readable appellation found on the label."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "No readable vintage found on the label."
+        }
+      }
+    },
+    {
+      "id": "uncorked-in-mayberry-low-contrast-review",
+      "title": "Uncorked In Mayberry — Otis' Own — Low Contrast",
+      "sliceId": "supplemental-negative",
+      "source": "supplemental-generated",
+      "expectedRecommendation": "review",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "The label is for OTIS' OWN SEMI-DRY WHITE WINE, with a fanciful name of UNcORKED IN MAYBERRY. The alcohol content is 12.5% BY VOL. and it originates from NORTH CAROLINA.",
+      "imageQuality": {
+        "score": 0.95,
+        "state": "ok",
+        "issues": []
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The phrase 'UNCORKED IN MAYBERRY' is in all caps but is not a warning. Downgraded because warning text was not extracted from the label."
+        },
+        "prefixBold": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The brand name 'OTIS\\' OWN' and class type are in bold. Downgraded because warning text was not extracted from the label."
+        },
+        "continuousParagraph": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The text elements appear to be arranged in a continuous flow. Downgraded because warning text was not extracted from the label."
+        },
+        "separateFromOtherContent": {
+          "status": "uncertain",
+          "confidence": 0.35,
+          "note": "The brand name, class type, and alcohol content are visually distinct from other text elements. Downgraded because warning text was not extracted from the label."
+        }
+      },
+      "beverageType": {
+        "expected": "wine",
+        "present": true,
+        "extracted": "wine",
+        "comparison": "exact",
+        "confidence": 0.95,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Uncorked In Mayberry",
+          "present": true,
+          "extracted": "OTIS' OWN",
+          "comparison": "mismatch",
+          "confidence": 0.98,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Otis' Own",
+          "present": true,
+          "extracted": "UNCORKED IN MAYBERRY",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": "Fanciful name is presented as a phrase above the brand name."
+        },
+        "classType": {
+          "expected": "table white wine",
+          "present": true,
+          "extracted": "SEMI-DRY WHITE WINE",
+          "comparison": "mismatch",
+          "confidence": 0.95,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "12.5% Alc./Vol.",
+          "present": true,
+          "extracted": "12.5% BY VOL.",
+          "comparison": "mismatch",
+          "confidence": 0.99,
+          "note": null
+        },
+        "netContents": {
+          "expected": "750 mL",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "Net contents not found on the label."
+        },
+        "appellation": {
+          "expected": "North Carolina",
+          "present": false,
+          "extracted": null,
+          "comparison": "missing",
+          "confidence": 0,
+          "note": "Appellation not found on the label."
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": "Vintage not found on the label."
+        }
+      }
+    },
+    {
+      "id": "recluse-brew-works-shy-guy-overprint-negative",
+      "title": "Recluse Brew Works — Shy Guy — Overprint Sticker",
+      "sliceId": "supplemental-negative",
+      "source": "supplemental-generated",
+      "expectedRecommendation": "reject",
+      "model": "gemini-2.5-flash-lite",
+      "extractionSummary": "This is a 6.5% ABV IPA from SHY GUY, named RECLUSE, with net contents of one half-quart. It includes a government warning and applicant information, though some text is obscured by a banner.",
+      "imageQuality": {
+        "score": 0.8,
+        "state": "low-confidence",
+        "issues": [
+          "partially obscured text by banner"
+        ],
+        "note": "Some text is obscured by a banner, but most is readable."
+      },
+      "beverageTypeSource": "class-type",
+      "warningSignals": {
+        "prefixAllCaps": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "GOVERNMENT WARNING is in all caps."
+        },
+        "prefixBold": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "GOVERNMENT WARNING is in bold."
+        },
+        "continuousParagraph": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The warning text is presented as a continuous paragraph."
+        },
+        "separateFromOtherContent": {
+          "status": "yes",
+          "confidence": 0.9,
+          "note": "The warning text is clearly separated from other content on the label."
+        }
+      },
+      "beverageType": {
+        "expected": "malt-beverage",
+        "present": true,
+        "extracted": "malt-beverage",
+        "comparison": "exact",
+        "confidence": 0.8,
+        "note": "class-type"
+      },
+      "fields": {
+        "brandName": {
+          "expected": "Recluse Brew Works",
+          "present": true,
+          "extracted": "SHY GUY",
+          "comparison": "mismatch",
+          "confidence": 0.9,
+          "note": null
+        },
+        "fancifulName": {
+          "expected": "Shy Guy",
+          "present": true,
+          "extracted": "RECLUSE",
+          "comparison": "mismatch",
+          "confidence": 0.9,
+          "note": null
+        },
+        "classType": {
+          "expected": "beer",
+          "present": true,
+          "extracted": "IPA",
+          "comparison": "mismatch",
+          "confidence": 0.9,
+          "note": null
+        },
+        "alcoholContent": {
+          "expected": "6.5% Alc./Vol.",
+          "present": true,
+          "extracted": "6.5% ALC. BY VOL.",
+          "comparison": "mismatch",
+          "confidence": 0.9,
+          "note": null
+        },
+        "netContents": {
+          "expected": "12 FL OZ",
+          "present": true,
+          "extracted": "ONE HALF-QUART",
+          "comparison": "mismatch",
+          "confidence": 0.9,
+          "note": null
+        },
+        "appellation": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": null
+        },
+        "vintage": {
+          "expected": "",
+          "present": false,
+          "extracted": null,
+          "comparison": "not-applicable",
+          "confidence": 0,
+          "note": null
+        }
+      }
+    }
+  ]
+}
