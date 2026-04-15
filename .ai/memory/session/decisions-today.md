@@ -88,6 +88,9 @@
 - For `TTB-206`, treat explicit local mode as fail-closed until a real Ollama adapter exists; do not silently hop back into cloud providers.
 - Keep the Gemini env keys present in the bootstrapped repo-local `.env`; the old Ollama-related planning notes now belong to archived `TTB-212` and are not active delivery guidance.
 - Record the attempted `ai-provider-policy.ts` mutation run as a waiver note in the packet because the current Stryker harness expanded it to 201 mutants with repeated timeouts before producing a useful score.
+- For `TTB-210`, centralize prompt intent in one provider-agnostic module keyed by route surface plus extraction mode instead of letting OpenAI, Gemini, and batch routes keep their own prompt strings.
+- For `TTB-210`, handle contradictory `noTextDetected` outputs by sanitizing them into explicit uncertainty rather than failing the route outright; approved fixture behavior needs reversible no-text extraction, not adapter errors.
+- For `TTB-210`, keep route-specific prompt provenance dynamic in trace/eval metadata (`review-cloud-v1`, `extraction-cloud-v1`, `warning-cloud-v1`, `batch-cloud-v1`) rather than continuing the old static placeholder identifiers from `TTB-211`.
 
 - For `TTB-207`, implement Gemini through the native `@google/genai` SDK, but keep OpenAI as the bounded cloud fallback inside the shared provider factory instead of forking route-local logic.
 - For `TTB-207`, extract the API-facing extraction schema, prompt text, JSON-schema conversion, and normalization into one shared module so Gemini and OpenAI stay contract-aligned.

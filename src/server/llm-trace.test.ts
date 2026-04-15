@@ -77,6 +77,10 @@ describe('LLM trace surfaces', () => {
 
     expect(extractor).toHaveBeenCalledTimes(1);
     expect(extractor.mock.calls[0]?.[0]).toBe(intake);
+    expect(extractor.mock.calls[0]?.[1]).toMatchObject({
+      surface: '/api/review',
+      extractionMode: 'cloud'
+    });
     expect(report.id).toBe('trace-report-custom-001');
     expect(report.verdict).toBe('review');
     expect(report.noPersistence).toBe(true);
@@ -107,6 +111,10 @@ describe('LLM trace surfaces', () => {
     });
 
     expect(result.id).toBeTruthy();
+    expect(extractor.mock.calls[0]?.[1]).toMatchObject({
+      surface: '/api/review/extraction',
+      extractionMode: 'cloud'
+    });
     expect(result.noPersistence).toBe(true);
     expect(result.fields.brandName.value).toBe('Trace Brand');
   });
@@ -123,6 +131,10 @@ describe('LLM trace surfaces', () => {
       extractor
     });
 
+    expect(extractor.mock.calls[0]?.[1]).toMatchObject({
+      surface: '/api/review/warning',
+      extractionMode: 'cloud'
+    });
     expect(warningCheck.id).toBe('government-warning');
     expect(warningCheck.status).toBe('pass');
     expect(warningCheck.warning?.subChecks).toHaveLength(5);

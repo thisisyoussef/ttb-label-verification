@@ -44,9 +44,13 @@ describe('reviewExtractionModelOutputSchema', () => {
 
 describe('buildReviewExtractionPrompt', () => {
   it('keeps the runtime prompt on the detailed accuracy-first instructions', () => {
-    const prompt = buildReviewExtractionPrompt();
+    const prompt = buildReviewExtractionPrompt({
+      surface: '/api/review',
+      extractionMode: 'cloud'
+    });
 
     expect(prompt).toContain('You observe. You do not judge.');
+    expect(prompt).toContain('Never guess unsupported field values.');
     expect(prompt).toContain(
       'Never compare extracted text against any "correct" or "expected" value.'
     );

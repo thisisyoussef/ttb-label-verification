@@ -5,13 +5,13 @@ import type {
   ReviewExtraction,
   VerificationReport
 } from '../shared/contracts/review';
+import type { ExtractionMode } from './ai-provider-policy';
 import {
   type LlmEndpointSurface,
-  REVIEW_EXTRACTION_GUARDRAIL_POLICY,
   REVIEW_EXTRACTION_MODE,
-  REVIEW_EXTRACTION_PROMPT_PROFILE,
   REVIEW_EXTRACTION_PROVIDER
 } from './llm-policy';
+import { resolveReviewPromptPolicy } from './review-prompt-policy';
 import type { NormalizedReviewIntake } from './review-intake';
 import {
   createReviewLatencyCapture,
@@ -23,7 +23,7 @@ import {
 
 export type TraceMetadataInput = {
   surface: LlmEndpointSurface;
-  extractionMode?: string;
+  extractionMode?: ExtractionMode;
   clientTraceId?: string;
   fixtureId?: string;
   provider?: string;
@@ -39,13 +39,18 @@ export type TraceStageTimings = {
 };
 
 export function resolveTraceMetadata(input: TraceMetadataInput) {
+  const extractionMode = input.extractionMode ?? REVIEW_EXTRACTION_MODE;
+  const promptPolicy = resolveReviewPromptPolicy({
+    surface: input.surface,
+    extractionMode
+  });
+
   return {
     surface: input.surface,
-    extractionMode: input.extractionMode ?? REVIEW_EXTRACTION_MODE,
+    extractionMode,
     provider: input.provider ?? REVIEW_EXTRACTION_PROVIDER,
-    promptProfile: input.promptProfile ?? REVIEW_EXTRACTION_PROMPT_PROFILE,
-    guardrailPolicy:
-      input.guardrailPolicy ?? REVIEW_EXTRACTION_GUARDRAIL_POLICY,
+    promptProfile: input.promptProfile ?? promptPolicy.promptProfile,
+    guardrailPolicy: input.guardrailPolicy ?? promptPolicy.guardrailPolicy,
     clientTraceId: input.clientTraceId ?? null,
     fixtureId: input.fixtureId ?? null
   };

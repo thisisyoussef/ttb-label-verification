@@ -12,3 +12,7 @@
 - GitHub repo and Railway project remain live; the checked-in deploy flow still uses GitHub Actions plus Railway CLI.
 - Current contract anchor: `src/shared/contracts/review.ts`.
 - Current progress tracker: `docs/process/SINGLE_SOURCE_OF_TRUTH.md`.
+- `TTB-210` is now the active Codex story in the sibling worktree `codex/TTB-210-prompt-guardrails`.
+- The shared extraction seam now resolves prompt policy from endpoint surface + extraction mode through `src/server/review-prompt-policy.ts`, and structural post-parse degradation through `src/server/review-extractor-guardrails.ts`.
+- Local verification for `TTB-210` is green: `npm run test`, `npm run typecheck`, `npm run build`, `npm run eval:golden`, and `npm run langsmith:smoke`.
+- External trace publication for `TTB-210` is still blocked by LangSmith auth: the Vitest tracked eval path fails on `401 /datasets`, and direct traced upload attempts return `403 Forbidden` after generating local trace ids.

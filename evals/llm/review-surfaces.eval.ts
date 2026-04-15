@@ -2,11 +2,10 @@ import { afterEach, expect } from 'vitest';
 import * as ls from 'langsmith/vitest';
 
 import {
-  REVIEW_EXTRACTION_GUARDRAIL_POLICY,
   REVIEW_EXTRACTION_MODE,
-  REVIEW_EXTRACTION_PROMPT_PROFILE,
   REVIEW_EXTRACTION_PROVIDER
 } from '../../src/server/llm-policy';
+import { resolveReviewPromptPolicy } from '../../src/server/review-prompt-policy';
 import {
   extractionEndpointCases,
   type ExtractionEndpointCase,
@@ -30,8 +29,6 @@ import {
 const FIXTURE_TRACE_CONTEXT = {
   extractionMode: REVIEW_EXTRACTION_MODE,
   provider: REVIEW_EXTRACTION_PROVIDER,
-  promptProfile: REVIEW_EXTRACTION_PROMPT_PROFILE,
-  guardrailPolicy: REVIEW_EXTRACTION_GUARDRAIL_POLICY,
   fixtureMode: 'golden-fixture'
 } as const;
 
@@ -89,6 +86,13 @@ function logCommonFeedback(input: {
   });
 }
 
+function resolveFixturePolicy(surface: '/api/review' | '/api/review/extraction' | '/api/review/warning') {
+  return resolveReviewPromptPolicy({
+    surface,
+    extractionMode: REVIEW_EXTRACTION_MODE
+  });
+}
+
 ls.describe('TTB review route golden evals', () => {
   ls.test.each(
     reviewEndpointCases.map((caseItem) => ({
@@ -108,10 +112,13 @@ ls.describe('TTB review route golden evals', () => {
     const { expected, personas, personaObservation } = caseItem;
     const { payload, latencyMs, latencySummary } = await runReviewEvalCase(caseItem);
     const summary = summarizeReviewPayload(payload);
+    const promptPolicy = resolveFixturePolicy('/api/review');
 
     ls.logOutputs({
       ...FIXTURE_TRACE_CONTEXT,
       endpointSurface: '/api/review',
+      promptProfile: promptPolicy.promptProfile,
+      guardrailPolicy: promptPolicy.guardrailPolicy,
       caseId: caseItem.caseId,
       title: caseItem.title,
       latencyMs,
@@ -174,10 +181,13 @@ ls.describe('TTB extraction route golden evals', () => {
     const { expected, personas, personaObservation } = caseItem;
     const { payload, latencyMs, latencySummary } = await runExtractionEvalCase(caseItem);
     const summary = summarizeExtractionPayload(payload);
+    const promptPolicy = resolveFixturePolicy('/api/review/extraction');
 
     ls.logOutputs({
       ...FIXTURE_TRACE_CONTEXT,
       endpointSurface: '/api/review/extraction',
+      promptProfile: promptPolicy.promptProfile,
+      guardrailPolicy: promptPolicy.guardrailPolicy,
       caseId: caseItem.caseId,
       title: caseItem.title,
       latencyMs,
@@ -222,10 +232,13 @@ ls.describe('TTB warning route golden evals', () => {
     const { expected, personas, personaObservation } = caseItem;
     const { payload, latencyMs, latencySummary } = await runWarningEvalCase(caseItem);
     const summary = summarizeWarningPayload(payload);
+    const promptPolicy = resolveFixturePolicy('/api/review/warning');
 
     ls.logOutputs({
       ...FIXTURE_TRACE_CONTEXT,
       endpointSurface: '/api/review/warning',
+      promptProfile: promptPolicy.promptProfile,
+      guardrailPolicy: promptPolicy.guardrailPolicy,
       caseId: caseItem.caseId,
       title: caseItem.title,
       latencyMs,
