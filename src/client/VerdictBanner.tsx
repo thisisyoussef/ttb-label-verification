@@ -1,3 +1,4 @@
+import { HelpTooltip } from './HelpTooltip';
 import type { VerificationCounts, Verdict } from './types';
 
 interface VerdictBannerProps {
@@ -12,6 +13,28 @@ const VERDICT_COPY: Record<Verdict, { headline: string; icon: string }> = {
   approve: { headline: 'Recommend approval', icon: 'verified_user' },
   review: { headline: 'Recommend manual review', icon: 'warning' },
   reject: { headline: 'Recommend rejection', icon: 'cancel' }
+};
+
+// Plain-English definitions for the three verdicts. Written for a
+// first-time visitor with no compliance background. Intentionally
+// non-legal language — this is the "escape hatch" tooltip the UX plan
+// calls for.
+const VERDICT_HELP: Record<Verdict, { term: string; explanation: string }> = {
+  approve: {
+    term: 'Recommend approval',
+    explanation:
+      "We checked the label against the application and didn't find anything wrong. A reviewer can approve this without opening every field."
+  },
+  review: {
+    term: 'Recommend manual review',
+    explanation:
+      "We're not sure. Some of the fields are hard to read, or there's a small difference that a person needs to judge. Open the flagged rows to see why."
+  },
+  reject: {
+    term: 'Recommend rejection',
+    explanation:
+      "We found a clear mismatch between the application and the label — like a different alcohol percentage, or a missing government warning. A reviewer should decline this label."
+  }
 };
 
 const VERDICT_SKIN: Record<Verdict, { bg: string; border: string; icon: string; text: string }> = {
@@ -57,7 +80,7 @@ export function VerdictBanner({
         skin.border
       ].join(' ')}
     >
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-2 min-w-0">
         <span
           aria-hidden="true"
           className={`material-symbols-outlined text-3xl ${skin.icon}`}
@@ -73,6 +96,11 @@ export function VerdictBanner({
         >
           {copy.headline}
         </h2>
+        <HelpTooltip
+          iconOnly
+          term={VERDICT_HELP[verdict].term}
+          explanation={VERDICT_HELP[verdict].explanation}
+        />
       </div>
 
       {secondary ? (

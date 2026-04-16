@@ -2,6 +2,7 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import { useHint } from './useHint';
 import { CrossFieldChecks } from './CrossFieldChecks';
 import { FieldRow } from './FieldRow';
+import { HelpTooltip } from './HelpTooltip';
 import { NoTextState } from './NoTextState';
 import { ResultsPinnedColumn } from './ResultsPinnedColumn';
 import { StandaloneBanner } from './StandaloneBanner';
@@ -205,6 +206,19 @@ export function Results({
             ) : null}
 
             <section aria-label="Field checklist" className="flex flex-col gap-3">
+              {/*
+                Small "plain English" escape hatch above the checklist.
+                The rows below use status badges (Pass/Review/Fail/Info)
+                that a first-time user won't recognize. One help pill
+                here covers all of them without cluttering every row.
+              */}
+              <div className="flex items-center justify-end px-1 -mb-1">
+                <HelpTooltip
+                  label="What do these statuses mean?"
+                  term="Pass, Review, Fail, Info"
+                  explanation="Pass — we checked this and it's fine. Review — we're not sure; a person should look. Fail — we found a clear mismatch; this needs to be fixed. Info — a note for the reviewer, not a problem."
+                />
+              </div>
               {!report.standalone ? (
                 <div aria-hidden="true" className="hidden md:flex items-center gap-4 px-6 pb-1">
                   <span className="w-6 shrink-0" />
