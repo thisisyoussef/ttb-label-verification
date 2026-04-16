@@ -97,27 +97,26 @@ const tracedReviewSurface = traceable(
     let warningOcv: WarningOcvResult | undefined;
 
     // Fire all three in parallel. The VLM is always the long pole (3-5s);
-    // the OCR pre-pass and OCV should finish well before the VLM returns.
+    // OCR pre-pass and OCV finish well before the VLM returns.
+    //
+    // KEY FIX: previously OCV was wrapped in `ocrPromise.then(...)` as a
+    // piggyback optimization — reusing OCR text to skip a second Tesseract
+    // pass. That saved ~500ms of Tesseract work but SERIALIZED OCV behind
+    // OCR, costing ~1s of wall-clock time on labels where OCR is slower
+    // than OCV. OCV runs its own Tesseract on a different (cropped +
+    // rotated) region anyway, so the reuse was marginal. We now fire
+    // OCV truly independently — it always does its own pass, but gets
+    // the wall-clock parallelism with OCR + VLM.
     const prepassEnabled = isOcrPrepassEnabled();
 
     const ocrPromise = prepassEnabled
       ? measureStage(() => runOcrPrepass(input.intake.label))
       : Promise.resolve(null);
 
-    // OCV can reuse OCR text when available, but starts its own measurement
-    // immediately. We kick it off with the OCR promise so it can piggyback
-    // on the pre-pass text as soon as OCR finishes. When OCR fails or is
-    // disabled, OCV falls back to running its own Tesseract pass.
     const ocvPromise = prepassEnabled
-      ? ocrPromise.then(async (ocrStage) => {
-          const prepassText =
-            ocrStage && ocrStage.result.status !== 'failed'
-              ? ocrStage.result.text
-              : undefined;
-          return measureStage(() =>
-            runWarningOcv({ label: input.intake.label, prepassOcrText: prepassText })
-          );
-        })
+      ? measureStage(() =>
+          runWarningOcv({ label: input.intake.label })
+        )
       : Promise.resolve(null);
 
     // VLM extraction — always runs, uses the standard prompt (no OCR text
