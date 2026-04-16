@@ -34,8 +34,21 @@ export function createJudgmentLlmClient(
   const aiProvider = env.AI_PROVIDER?.trim().toLowerCase();
   const modeDefault = env.AI_EXTRACTION_MODE_DEFAULT?.trim().toLowerCase();
 
+  // Explicit override wins: if the operator specifically asked for a
+  // judgment provider, honor that regardless of what extraction uses.
+  // This is the key to the "local extraction + cloud judgment" combo,
+  // which on measured pods cuts total request time by ~3-5s because
+  // Gemini Flash Lite has no cold-start and no GPU-swap cost.
+  if (provider === 'gemini' || provider === 'openai') {
+    return createGeminiJudgmentClient(env);
+  }
+  if (provider === 'ollama' || provider === 'local') {
+    return createOllamaJudgmentClient(env);
+  }
+
+  // Fallback: infer from the extraction provider. Local extraction →
+  // local judgment (data-locality default); otherwise use cloud.
   const wantsLocal =
-    provider === 'ollama' ||
     aiProvider === 'local' ||
     aiProvider === 'ollama' ||
     aiProvider === 'ollama-vlm' ||
