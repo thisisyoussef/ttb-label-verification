@@ -7,18 +7,49 @@ import {
   sendBatchError,
   sendReviewError
 } from './request-handlers';
-import type { ResolvedExtractor } from './register-review-routes';
+import {
+  readProviderOverrideHeader,
+  type ExtractorResolver,
+  type ResolvedExtractor
+} from './register-review-routes';
+import { logServerEvent } from './server-events';
 
 function setNoStore(response: express.Response) {
   response.setHeader('cache-control', 'no-store');
+}
+
+function resolveForBatchRequest(input: {
+  request: express.Request;
+  defaultResolution: ResolvedExtractor;
+  extractorResolver?: ExtractorResolver;
+}): ResolvedExtractor {
+  const override = readProviderOverrideHeader(input.request);
+  if (!override || !input.extractorResolver) {
+    return input.defaultResolution;
+  }
+  const overridden = input.extractorResolver(override);
+  if (!overridden.extractor) {
+    logServerEvent('batch.provider-override.unavailable', {
+      requestedMode: override,
+      reason: overridden.error?.kind ?? 'unknown'
+    });
+    return input.defaultResolution;
+  }
+  logServerEvent('batch.provider-override.applied', {
+    requestedMode: override,
+    resolvedMode: overridden.extractionMode,
+    providers: overridden.providers
+  });
+  return overridden;
 }
 
 export function registerBatchRoutes(input: {
   app: express.Express;
   batchSessions: BatchSessionStore;
   extractorResolution: ResolvedExtractor;
+  extractorResolver?: ExtractorResolver;
 }) {
-  const { app, batchSessions, extractorResolution } = input;
+  const { app, batchSessions, extractorResolution, extractorResolver } = input;
 
   app.post('/api/batch/preflight', (request, response) => {
     handleBatchUpload(request, response, async ({ manifest, imageFiles, csvFile }) => {
@@ -34,8 +65,13 @@ export function registerBatchRoutes(input: {
   });
 
   app.post('/api/batch/run', async (request, response) => {
-    if (!extractorResolution.extractor) {
-      sendReviewError(response, extractorResolution.status, extractorResolution.error);
+    const resolution = resolveForBatchRequest({
+      request,
+      defaultResolution: extractorResolution,
+      extractorResolver
+    });
+    if (!resolution.extractor) {
+      sendReviewError(response, resolution.status, resolution.error);
       return;
     }
 
@@ -53,9 +89,17 @@ export function registerBatchRoutes(input: {
     setNoStore(response);
 
     try {
-      await batchSessions.run(payload.data, async (frame) => {
-        response.write(`${JSON.stringify(frame)}\n`);
-      });
+      await batchSessions.run(
+        payload.data,
+        async (frame) => {
+          response.write(`${JSON.stringify(frame)}\n`);
+        },
+        {
+          extractor: resolution.extractor,
+          extractionMode: resolution.extractionMode,
+          providers: resolution.providers
+        }
+      );
       response.end();
     } catch (error) {
       if (response.headersSent) {
@@ -114,8 +158,13 @@ export function registerBatchRoutes(input: {
   });
 
   app.post('/api/batch/:batchSessionId/retry/:imageId', async (request, response) => {
-    if (!extractorResolution.extractor) {
-      sendReviewError(response, extractorResolution.status, extractorResolution.error);
+    const resolution = resolveForBatchRequest({
+      request,
+      defaultResolution: extractorResolution,
+      extractorResolver
+    });
+    if (!resolution.extractor) {
+      sendReviewError(response, resolution.status, resolution.error);
       return;
     }
 
@@ -124,7 +173,12 @@ export function registerBatchRoutes(input: {
       response.json(
         await batchSessions.retry(
           request.params.batchSessionId,
-          request.params.imageId
+          request.params.imageId,
+          {
+            extractor: resolution.extractor,
+            extractionMode: resolution.extractionMode,
+            providers: resolution.providers
+          }
         )
       );
     } catch (error) {

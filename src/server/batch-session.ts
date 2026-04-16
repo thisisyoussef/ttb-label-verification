@@ -40,6 +40,12 @@ import type {
   UploadedBatchFile
 } from './batch-session-types';
 
+type ExtractorOverride = {
+  extractor: ReviewExtractor;
+  extractionMode: ExtractionMode;
+  providers: AiProvider[];
+};
+
 export class BatchSessionStore {
   private readonly sessions = new Map<string, BatchSession>();
   private readonly extractor: ReviewExtractor;
@@ -52,11 +58,19 @@ export class BatchSessionStore {
     extractionMode: ExtractionMode;
     providers: AiProvider[];
     latencyObserver?: ReviewLatencyObserver;
+    /**
+     * Accepted for API symmetry with the review route plumbing. Batch
+     * overrides come in as per-call `run`/`retry` arguments, so this is
+     * unused at the store level but kept on the constructor input so
+     * `createApp` can pass a single shape to both.
+     */
+    extractorResolver?: unknown;
   }) {
     this.extractor = input.extractor;
     this.extractionMode = input.extractionMode;
     this.providers = input.providers;
     this.latencyObserver = input.latencyObserver;
+    void input.extractorResolver;
   }
 
   createPreflight(input: {
@@ -71,7 +85,8 @@ export class BatchSessionStore {
 
   async run(
     payload: BatchStartRequest,
-    onFrame: RunFrameWriter
+    onFrame: RunFrameWriter,
+    override?: ExtractorOverride
   ) {
     const session = this.requireSession(payload.batchSessionId);
     const assignments = resolveBatchAssignments(session, payload.resolutions);
@@ -113,7 +128,8 @@ export class BatchSessionStore {
       const result = await this.processAssignment({
         assignment,
         completedOrder,
-        surface: '/api/batch/run'
+        surface: '/api/batch/run',
+        override
       });
       totalDurationMs += Date.now() - startedAt;
 
@@ -215,7 +231,7 @@ export class BatchSessionStore {
     });
   }
 
-  async retry(sessionId: string, imageId: string) {
+  async retry(sessionId: string, imageId: string, override?: ExtractorOverride) {
     const session = this.requireSession(sessionId);
     const existing = session.results.get(imageId);
     const assignment = session.assignments.get(imageId);
@@ -232,7 +248,8 @@ export class BatchSessionStore {
     const result = await this.processAssignment({
       assignment,
       completedOrder: existing.row.completedOrder,
-      surface: '/api/batch/retry'
+      surface: '/api/batch/retry',
+      override
     });
 
     session.results.set(imageId, {
@@ -251,6 +268,7 @@ export class BatchSessionStore {
     assignment: StoredBatchAssignment;
     completedOrder: number;
     surface: LlmEndpointSurface;
+    override?: ExtractorOverride;
   }) {
     const latencyCapture = createReviewLatencyCapture({
       surface: input.surface,
@@ -262,6 +280,11 @@ export class BatchSessionStore {
       outcome: 'skipped',
       durationMs: 0
     });
+
+    const activeExtractor = input.override?.extractor ?? this.extractor;
+    const activeExtractionMode =
+      input.override?.extractionMode ?? this.extractionMode;
+    const activeProviders = input.override?.providers ?? this.providers;
 
     try {
       const normalizationStartedAt = performance.now();
@@ -282,11 +305,11 @@ export class BatchSessionStore {
 
       const report = await runTracedReviewSurface({
         surface: input.surface,
-        extractionMode: this.extractionMode,
-        provider: this.providers.join(',') || undefined,
+        extractionMode: activeExtractionMode,
+        provider: activeProviders.join(',') || undefined,
         clientTraceId: [input.surface, input.assignment.image.id].join(':'),
         intake,
-        extractor: this.extractor,
+        extractor: activeExtractor,
         fixtureId: input.assignment.image.id,
         reportId: randomUUID(),
         latencyCapture,

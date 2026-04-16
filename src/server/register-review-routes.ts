@@ -24,6 +24,7 @@ import {
   type ReviewLatencyCapture,
   type ReviewLatencyObserver
 } from './review-latency';
+import { logServerEvent } from './server-events';
 
 export type ResolvedExtractor =
   | {
@@ -38,6 +39,30 @@ export type ResolvedExtractor =
       error: ReviewError;
       providers: AiProvider[];
     };
+
+/**
+ * Resolves an extractor for a specific requested mode. When `requestedMode`
+ * is undefined the default extractor (built from env at startup) is returned.
+ *
+ * Used by the Provider Override header path (Mission 2) so a dev can force
+ * the request through the other mode without restarting the server.
+ */
+export type ExtractorResolver = (
+  requestedMode?: ExtractionMode
+) => ResolvedExtractor;
+
+const PROVIDER_OVERRIDE_HEADER = 'x-provider-override';
+
+export function readProviderOverrideHeader(
+  request: express.Request
+): ExtractionMode | undefined {
+  const raw = request.header(PROVIDER_OVERRIDE_HEADER)?.trim().toLowerCase();
+  if (!raw) return undefined;
+  if (raw === 'cloud' || raw === 'local') {
+    return raw;
+  }
+  return undefined;
+}
 
 function readClientTraceId(request: express.Request) {
   const raw = request.header('x-review-client-id')?.trim();
@@ -78,21 +103,51 @@ function emitPreProviderLatencySummary(input: {
 export function registerReviewRoutes(input: {
   app: express.Express;
   extractorResolution: ResolvedExtractor;
+  extractorResolver?: ExtractorResolver;
   latencyObserver?: ReviewLatencyObserver;
 }) {
-  const { app, extractorResolution, latencyObserver } = input;
+  const { app, extractorResolution, extractorResolver, latencyObserver } = input;
+
+  function resolveForRequest(request: express.Request): {
+    resolution: ResolvedExtractor;
+    overrideRequested: ExtractionMode | undefined;
+  } {
+    const override = readProviderOverrideHeader(request);
+    if (!override || !extractorResolver) {
+      return { resolution: extractorResolution, overrideRequested: undefined };
+    }
+
+    const overridden = extractorResolver(override);
+    if (!overridden.extractor) {
+      // Fall back to default when the overridden mode is unavailable.
+      logServerEvent('review.provider-override.unavailable', {
+        requestedMode: override,
+        reason: overridden.error?.kind ?? 'unknown'
+      });
+      return { resolution: extractorResolution, overrideRequested: override };
+    }
+
+    logServerEvent('review.provider-override.applied', {
+      requestedMode: override,
+      resolvedMode: overridden.extractionMode,
+      providers: overridden.providers
+    });
+    return { resolution: overridden, overrideRequested: override };
+  }
 
   async function handleSingleLabelRoute<T>(
     surface: '/api/review' | '/api/review/extraction' | '/api/review/warning',
     request: express.Request,
     response: express.Response,
     runner: (input: {
-      intake: Parameters<NonNullable<typeof extractorResolution.extractor>>[0];
+      intake: Parameters<NonNullable<ResolvedExtractor['extractor']>>[0];
       clientTraceId?: string;
       latencyCapture: ReviewLatencyCapture;
+      resolution: ResolvedExtractor;
     }) => Promise<T>
   ) {
     const clientTraceId = readClientTraceId(request);
+    const { resolution } = resolveForRequest(request);
     const latencyCapture = createReviewLatencyCapture({
       surface,
       clientTraceId
@@ -104,22 +159,18 @@ export function registerReviewRoutes(input: {
       emitPreProviderLatencySummary({
         latencyCapture,
         observer: latencyObserver,
-        providers: extractorResolution.providers
+        providers: resolution.providers
       });
       return;
     }
 
-    if (!extractorResolution.extractor) {
+    if (!resolution.extractor) {
       emitPreProviderLatencySummary({
         latencyCapture,
         observer: latencyObserver,
-        providers: extractorResolution.providers
+        providers: resolution.providers
       });
-      sendReviewError(
-        response,
-        extractorResolution.status,
-        extractorResolution.error
-      );
+      sendReviewError(response, resolution.status, resolution.error);
       return;
     }
 
@@ -128,7 +179,8 @@ export function registerReviewRoutes(input: {
         await runner({
           intake: prepared.intake,
           clientTraceId,
-          latencyCapture
+          latencyCapture,
+          resolution
         })
       );
     } catch (error) {
@@ -140,15 +192,16 @@ export function registerReviewRoutes(input: {
     void handleSingleLabelRoute('/api/review', request, response, async ({
       intake,
       clientTraceId,
-      latencyCapture
+      latencyCapture,
+      resolution
     }) =>
       await runTracedReviewSurface({
         surface: '/api/review',
-        extractionMode: extractorResolution.extractionMode,
-        provider: extractorResolution.providers.join(',') || undefined,
+        extractionMode: resolution.extractionMode,
+        provider: resolution.providers.join(',') || undefined,
         clientTraceId,
         intake,
-        extractor: extractorResolution.extractor as ReviewExtractor,
+        extractor: resolution.extractor as ReviewExtractor,
         latencyCapture,
         latencyObserver
       })
@@ -160,14 +213,14 @@ export function registerReviewRoutes(input: {
       '/api/review/extraction',
       request,
       response,
-      async ({ intake, clientTraceId, latencyCapture }) => {
+      async ({ intake, clientTraceId, latencyCapture, resolution }) => {
         const extraction = await runTracedExtractionSurface({
           surface: '/api/review/extraction',
-          extractionMode: extractorResolution.extractionMode,
-          provider: extractorResolution.providers.join(',') || undefined,
+          extractionMode: resolution.extractionMode,
+          provider: resolution.providers.join(',') || undefined,
           clientTraceId,
           intake,
-          extractor: extractorResolution.extractor as ReviewExtractor,
+          extractor: resolution.extractor as ReviewExtractor,
           latencyCapture,
           latencyObserver
         });
@@ -181,14 +234,14 @@ export function registerReviewRoutes(input: {
       '/api/review/warning',
       request,
       response,
-      async ({ intake, clientTraceId, latencyCapture }) => {
+      async ({ intake, clientTraceId, latencyCapture, resolution }) => {
         const warningCheck = await runTracedWarningSurface({
           surface: '/api/review/warning',
-          extractionMode: extractorResolution.extractionMode,
-          provider: extractorResolution.providers.join(',') || undefined,
+          extractionMode: resolution.extractionMode,
+          provider: resolution.providers.join(',') || undefined,
           clientTraceId,
           intake,
-          extractor: extractorResolution.extractor as ReviewExtractor,
+          extractor: resolution.extractor as ReviewExtractor,
           latencyCapture,
           latencyObserver
         });

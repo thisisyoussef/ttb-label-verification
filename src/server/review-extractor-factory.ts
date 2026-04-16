@@ -105,6 +105,17 @@ export function createConfiguredReviewExtractor(input: {
   requestedMode?: ExtractionMode;
   providers?: ReviewExtractorProviderFactories;
   maxRetryableFallbackElapsedMs?: number;
+  /**
+   * When true, the resolved provider chain will also include the
+   * opposite-mode providers as a last-resort fallback tier. This gives us
+   * automatic local <-> cloud fallback when the primary mode's providers
+   * are unreachable, timeout, or throw retryable errors mid-request.
+   *
+   * Defaults to false to preserve existing behavior in tests that explicitly
+   * gate on mode isolation. Default-on is wired in `createApp()` so the
+   * interactive product always has the safety net.
+   */
+  enableCrossModeFallback?: boolean;
 }): ConfiguredReviewExtractorResult {
   const capability = input.capability ?? 'label-extraction';
   const maxRetryableFallbackElapsedMs =
@@ -162,6 +173,43 @@ export function createConfiguredReviewExtractor(input: {
     availableProviders.push(providerResult.provider);
   }
 
+  // Cross-mode fallback: append providers from the opposite mode as a
+  // last-resort tier. Only added when the opt-in flag is set and when the
+  // opposite mode's providers are configured/reachable.
+  if (input.enableCrossModeFallback) {
+    const oppositeMode: ExtractionMode =
+      extractionMode === 'local' ? 'cloud' : 'local';
+    const crossModeAllowed =
+      oppositeMode === 'cloud' ? true : policyResult.value.allowLocal;
+
+    if (crossModeAllowed) {
+      const oppositeOrder = resolveProviderOrder({
+        policy: policyResult.value,
+        mode: oppositeMode,
+        capability
+      });
+      const existingProviderNames = new Set(
+        availableProviders.map((provider) => provider.provider)
+      );
+
+      for (const providerName of oppositeOrder) {
+        if (existingProviderNames.has(providerName)) continue;
+        const providerResult = resolveConfiguredProvider({
+          env: input.env,
+          capability,
+          provider: providerName,
+          providers: providerFactories
+        });
+
+        if (!providerResult.success) {
+          continue;
+        }
+
+        availableProviders.push(providerResult.provider);
+      }
+    }
+  }
+
   if (availableProviders.length === 0) {
     const failure =
       firstHardFailure ??
@@ -214,6 +262,26 @@ export function createConfiguredReviewExtractor(input: {
 
         for (const [index, provider] of availableProviders.entries()) {
           const attempt = index === 0 ? 'primary' : 'fallback';
+          const providerCurrentMode = providerMode(provider.provider);
+          const previousProvider = availableProviders[index - 1]?.provider;
+          const previousProviderMode = previousProvider
+            ? providerMode(previousProvider)
+            : undefined;
+          const crossedModes =
+            attempt === 'fallback' &&
+            previousProviderMode !== undefined &&
+            previousProviderMode !== providerCurrentMode;
+
+          if (crossedModes) {
+            logServerEvent('review.extractor.cross-mode-fallback', {
+              fromProvider: previousProvider,
+              fromMode: previousProviderMode,
+              toProvider: provider.provider,
+              toMode: providerCurrentMode,
+              requestedMode: extractionMode,
+              attemptIndex: index
+            });
+          }
 
           try {
             const extraction = await provider.execute(intake, {
@@ -233,6 +301,13 @@ export function createConfiguredReviewExtractor(input: {
               latencyCapture?.setOutcomePath('primary-success');
             } else {
               latencyCapture?.setOutcomePath('fast-fail-fallback-success');
+              if (crossedModes) {
+                logServerEvent('review.extractor.cross-mode-success', {
+                  actualProvider: provider.provider,
+                  actualMode: providerCurrentMode,
+                  requestedMode: extractionMode
+                });
+              }
             }
 
             return extraction;
@@ -240,7 +315,7 @@ export function createConfiguredReviewExtractor(input: {
             const providerFailure = normalizeProviderRuntimeFailure({
               error,
               provider: provider.provider,
-              mode: extractionMode,
+              mode: providerCurrentMode,
               capability
             });
 

@@ -37,7 +37,12 @@ function toolbenchLabelsPlugin(): PluginOption {
 export default defineConfig({
   plugins: [react(), toolbenchLabelsPlugin()],
   test: {
-    setupFiles: ["./vitest.setup.ts"]
+    setupFiles: ["./vitest.setup.ts"],
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/.claude/worktrees/**'
+    ]
   },
   server: {
     host: '0.0.0.0',

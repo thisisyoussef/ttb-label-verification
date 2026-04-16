@@ -11,6 +11,7 @@ import { registerBatchRoutes } from './register-batch-routes';
 import { registerEvalRoutes } from './register-eval-routes';
 import {
   registerReviewRoutes,
+  type ExtractorResolver,
   type ResolvedExtractor
 } from './register-review-routes';
 import { type ReviewLatencyObserver } from './review-latency';
@@ -19,6 +20,7 @@ interface RegisterAppRoutesInput {
   app: express.Express;
   batchSessions: BatchSessionStore;
   extractorResolution: ResolvedExtractor;
+  extractorResolver?: ExtractorResolver;
   latencyObserver?: ReviewLatencyObserver;
 }
 
@@ -26,6 +28,7 @@ export function registerAppRoutes({
   app,
   batchSessions,
   extractorResolution,
+  extractorResolver,
   latencyObserver
 }: RegisterAppRoutesInput) {
   app.get('/api/health', (_request, response) => {
@@ -50,7 +53,17 @@ export function registerAppRoutes({
     response.json(helpManifestSchema.parse(LOCAL_HELP_MANIFEST));
   });
 
-  registerReviewRoutes({ app, extractorResolution, latencyObserver });
-  registerBatchRoutes({ app, batchSessions, extractorResolution });
+  registerReviewRoutes({
+    app,
+    extractorResolution,
+    extractorResolver,
+    latencyObserver
+  });
+  registerBatchRoutes({
+    app,
+    batchSessions,
+    extractorResolution,
+    extractorResolver
+  });
   registerEvalRoutes(app);
 }

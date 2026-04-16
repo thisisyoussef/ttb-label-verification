@@ -17,7 +17,10 @@ import {
 } from './review-extractor-factory';
 import { type ReviewExtractor } from './review-extraction';
 import { registerAppRoutes } from './register-app-routes';
-import { type ResolvedExtractor } from './register-review-routes';
+import {
+  type ExtractorResolver,
+  type ResolvedExtractor
+} from './register-review-routes';
 import {
   createConsoleReviewLatencyObserver,
   mergeReviewLatencyObservers,
@@ -38,6 +41,7 @@ type CreateAppOptions = {
   providerFactories?: ReviewExtractorProviderFactories;
   maxRetryableFallbackElapsedMs?: number;
   latencyObserver?: ReviewLatencyObserver;
+  enableCrossModeFallback?: boolean;
 };
 
 export function createApp(options: CreateAppOptions = {}) {
@@ -52,6 +56,10 @@ export function createApp(options: CreateAppOptions = {}) {
   const clientIndexPath = path.join(clientDistDir, 'index.html');
   const hasBuiltClient = existsSync(clientIndexPath);
   const extractorResolution = resolveExtractor(options);
+  const extractorResolver = createExtractorResolver({
+    options,
+    defaultResolution: extractorResolution
+  });
   const batchSessions = new BatchSessionStore({
     extractor:
       extractorResolution.extractor ??
@@ -60,7 +68,8 @@ export function createApp(options: CreateAppOptions = {}) {
       }),
     extractionMode: extractorResolution.extractionMode,
     providers: extractorResolution.providers,
-    latencyObserver
+    latencyObserver,
+    extractorResolver
   });
 
   app.use(express.json({ limit: '1mb' }));
@@ -68,6 +77,7 @@ export function createApp(options: CreateAppOptions = {}) {
     app,
     batchSessions,
     extractorResolution,
+    extractorResolver,
     latencyObserver
   });
 
@@ -100,20 +110,24 @@ if (process.env.NODE_ENV !== 'test') {
   });
 }
 
-function resolveExtractor(options: CreateAppOptions): ResolvedExtractor {
+function resolveExtractor(
+  options: CreateAppOptions,
+  requestedMode?: ExtractionMode
+): ResolvedExtractor {
   if (options.extractor) {
     return {
       extractor: options.extractor,
-      extractionMode: options.extractionMode ?? DEFAULT_EXTRACTION_MODE,
+      extractionMode: requestedMode ?? options.extractionMode ?? DEFAULT_EXTRACTION_MODE,
       providers: []
     };
   }
 
   const resolution = createConfiguredReviewExtractor({
     env: process.env,
-    requestedMode: options.extractionMode,
+    requestedMode: requestedMode ?? options.extractionMode,
     providers: options.providerFactories,
-    maxRetryableFallbackElapsedMs: options.maxRetryableFallbackElapsedMs
+    maxRetryableFallbackElapsedMs: options.maxRetryableFallbackElapsedMs,
+    enableCrossModeFallback: options.enableCrossModeFallback ?? true
   });
   if (!resolution.success) {
     return {
@@ -129,5 +143,28 @@ function resolveExtractor(options: CreateAppOptions): ResolvedExtractor {
     extractor: resolution.value.extractor,
     extractionMode: resolution.value.extractionMode,
     providers: resolution.value.providers
+  };
+}
+
+function createExtractorResolver(input: {
+  options: CreateAppOptions;
+  defaultResolution: ResolvedExtractor;
+}): ExtractorResolver {
+  const cache = new Map<ExtractionMode | 'default', ResolvedExtractor>();
+  cache.set('default', input.defaultResolution);
+
+  return (requestedMode) => {
+    if (!requestedMode) {
+      return input.defaultResolution;
+    }
+
+    const cached = cache.get(requestedMode);
+    if (cached) {
+      return cached;
+    }
+
+    const resolution = resolveExtractor(input.options, requestedMode);
+    cache.set(requestedMode, resolution);
+    return resolution;
   };
 }
