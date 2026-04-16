@@ -108,7 +108,14 @@ export function AssessorToolbench({
               <ToolbenchActions
                 extractionMode={extractionMode}
                 onReset={onReset}
-                onOpenMode={onSwitchMode}
+                // Close the toolbench drawer as part of "Open <mode>
+                // review" so the user actually SEES the navigation land.
+                // Without this, the toolbench stays open over the new
+                // page and the click looks like it didn't do anything.
+                onOpenMode={(next) => {
+                  onSwitchMode(next);
+                  close();
+                }}
                 onToggleExtraction={onToggleExtraction}
                 onLaunchTour={onLaunchTour}
               />

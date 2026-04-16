@@ -173,7 +173,16 @@ export function createOllamaVlmReviewExtractor(input: {
             keep_alive: input.config.keepAlive,
             options: {
               temperature: 0,
-              num_predict: 2048
+              // 2048 was wasteful: the JSON-schema-constrained response
+              // for 12 fields + visual signals + image quality + summary
+              // typically lands at 800-1200 tokens. Observed on RunPod
+              // 5090: schema-constrained generation tops out around
+              // 2300 output tokens and burned ~7s of wall clock to
+              // fill the cap. 1024 leaves plenty of headroom for
+              // legitimate long values (e.g. the full canonical
+              // government warning text is ~280 tokens by itself)
+              // while cutting the worst-case runtime in half.
+              num_predict: 1024
             }
           })
         }

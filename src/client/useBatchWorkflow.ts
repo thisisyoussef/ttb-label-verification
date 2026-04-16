@@ -49,6 +49,7 @@ export interface BatchWorkflow extends BatchDashboardFlow {
   onSelectBatchSeed: (id: string) => void;
   onSelectStreamSeed: (id: string) => void;
   onSelectLiveImages: (files: File[]) => void;
+  onRemoveLiveImage: (imageId: string) => void;
   onSelectLiveCsv: (file: File) => void;
   onSelectMode: (next: Mode, currentMode: Mode) => void;
   onStartBatchFromIntake: () => void;
@@ -234,6 +235,57 @@ export function useBatchWorkflow(options: {
       selectLiveImages({
         files,
         batchSeedImages: liveBatchImages,
+        batchCsvFile,
+        batchPreflightRequestRef,
+        setBatchSessionId,
+        setBatchSeed,
+        setBatchItems,
+        setBatchProgress,
+        setBatchPhase,
+        setPreviewImage,
+        resetDashboardSeed: dashboard.resetDashboardSeed
+      });
+    },
+    onRemoveLiveImage: (imageId) => {
+      // Find the surviving images and rebuild the live batch by replaying
+      // them through selectLiveImages starting from empty. We can't mutate
+      // the seed directly because preflight + matching state is derived
+      // from the image set; a fresh selectLiveImages call recomputes all
+      // of that in one pass.
+      //
+      // Skips when no live images exist yet (nothing to remove) or when
+      // the pointed-at image can't be found.
+      const currentImages = batchSeed.images;
+      if (currentImages.length === 0) return;
+      const survivors = currentImages.filter((img) => img.id !== imageId);
+      if (survivors.length === currentImages.length) return; // not found
+
+      // Revoke the preview URL for the removed image to release memory.
+      const removed = currentImages.find((img) => img.id === imageId);
+      if (removed?.previewUrl) {
+        try {
+          URL.revokeObjectURL(removed.previewUrl);
+        } catch {
+          /* best-effort */
+        }
+      }
+
+      const surviving = survivors
+        .map((img) => img.file)
+        .filter((f): f is File => f !== null);
+
+      if (surviving.length === 0) {
+        // All live files removed. Return intake to empty state so the UI
+        // shows the drop zone again.
+        setBatchSeed(emptyBatchSeedState());
+        setBatchSessionId(null);
+        setPreviewImage(null);
+        return;
+      }
+
+      selectLiveImages({
+        files: surviving,
+        batchSeedImages: [], // start from empty; surviving files replace the set
         batchCsvFile,
         batchPreflightRequestRef,
         setBatchSessionId,
