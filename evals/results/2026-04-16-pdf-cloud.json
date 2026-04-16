@@ -1,0 +1,2464 @@
+{
+  "generatedAt": "2026-04-16T14:41:24.720Z",
+  "manifest": "evals/batch/cola-cloud-pdf/manifest.cola-cloud-all.json",
+  "results": [
+    {
+      "id": "cola-cloud-all",
+      "title": "COLA Cloud All",
+      "preflight": {
+        "matched": 28,
+        "ambiguous": 0,
+        "unmatchedImages": 0,
+        "unmatchedRows": 0,
+        "csvError": null,
+        "fileErrors": [],
+        "durationMs": 174
+      },
+      "run": {
+        "summary": {
+          "pass": 14,
+          "review": 13,
+          "fail": 0,
+          "error": 1
+        },
+        "latency": {
+          "runDurationMs": 152501,
+          "exportDurationMs": 73,
+          "totalDurationMs": 152574,
+          "itemCount": 28,
+          "avgPerItemMs": 5446,
+          "minPerItemMs": 1312,
+          "maxPerItemMs": 8921,
+          "p50PerItemMs": 6331,
+          "p95PerItemMs": 8076
+        },
+        "fieldMetrics": {
+          "brand-name": {
+            "rowsWithCheck": 26,
+            "extractedValuePresent": 26,
+            "exactOrCosmeticMatch": 18,
+            "valueMismatch": 8,
+            "pass": 18,
+            "review": 8,
+            "fail": 0
+          },
+          "class-type": {
+            "rowsWithCheck": 26,
+            "extractedValuePresent": 26,
+            "exactOrCosmeticMatch": 22,
+            "valueMismatch": 4,
+            "pass": 22,
+            "review": 4,
+            "fail": 0
+          },
+          "alcohol-content": {
+            "rowsWithCheck": 25,
+            "extractedValuePresent": 20,
+            "exactOrCosmeticMatch": 19,
+            "valueMismatch": 5,
+            "pass": 19,
+            "review": 6,
+            "fail": 0
+          },
+          "net-contents": {
+            "rowsWithCheck": 18,
+            "extractedValuePresent": 18,
+            "exactOrCosmeticMatch": 0,
+            "valueMismatch": 0,
+            "pass": 8,
+            "review": 10,
+            "fail": 0
+          },
+          "applicant-address": {
+            "rowsWithCheck": 16,
+            "extractedValuePresent": 16,
+            "exactOrCosmeticMatch": 0,
+            "valueMismatch": 0,
+            "pass": 0,
+            "review": 16,
+            "fail": 0
+          },
+          "country-of-origin": {
+            "rowsWithCheck": 15,
+            "extractedValuePresent": 12,
+            "exactOrCosmeticMatch": 6,
+            "valueMismatch": 4,
+            "pass": 6,
+            "review": 9,
+            "fail": 0
+          }
+        },
+        "ruleMetrics": {
+          "government-warning": {
+            "rowsWithCheck": 26,
+            "pass": 4,
+            "review": 16,
+            "fail": 6,
+            "info": 0
+          },
+          "abv-format-permitted": {
+            "rowsWithCheck": 7,
+            "pass": 7,
+            "review": 0,
+            "fail": 0,
+            "info": 0
+          },
+          "vintage-requires-appellation": {
+            "rowsWithCheck": 7,
+            "pass": 7,
+            "review": 0,
+            "fail": 0,
+            "info": 0
+          },
+          "same-field-of-vision": {
+            "rowsWithCheck": 9,
+            "pass": 0,
+            "review": 0,
+            "fail": 0,
+            "info": 9
+          }
+        },
+        "rowStatuses": [
+          {
+            "imageId": "persian-empire-black-widow-distilled-spirits",
+            "filename": "persian-empire-black-widow-distilled-spirits.pdf",
+            "status": "pass",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Persian Empire — Black Widow",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Persian Empire",
+              "fancifulName": "Black Widow",
+              "classType": "other specialties & proprietaries",
+              "alcoholContent": "40% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Persian Empire",
+            "classType": "other specialties & proprietaries",
+            "reportId": "e83c6212-fac4-4e77-92d5-a91716f00cd8",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "All extracted checks passed for this label.",
+            "latencyMs": 5370,
+            "issues": {
+              "blocker": 0,
+              "major": 2,
+              "minor": 1,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "review",
+                "summary": "Brand name mismatch: app=\"Persian Empire\" ext=\"Black Widow\"",
+                "confidence": 0.5,
+                "applicationValue": "Persian Empire",
+                "extractedValue": "Black Widow",
+                "comparisonStatus": "value-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "other specialties & proprietaries",
+                "extractedValue": "SPIRITS DISTILLED FROM\nGRAPES WITH DATES AND RAISINS\n\nALODOLS DESTILLES A PARTIR DE RAISINS",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "40% Alc./Vol.",
+                "extractedValue": "40% ALC./VOL.\n80 PROOF",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "750 mL",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": null,
+              "country-of-origin": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.93,
+                "applicationValue": "canada",
+                "extractedValue": "CANADA",
+                "comparisonStatus": "case-mismatch"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.39
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": {
+                "status": "info",
+                "summary": "Same-field-of-vision check is not yet implemented — not blocking.",
+                "confidence": 0.54
+              }
+            }
+          },
+          {
+            "imageId": "persian-empire-arak-distilled-spirits",
+            "filename": "persian-empire-arak-distilled-spirits.pdf",
+            "status": "review",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Persian Empire — Arak ",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Persian Empire",
+              "fancifulName": "Arak ",
+              "classType": "arack/raki",
+              "alcoholContent": "40% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Persian Empire",
+            "classType": "arack/raki",
+            "reportId": "5182a3e5-2894-42b1-af3a-698354682578",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "One or more checks need human review.",
+            "latencyMs": 5801,
+            "issues": {
+              "blocker": 0,
+              "major": 3,
+              "minor": 1,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "review",
+                "summary": "Brand name mismatch: app=\"Persian Empire\" ext=\"SAKI\"",
+                "confidence": 0.5,
+                "applicationValue": "Persian Empire",
+                "extractedValue": "SAKI",
+                "comparisonStatus": "value-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "arack/raki",
+                "extractedValue": "ARAK",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "40% Alc./Vol.",
+                "extractedValue": "40% ALC/VOL (80 PROOF)",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "750 ml. 25.36 FL. OZ.",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": null,
+              "country-of-origin": {
+                "status": "review",
+                "summary": "Country values differ: app=\"canada\" ext=\"Persian\". Defer to LLM judgment or human review.",
+                "confidence": 0.3,
+                "applicationValue": "canada",
+                "extractedValue": "Persian",
+                "comparisonStatus": "value-mismatch"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.39
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": {
+                "status": "info",
+                "summary": "Same-field-of-vision check is not yet implemented — not blocking.",
+                "confidence": 0.54
+              }
+            }
+          },
+          {
+            "imageId": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+            "filename": "simply-elegant-simply-elegant-spirits-distilled-spirits.pdf",
+            "status": "pass",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Simply Elegant — Simply Elegant Spirits",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Simply Elegant",
+              "fancifulName": "Simply Elegant Spirits",
+              "classType": "straight bourbon whisky",
+              "alcoholContent": "67% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Simply Elegant",
+            "classType": "straight bourbon whisky",
+            "reportId": "b1b73818-86fb-4402-943b-e15347dbd73c",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "All extracted checks passed for this label.",
+            "latencyMs": 2830,
+            "issues": {
+              "blocker": 0,
+              "major": 1,
+              "minor": 2,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "Simply Elegant",
+                "extractedValue": "SIMPLY ELEGANT",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "straight bourbon whisky",
+                "extractedValue": "KENTUCKY STRAIGHT BOURBON WHISKEY",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "67% Alc./Vol.",
+                "extractedValue": "67% ALC/VOL",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "750 ML",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": null,
+              "country-of-origin": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "Kentucky",
+                "comparisonStatus": "not-applicable"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.38
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": {
+                "status": "info",
+                "summary": "Same-field-of-vision check is not yet implemented — not blocking.",
+                "confidence": 0.54
+              }
+            }
+          },
+          {
+            "imageId": "crafy-elk-cranberry-blueberry-acai-distilled-spirits",
+            "filename": "crafy-elk-cranberry-blueberry-acai-distilled-spirits.pdf",
+            "status": "review",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Crafy Elk — Cranberry, Blueberry, & Acai",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Crafy Elk",
+              "fancifulName": "Cranberry, Blueberry, & Acai",
+              "classType": "vodka specialties",
+              "alcoholContent": "4.5% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Crafy Elk",
+            "classType": "vodka specialties",
+            "reportId": "801aa5d3-270e-4cc9-b5cb-780db52101cf",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "One or more checks need human review.",
+            "latencyMs": 7895,
+            "issues": {
+              "blocker": 0,
+              "major": 2,
+              "minor": 2,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "review",
+                "summary": "Brand names are close (edit distance 1/10) — may be OCR error.",
+                "confidence": 0.65,
+                "applicationValue": "Crafy Elk",
+                "extractedValue": "CRAFTY ELK",
+                "comparisonStatus": "value-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "vodka specialties",
+                "extractedValue": "VODKA",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "4.5% Alc./Vol.",
+                "extractedValue": "4.5% ALC. BY VOL",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "pass",
+                "summary": "Extracted net contents is available for standalone review.",
+                "confidence": 0.9,
+                "applicationValue": null,
+                "extractedValue": "355 mL",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "PRODUCED AND BOTTLED BY CRAFTY ELK DISTILLING COMPANY VERONA, WI",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "USA",
+                "comparisonStatus": "not-applicable"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.88
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": {
+                "status": "info",
+                "summary": "Same-field-of-vision check is not yet implemented — not blocking.",
+                "confidence": 0.54
+              }
+            }
+          },
+          {
+            "imageId": "leitz-rottland-wine",
+            "filename": "leitz-rottland-wine.pdf",
+            "status": "review",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Leitz — Rottland",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Leitz",
+              "fancifulName": "Rottland",
+              "classType": "table white wine",
+              "alcoholContent": "12.5% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "Rheingau",
+              "vintage": "2023"
+            },
+            "brandName": "Leitz",
+            "classType": "table white wine",
+            "reportId": "871d9c98-1bfb-454a-9ee5-a90804517d07",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "One or more checks need human review.",
+            "latencyMs": 3253,
+            "issues": {
+              "blocker": 0,
+              "major": 4,
+              "minor": 0,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "Leitz",
+                "extractedValue": "LEITZ",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "review",
+                "summary": "Class/type could not be matched: app=\"table white wine\" ext=\"BERG RÜDESHEIM\"",
+                "confidence": 0.55,
+                "applicationValue": "table white wine",
+                "extractedValue": "BERG RÜDESHEIM",
+                "comparisonStatus": "value-mismatch"
+              },
+              "alcohol-content": {
+                "status": "review",
+                "summary": "Could not confirm alcohol content from the label.",
+                "confidence": 0.54,
+                "applicationValue": "12.5% Alc./Vol.",
+                "extractedValue": null,
+                "comparisonStatus": "value-mismatch"
+              },
+              "net-contents": null,
+              "applicant-address": null,
+              "country-of-origin": {
+                "status": "review",
+                "summary": "Could not confirm country of origin from the label.",
+                "confidence": 0.54,
+                "applicationValue": "germany",
+                "extractedValue": null,
+                "comparisonStatus": "value-mismatch"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.38
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": {
+                "status": "pass",
+                "summary": "Vintage claim is paired with an appellation.",
+                "confidence": 0.94
+              },
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "leitz-magdalenenkreuz-wine",
+            "filename": "leitz-magdalenenkreuz-wine.pdf",
+            "status": "review",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Leitz — Magdalenenkreuz",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Leitz",
+              "fancifulName": "Magdalenenkreuz",
+              "classType": "table white wine",
+              "alcoholContent": "8% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "Rheingau",
+              "vintage": "2025"
+            },
+            "brandName": "Leitz",
+            "classType": "table white wine",
+            "reportId": "6dbc6bf9-802d-4899-af0e-9a1aeddd9bf7",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "One or more checks need human review.",
+            "latencyMs": 3223,
+            "issues": {
+              "blocker": 0,
+              "major": 3,
+              "minor": 0,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "Leitz",
+                "extractedValue": "LEITZ",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "table white wine",
+                "extractedValue": "RIESLING",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "review",
+                "summary": "Could not confirm alcohol content from the label.",
+                "confidence": 0.57,
+                "applicationValue": "8% Alc./Vol.",
+                "extractedValue": null,
+                "comparisonStatus": "value-mismatch"
+              },
+              "net-contents": null,
+              "applicant-address": null,
+              "country-of-origin": {
+                "status": "review",
+                "summary": "Could not confirm country of origin from the label.",
+                "confidence": 0.57,
+                "applicationValue": "germany",
+                "extractedValue": null,
+                "comparisonStatus": "value-mismatch"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.39
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": {
+                "status": "pass",
+                "summary": "Vintage claim is paired with an appellation.",
+                "confidence": 0.94
+              },
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "leitz-klosterlay-wine",
+            "filename": "leitz-klosterlay-wine.pdf",
+            "status": "review",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Leitz — Klosterlay",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Leitz",
+              "fancifulName": "Klosterlay",
+              "classType": "table white wine",
+              "alcoholContent": "8.5% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "Rheingau",
+              "vintage": "2025"
+            },
+            "brandName": "Leitz",
+            "classType": "table white wine",
+            "reportId": "03d932f7-4f91-444c-8e9b-bc1e917d22bf",
+            "extractionQualityState": "low-confidence",
+            "verdictSecondary": "Low extraction confidence — review carefully.",
+            "summary": "Low-confidence extraction keeps the label in review.",
+            "latencyMs": 2954,
+            "issues": {
+              "blocker": 0,
+              "major": 3,
+              "minor": 0,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "Leitz",
+                "extractedValue": "LEITZ",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "table white wine",
+                "extractedValue": "KABINETT",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "review",
+                "summary": "Could not confirm alcohol content from the label.",
+                "confidence": 0.51,
+                "applicationValue": "8.5% Alc./Vol.",
+                "extractedValue": null,
+                "comparisonStatus": "value-mismatch"
+              },
+              "net-contents": null,
+              "applicant-address": null,
+              "country-of-origin": {
+                "status": "review",
+                "summary": "Could not confirm country of origin from the label.",
+                "confidence": 0.51,
+                "applicationValue": "germany",
+                "extractedValue": null,
+                "comparisonStatus": "value-mismatch"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.38
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": {
+                "status": "pass",
+                "summary": "Vintage claim is paired with an appellation.",
+                "confidence": 0.94
+              },
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "uncorked-in-mayberry-otis-own-wine",
+            "filename": "uncorked-in-mayberry-otis-own-wine.pdf",
+            "status": "pass",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Uncorked In Mayberry — Otis' Own",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Uncorked In Mayberry",
+              "fancifulName": "Otis' Own",
+              "classType": "table white wine",
+              "alcoholContent": "12.5% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "North Carolina",
+              "vintage": ""
+            },
+            "brandName": "Uncorked In Mayberry",
+            "classType": "table white wine",
+            "reportId": "0a4d5689-a8bc-43b9-8c67-496725ad3647",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "All extracted checks passed for this label.",
+            "latencyMs": 3048,
+            "issues": {
+              "blocker": 0,
+              "major": 2,
+              "minor": 1,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "review",
+                "summary": "Brand name mismatch: app=\"Uncorked In Mayberry\" ext=\"OTIS' OWN\"",
+                "confidence": 0.5,
+                "applicationValue": "Uncorked In Mayberry",
+                "extractedValue": "OTIS' OWN",
+                "comparisonStatus": "value-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "table white wine",
+                "extractedValue": "WHITE WINE",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "12.5% Alc./Vol.",
+                "extractedValue": "12.5% BY VOL.",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": null,
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "NORTH CAROLINA",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": null
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.38
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "lake-placid-shredder-malt-beverage",
+            "filename": "lake-placid-shredder-malt-beverage.pdf",
+            "status": "review",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Lake Placid — Shredder",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Lake Placid",
+              "fancifulName": "Shredder",
+              "classType": "ale",
+              "alcoholContent": "",
+              "netContents": "12 FL OZ",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Lake Placid",
+            "classType": "ale",
+            "reportId": "691b578a-4a08-4482-b49a-d85de12d9dcd",
+            "extractionQualityState": "low-confidence",
+            "verdictSecondary": "Low extraction confidence — review carefully.",
+            "summary": "Low-confidence extraction keeps the label in review.",
+            "latencyMs": 7703,
+            "issues": {
+              "blocker": 0,
+              "major": 1,
+              "minor": 4,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "Lake Placid",
+                "extractedValue": "LAKE PLACID",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "ale",
+                "extractedValue": "IPA",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "6% ALCOHOL BY VOLUME",
+                "comparisonStatus": "not-applicable"
+              },
+              "net-contents": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "12 FL. OZ.",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "LAKE PLACID BREWING CO. A DIVISION OF GENESEE BREWING CO., INC. 76 DEWEY STREET, ROCHESTER, NY 14608",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "USA",
+                "comparisonStatus": "not-applicable"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.81
+              },
+              "abv-format-permitted": {
+                "status": "pass",
+                "summary": "Alcohol statement uses permitted wording.",
+                "confidence": 0.96
+              },
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "lake-placid-ridge-runner-malt-beverage",
+            "filename": "lake-placid-ridge-runner-malt-beverage.pdf",
+            "status": "review",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Lake Placid — Ridge Runner",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Lake Placid",
+              "fancifulName": "Ridge Runner",
+              "classType": "ale",
+              "alcoholContent": "4% Alc./Vol.",
+              "netContents": "12 FL OZ",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Lake Placid",
+            "classType": "ale",
+            "reportId": "3bfcfec6-d6bf-4c44-bf87-6b84164baed5",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "One or more checks need human review.",
+            "latencyMs": 6687,
+            "issues": {
+              "blocker": 0,
+              "major": 1,
+              "minor": 3,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "Lake Placid",
+                "extractedValue": "LAKE PLACID",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "ale",
+                "extractedValue": "INDIA PALE ALE",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "4% Alc./Vol.",
+                "extractedValue": "4%",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "12 FL. OZ.",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "2026 LAKE PLACID BREWING COMPANY, HAMBURG, NY",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "NY",
+                "comparisonStatus": "not-applicable"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.86
+              },
+              "abv-format-permitted": {
+                "status": "pass",
+                "summary": "Alcohol statement uses permitted wording.",
+                "confidence": 0.96
+              },
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "recluse-brew-works-shy-guy-malt-beverage",
+            "filename": "recluse-brew-works-shy-guy-malt-beverage.pdf",
+            "status": "review",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Recluse Brew Works — Shy Guy",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Recluse Brew Works",
+              "fancifulName": "Shy Guy",
+              "classType": "beer",
+              "alcoholContent": "6.5% Alc./Vol.",
+              "netContents": "12 FL OZ",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Recluse Brew Works",
+            "classType": "beer",
+            "reportId": "f03763aa-9695-4a14-8ee9-5060f92cbd3d",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "One or more checks need human review.",
+            "latencyMs": 7154,
+            "issues": {
+              "blocker": 0,
+              "major": 1,
+              "minor": 2,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.85,
+                "applicationValue": "Recluse Brew Works",
+                "extractedValue": "RECLUSE",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.85,
+                "applicationValue": "beer",
+                "extractedValue": "IPA",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "6.5% Alc./Vol.",
+                "extractedValue": "6.5% ALC. BY VOL.",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "1 PINT",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "4035 W GRANT ST, STE 102, WASHOUGAL, WA 98671",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": null
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.86
+              },
+              "abv-format-permitted": {
+                "status": "pass",
+                "summary": "Alcohol statement uses permitted wording.",
+                "confidence": 0.96
+              },
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "pleasant-prairie-brewing-peach-sour-ale-malt-beverage",
+            "filename": "pleasant-prairie-brewing-peach-sour-ale-malt-beverage.pdf",
+            "status": "error",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Pleasant Prairie Brewing — Peach Sour Ale",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Pleasant Prairie Brewing",
+              "fancifulName": "Peach Sour Ale",
+              "classType": "malt beverages specialities - flavored",
+              "alcoholContent": "5.9% Alc./Vol.",
+              "netContents": "12 FL OZ",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Pleasant Prairie Brewing",
+            "classType": "malt beverages specialities - flavored",
+            "reportId": null,
+            "extractionQualityState": null,
+            "verdictSecondary": null,
+            "summary": null,
+            "latencyMs": 1312,
+            "issues": {
+              "blocker": 0,
+              "major": 0,
+              "minor": 0,
+              "note": 0
+            },
+            "errorMessage": "We could not reach the extraction service right now.",
+            "fieldChecks": {
+              "brand-name": null,
+              "class-type": null,
+              "alcohol-content": null,
+              "net-contents": null,
+              "applicant-address": null,
+              "country-of-origin": null
+            },
+            "ruleChecks": {
+              "government-warning": null,
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "crafty-elk-mango-honey-distilled-spirits",
+            "filename": "crafty-elk-mango-honey-distilled-spirits.pdf",
+            "status": "pass",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Crafty Elk — Mango & Honey",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Crafty Elk",
+              "fancifulName": "Mango & Honey",
+              "classType": "vodka specialties",
+              "alcoholContent": "4.5% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Crafty Elk",
+            "classType": "vodka specialties",
+            "reportId": "76ccb435-fd60-4a54-8549-d97b66bed9f6",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "All extracted checks passed for this label.",
+            "latencyMs": 6622,
+            "issues": {
+              "blocker": 1,
+              "major": 0,
+              "minor": 3,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "Crafty Elk",
+                "extractedValue": "CRAFTY ELK",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "vodka specialties",
+                "extractedValue": "VODKA COCKTAIL",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "4.5% Alc./Vol.",
+                "extractedValue": "4.5% ALC. BY VOL.",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "12 FL. OZ.",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "VERONA, WI",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "USA",
+                "comparisonStatus": "not-applicable"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "fail",
+                "summary": "Warning wording does not match the required text.",
+                "confidence": 0.91
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": {
+                "status": "info",
+                "summary": "Same-field-of-vision check is not yet implemented — not blocking.",
+                "confidence": 0.54
+              }
+            }
+          },
+          {
+            "imageId": "the-wine-trust-rum-distilled-spirits",
+            "filename": "the-wine-trust-rum-distilled-spirits.pdf",
+            "status": "pass",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "The Wine Trust — Rum",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "The Wine Trust",
+              "fancifulName": "Rum",
+              "classType": "other rum gold fb",
+              "alcoholContent": "60% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "The Wine Trust",
+            "classType": "other rum gold fb",
+            "reportId": "67e12e52-f348-42b4-abc2-0c3fae117a8c",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "All extracted checks passed for this label.",
+            "latencyMs": 7480,
+            "issues": {
+              "blocker": 0,
+              "major": 0,
+              "minor": 1,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "The Wine Trust",
+                "extractedValue": "the wine trust",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "other rum gold fb",
+                "extractedValue": "RUM",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "60% Alc./Vol.",
+                "extractedValue": "60% by vol.",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "pass",
+                "summary": "Extracted net contents is available for standalone review.",
+                "confidence": 0.9,
+                "applicationValue": null,
+                "extractedValue": "700ml",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "NEW YORK, NY",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": {
+                "status": "pass",
+                "summary": "Resolved by judgment: Trinidad is part of Trinidad and Tobago; extraction contains OCR noise from adjacent warning.",
+                "confidence": 0.88,
+                "applicationValue": "trinidad/tobago",
+                "extractedValue": "TRINIDAD\n\nGOVERNMENT WARNING",
+                "comparisonStatus": "match"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "pass",
+                "summary": "Warning statement verified via dedicated OCR comparison.",
+                "confidence": 0.93
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": {
+                "status": "info",
+                "summary": "Same-field-of-vision check is not yet implemented — not blocking.",
+                "confidence": 0.54
+              }
+            }
+          },
+          {
+            "imageId": "flaviar-columbia-creek-tennessee-whiskey-distilled-spirits",
+            "filename": "flaviar-columbia-creek-tennessee-whiskey-distilled-spirits.pdf",
+            "status": "review",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Flaviar — Columbia Creek Tennessee Whiskey",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Flaviar",
+              "fancifulName": "Columbia Creek Tennessee Whiskey",
+              "classType": "whisky",
+              "alcoholContent": "47.8% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Flaviar",
+            "classType": "whisky",
+            "reportId": "6c287fb1-99cb-4bb5-91de-d649b6b08e00",
+            "extractionQualityState": "low-confidence",
+            "verdictSecondary": "Low extraction confidence — review carefully.",
+            "summary": "Low-confidence extraction keeps the label in review.",
+            "latencyMs": 6331,
+            "issues": {
+              "blocker": 0,
+              "major": 1,
+              "minor": 2,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "review",
+                "summary": "Brand name mismatch: app=\"Flaviar\" ext=\"Columbia Creek\"",
+                "confidence": 0.5,
+                "applicationValue": "Flaviar",
+                "extractedValue": "Columbia Creek",
+                "comparisonStatus": "value-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "whisky",
+                "extractedValue": "WHISKEY",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "47.8% Alc./Vol.",
+                "extractedValue": "47.8%",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "50mL",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "TRYTHISFIELD",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": null
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "pass",
+                "summary": "Warning statement verified via dedicated OCR comparison.",
+                "confidence": 0.93
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": {
+                "status": "info",
+                "summary": "Same-field-of-vision check is not yet implemented — not blocking.",
+                "confidence": 0.42
+              }
+            }
+          },
+          {
+            "imageId": "old-station-31-orange-distilled-spirits",
+            "filename": "old-station-31-orange-distilled-spirits.pdf",
+            "status": "review",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Old Station 31 — Orange",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Old Station 31",
+              "fancifulName": "Orange",
+              "classType": "vodka - orange flavored",
+              "alcoholContent": "40% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Old Station 31",
+            "classType": "vodka - orange flavored",
+            "reportId": "1da24df8-958f-43c8-b4fa-1a5fb7ab9c86",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "One or more checks need human review.",
+            "latencyMs": 3074,
+            "issues": {
+              "blocker": 0,
+              "major": 2,
+              "minor": 1,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "Old Station 31",
+                "extractedValue": "OLD STATION 31",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "review",
+                "summary": "Class/type could not be matched: app=\"vodka - orange flavored\" ext=\"SPIRITS\"",
+                "confidence": 0.55,
+                "applicationValue": "vodka - orange flavored",
+                "extractedValue": "SPIRITS",
+                "comparisonStatus": "value-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "40% Alc./Vol.",
+                "extractedValue": "40% ALC/VOL",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "750 mL",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": null,
+              "country-of-origin": null
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.38
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": {
+                "status": "info",
+                "summary": "Same-field-of-vision check is not yet implemented — not blocking.",
+                "confidence": 0.54
+              }
+            }
+          },
+          {
+            "imageId": "west-peak-tequila-paloma-distilled-spirits",
+            "filename": "west-peak-tequila-paloma-distilled-spirits.pdf",
+            "status": "pass",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "West Peak — Tequila Paloma",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "West Peak",
+              "fancifulName": "Tequila Paloma",
+              "classType": "other specialties & proprietaries",
+              "alcoholContent": "6% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "West Peak",
+            "classType": "other specialties & proprietaries",
+            "reportId": "2755831c-35ad-4a3a-92b1-548282a9bf9b",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "All extracted checks passed for this label.",
+            "latencyMs": 6897,
+            "issues": {
+              "blocker": 1,
+              "major": 1,
+              "minor": 1,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "West Peak",
+                "extractedValue": "WEST PEAK",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "review",
+                "summary": "Class/type could not be matched: app=\"other specialties & proprietaries\" ext=\"TEQUILA\"",
+                "confidence": 0.55,
+                "applicationValue": "other specialties & proprietaries",
+                "extractedValue": "TEQUILA",
+                "comparisonStatus": "value-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "6% Alc./Vol.",
+                "extractedValue": "6% ALC/VOL + 12% FL OZ (355 mL)",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "pass",
+                "summary": "Extracted net contents is available for standalone review.",
+                "confidence": 0.9,
+                "applicationValue": null,
+                "extractedValue": "12 FL OZ.",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "BY WEST PEAK, SO. CALIF. CA.",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": null
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "fail",
+                "summary": "Warning wording does not match the required text.",
+                "confidence": 0.91
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": {
+                "status": "info",
+                "summary": "Same-field-of-vision check is not yet implemented — not blocking.",
+                "confidence": 0.54
+              }
+            }
+          },
+          {
+            "imageId": "stormwood-wines-semillon-wine",
+            "filename": "stormwood-wines-semillon-wine.pdf",
+            "status": "review",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Stormwood Wines — Semillon",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Stormwood Wines",
+              "fancifulName": "Semillon",
+              "classType": "table white wine",
+              "alcoholContent": "13% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "Waiheke Island",
+              "vintage": "2025"
+            },
+            "brandName": "Stormwood Wines",
+            "classType": "table white wine",
+            "reportId": "01d0a89c-3550-43e2-9abc-23a326b6e16b",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "One or more checks need human review.",
+            "latencyMs": 3645,
+            "issues": {
+              "blocker": 0,
+              "major": 2,
+              "minor": 0,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.85,
+                "applicationValue": "Stormwood Wines",
+                "extractedValue": "STORM wOOD",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "table white wine",
+                "extractedValue": "SEMILLON",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "review",
+                "summary": "Could not confirm alcohol content from the label.",
+                "confidence": 0.594,
+                "applicationValue": "13% Alc./Vol.",
+                "extractedValue": null,
+                "comparisonStatus": "value-mismatch"
+              },
+              "net-contents": null,
+              "applicant-address": null,
+              "country-of-origin": {
+                "status": "pass",
+                "summary": "Resolved by judgment: Waiheke Island is a well-known wine-producing region within New Zealand.",
+                "confidence": 0.9,
+                "applicationValue": "new zealand",
+                "extractedValue": "WAIHEKE ISLAND",
+                "comparisonStatus": "match"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.4
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": {
+                "status": "pass",
+                "summary": "Vintage claim is paired with an appellation.",
+                "confidence": 0.94
+              },
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "forlorn-hope-san-hercurmer-delle-frecce-wine",
+            "filename": "forlorn-hope-san-hercurmer-delle-frecce-wine.pdf",
+            "status": "pass",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Forlorn Hope — San Hercurmer Delle Frecce",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Forlorn Hope",
+              "fancifulName": "San Hercurmer Delle Frecce",
+              "classType": "table red wine",
+              "alcoholContent": "12.5% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "Sierra Foothills",
+              "vintage": "2020"
+            },
+            "brandName": "Forlorn Hope",
+            "classType": "table red wine",
+            "reportId": "6eff61fe-1c4b-4b63-ba66-47bb1bfcc9cf",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "All extracted checks passed for this label.",
+            "latencyMs": 7210,
+            "issues": {
+              "blocker": 0,
+              "major": 1,
+              "minor": 1,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "Forlorn Hope",
+                "extractedValue": "forlorn hope",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "review",
+                "summary": "Class/type could not be matched: app=\"table red wine\" ext=\"another rare creature\"",
+                "confidence": 0.55,
+                "applicationValue": "table red wine",
+                "extractedValue": "another rare creature",
+                "comparisonStatus": "value-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "12.5% Alc./Vol.",
+                "extractedValue": "12.51% ALC/VOL",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": null,
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "CALAVERAS COUNTY / SIERRA FOOTHILLS",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": null
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "pass",
+                "summary": "Warning statement verified via dedicated OCR comparison.",
+                "confidence": 0.93
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": {
+                "status": "pass",
+                "summary": "Vintage claim is paired with an appellation.",
+                "confidence": 0.94
+              },
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "manzone-giovanni-barolo-perno-wine",
+            "filename": "manzone-giovanni-barolo-perno-wine.pdf",
+            "status": "pass",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Manzone Giovanni — Barolo Perno",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Manzone Giovanni",
+              "fancifulName": "Barolo Perno",
+              "classType": "table red wine",
+              "alcoholContent": "13.5% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "Barolo",
+              "vintage": "1998"
+            },
+            "brandName": "Manzone Giovanni",
+            "classType": "table red wine",
+            "reportId": "9d2f668c-87e7-4be1-877f-205b3c176d25",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "All extracted checks passed for this label.",
+            "latencyMs": 4155,
+            "issues": {
+              "blocker": 0,
+              "major": 1,
+              "minor": 2,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.85,
+                "applicationValue": "Manzone Giovanni",
+                "extractedValue": "MANZONE",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "table red wine",
+                "extractedValue": "DENOMINAZIONE DI ORIGINE CONTROLLATA E GARANTITA",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "13.5% Alc./Vol.",
+                "extractedValue": "13.5% VOL",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "750 ML",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "CASTELL.BRO - MONFORTE D'ALBA",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.93,
+                "applicationValue": "italy",
+                "extractedValue": "PRODUCT OF ITALY",
+                "comparisonStatus": "case-mismatch"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.38
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": {
+                "status": "pass",
+                "summary": "Vintage claim is paired with an appellation.",
+                "confidence": 0.94
+              },
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "ana-luisa-gran-reserva-parcelas-blend-wine",
+            "filename": "ana-luisa-gran-reserva-parcelas-blend-wine.pdf",
+            "status": "review",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Ana Luisa — Gran Reserva Parcelas Blend",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Ana Luisa",
+              "fancifulName": "Gran Reserva Parcelas Blend",
+              "classType": "table red wine",
+              "alcoholContent": "14% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "Valle De Curico",
+              "vintage": "2023"
+            },
+            "brandName": "Ana Luisa",
+            "classType": "table red wine",
+            "reportId": "f4d813bf-18e1-4625-92a9-2ec33a255baa",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "One or more checks need human review.",
+            "latencyMs": 3605,
+            "issues": {
+              "blocker": 0,
+              "major": 2,
+              "minor": 0,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "Ana Luisa",
+                "extractedValue": "Ana Luisa",
+                "comparisonStatus": "match"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "table red wine",
+                "extractedValue": "PARCELAS BLEND",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "review",
+                "summary": "Could not confirm alcohol content from the label.",
+                "confidence": 0.54,
+                "applicationValue": "14% Alc./Vol.",
+                "extractedValue": null,
+                "comparisonStatus": "value-mismatch"
+              },
+              "net-contents": null,
+              "applicant-address": null,
+              "country-of-origin": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.93,
+                "applicationValue": "chile",
+                "extractedValue": "CHILE",
+                "comparisonStatus": "case-mismatch"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.38
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": {
+                "status": "pass",
+                "summary": "Vintage claim is paired with an appellation.",
+                "confidence": 0.94
+              },
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "carousel-winery-fairy-floss-cotton-candy-wine",
+            "filename": "carousel-winery-fairy-floss-cotton-candy-wine.pdf",
+            "status": "pass",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Carousel Winery — Fairy Floss Cotton Candy",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Carousel Winery",
+              "fancifulName": "Fairy Floss Cotton Candy",
+              "classType": "table flavored wine",
+              "alcoholContent": "9% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "American",
+              "vintage": ""
+            },
+            "brandName": "Carousel Winery",
+            "classType": "table flavored wine",
+            "reportId": "49977413-3b3b-49f3-913c-d3aca3aa492b",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "All extracted checks passed for this label.",
+            "latencyMs": 3084,
+            "issues": {
+              "blocker": 0,
+              "major": 1,
+              "minor": 0,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "Carousel Winery",
+                "extractedValue": "Carousel Winery",
+                "comparisonStatus": "match"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "table flavored wine",
+                "extractedValue": "Sweet White Grape Wine",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "9% Alc./Vol.",
+                "extractedValue": "9% BY VOL",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": null,
+              "applicant-address": null,
+              "country-of-origin": null
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.39
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "venture-studios-null-wine",
+            "filename": "venture-studios-null-wine.pdf",
+            "status": "review",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Venture Studios — null",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Venture Studios",
+              "fancifulName": "",
+              "classType": "table white wine",
+              "alcoholContent": "14% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Venture Studios",
+            "classType": "table white wine",
+            "reportId": "ba98c30d-9f3a-46d8-97e2-a7a0c09d85de",
+            "extractionQualityState": "no-text-extracted",
+            "verdictSecondary": null,
+            "summary": "No text could be extracted from the submitted label image.",
+            "latencyMs": 2843,
+            "issues": {
+              "blocker": 0,
+              "major": 0,
+              "minor": 0,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": null,
+              "class-type": null,
+              "alcohol-content": null,
+              "net-contents": null,
+              "applicant-address": null,
+              "country-of-origin": null
+            },
+            "ruleChecks": {
+              "government-warning": null,
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "sapwood-cellars-albura-lager-malt-beverage",
+            "filename": "sapwood-cellars-albura-lager-malt-beverage.pdf",
+            "status": "pass",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Sapwood Cellars — Albura Lager",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Sapwood Cellars",
+              "fancifulName": "Albura Lager",
+              "classType": "beer",
+              "alcoholContent": "4.6% Alc./Vol.",
+              "netContents": "12 FL OZ",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Sapwood Cellars",
+            "classType": "beer",
+            "reportId": "2df06686-adac-4fe1-b356-5477dfef2e91",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "All extracted checks passed for this label.",
+            "latencyMs": 7306,
+            "issues": {
+              "blocker": 1,
+              "major": 1,
+              "minor": 1,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "review",
+                "summary": "Brand name mismatch: app=\"Sapwood Cellars\" ext=\"ALBURA\"",
+                "confidence": 0.5,
+                "applicationValue": "Sapwood Cellars",
+                "extractedValue": "ALBURA",
+                "comparisonStatus": "value-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "beer",
+                "extractedValue": "Lager",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "4.6% Alc./Vol.",
+                "extractedValue": "4.6% ALC. BY VOL",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "pass",
+                "summary": "Extracted net contents is available for standalone review.",
+                "confidence": 0.9,
+                "applicationValue": null,
+                "extractedValue": "1 PINT",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "COLUMBIA, MD",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": null
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "fail",
+                "summary": "Warning wording does not match the required text.",
+                "confidence": 0.93
+              },
+              "abv-format-permitted": {
+                "status": "pass",
+                "summary": "Alcohol statement uses permitted wording.",
+                "confidence": 0.96
+              },
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "drekker-brewing-company-piano-necktie-malt-beverage",
+            "filename": "drekker-brewing-company-piano-necktie-malt-beverage.pdf",
+            "status": "pass",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Drekker Brewing Company — Piano Necktie",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Drekker Brewing Company",
+              "fancifulName": "Piano Necktie",
+              "classType": "ale",
+              "alcoholContent": "6.5% Alc./Vol.",
+              "netContents": "12 FL OZ",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Drekker Brewing Company",
+            "classType": "ale",
+            "reportId": "efca1bff-6773-42d1-bd1a-e9216363c65c",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "All extracted checks passed for this label.",
+            "latencyMs": 8076,
+            "issues": {
+              "blocker": 1,
+              "major": 0,
+              "minor": 1,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.85,
+                "applicationValue": "Drekker Brewing Company",
+                "extractedValue": "DREKKER",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "ale",
+                "extractedValue": "INDIA PALE ALE",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "6.5% Alc./Vol.",
+                "extractedValue": "6.5% ALC. BY VOL.",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "pass",
+                "summary": "Extracted net contents is available for standalone review.",
+                "confidence": 0.9,
+                "applicationValue": null,
+                "extractedValue": "Net Contents: [X]15.5 U.S. Gattons[_] 5.16 U.S. GALLONS",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "1666 1ST AVENUE NORTH FARGO, ND 58102",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": null
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "fail",
+                "summary": "Warning wording does not match the required text.",
+                "confidence": 0.91
+              },
+              "abv-format-permitted": {
+                "status": "pass",
+                "summary": "Alcohol statement uses permitted wording.",
+                "confidence": 0.96
+              },
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "pilok-broumy-malt-beverage",
+            "filename": "pilok-broumy-malt-beverage.pdf",
+            "status": "pass",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Pilok — Broumy",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Pilok",
+              "fancifulName": "Broumy",
+              "classType": "beer",
+              "alcoholContent": "4.8% Alc./Vol.",
+              "netContents": "12 FL OZ",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Pilok",
+            "classType": "beer",
+            "reportId": "266d9317-0b96-4063-8b45-d112bd3155f1",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "One or more checks need human review.",
+            "latencyMs": 7963,
+            "issues": {
+              "blocker": 0,
+              "major": 1,
+              "minor": 1,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "review",
+                "summary": "Brand name mismatch: app=\"Pilok\" ext=\"Broumy\"",
+                "confidence": 0.5,
+                "applicationValue": "Pilok",
+                "extractedValue": "Broumy",
+                "comparisonStatus": "value-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "beer",
+                "extractedValue": "Lager",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "4.8% Alc./Vol.",
+                "extractedValue": "4.8% ALC/VOL",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "pass",
+                "summary": "Extracted net contents is available for standalone review.",
+                "confidence": 0.9,
+                "applicationValue": null,
+                "extractedValue": "5.28 GAL",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "PRODUCT OF Czechia. IMPORTED BY Lime Ventures, Concord CA",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": {
+                "status": "pass",
+                "summary": "Resolved by judgment: Czechia is the official short-form name for the Czech Republic.",
+                "confidence": 0.95,
+                "applicationValue": "czech republic",
+                "extractedValue": "Czechia\n\nPRODUCED AND PACKAGED",
+                "comparisonStatus": "match"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "pass",
+                "summary": "Warning statement verified via dedicated OCR comparison.",
+                "confidence": 0.93
+              },
+              "abv-format-permitted": {
+                "status": "pass",
+                "summary": "Alcohol statement uses permitted wording.",
+                "confidence": 0.96
+              },
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "1840-original-lager-1840-original-lager-malt-beverage",
+            "filename": "1840-original-lager-1840-original-lager-malt-beverage.pdf",
+            "status": "pass",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "1840 Original Lager — 1840 Original Lager",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "1840 Original Lager",
+              "fancifulName": "1840 Original Lager",
+              "classType": "beer",
+              "alcoholContent": "",
+              "netContents": "12 FL OZ",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "1840 Original Lager",
+            "classType": "beer",
+            "reportId": "39163be3-289d-4d88-89b6-842c278b1ff0",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "All extracted checks passed for this label.",
+            "latencyMs": 8921,
+            "issues": {
+              "blocker": 1,
+              "major": 1,
+              "minor": 1,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "review",
+                "summary": "Brand name mismatch: app=\"1840 Original Lager\" ext=\"Aldus\"",
+                "confidence": 0.5,
+                "applicationValue": "1840 Original Lager",
+                "extractedValue": "Aldus",
+                "comparisonStatus": "value-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "beer",
+                "extractedValue": "Lager",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": null,
+              "net-contents": {
+                "status": "pass",
+                "summary": "Extracted net contents is available for standalone review.",
+                "confidence": 0.9,
+                "applicationValue": null,
+                "extractedValue": "Net Contents: [[]5.16 U.S. Gallons [[]15.5 U.S. Gallons",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "555 Aldus Brewing Co. PA 17331",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": null
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "fail",
+                "summary": "Warning wording does not match the required text.",
+                "confidence": 0.91
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "harpoon-ale-malt-beverage",
+            "filename": "harpoon-ale-malt-beverage.pdf",
+            "status": "pass",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Harpoon — Ale",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Harpoon",
+              "fancifulName": "Ale",
+              "classType": "ale",
+              "alcoholContent": "5% Alc./Vol.",
+              "netContents": "12 FL OZ",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Harpoon",
+            "classType": "ale",
+            "reportId": "abaafab1-42fa-4b13-b83c-01f02299b4b4",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "All extracted checks passed for this label.",
+            "latencyMs": 8059,
+            "issues": {
+              "blocker": 1,
+              "major": 0,
+              "minor": 1,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "Harpoon",
+                "extractedValue": "HARPOON",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "ale",
+                "extractedValue": "ORIGINAL ALE",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "5% Alc./Vol.",
+                "extractedValue": "5.0% ALC/VOL",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "pass",
+                "summary": "Extracted net contents is available for standalone review.",
+                "confidence": 0.9,
+                "applicationValue": null,
+                "extractedValue": "1 PINT",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "BOSTON, MA 02129",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": null
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "fail",
+                "summary": "Warning wording does not match the required text.",
+                "confidence": 0.93
+              },
+              "abv-format-permitted": {
+                "status": "pass",
+                "summary": "Alcohol statement uses permitted wording.",
+                "confidence": 0.96
+              },
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": null
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
