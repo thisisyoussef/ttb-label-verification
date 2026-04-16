@@ -127,6 +127,35 @@ if ! command -v node >/dev/null 2>&1; then
   apt-get install -y --no-install-recommends nodejs
 fi
 
+# Install and start sshd so we can SSH in to read /workspace/bootstrap.log
+# when the app fails to come up. RunPod's SSH docs confirm that the
+# ollama/ollama base image does NOT ship sshd — we have to install it
+# ourselves: https://docs.runpod.io/pods/configuration/use-ssh
+if ! command -v sshd >/dev/null 2>&1 && ! [ -x /usr/sbin/sshd ]; then
+  log "installing openssh-server for debug SSH access"
+  apt-get install -y --no-install-recommends openssh-server
+fi
+
+# Start sshd once, against the injected PUBLIC_KEY (RunPod populates this
+# env var from the account's configured keys). The daemon keeps running in
+# the background and listens on port 22; RunPod exposes it on the Connect
+# tab in the web console.
+if [ -n "${PUBLIC_KEY:-}" ]; then
+  mkdir -p /root/.ssh
+  chmod 700 /root/.ssh
+  if ! grep -qF "${PUBLIC_KEY}" /root/.ssh/authorized_keys 2>/dev/null; then
+    echo "${PUBLIC_KEY}" >> /root/.ssh/authorized_keys
+  fi
+  chmod 600 /root/.ssh/authorized_keys
+  mkdir -p /var/run/sshd
+  if ! pgrep -x sshd >/dev/null 2>&1; then
+    log "starting sshd on port 22"
+    /usr/sbin/sshd -D &
+    SSHD_PID=$!
+    log "sshd pid=${SSHD_PID}"
+  fi
+fi
+
 log "versions:"
 log "  node      $(node -v 2>/dev/null || echo 'missing')"
 log "  npm       $(npm -v 2>/dev/null || echo 'missing')"

@@ -107,10 +107,10 @@ export function Intake({
             </section>
 
             <section className="lg:col-span-7 flex flex-col">
-              <FieldGroupHeading>Declared values from COLA application</FieldGroupHeading>
-              <p className="text-xs text-on-surface-variant/80 font-label mb-3 -mt-1">
-                Enter the declared values from the COLA application. The tool will compare them against
-                what it reads from the label.
+              <FieldGroupHeading>Declared values from the COLA application</FieldGroupHeading>
+              <p className="text-sm text-on-surface-variant font-body mb-3 -mt-1">
+                Enter the declared values from the COLA (Certificate of Label Approval) application.
+                We'll compare them to what we read from the label.
               </p>
 
               {image === null && isFieldsEmpty(fields) ? (

@@ -52,22 +52,22 @@ export function VerdictBanner({
       data-tour-target="tour-verdict-banner"
       title={attribution ?? undefined}
       className={[
-        'flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border-l-4 px-4 py-2.5',
+        'flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border-l-4 px-5 py-4',
         skin.bg,
         skin.border
       ].join(' ')}
     >
-      <div className="flex items-center gap-2.5 min-w-0">
+      <div className="flex items-center gap-3 min-w-0">
         <span
           aria-hidden="true"
-          className={`material-symbols-outlined text-xl ${skin.icon}`}
+          className={`material-symbols-outlined text-3xl ${skin.icon}`}
           style={{ fontVariationSettings: "'FILL' 1" }}
         >
           {copy.icon}
         </span>
         <h2
           className={[
-            'font-headline text-base font-bold tracking-tight whitespace-nowrap',
+            'font-headline text-2xl font-bold tracking-tight whitespace-nowrap',
             skin.text
           ].join(' ')}
         >
@@ -76,7 +76,7 @@ export function VerdictBanner({
       </div>
 
       {secondary ? (
-        <span className="text-xs font-body text-on-surface-variant leading-tight hidden md:inline">
+        <span className="text-sm font-body text-on-surface-variant leading-snug hidden md:inline">
           {secondary}
         </span>
       ) : null}
@@ -84,7 +84,7 @@ export function VerdictBanner({
       <div className="flex-1" />
 
       <div
-        className="flex items-center gap-2.5 text-xs font-label font-bold whitespace-nowrap"
+        className="flex items-center gap-3 text-sm font-label font-semibold whitespace-nowrap"
         aria-label="Check counts"
       >
         <span className={counts.pass > 0 ? 'text-tertiary' : 'text-on-surface-variant/50'}>

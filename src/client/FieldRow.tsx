@@ -44,33 +44,48 @@ export function FieldRow({
         onKeyDown={onKeyNav}
         aria-expanded={expanded}
         aria-controls={panelId}
-        className="w-full flex items-center gap-4 px-6 py-4 text-left hover:bg-surface-container-low/60 transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px]"
+        className="w-full flex items-center gap-4 px-6 py-4 text-left hover:bg-surface-container-low/60 transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] min-h-[56px]"
       >
-        <span
-          aria-hidden="true"
-          className={[
-            'material-symbols-outlined text-on-surface-variant transition-transform duration-200 motion-reduce:transition-none',
-            expanded ? 'rotate-90' : ''
-          ].join(' ')}
-        >
-          chevron_right
-        </span>
         <div className="flex-1 flex flex-col md:flex-row md:items-center gap-1 md:gap-4 min-w-0">
           <span className="md:w-[30%] shrink-0 font-body font-semibold text-on-surface">
             {check.label}
           </span>
           {!standalone ? (
-            <span className="md:w-[25%] shrink-0 font-mono text-xs text-on-surface-variant truncate">
+            <span className="md:w-[25%] shrink-0 font-mono text-sm text-on-surface-variant truncate">
               {check.applicationValue || '—'}
             </span>
           ) : null}
-          <span className="flex-1 font-mono text-xs text-on-surface truncate min-w-0">
+          <span className="flex-1 font-mono text-sm text-on-surface truncate min-w-0">
             {check.extractedValue || '—'}
           </span>
           <span className="shrink-0 flex md:justify-end">
             <StatusBadge status={check.status} size="sm" />
           </span>
         </div>
+        {/*
+          Replace the tiny chevron with an explicit "Show/Hide evidence"
+          affordance. A label pairs with the icon so that users who don't
+          recognize a chevron as "expandable" still see what the row does.
+        */}
+        <span
+          className={[
+            'shrink-0 inline-flex items-center gap-1.5 pl-3 pr-1 text-sm font-label font-semibold transition-colors',
+            expanded ? 'text-primary' : 'text-on-surface-variant'
+          ].join(' ')}
+        >
+          <span className="hidden sm:inline whitespace-nowrap">
+            {expanded ? 'Hide evidence' : 'Show evidence'}
+          </span>
+          <span
+            aria-hidden="true"
+            className={[
+              'material-symbols-outlined text-[22px] transition-transform duration-200 motion-reduce:transition-none',
+              expanded ? 'rotate-90' : ''
+            ].join(' ')}
+          >
+            chevron_right
+          </span>
+        </span>
       </button>
       {expanded ? (
         <div id={panelId} className="border-t border-outline-variant/15 bg-surface-container-low/40">

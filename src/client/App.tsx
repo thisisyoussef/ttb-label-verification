@@ -430,20 +430,29 @@ export function App() {
         onTourShowMe={onTourShowMe}
         onTourShowMeAndContinue={onTourShowMeAndContinue}
       />
-      <AssessorToolbench
-        activeScenarioId={single.scenarioId}
-        activeBatchSeedId={batch.batchSeedId}
-        onSelectScenario={single.onSelectScenario}
-        onSelectBatchSeed={batch.onSelectBatchSeed}
-        onLoadImage={handleToolbenchLoadImage}
-        onLoadCsv={handleToolbenchLoadCsv}
-        mode={mode}
-        extractionMode={extractionMode}
-        onReset={handleToolbenchReset}
-        onSwitchMode={handleToolbenchSwitchMode}
-        onToggleExtraction={(next) => setExtractionMode(next)}
-        onLaunchTour={help.onLaunchTour}
-      />
+      {/*
+        Toolbench is a developer/demo-only surface. In dev (`vite dev`) it's
+        always visible. In production builds it's hidden unless
+        VITE_ENABLE_TOOLBENCH=true is set at build time. This protects the
+        Grandma-test demo from the developer-facing "Provider Override",
+        scenario picker, and other power-user knobs.
+      */}
+      {(import.meta.env.DEV || import.meta.env.VITE_ENABLE_TOOLBENCH === 'true') && (
+        <AssessorToolbench
+          activeScenarioId={single.scenarioId}
+          activeBatchSeedId={batch.batchSeedId}
+          onSelectScenario={single.onSelectScenario}
+          onSelectBatchSeed={batch.onSelectBatchSeed}
+          onLoadImage={handleToolbenchLoadImage}
+          onLoadCsv={handleToolbenchLoadCsv}
+          mode={mode}
+          extractionMode={extractionMode}
+          onReset={handleToolbenchReset}
+          onSwitchMode={handleToolbenchSwitchMode}
+          onToggleExtraction={(next) => setExtractionMode(next)}
+          onLaunchTour={help.onLaunchTour}
+        />
+      )}
     </>
   );
 }

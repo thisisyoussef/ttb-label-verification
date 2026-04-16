@@ -189,8 +189,8 @@ export function AppShell({
           <>
             <BackBreadcrumb
               onBack={single.onNewReview}
-              label="Back to Intake"
-              ariaLabel="Back to intake"
+              label="Start a new check"
+              ariaLabel="Start a new check"
             />
             <Results
               image={single.image}
