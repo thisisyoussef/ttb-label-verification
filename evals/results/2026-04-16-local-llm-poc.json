@@ -1,0 +1,987 @@
+{
+  "generatedAt": "2026-04-16T13:13:39.427Z",
+  "pipeline": "local-llm",
+  "model": "qwen2.5-1.5b-instruct-q4_k_m",
+  "modelPath": "/Users/youss/Development/gauntlet/ttb-label-verification/.models/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+  "fixture": "cola-cloud-all",
+  "modelWarmupMs": 2386,
+  "summary": {
+    "pass": 9,
+    "review": 5,
+    "fail": 11,
+    "error": 3
+  },
+  "latency": {
+    "count": 28,
+    "avg": 13420,
+    "min": 163,
+    "p50": 12674,
+    "p95": 30837,
+    "max": 30962,
+    "ocrAvg": 532,
+    "ocrP95": 1096,
+    "inferenceAvg": 13364,
+    "inferenceP50": 11880,
+    "inferenceP95": 30001,
+    "inferenceMax": 30001
+  },
+  "results": [
+    {
+      "imageId": "persian-empire-black-widow-distilled-spirits",
+      "filename": "persian-empire-black-widow-distilled-spirits.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "review",
+      "status": "review",
+      "latencyMs": 10416,
+      "ocrDurationMs": 315,
+      "inferenceDurationMs": 10098,
+      "ocrTextLength": 203,
+      "extractedBrand": "SPIRITS",
+      "extractedClassType": "spirits",
+      "extractedAlcoholContent": "40% ALC/VOL",
+      "extractedNetContents": "ALEE",
+      "extractedWarningLength": 19,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand name mismatch: app=\"Persian Empire\" ext=\"SPIRITS\""
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    },
+    {
+      "imageId": "persian-empire-arak-distilled-spirits",
+      "filename": "persian-empire-arak-distilled-spirits.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "review",
+      "status": "review",
+      "latencyMs": 12755,
+      "ocrDurationMs": 253,
+      "inferenceDurationMs": 12500,
+      "ocrTextLength": 137,
+      "extractedBrand": "ARAK",
+      "extractedClassType": "ARAK",
+      "extractedAlcoholContent": "ALOOOLS DISTILLES A PARTIR",
+      "extractedNetContents": "DE RAISINS ET D6 RAISINS SECS",
+      "extractedWarningLength": 19,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand name mismatch: app=\"Persian Empire\" ext=\"ARAK\""
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "review",
+          "summary": "Could not parse numeric ABV from one or both values. app=\"40% Alc./Vol.\" ext=\"ALOOOLS DISTILLES A PARTIR\""
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    },
+    {
+      "imageId": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+      "filename": "simply-elegant-simply-elegant-spirits-distilled-spirits.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "review",
+      "status": "review",
+      "latencyMs": 11909,
+      "ocrDurationMs": 417,
+      "inferenceDurationMs": 11490,
+      "ocrTextLength": 116,
+      "extractedBrand": "SPN’ TUCKY=ST RAGE 18",
+      "extractedClassType": "SPN’ TUCKY=ST RAGE 18",
+      "extractedAlcoholContent": "4p 134",
+      "extractedNetContents": "750 ML",
+      "extractedWarningLength": 0,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand name mismatch: app=\"Simply Elegant\" ext=\"SPN’ TUCKY=ST RAGE 18\""
+        },
+        "class-type": {
+          "status": "review",
+          "summary": "Class/type could not be matched: app=\"straight bourbon whisky\" ext=\"SPN’ TUCKY=ST RAGE 18\""
+        },
+        "alcohol-content": {
+          "status": "review",
+          "summary": "Could not parse numeric ABV from one or both values. app=\"67% Alc./Vol.\" ext=\"4p 134\""
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "review"
+    },
+    {
+      "imageId": "crafy-elk-cranberry-blueberry-acai-distilled-spirits",
+      "filename": "crafy-elk-cranberry-blueberry-acai-distilled-spirits.webp",
+      "expectedRecommendation": "approve",
+      "verdict": null,
+      "status": "error",
+      "latencyMs": 30962,
+      "ocrDurationMs": 961,
+      "inferenceDurationMs": 30001,
+      "ocrTextLength": 1340,
+      "extractedBrand": null,
+      "extractedClassType": null,
+      "extractedAlcoholContent": null,
+      "extractedNetContents": null,
+      "extractedWarningLength": 0,
+      "errorMessage": "extractor failed: The local LLM extraction timed out.",
+      "fieldChecks": {},
+      "warningStatus": null
+    },
+    {
+      "imageId": "leitz-rottland-wine",
+      "filename": "leitz-rottland-wine.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "reject",
+      "status": "fail",
+      "latencyMs": 11603,
+      "ocrDurationMs": 219,
+      "inferenceDurationMs": 11382,
+      "ocrTextLength": 67,
+      "extractedBrand": "WEINGUT",
+      "extractedClassType": "Riesling",
+      "extractedAlcoholContent": "2023",
+      "extractedNetContents": "Ly",
+      "extractedWarningLength": 0,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand name mismatch: app=\"Leitz\" ext=\"WEINGUT\""
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "review",
+          "summary": "Could not parse numeric ABV from one or both values. app=\"12.5% Alc./Vol.\" ext=\"2023\""
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "review"
+    },
+    {
+      "imageId": "leitz-magdalenenkreuz-wine",
+      "filename": "leitz-magdalenenkreuz-wine.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "reject",
+      "status": "fail",
+      "latencyMs": 8989,
+      "ocrDurationMs": 214,
+      "inferenceDurationMs": 8774,
+      "ocrTextLength": 79,
+      "extractedBrand": "LEITZ",
+      "extractedClassType": "Riesling",
+      "extractedAlcoholContent": "30% Alc./Vol.",
+      "extractedNetContents": "750 mL",
+      "extractedWarningLength": 0,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "fail",
+          "summary": "ABV difference crosses a wine tax class boundary: app=8% ext=30%"
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "review"
+    },
+    {
+      "imageId": "leitz-klosterlay-wine",
+      "filename": "leitz-klosterlay-wine.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "reject",
+      "status": "fail",
+      "latencyMs": 10273,
+      "ocrDurationMs": 206,
+      "inferenceDurationMs": 10065,
+      "ocrTextLength": 63,
+      "extractedBrand": "CEITZ",
+      "extractedClassType": "Riesling",
+      "extractedAlcoholContent": "12.5% ABV",
+      "extractedNetContents": "1 L",
+      "extractedWarningLength": 0,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand names are close (edit distance 1/5) — may be OCR error."
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "fail",
+          "summary": "ABV differs by 4%: app=8.5% ext=12.5%"
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "review"
+    },
+    {
+      "imageId": "uncorked-in-mayberry-otis-own-wine",
+      "filename": "uncorked-in-mayberry-otis-own-wine.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "approve",
+      "status": "pass",
+      "latencyMs": 10495,
+      "ocrDurationMs": 224,
+      "inferenceDurationMs": 10270,
+      "ocrTextLength": 65,
+      "extractedBrand": "OTIS' OWN",
+      "extractedClassType": "white wine",
+      "extractedAlcoholContent": "12.5% Alc./Vol.",
+      "extractedNetContents": "12 fl oz",
+      "extractedWarningLength": 19,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand name mismatch: app=\"Uncorked In Mayberry\" ext=\"OTIS' OWN\""
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    },
+    {
+      "imageId": "lake-placid-shredder-malt-beverage",
+      "filename": "lake-placid-shredder-malt-beverage.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "approve",
+      "status": "pass",
+      "latencyMs": 12300,
+      "ocrDurationMs": 425,
+      "inferenceDurationMs": 11873,
+      "ocrTextLength": 405,
+      "extractedBrand": "LAKE PLACID",
+      "extractedClassType": "IPA",
+      "extractedAlcoholContent": "40% Alc./Vol.",
+      "extractedNetContents": "750 mL",
+      "extractedWarningLength": 95,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "pass",
+          "summary": "Extracted alcohol content is available for standalone review."
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    },
+    {
+      "imageId": "lake-placid-ridge-runner-malt-beverage",
+      "filename": "lake-placid-ridge-runner-malt-beverage.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "reject",
+      "status": "fail",
+      "latencyMs": 11623,
+      "ocrDurationMs": 398,
+      "inferenceDurationMs": 11224,
+      "ocrTextLength": 305,
+      "extractedBrand": "ASSHEXOVM",
+      "extractedClassType": "vodka",
+      "extractedAlcoholContent": "40% Alc./Vol.",
+      "extractedNetContents": "12 fl oz",
+      "extractedWarningLength": 52,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand name mismatch: app=\"Lake Placid\" ext=\"ASSHEXOVM\""
+        },
+        "class-type": {
+          "status": "review",
+          "summary": "Class/type could not be matched: app=\"ale\" ext=\"vodka\""
+        },
+        "alcohol-content": {
+          "status": "fail",
+          "summary": "ABV differs by 36%: app=4% ext=40%"
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    },
+    {
+      "imageId": "recluse-brew-works-shy-guy-malt-beverage",
+      "filename": "recluse-brew-works-shy-guy-malt-beverage.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "reject",
+      "status": "fail",
+      "latencyMs": 13040,
+      "ocrDurationMs": 562,
+      "inferenceDurationMs": 12477,
+      "ocrTextLength": 526,
+      "extractedBrand": "Recluse Brew Works",
+      "extractedClassType": "beer",
+      "extractedAlcoholContent": "40% Alc./Vol.",
+      "extractedNetContents": "1 pint",
+      "extractedWarningLength": 70,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "fail",
+          "summary": "ABV differs by 33.5%: app=6.5% ext=40%"
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    },
+    {
+      "imageId": "pleasant-prairie-brewing-peach-sour-ale-malt-beverage",
+      "filename": "pleasant-prairie-brewing-peach-sour-ale-malt-beverage.webp",
+      "expectedRecommendation": "approve",
+      "verdict": null,
+      "status": "error",
+      "latencyMs": 30837,
+      "ocrDurationMs": 836,
+      "inferenceDurationMs": 30001,
+      "ocrTextLength": 807,
+      "extractedBrand": null,
+      "extractedClassType": null,
+      "extractedAlcoholContent": null,
+      "extractedNetContents": null,
+      "extractedWarningLength": 0,
+      "errorMessage": "extractor failed: The local LLM extraction timed out.",
+      "fieldChecks": {},
+      "warningStatus": null
+    },
+    {
+      "imageId": "crafty-elk-mango-honey-distilled-spirits",
+      "filename": "crafty-elk-mango-honey-distilled-spirits.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "approve",
+      "status": "pass",
+      "latencyMs": 20021,
+      "ocrDurationMs": 1013,
+      "inferenceDurationMs": 19004,
+      "ocrTextLength": 944,
+      "extractedBrand": "ORGANIC VODKA",
+      "extractedClassType": "ORGANIC VODKA",
+      "extractedAlcoholContent": "4.5% ALC. BY VOL.",
+      "extractedNetContents": "12 FLOZ (355 mL)",
+      "extractedWarningLength": 318,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand name mismatch: app=\"Crafty Elk\" ext=\"ORGANIC VODKA\""
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    },
+    {
+      "imageId": "the-wine-trust-rum-distilled-spirits",
+      "filename": "the-wine-trust-rum-distilled-spirits.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "approve",
+      "status": "pass",
+      "latencyMs": 13620,
+      "ocrDurationMs": 552,
+      "inferenceDurationMs": 13066,
+      "ocrTextLength": 407,
+      "extractedBrand": "the wine trust",
+      "extractedClassType": "rum",
+      "extractedAlcoholContent": "60% by vol.",
+      "extractedNetContents": "700ml",
+      "extractedWarningLength": 283,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    },
+    {
+      "imageId": "flaviar-columbia-creek-tennessee-whiskey-distilled-spirits",
+      "filename": "flaviar-columbia-creek-tennessee-whiskey-distilled-spirits.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "approve",
+      "status": "pass",
+      "latencyMs": 14316,
+      "ocrDurationMs": 572,
+      "inferenceDurationMs": 13743,
+      "ocrTextLength": 473,
+      "extractedBrand": "TENNESSEE WHISKEY",
+      "extractedClassType": "whisky",
+      "extractedAlcoholContent": "47.8% Alc./Vol.",
+      "extractedNetContents": "1 L",
+      "extractedWarningLength": 109,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand name mismatch: app=\"Flaviar\" ext=\"TENNESSEE WHISKEY\""
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    },
+    {
+      "imageId": "old-station-31-orange-distilled-spirits",
+      "filename": "old-station-31-orange-distilled-spirits.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "review",
+      "status": "review",
+      "latencyMs": 9345,
+      "ocrDurationMs": 230,
+      "inferenceDurationMs": 9114,
+      "ocrTextLength": 42,
+      "extractedBrand": "N/A",
+      "extractedClassType": "N/A",
+      "extractedAlcoholContent": "N/A",
+      "extractedNetContents": "N/A",
+      "extractedWarningLength": 3,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand name mismatch: app=\"Old Station 31\" ext=\"N/A\""
+        },
+        "class-type": {
+          "status": "review",
+          "summary": "Class/type could not be matched: app=\"vodka - orange flavored\" ext=\"N/A\""
+        },
+        "alcohol-content": {
+          "status": "review",
+          "summary": "Could not parse numeric ABV from one or both values. app=\"40% Alc./Vol.\" ext=\"N/A\""
+        },
+        "net-contents": {
+          "status": "review",
+          "summary": "Low extraction confidence."
+        }
+      },
+      "warningStatus": "review"
+    },
+    {
+      "imageId": "west-peak-tequila-paloma-distilled-spirits",
+      "filename": "west-peak-tequila-paloma-distilled-spirits.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "approve",
+      "status": "pass",
+      "latencyMs": 13349,
+      "ocrDurationMs": 1040,
+      "inferenceDurationMs": 12308,
+      "ocrTextLength": 941,
+      "extractedBrand": "West Peak",
+      "extractedClassType": "Tequila",
+      "extractedAlcoholContent": "6%",
+      "extractedNetContents": "412 fl oz",
+      "extractedWarningLength": 231,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "class-type": {
+          "status": "review",
+          "summary": "Class/type could not be matched: app=\"other specialties & proprietaries\" ext=\"Tequila\""
+        },
+        "alcohol-content": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    },
+    {
+      "imageId": "stormwood-wines-semillon-wine",
+      "filename": "stormwood-wines-semillon-wine.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "reject",
+      "status": "fail",
+      "latencyMs": 9770,
+      "ocrDurationMs": 248,
+      "inferenceDurationMs": 9522,
+      "ocrTextLength": 39,
+      "extractedBrand": "STORMWOOD",
+      "extractedClassType": "Semillon",
+      "extractedAlcoholContent": "2025",
+      "extractedNetContents": "2025",
+      "extractedWarningLength": 0,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "review",
+          "summary": "Could not parse numeric ABV from one or both values. app=\"13% Alc./Vol.\" ext=\"2025\""
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "review"
+    },
+    {
+      "imageId": "forlorn-hope-san-hercurmer-delle-frecce-wine",
+      "filename": "forlorn-hope-san-hercurmer-delle-frecce-wine.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "reject",
+      "status": "fail",
+      "latencyMs": 12674,
+      "ocrDurationMs": 794,
+      "inferenceDurationMs": 11880,
+      "ocrTextLength": 548,
+      "extractedBrand": "Suuajqoid jeay asneo Aew pue Auauiypew aye.",
+      "extractedClassType": "wine",
+      "extractedAlcoholContent": "31% Alc./Vol.",
+      "extractedNetContents": "1 L",
+      "extractedWarningLength": 51,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand name mismatch: app=\"Forlorn Hope\" ext=\"Suuajqoid jeay asneo Aew pue Auauiypew aye.\""
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "fail",
+          "summary": "ABV difference crosses a wine tax class boundary: app=12.5% ext=31%"
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    },
+    {
+      "imageId": "manzone-giovanni-barolo-perno-wine",
+      "filename": "manzone-giovanni-barolo-perno-wine.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "reject",
+      "status": "fail",
+      "latencyMs": 11591,
+      "ocrDurationMs": 224,
+      "inferenceDurationMs": 11365,
+      "ocrTextLength": 40,
+      "extractedBrand": "D B A:R’~@ L O",
+      "extractedClassType": "Lager",
+      "extractedAlcoholContent": "40% Alc./Vol.",
+      "extractedNetContents": "750 mL",
+      "extractedWarningLength": 0,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand name mismatch: app=\"Manzone Giovanni\" ext=\"D B A:R’~@ L O\""
+        },
+        "class-type": {
+          "status": "review",
+          "summary": "Class/type could not be matched: app=\"table red wine\" ext=\"Lager\""
+        },
+        "alcohol-content": {
+          "status": "fail",
+          "summary": "ABV difference crosses a wine tax class boundary: app=13.5% ext=40%"
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "review"
+    },
+    {
+      "imageId": "ana-luisa-gran-reserva-parcelas-blend-wine",
+      "filename": "ana-luisa-gran-reserva-parcelas-blend-wine.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "review",
+      "status": "review",
+      "latencyMs": 10924,
+      "ocrDurationMs": 472,
+      "inferenceDurationMs": 10451,
+      "ocrTextLength": 65,
+      "extractedBrand": "GRAN RESERVA",
+      "extractedClassType": "red wine",
+      "extractedAlcoholContent": "2023",
+      "extractedNetContents": "2023",
+      "extractedWarningLength": 0,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand name mismatch: app=\"Ana Luisa\" ext=\"GRAN RESERVA\""
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "review",
+          "summary": "Could not parse numeric ABV from one or both values. app=\"14% Alc./Vol.\" ext=\"2023\""
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "review"
+    },
+    {
+      "imageId": "carousel-winery-fairy-floss-cotton-candy-wine",
+      "filename": "carousel-winery-fairy-floss-cotton-candy-wine.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "approve",
+      "status": "pass",
+      "latencyMs": 10633,
+      "ocrDurationMs": 310,
+      "inferenceDurationMs": 10322,
+      "ocrTextLength": 109,
+      "extractedBrand": "Sweet White Grape Wine",
+      "extractedClassType": "White Grape Wine",
+      "extractedAlcoholContent": "9% Alc./Vol.",
+      "extractedNetContents": "With natural flavors and certified color",
+      "extractedWarningLength": 19,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand name mismatch: app=\"Carousel Winery\" ext=\"Sweet White Grape Wine\""
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    },
+    {
+      "imageId": "venture-studios-null-wine",
+      "filename": "venture-studios-null-wine.webp",
+      "expectedRecommendation": "approve",
+      "verdict": null,
+      "status": "error",
+      "latencyMs": 163,
+      "ocrDurationMs": 163,
+      "inferenceDurationMs": 0,
+      "ocrTextLength": 0,
+      "extractedBrand": null,
+      "extractedClassType": null,
+      "extractedAlcoholContent": null,
+      "extractedNetContents": null,
+      "extractedWarningLength": 0,
+      "errorMessage": "ocr failed: no-text-extracted",
+      "fieldChecks": {},
+      "warningStatus": null
+    },
+    {
+      "imageId": "sapwood-cellars-albura-lager-malt-beverage",
+      "filename": "sapwood-cellars-albura-lager-malt-beverage.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "reject",
+      "status": "fail",
+      "latencyMs": 13718,
+      "ocrDurationMs": 676,
+      "inferenceDurationMs": 13039,
+      "ocrTextLength": 809,
+      "extractedBrand": "Sapwood Cellars & Albura Taqueria",
+      "extractedClassType": "Mexican-style Corn Lager",
+      "extractedAlcoholContent": "4.6% ALC. BY VOL",
+      "extractedNetContents": "1 PINT",
+      "extractedWarningLength": 112,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    },
+    {
+      "imageId": "drekker-brewing-company-piano-necktie-malt-beverage",
+      "filename": "drekker-brewing-company-piano-necktie-malt-beverage.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "approve",
+      "status": "pass",
+      "latencyMs": 17304,
+      "ocrDurationMs": 1096,
+      "inferenceDurationMs": 16207,
+      "ocrTextLength": 1003,
+      "extractedBrand": "INDIA PALE ALE",
+      "extractedClassType": "ale",
+      "extractedAlcoholContent": "6.5% BY VOL.",
+      "extractedNetContents": "5.16 U.S. GALLONS",
+      "extractedWarningLength": 278,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand name mismatch: app=\"Drekker Brewing Company\" ext=\"INDIA PALE ALE\""
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    },
+    {
+      "imageId": "pilok-broumy-malt-beverage",
+      "filename": "pilok-broumy-malt-beverage.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "reject",
+      "status": "fail",
+      "latencyMs": 13134,
+      "ocrDurationMs": 549,
+      "inferenceDurationMs": 12585,
+      "ocrTextLength": 439,
+      "extractedBrand": "Broumy",
+      "extractedClassType": "lager",
+      "extractedAlcoholContent": "4.8% ALC/VOL",
+      "extractedNetContents": "5.28 GAL",
+      "extractedWarningLength": 283,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand name mismatch: app=\"Pilok\" ext=\"Broumy\""
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    },
+    {
+      "imageId": "1840-original-lager-1840-original-lager-malt-beverage",
+      "filename": "1840-original-lager-1840-original-lager-malt-beverage.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "approve",
+      "status": "pass",
+      "latencyMs": 14744,
+      "ocrDurationMs": 1132,
+      "inferenceDurationMs": 13612,
+      "ocrTextLength": 741,
+      "extractedBrand": "Aldus Brewing Co.",
+      "extractedClassType": "lager",
+      "extractedAlcoholContent": "1840 Original Lager",
+      "extractedNetContents": "5.16 U.S. Gallons",
+      "extractedWarningLength": 283,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "review",
+          "summary": "Brand name mismatch: app=\"1840 Original Lager\" ext=\"Aldus Brewing Co.\""
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "pass",
+          "summary": "Extracted alcohol content is available for standalone review."
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    },
+    {
+      "imageId": "harpoon-ale-malt-beverage",
+      "filename": "harpoon-ale-malt-beverage.webp",
+      "expectedRecommendation": "approve",
+      "verdict": "reject",
+      "status": "fail",
+      "latencyMs": 15264,
+      "ocrDurationMs": 801,
+      "inferenceDurationMs": 14462,
+      "ocrTextLength": 980,
+      "extractedBrand": "Harpoon Ale",
+      "extractedClassType": "Ale",
+      "extractedAlcoholContent": "40%",
+      "extractedNetContents": "1 Pint (16 fl oz)",
+      "extractedWarningLength": 61,
+      "errorMessage": null,
+      "fieldChecks": {
+        "brand-name": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "class-type": {
+          "status": "pass",
+          "summary": "Matches the application value."
+        },
+        "alcohol-content": {
+          "status": "fail",
+          "summary": "ABV differs by 35%: app=5% ext=40%"
+        },
+        "net-contents": {
+          "status": "pass",
+          "summary": "Extracted net contents is available for standalone review."
+        }
+      },
+      "warningStatus": "fail"
+    }
+  ]
+}
