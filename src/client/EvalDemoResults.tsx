@@ -44,9 +44,42 @@ function statusBadge(status: BatchItemStatus) {
   }
 }
 
+// We target consistent <5s per-label latency. The eval surfaces a warning
+// indicator on any row that crossed this budget so slow labels are easy
+// to spot at a glance.
+const LATENCY_WARNING_THRESHOLD_MS = 5000;
+
 function formatLatency(ms: number): string {
   if (ms < 1000) return `${ms}ms`;
   return `${(ms / 1000).toFixed(1)}s`;
+}
+
+function LatencyCell({ ms }: { ms: number | null | undefined }) {
+  if (ms == null) {
+    return <span className="text-on-surface-variant">—</span>;
+  }
+  const overBudget = ms > LATENCY_WARNING_THRESHOLD_MS;
+  return (
+    <span
+      className={
+        overBudget
+          ? 'inline-flex items-center gap-1 font-semibold text-error'
+          : 'text-on-surface'
+      }
+      title={
+        overBudget
+          ? `Exceeded ${LATENCY_WARNING_THRESHOLD_MS / 1000}s target latency`
+          : undefined
+      }
+    >
+      {overBudget ? (
+        <span aria-hidden="true" className="inline-block">
+          ⚠
+        </span>
+      ) : null}
+      {formatLatency(ms)}
+    </span>
+  );
 }
 
 export function EvalDemoResults(props: EvalDemoResultsProps) {
@@ -139,8 +172,8 @@ export function EvalDemoResults(props: EvalDemoResultsProps) {
                   ) : null}
                 </td>
                 <td className="px-3 py-2">{statusBadge(row.status)}</td>
-                <td className="px-3 py-2 text-right font-mono text-xs text-on-surface">
-                  {formatLatency(row.latencyMs)}
+                <td className="px-3 py-2 text-right font-mono text-xs">
+                  <LatencyCell ms={row.latencyMs} />
                 </td>
                 <td className="px-3 py-2 text-right">
                   {row.reportId ? (

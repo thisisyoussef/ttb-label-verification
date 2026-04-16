@@ -263,9 +263,7 @@ export function Processing({
               </button>
             </div>
           </div>
-        ) : (
-          <ReportSkeleton />
-        )}
+        ) : null}
       </section>
     </div>
   );
@@ -380,63 +378,3 @@ function StepIcon({
   );
 }
 
-function SkeletonBar({
-  className,
-  style
-}: {
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <div
-      className={[
-        'rounded bg-surface-container-highest/60 skeleton-shimmer',
-        className
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      style={style}
-    />
-  );
-}
-
-function ReportSkeleton() {
-  return (
-    <div
-      className="max-w-3xl mt-2 flex flex-col gap-5"
-      aria-hidden="true"
-      role="presentation"
-    >
-      {/* Verdict banner skeleton */}
-      <div className="rounded-lg border-l-4 border-outline-variant/25 bg-surface-container-low/50 p-6 flex items-center gap-4">
-        <SkeletonBar className="w-12 h-12 rounded flex-shrink-0" />
-        <div className="flex flex-col gap-2 flex-1">
-          <SkeletonBar className="h-5 w-56" />
-          <SkeletonBar className="h-3 w-36" />
-        </div>
-      </div>
-
-      {/* Field row skeletons — five rows matching the typical check count */}
-      <div className="flex flex-col gap-3">
-        {[0.92, 0.78, 1, 0.85, 0.7].map((widthFraction, index) => (
-          <div
-            key={index}
-            className="rounded-lg bg-surface-container-low/40 p-4 flex items-center gap-4"
-          >
-            <SkeletonBar className="w-8 h-8 rounded-full flex-shrink-0" />
-            <SkeletonBar
-              className="h-4"
-              style={{ width: `${widthFraction * 100}%` }}
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* Footer action bar skeleton */}
-      <div className="flex items-center gap-3 pt-3 border-t border-outline-variant/15">
-        <SkeletonBar className="h-10 w-32 rounded-lg" />
-        <SkeletonBar className="h-10 w-28 rounded-lg" />
-      </div>
-    </div>
-  );
-}
