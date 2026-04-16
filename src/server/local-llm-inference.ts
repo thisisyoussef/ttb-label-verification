@@ -12,13 +12,20 @@ import type {
   LocalLlmReviewExtractionConfig
 } from './local-llm-review-extractor';
 
-type LlamaModule = typeof import('node-llama-cpp');
+// node-llama-cpp is an optional dependency — only installed on workstations
+// that run the node-llama-cpp-based local LLM pipeline. Production deployments
+// use Ollama (src/server/ollama-vlm-review-extractor.ts) and don't need this
+// module. The type is kept loose so the file type-checks even when the
+// package isn't installed in CI.
+//
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type LlamaModule = any;
 
 interface CachedInstance {
-  llama: Awaited<ReturnType<LlamaModule['getLlama']>>;
-  model: Awaited<
-    ReturnType<Awaited<ReturnType<LlamaModule['getLlama']>>['loadModel']>
-  >;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  llama: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  model: any;
   modelPath: string;
   contextSize: number;
 }
@@ -42,7 +49,7 @@ async function getOrCreateInstance(
   }
 
   loading = (async () => {
-    const llamaMod = (await import('node-llama-cpp')) as LlamaModule;
+    const llamaMod = (await (await import('node-llama-cpp' as any)) ) as LlamaModule;
     const llama = await llamaMod.getLlama();
     const model = await llama.loadModel({ modelPath: config.modelPath });
     cached = {
@@ -67,7 +74,7 @@ export function createLocalLlmInferenceFn(
 ): LocalLlmInferenceFn {
   return async ({ prompt, maxTokens, jsonSchema }) => {
     const instance = await getOrCreateInstance(config);
-    const llamaMod = (await import('node-llama-cpp')) as LlamaModule;
+    const llamaMod = (await (await import('node-llama-cpp' as any)) ) as LlamaModule;
     const { LlamaChatSession } = llamaMod;
 
     // Build a grammar from the JSON schema so the model is forced to return valid JSON.
