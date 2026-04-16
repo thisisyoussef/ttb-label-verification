@@ -11,6 +11,7 @@ import {
   DEFAULT_EXTRACTION_MODE,
   type ExtractionMode
 } from './ai-provider-policy';
+import { runBootWarmup } from './boot-warmup';
 import {
   createConfiguredReviewExtractor,
   type ReviewExtractorProviderFactories
@@ -44,7 +45,39 @@ type CreateAppOptions = {
   enableCrossModeFallback?: boolean;
 };
 
+// Module-level cache so repeated createApp() calls in the same process
+// (e.g. the eval runner spinning up in-process) only warm once.
+let bootWarmupPromise: Promise<void> | null = null;
+
+function kickOffBootWarmup() {
+  if (bootWarmupPromise) return bootWarmupPromise;
+  if (process.env.TTB_BOOT_WARMUP?.trim().toLowerCase() === 'disabled') {
+    bootWarmupPromise = Promise.resolve();
+    return bootWarmupPromise;
+  }
+  bootWarmupPromise = runBootWarmup()
+    .then((result) => {
+      // Keep the log single-line so it is easy to grep in eval output.
+      // eslint-disable-next-line no-console
+      console.info(
+        `[boot-warmup] tesseract=${result.tesseract.ok ? `ok ${result.tesseract.durationMs}ms` : 'skipped'} ` +
+          `sharp=${result.sharp.ok ? `ok ${result.sharp.durationMs}ms` : 'skipped'} ` +
+          `ocr=${result.ocrPipeline.ok ? `ok ${result.ocrPipeline.durationMs}ms` : 'skipped'} ` +
+          `total=${result.totalDurationMs}ms`
+      );
+    })
+    .catch((error: unknown) => {
+      // eslint-disable-next-line no-console
+      console.warn(`[boot-warmup] failed: ${(error as Error).message}`);
+    });
+  return bootWarmupPromise;
+}
+
 export function createApp(options: CreateAppOptions = {}) {
+  // Fire-and-forget — we do not block createApp on warmup because tests
+  // should not pay a 500ms+ cost. In the eval runner the warmup finishes
+  // well before the first label call (batch setup takes hundreds of ms).
+  kickOffBootWarmup();
   const app = express();
   const clientDistDir = options.clientDistDir ?? defaultClientDistDir;
   const latencyObserver = mergeReviewLatencyObservers(
@@ -105,8 +138,13 @@ if (process.env.NODE_ENV !== 'test') {
   const app = createApp();
   const port = Number(process.env.PORT ?? 8787);
 
-  app.listen(port, () => {
-    console.log(`TTB label verification API listening on http://localhost:${port}`);
+  // createApp already kicked off warmup; wait for it before accepting traffic
+  // so the first inbound label never pays the cold-start penalty. If warmup
+  // is disabled the promise resolves immediately.
+  (bootWarmupPromise ?? Promise.resolve()).finally(() => {
+    app.listen(port, () => {
+      console.log(`TTB label verification API listening on http://localhost:${port}`);
+    });
   });
 }
 
