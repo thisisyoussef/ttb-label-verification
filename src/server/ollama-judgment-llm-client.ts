@@ -23,6 +23,10 @@ type JudgmentLlmClient = {
 const DEFAULT_OLLAMA_HOST = 'http://127.0.0.1:11434';
 const DEFAULT_OLLAMA_JUDGMENT_MODEL = 'qwen2.5:1.5b-instruct';
 const DEFAULT_OLLAMA_JUDGMENT_TIMEOUT_MS = 10000;
+// Keep the small judgment LLM resident between calls so alternating between
+// the VLM and the judgment model does not trigger a 10-20s reload each time.
+// Override with OLLAMA_JUDGMENT_KEEP_ALIVE (e.g. "30m", "-1" for always).
+const DEFAULT_OLLAMA_JUDGMENT_KEEP_ALIVE = '30m';
 
 export function createOllamaJudgmentClient(
   env: Record<string, string | undefined> = process.env
@@ -38,6 +42,8 @@ export function createOllamaJudgmentClient(
     env.OLLAMA_JUDGMENT_TIMEOUT_MS,
     DEFAULT_OLLAMA_JUDGMENT_TIMEOUT_MS
   );
+  const keepAlive =
+    env.OLLAMA_JUDGMENT_KEEP_ALIVE?.trim() || DEFAULT_OLLAMA_JUDGMENT_KEEP_ALIVE;
 
   return {
     async complete(system: string, user: string): Promise<string> {
@@ -59,6 +65,7 @@ export function createOllamaJudgmentClient(
               ],
               stream: false,
               format: 'json',
+              keep_alive: keepAlive,
               options: {
                 temperature: 0,
                 num_predict: 512
