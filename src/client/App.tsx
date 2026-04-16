@@ -394,8 +394,6 @@ export function App() {
     return (
       <AuthScreen
         phase={authPhase}
-        extractionMode={extractionMode}
-        onExtractionModeChange={setExtractionMode}
         onStartPiv={() => setAuthPhase('piv-loading')}
         onStartSsoForm={() => setAuthPhase('sso-form')}
         onBackFromSso={() => setAuthPhase('signed-out')}

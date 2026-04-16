@@ -91,13 +91,26 @@ export function deriveWeightedVerdict(input: WeightedVerdictInput): WeightedVerd
       const tier = getTier(check.id);
       if (tier === 'critical' || tier === 'high') {
         if (check.id === 'government-warning') {
-          const ext = (check.extractedValue ?? check.comparison?.extractedValue ?? '').toUpperCase();
+          const appRaw = (check.applicationValue ?? check.comparison?.applicationValue ?? '').trim();
+          const extRaw = (check.extractedValue ?? check.comparison?.extractedValue ?? '').trim();
+          const ext = extRaw.toUpperCase();
+          const appEmpty = !appRaw || appRaw === '?';
+          const extEmpty = !extRaw || extRaw === '?';
+
+          // "Warning not in this photo" — both sides empty. The VLM may have
+          // flagged a visual-formatting sub-check as a defect ("no heading
+          // in all caps") purely because there's NO warning to assess on
+          // this face of the label. Downgrade to review so a reviewer can
+          // check the back label.
+          if (appEmpty && extEmpty) {
+            continue;
+          }
+
+          // Garbled OCR extraction — anchor words present but confidence is
+          // low. Treat as review rather than auto-reject.
           const hasAnchorWords = ext.includes('GOVERNMENT WARNING') || ext.includes('SURGEON GENERAL');
           const lowConfidenceDefect = check.confidence < 0.7;
           if (hasAnchorWords && lowConfidenceDefect) {
-            // Warning is present but extraction is noisy — treat as review,
-            // not reject. A human reviewer should confirm whether the defect
-            // is real or an OCR artifact.
             continue;
           }
         }

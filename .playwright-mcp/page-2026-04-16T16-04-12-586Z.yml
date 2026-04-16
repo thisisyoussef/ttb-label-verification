@@ -1,0 +1,29 @@
+- generic [ref=e3]:
+  - region "Government website banner" [ref=e4]:
+    - generic [ref=e5]:
+      - paragraph [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]: science
+          - text: Prototype
+        - generic [ref=e9]: Not an official U.S. government website — this is a demo of an internal tool.
+      - button "What would appear here" [ref=e10] [cursor=pointer]:
+        - text: What would appear here
+        - generic [ref=e11]: expand_more
+  - main [ref=e12]:
+    - main "TTB Label Verification System" [ref=e13]:
+      - generic [ref=e14]:
+        - heading "TTB Label Verification System" [level=1] [ref=e15]
+        - paragraph [ref=e16]: Alcohol Labeling and Formulation Division — Internal Use Only.
+      - generic [ref=e19]:
+        - button "Sign in with PIV / CAC Card" [ref=e20] [cursor=pointer]:
+          - generic [ref=e21]: badge
+          - text: Sign in with PIV / CAC Card
+        - button "Sign in with Treasury SSO" [ref=e22] [cursor=pointer]:
+          - generic [ref=e23]: key
+          - text: Sign in with Treasury SSO
+        - paragraph [ref=e24]:
+          - generic [ref=e25]: info
+          - text: Mock auth — either path simulates success. No real credentials are checked.
+      - generic [ref=e26]:
+        - paragraph [ref=e27]: This is a prototype. It is not a production Treasury system.
+        - paragraph [ref=e28]: Every path below is simulated. Any card, user ID, or input will pass through into the demo app.

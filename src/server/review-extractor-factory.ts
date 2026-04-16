@@ -9,6 +9,7 @@ import {
   type AiProvider,
   type ExtractionMode
 } from './ai-provider-policy';
+import { logServerEvent } from './server-events';
 import {
   createGeminiReviewExtractor,
   readGeminiReviewExtractionConfig

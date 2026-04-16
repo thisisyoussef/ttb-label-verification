@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ExtractionMode } from './appTypes';
 import type { AuthPhase } from './authState';
 import { getAuthAutoAdvanceDelay } from './authState';
 import { AuthScreenCardBody } from './AuthScreenCardBody';
@@ -8,8 +7,6 @@ import { AuthScreenGovernmentBanner } from './AuthScreenGovernmentBanner';
 interface AuthScreenProps {
   phase: AuthPhase;
   sessionExpired?: boolean;
-  extractionMode: ExtractionMode;
-  onExtractionModeChange: (mode: ExtractionMode) => void;
   onStartPiv: () => void;
   onStartSsoForm: () => void;
   onBackFromSso: () => void;
@@ -20,8 +17,6 @@ interface AuthScreenProps {
 export function AuthScreen({
   phase,
   sessionExpired,
-  extractionMode,
-  onExtractionModeChange,
   onStartPiv,
   onStartSsoForm,
   onBackFromSso,
@@ -103,15 +98,12 @@ export function AuthScreen({
             <AuthScreenCardBody
               phase={phase}
               userId={userId}
-              extractionMode={extractionMode}
-              onExtractionModeChange={onExtractionModeChange}
               onUserIdChange={setUserId}
               userIdRef={userIdRef}
               onStartPiv={onStartPiv}
               onStartSsoForm={onStartSsoForm}
               onBackFromSso={onBackFromSso}
               onSsoSubmit={handleSsoSubmit}
-              onContinue={onPhaseComplete}
             />
           </div>
           <footer className="px-8 pb-8 flex flex-col gap-1.5">

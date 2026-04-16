@@ -1,0 +1,63 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - heading "TTB Eval Demo" [level=1] [ref=e7]
+        - paragraph [ref=e8]: Stakeholder / QA demo — run a golden set pack and watch results stream in.
+      - generic [ref=e9]:
+        - generic [ref=e10]: Model
+        - generic [ref=e11]: Gemini (cloud)
+  - main [ref=e12]:
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - heading "Configuration" [level=2] [ref=e16]
+          - paragraph [ref=e17]: Pick a golden set pack and provider, then run the live eval.
+        - generic [ref=e18]:
+          - button "Reset" [ref=e19] [cursor=pointer]
+          - button "Run eval" [ref=e20] [cursor=pointer]
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - generic [ref=e23]: Golden set pack
+          - combobox [ref=e24]:
+            - option "COLA Cloud All (28)"
+            - option "COLA Cloud Spirits (9)"
+            - option "COLA Cloud Wine (10)"
+            - option "COLA Cloud Malt Beverage (9)"
+            - option "COLA Cloud Mixed (3)" [selected]
+            - option "Supplemental Negative (7)"
+            - option "Supplemental Negative Reject (5)"
+            - option "COLA Cloud Mixed Negative (6)"
+          - paragraph [ref=e25]: Mixed real-label sample across all three beverage types.
+        - generic [ref=e26]:
+          - generic [ref=e27]: Provider
+          - generic [ref=e28]:
+            - generic [ref=e29] [cursor=pointer]:
+              - radio "Cloud — Gemini 2.x VLM Hosted Gemini via the server AI_PROVIDER=gemini path." [checked] [ref=e30]
+              - generic [ref=e31]:
+                - generic [ref=e32]: Cloud — Gemini 2.x VLM
+                - generic [ref=e33]: Hosted Gemini via the server AI_PROVIDER=gemini path.
+            - generic [ref=e34] [cursor=pointer]:
+              - radio "Local — Qwen2.5-VL-3B (local) Ollama VLM. Requires AI_PROVIDER=local on the server." [ref=e35]
+              - generic [ref=e36]:
+                - generic [ref=e37]: Local — Qwen2.5-VL-3B (local)
+                - generic [ref=e38]: Ollama VLM. Requires AI_PROVIDER=local on the server.
+        - generic [ref=e39]:
+          - generic [ref=e40]:
+            - generic [ref=e41] [cursor=pointer]:
+              - checkbox "LLM judgment layer Run the OpenAI-based judgment pass after field extraction." [checked] [ref=e42]
+              - generic [ref=e43]:
+                - generic [ref=e44]: LLM judgment layer
+                - generic [ref=e45]: Run the OpenAI-based judgment pass after field extraction.
+            - generic [ref=e46] [cursor=pointer]:
+              - checkbox "OCR prepass Run Tesseract OCR prepass before VLM extraction." [checked] [ref=e47]
+              - generic [ref=e48]:
+                - generic [ref=e49]: OCR prepass
+                - generic [ref=e50]: Run Tesseract OCR prepass before VLM extraction.
+          - paragraph [ref=e51]:
+            - text: Toggles are informational — the actual provider + judgment + OCR behavior is controlled by the server's environment (
+            - code [ref=e52]: AI_PROVIDER
+            - text: ", judgment wiring, OCR config). The UI records the chosen configuration for demo context."
+    - generic [ref=e53]:
+      - text: "Eval demo — ephemeral, no persistence. Session ID:"
+      - code [ref=e54]: —

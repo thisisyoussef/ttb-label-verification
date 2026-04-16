@@ -1,0 +1,164 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - heading "TTB Eval Demo" [level=1] [ref=e7]
+        - paragraph [ref=e8]: Stakeholder / QA demo — run a golden set pack and watch results stream in.
+      - generic [ref=e9]:
+        - generic [ref=e10]: Model
+        - generic [ref=e11]: Gemini (cloud)
+  - main [ref=e12]:
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - heading "Configuration" [level=2] [ref=e16]
+          - paragraph [ref=e17]: Pick a golden set pack and provider, then run the live eval.
+        - generic [ref=e18]:
+          - button "Reset" [ref=e148] [cursor=pointer]
+          - button "Run eval" [ref=e149] [cursor=pointer]
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - generic [ref=e23]: Golden set pack
+          - combobox [ref=e24]:
+            - option "COLA Cloud All (28)"
+            - option "COLA Cloud Spirits (9)"
+            - option "COLA Cloud Wine (10)"
+            - option "COLA Cloud Malt Beverage (9)"
+            - option "COLA Cloud Mixed (3)" [selected]
+            - option "Supplemental Negative (7)"
+            - option "Supplemental Negative Reject (5)"
+            - option "COLA Cloud Mixed Negative (6)"
+          - paragraph [ref=e25]: Mixed real-label sample across all three beverage types.
+        - generic [ref=e26]:
+          - generic [ref=e27]: Provider
+          - generic [ref=e28]:
+            - generic [ref=e29] [cursor=pointer]:
+              - radio "Cloud — Gemini 2.x VLM Hosted Gemini via the server AI_PROVIDER=gemini path." [checked] [ref=e30]
+              - generic [ref=e31]:
+                - generic [ref=e32]: Cloud — Gemini 2.x VLM
+                - generic [ref=e33]: Hosted Gemini via the server AI_PROVIDER=gemini path.
+            - generic [ref=e34] [cursor=pointer]:
+              - radio "Local — Qwen2.5-VL-3B (local) Ollama VLM. Requires AI_PROVIDER=local on the server." [ref=e35]
+              - generic [ref=e36]:
+                - generic [ref=e37]: Local — Qwen2.5-VL-3B (local)
+                - generic [ref=e38]: Ollama VLM. Requires AI_PROVIDER=local on the server.
+        - generic [ref=e39]:
+          - generic [ref=e40]:
+            - generic [ref=e41] [cursor=pointer]:
+              - checkbox "LLM judgment layer Run the OpenAI-based judgment pass after field extraction." [checked] [ref=e42]
+              - generic [ref=e43]:
+                - generic [ref=e44]: LLM judgment layer
+                - generic [ref=e45]: Run the OpenAI-based judgment pass after field extraction.
+            - generic [ref=e46] [cursor=pointer]:
+              - checkbox "OCR prepass Run Tesseract OCR prepass before VLM extraction." [checked] [ref=e47]
+              - generic [ref=e48]:
+                - generic [ref=e49]: OCR prepass
+                - generic [ref=e50]: Run Tesseract OCR prepass before VLM extraction.
+          - paragraph [ref=e51]:
+            - text: Toggles are informational — the actual provider + judgment + OCR behavior is controlled by the server's environment (
+            - code [ref=e52]: AI_PROVIDER
+            - text: ", judgment wiring, OCR config). The UI records the chosen configuration for demo context."
+    - generic [ref=e56]:
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - heading "Live progress" [level=2] [ref=e59]
+          - paragraph [ref=e60]:
+            - text: Streaming NDJSON from
+            - code [ref=e61]: /api/batch/run
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - generic [ref=e64]: Elapsed
+            - generic [ref=e65]: 6s
+          - generic [ref=e66]:
+            - generic [ref=e67]: ETA
+            - generic [ref=e68]: 0s
+          - generic [ref=e69]:
+            - generic [ref=e70]: Done
+            - generic [ref=e71]: 3 / 3
+      - generic [ref=e74]:
+        - generic [ref=e75]:
+          - generic [ref=e76]: Pass
+          - generic [ref=e77]: "1"
+        - generic [ref=e78]:
+          - generic [ref=e79]: Review
+          - generic [ref=e80]: "2"
+        - generic [ref=e81]:
+          - generic [ref=e82]: Fail
+          - generic [ref=e83]: "0"
+        - generic [ref=e84]:
+          - generic [ref=e85]: Error
+          - generic [ref=e86]: "0"
+    - generic [ref=e94]:
+      - generic [ref=e95]:
+        - generic [ref=e96]:
+          - heading "Results" [level=2] [ref=e97]
+          - paragraph [ref=e98]: Completed 3 labels
+        - generic [ref=e99]:
+          - button "All (3)" [ref=e150] [cursor=pointer]:
+            - text: All
+            - generic [ref=e101]: (3)
+          - button "Pass (1)" [ref=e102] [cursor=pointer]:
+            - text: Pass
+            - generic [ref=e103]: (1)
+          - button "Review (2)" [ref=e151] [cursor=pointer]:
+            - text: Review
+            - generic [ref=e105]: (2)
+          - button "Fail (0)" [ref=e106] [cursor=pointer]:
+            - text: Fail
+            - generic [ref=e107]: (0)
+          - button "Error (0)" [ref=e108] [cursor=pointer]:
+            - text: Error
+            - generic [ref=e109]: (0)
+          - button "Download JSON" [ref=e110] [cursor=pointer]
+      - table [ref=e112]:
+        - rowgroup [ref=e113]:
+          - row "Filename Identity Verdict Latency Actions" [ref=e114]:
+            - columnheader [ref=e115]
+            - columnheader "Filename" [ref=e116]
+            - columnheader "Identity" [ref=e117]
+            - columnheader "Verdict" [ref=e118]
+            - columnheader "Latency" [ref=e119]
+            - columnheader "Actions" [ref=e120]
+        - rowgroup [ref=e121]:
+          - 'row "simply-elegant-simply-elegant-spirits-distilled-spirits.webp simply-elegant-simply-elegant-spirits-distilled-spirits.webp Simply Elegant — straight bourbon whisky expected: approve pass 3.1s View JSON" [ref=e122]':
+            - cell "simply-elegant-simply-elegant-spirits-distilled-spirits.webp" [ref=e123]:
+              - img "simply-elegant-simply-elegant-spirits-distilled-spirits.webp" [ref=e124]
+            - cell "simply-elegant-simply-elegant-spirits-distilled-spirits.webp" [ref=e125]:
+              - generic "simply-elegant-simply-elegant-spirits-distilled-spirits.webp" [ref=e126]
+            - 'cell "Simply Elegant — straight bourbon whisky expected: approve" [ref=e127]':
+              - generic "Simply Elegant — straight bourbon whisky" [ref=e128]
+              - generic [ref=e129]: "expected: approve"
+            - cell "pass" [ref=e130]:
+              - generic [ref=e131]: pass
+            - cell "3.1s" [ref=e132]
+            - cell "View JSON" [ref=e133]:
+              - button "View JSON" [ref=e134] [cursor=pointer]
+          - 'row "leitz-rottland-wine.webp leitz-rottland-wine.webp Leitz — table white wine expected: approve review 2.8s View JSON" [ref=e135]':
+            - cell "leitz-rottland-wine.webp" [ref=e136]:
+              - img "leitz-rottland-wine.webp" [ref=e137]
+            - cell "leitz-rottland-wine.webp" [ref=e138]:
+              - generic "leitz-rottland-wine.webp" [ref=e139]
+            - 'cell "Leitz — table white wine expected: approve" [ref=e140]':
+              - generic "Leitz — table white wine" [ref=e141]
+              - generic [ref=e142]: "expected: approve"
+            - cell "review" [ref=e143]:
+              - generic [ref=e144]: review
+            - cell "2.8s" [ref=e145]
+            - cell "View JSON" [ref=e146]:
+              - button "View JSON" [ref=e147] [cursor=pointer]
+          - 'row "lake-placid-shredder-malt-beverage.webp lake-placid-shredder-malt-beverage.webp Lake Placid — ale expected: approve review 5.8s View JSON" [ref=e152]':
+            - cell "lake-placid-shredder-malt-beverage.webp" [ref=e153]:
+              - img "lake-placid-shredder-malt-beverage.webp" [ref=e154]
+            - cell "lake-placid-shredder-malt-beverage.webp" [ref=e155]:
+              - generic "lake-placid-shredder-malt-beverage.webp" [ref=e156]
+            - 'cell "Lake Placid — ale expected: approve" [ref=e157]':
+              - generic "Lake Placid — ale" [ref=e158]
+              - generic [ref=e159]: "expected: approve"
+            - cell "review" [ref=e160]:
+              - generic [ref=e161]: review
+            - cell "5.8s" [ref=e162]
+            - cell "View JSON" [ref=e163]:
+              - button "View JSON" [ref=e164] [cursor=pointer]
+    - generic [ref=e53]:
+      - text: "Eval demo — ephemeral, no persistence. Session ID:"
+      - code [ref=e54]: 00edda82-da59-4dc6-98d0-4be67340f162
