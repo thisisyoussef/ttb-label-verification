@@ -21,12 +21,14 @@ import {
 import {
   createReviewExtractionFailure,
   finalizeReviewExtraction,
+  ReviewExtractionFailure,
   type ReviewExtractor,
   type ReviewExtractorContext
 } from './review-extraction';
 
 const DEFAULT_GEMINI_VISION_MODEL = 'gemini-2.5-flash-lite';
 const DEFAULT_GEMINI_TIMEOUT_MS = 5000;
+const DEFAULT_GEMINI_MAX_ATTEMPTS = 3;
 
 type GeminiMediaResolution = 'low' | 'medium' | 'high';
 type GeminiServiceTier = 'standard' | 'priority' | 'flex';
@@ -38,6 +40,14 @@ export interface GeminiReviewExtractionConfig {
   mediaResolution?: GeminiMediaResolution;
   serviceTier?: GeminiServiceTier;
   thinkingBudget?: number;
+  /**
+   * Maximum number of attempts per extraction request. Defaults to 3.
+   * Retries fire only on retryable failures (429, 5xx, timeout) with
+   * short exponential backoff (200ms, 400ms, 800ms). Non-retryable
+   * failures (auth, schema) fall through immediately to the factory's
+   * cross-provider fallback chain.
+   */
+  maxAttempts?: number;
 }
 
 type GeminiReviewExtractionConfigFailure = {
@@ -98,9 +108,35 @@ export function readGeminiReviewExtractionConfig(
       thinkingBudget: readGeminiThinkingBudget({
         rawValue: env.GEMINI_THINKING_BUDGET,
         visionModel
-      })
+      }),
+      maxAttempts: readGeminiMaxAttempts(
+        { maxAttempts: undefined },
+        env.GEMINI_MAX_ATTEMPTS
+      )
     }
   };
+}
+
+/**
+ * Returns the effective per-request retry budget. Reads env as a fallback
+ * so operators can tune without code changes. Clamps to [1, 5] to avoid
+ * runaway retries.
+ */
+function readGeminiMaxAttempts(
+  config: Pick<GeminiReviewExtractionConfig, 'maxAttempts'>,
+  rawEnv?: string | undefined
+): number {
+  if (typeof config.maxAttempts === 'number' && config.maxAttempts > 0) {
+    return Math.min(config.maxAttempts, 5);
+  }
+  const trimmed = rawEnv?.trim();
+  if (trimmed) {
+    const parsed = Number.parseInt(trimmed, 10);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return Math.min(parsed, 5);
+    }
+  }
+  return DEFAULT_GEMINI_MAX_ATTEMPTS;
 }
 
 export function buildGeminiReviewExtractionRequest(input: {
@@ -207,19 +243,44 @@ export function createGeminiReviewExtractor(input: {
         thoughtsTokenCount?: number;
       };
     };
-    try {
-      response = await client.generateContent({
-        ...request,
-        config: {
-          ...request.config,
-          abortSignal: controller.signal
+    // Retry transient Gemini failures (429/5xx/timeout) before falling
+    // through to the next provider. Factory-level cross-provider fallback
+    // kicks in after the per-provider retry budget is exhausted.
+    const maxAttempts = readGeminiMaxAttempts(input.config);
+    let lastFailure: ReviewExtractionFailure | null = null;
+    let succeeded = false;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        response = await client.generateContent({
+          ...request,
+          config: {
+            ...request.config,
+            abortSignal: controller.signal
+          }
+        });
+        succeeded = true;
+        break;
+      } catch (error) {
+        const normalized = normalizeGeminiRuntimeFailure(error);
+        lastFailure = normalized;
+        // Only retry on retryable failures; fail fast on auth/schema errors.
+        if (!normalized.error.retryable || attempt === maxAttempts) {
+          clearTimeout(timeout);
+          recordGeminiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
+          throw normalized;
         }
-      });
-    } catch (error) {
+        // Exponential backoff with a small cap — 200ms, 400ms, 800ms
+        const backoffMs = Math.min(200 * Math.pow(2, attempt - 1), 800);
+        await new Promise((resolve) => setTimeout(resolve, backoffMs));
+      }
+    }
+    if (!succeeded) {
       clearTimeout(timeout);
       recordGeminiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
-      throw normalizeGeminiRuntimeFailure(error);
+      throw lastFailure ?? normalizeGeminiRuntimeFailure(new Error('retry-exhausted'));
     }
+    // TypeScript can't narrow across the loop
+    response = response!;
     clearTimeout(timeout);
 
     recordGeminiProviderMetadata(context, response);

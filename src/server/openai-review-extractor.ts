@@ -22,6 +22,7 @@ import {
 
 const MODEL_OUTPUT_SCHEMA_NAME = 'ttb_label_extraction';
 const DEFAULT_OPENAI_VISION_MODEL = 'gpt-5.4-mini';
+const DEFAULT_OPENAI_MAX_ATTEMPTS = 3;
 
 type OpenAiImageDetail = 'low' | 'high' | 'auto' | 'original';
 type OpenAiServiceTier = 'auto' | 'default' | 'flex' | 'scale' | 'priority';
@@ -32,6 +33,31 @@ export interface ReviewExtractionConfig {
   store: false;
   imageDetail?: OpenAiImageDetail;
   serviceTier?: OpenAiServiceTier;
+  /**
+   * Maximum number of attempts per extraction request. Defaults to 3.
+   * Retries on transient network/5xx failures with exponential backoff.
+   */
+  maxAttempts?: number;
+}
+
+/**
+ * Returns the effective per-request retry budget for OpenAI. Clamps to [1, 5].
+ */
+function readOpenAiMaxAttempts(
+  config: Pick<ReviewExtractionConfig, 'maxAttempts'>,
+  rawEnv?: string | undefined
+): number {
+  if (typeof config.maxAttempts === 'number' && config.maxAttempts > 0) {
+    return Math.min(config.maxAttempts, 5);
+  }
+  const trimmed = rawEnv?.trim();
+  if (trimmed) {
+    const parsed = Number.parseInt(trimmed, 10);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return Math.min(parsed, 5);
+    }
+  }
+  return DEFAULT_OPENAI_MAX_ATTEMPTS;
 }
 
 type ReviewExtractionConfigFailure = {
@@ -181,9 +207,35 @@ export function createOpenAIReviewExtractor(input: {
     const providerWaitStartedAt = performance.now();
     let response: { output_parsed?: unknown };
 
-    try {
-      response = await client.parse(request);
-    } catch {
+    // Bounded retry on transient failures — same pattern as Gemini.
+    // After maxAttempts, the error propagates to the factory's cross-
+    // provider fallback chain (OpenAI → Gemini → Ollama, or reverse).
+    const maxAttempts = readOpenAiMaxAttempts(
+      input.config,
+      process.env.OPENAI_MAX_ATTEMPTS
+    );
+    response = { output_parsed: undefined };
+    let succeeded = false;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        response = await client.parse(request);
+        succeeded = true;
+        break;
+      } catch (error) {
+        if (attempt === maxAttempts) {
+          recordOpenAiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
+          throw createReviewExtractionFailure({
+            status: 502,
+            kind: 'network',
+            message: 'We could not reach the extraction service right now.',
+            retryable: true
+          });
+        }
+        const backoffMs = Math.min(200 * Math.pow(2, attempt - 1), 800);
+        await new Promise((resolve) => setTimeout(resolve, backoffMs));
+      }
+    }
+    if (!succeeded) {
       recordOpenAiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
       throw createReviewExtractionFailure({
         status: 502,

@@ -91,7 +91,7 @@ export function EvalDemoResults(props: EvalDemoResultsProps) {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-outline-variant">
+      <div className="overflow-x-auto rounded-lg border border-outline-variant">
         <table className="min-w-full divide-y divide-outline-variant text-sm">
           <thead className="bg-surface-container text-on-surface">
             <tr>
@@ -131,7 +131,10 @@ export function EvalDemoResults(props: EvalDemoResultsProps) {
                   </div>
                   {row.packImage?.expectedRecommendation ? (
                     <div className="text-xs text-on-surface-variant">
-                      expected: {row.packImage.expectedRecommendation}
+                      expected:{' '}
+                      {row.packImage.expectedRecommendation === 'approve'
+                        ? 'approve or review'
+                        : row.packImage.expectedRecommendation}
                     </div>
                   ) : null}
                 </td>

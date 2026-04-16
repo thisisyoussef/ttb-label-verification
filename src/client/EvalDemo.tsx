@@ -177,10 +177,19 @@ export function EvalDemo() {
 
   const onLoadReport = useCallback(
     async (reportId: string) => {
-      if (!state.batchSessionId) return;
+      // Always open the drawer so the user gets feedback, even when the
+      // session has been reset. Previously the click silently no-op'd if
+      // batchSessionId was null, making the button appear broken.
       setActiveReport({ id: reportId, body: null });
       setActiveReportLoading(true);
       setActiveReportError(null);
+      if (!state.batchSessionId) {
+        setActiveReportLoading(false);
+        setActiveReportError(
+          'Batch session has been reset. Re-run the eval to view this report.'
+        );
+        return;
+      }
       try {
         const report = await fetchReport(state.batchSessionId, reportId);
         setActiveReport({ id: reportId, body: report });
