@@ -7,6 +7,7 @@ import {
   verificationReportSchema,
   type VerificationReport
 } from '../shared/contracts/review';
+import { withProviderOverrideHeader } from './providerOverride';
 
 export const evalPackImageSchema = z.object({
   id: z.string(),
@@ -127,6 +128,7 @@ export async function prepareEvalRun(options: {
 
   const preflightResponse = await fetch('/api/batch/preflight', {
     method: 'POST',
+    headers: withProviderOverrideHeader(),
     body: formData
   });
 
@@ -176,7 +178,7 @@ export async function streamEvalRun(options: {
 
   const response = await fetch('/api/batch/run', {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: withProviderOverrideHeader({ 'content-type': 'application/json' }),
     body: JSON.stringify({
       batchSessionId: options.batchSessionId,
       resolutions

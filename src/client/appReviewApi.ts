@@ -8,6 +8,7 @@ import {
 } from '../shared/contracts/review';
 import { buildBatchResolutions } from './batch-runtime';
 import type { BatchLabelImage, BatchMatchingState } from './batchTypes';
+import { withProviderOverrideHeader } from './providerOverride';
 import type {
   BeverageSelection,
   IntakeFields,
@@ -61,11 +62,11 @@ export async function submitReview(options: {
 
   const response = await fetch('/api/review', {
     method: 'POST',
-    headers: options.clientRequestId
-      ? {
-          'x-review-client-id': options.clientRequestId
-        }
-      : undefined,
+    headers: withProviderOverrideHeader(
+      options.clientRequestId
+        ? { 'x-review-client-id': options.clientRequestId }
+        : undefined
+    ),
     body: formData,
     signal: options.signal
   });
@@ -126,6 +127,7 @@ export async function submitBatchPreflight(options: {
 
   const response = await fetch('/api/batch/preflight', {
     method: 'POST',
+    headers: withProviderOverrideHeader(),
     body: formData,
     signal: options.signal
   });
@@ -147,9 +149,9 @@ export async function streamBatchRun(options: {
 }) {
   const response = await fetch('/api/batch/run', {
     method: 'POST',
-    headers: {
+    headers: withProviderOverrideHeader({
       'content-type': 'application/json'
-    },
+    }),
     body: JSON.stringify({
       batchSessionId: options.batchSessionId,
       resolutions: buildBatchResolutions(options.matching)
