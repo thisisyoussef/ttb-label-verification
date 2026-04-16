@@ -204,12 +204,35 @@ if [ -n "${PUBLIC_KEY:-}" ]; then
     echo "${PUBLIC_KEY}" >> /root/.ssh/authorized_keys
   fi
   chmod 600 /root/.ssh/authorized_keys
-  mkdir -p /var/run/sshd
+  mkdir -p /var/run/sshd /run/sshd
+
+  # Generate missing host keys before starting sshd. Minimal container
+  # images don't ship host keys (the openssh-server postinst usually
+  # generates them on Debian/Ubuntu, but in non-interactive apt + no
+  # systemd, that hook is skipped). Without host keys, `sshd -D`
+  # silently exits immediately on startup and ssh connections get
+  # "connection refused" forever.
+  #
+  # This was the root cause of the "SSH never comes up" issue across
+  # multiple pod restarts in April 2026 — the install step succeeded
+  # but sshd couldn't start because /etc/ssh/ssh_host_*_key didn't
+  # exist. ssh-keygen -A generates all key types in one shot.
+  if [ ! -f /etc/ssh/ssh_host_rsa_key ] && [ ! -f /etc/ssh/ssh_host_ed25519_key ]; then
+    log "generating missing sshd host keys"
+    ssh-keygen -A >/dev/null 2>&1 || log "warn: ssh-keygen -A failed"
+  fi
+
   if ! pgrep -x sshd >/dev/null 2>&1; then
     log "starting sshd on port 22"
     /usr/sbin/sshd -D &
     SSHD_PID=$!
     log "sshd pid=${SSHD_PID}"
+    # Tiny sanity check: if sshd died immediately (e.g. still missing
+    # host keys), log the failure so it shows up in /workspace/bootstrap.log.
+    sleep 1
+    if ! pgrep -x sshd >/dev/null 2>&1; then
+      log "ERROR: sshd exited immediately. Run '/usr/sbin/sshd -d' manually to see why."
+    fi
   fi
 fi
 
