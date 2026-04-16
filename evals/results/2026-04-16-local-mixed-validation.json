@@ -1,0 +1,365 @@
+{
+  "generatedAt": "2026-04-16T15:23:34.037Z",
+  "manifest": "evals/batch/cola-cloud/manifest.json",
+  "results": [
+    {
+      "id": "cola-cloud-mixed",
+      "title": "COLA Cloud Mixed",
+      "preflight": {
+        "matched": 3,
+        "ambiguous": 0,
+        "unmatchedImages": 0,
+        "unmatchedRows": 0,
+        "csvError": null,
+        "fileErrors": [],
+        "durationMs": 49
+      },
+      "run": {
+        "summary": {
+          "pass": 1,
+          "review": 2,
+          "fail": 0,
+          "error": 0
+        },
+        "latency": {
+          "runDurationMs": 256679,
+          "exportDurationMs": 60,
+          "totalDurationMs": 256739,
+          "itemCount": 3,
+          "avgPerItemMs": 85559,
+          "minPerItemMs": 58490,
+          "maxPerItemMs": 122440,
+          "p50PerItemMs": 75747,
+          "p95PerItemMs": 122440
+        },
+        "fieldMetrics": {
+          "brand-name": {
+            "rowsWithCheck": 3,
+            "extractedValuePresent": 3,
+            "exactOrCosmeticMatch": 3,
+            "valueMismatch": 0,
+            "pass": 3,
+            "review": 0,
+            "fail": 0
+          },
+          "class-type": {
+            "rowsWithCheck": 3,
+            "extractedValuePresent": 3,
+            "exactOrCosmeticMatch": 2,
+            "valueMismatch": 1,
+            "pass": 2,
+            "review": 1,
+            "fail": 0
+          },
+          "alcohol-content": {
+            "rowsWithCheck": 2,
+            "extractedValuePresent": 1,
+            "exactOrCosmeticMatch": 1,
+            "valueMismatch": 1,
+            "pass": 1,
+            "review": 1,
+            "fail": 0
+          },
+          "net-contents": {
+            "rowsWithCheck": 1,
+            "extractedValuePresent": 1,
+            "exactOrCosmeticMatch": 0,
+            "valueMismatch": 0,
+            "pass": 1,
+            "review": 0,
+            "fail": 0
+          },
+          "applicant-address": {
+            "rowsWithCheck": 1,
+            "extractedValuePresent": 1,
+            "exactOrCosmeticMatch": 0,
+            "valueMismatch": 0,
+            "pass": 0,
+            "review": 1,
+            "fail": 0
+          },
+          "country-of-origin": {
+            "rowsWithCheck": 2,
+            "extractedValuePresent": 1,
+            "exactOrCosmeticMatch": 0,
+            "valueMismatch": 1,
+            "pass": 0,
+            "review": 2,
+            "fail": 0
+          }
+        },
+        "ruleMetrics": {
+          "government-warning": {
+            "rowsWithCheck": 3,
+            "pass": 0,
+            "review": 3,
+            "fail": 0,
+            "info": 0
+          },
+          "abv-format-permitted": {
+            "rowsWithCheck": 0,
+            "pass": 0,
+            "review": 0,
+            "fail": 0,
+            "info": 0
+          },
+          "vintage-requires-appellation": {
+            "rowsWithCheck": 1,
+            "pass": 1,
+            "review": 0,
+            "fail": 0,
+            "info": 0
+          },
+          "same-field-of-vision": {
+            "rowsWithCheck": 1,
+            "pass": 0,
+            "review": 0,
+            "fail": 0,
+            "info": 1
+          }
+        },
+        "rowStatuses": [
+          {
+            "imageId": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+            "filename": "simply-elegant-simply-elegant-spirits-distilled-spirits.webp",
+            "status": "review",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Simply Elegant — Simply Elegant Spirits",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Simply Elegant",
+              "fancifulName": "Simply Elegant Spirits",
+              "classType": "straight bourbon whisky",
+              "alcoholContent": "67% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Simply Elegant",
+            "classType": "straight bourbon whisky",
+            "reportId": "999a4fcb-28bb-4e6d-87aa-674a6a548cd5",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "One or more checks need human review.",
+            "latencyMs": 122440,
+            "issues": {
+              "blocker": 0,
+              "major": 1,
+              "minor": 2,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.85,
+                "applicationValue": "Simply Elegant",
+                "extractedValue": "SIMPLY ELEGANT SPIRITS",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "straight bourbon whisky",
+                "extractedValue": "WHISKEY",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "67% Alc./Vol.",
+                "extractedValue": "67%",
+                "comparisonStatus": "case-mismatch"
+              },
+              "net-contents": {
+                "status": "pass",
+                "summary": "Extracted net contents is available for standalone review.",
+                "confidence": 0.9,
+                "applicationValue": null,
+                "extractedValue": "750 ML",
+                "comparisonStatus": "not-applicable"
+              },
+              "applicant-address": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "1003",
+                "comparisonStatus": "not-applicable"
+              },
+              "country-of-origin": {
+                "status": "review",
+                "summary": "Low extraction confidence.",
+                "confidence": 0.55,
+                "applicationValue": null,
+                "extractedValue": "unknown",
+                "comparisonStatus": "not-applicable"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.57
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": {
+                "status": "info",
+                "summary": "Same-field-of-vision check is not yet implemented — not blocking.",
+                "confidence": 0.54
+              }
+            }
+          },
+          {
+            "imageId": "leitz-rottland-wine",
+            "filename": "leitz-rottland-wine.webp",
+            "status": "review",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Leitz — Rottland",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Leitz",
+              "fancifulName": "Rottland",
+              "classType": "table white wine",
+              "alcoholContent": "12.5% Alc./Vol.",
+              "netContents": "750 mL",
+              "appellation": "Rheingau",
+              "vintage": "2023"
+            },
+            "brandName": "Leitz",
+            "classType": "table white wine",
+            "reportId": "ef9a0678-17dc-46a6-ae8d-009138faec00",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "One or more checks need human review.",
+            "latencyMs": 75747,
+            "issues": {
+              "blocker": 0,
+              "major": 4,
+              "minor": 0,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.98,
+                "applicationValue": "Leitz",
+                "extractedValue": "LEITZ",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "review",
+                "summary": "Class/type could not be matched: app=\"table white wine\" ext=\"HINTERHAUS\"",
+                "confidence": 0.55,
+                "applicationValue": "table white wine",
+                "extractedValue": "HINTERHAUS",
+                "comparisonStatus": "value-mismatch"
+              },
+              "alcohol-content": {
+                "status": "review",
+                "summary": "Could not confirm alcohol content from the label.",
+                "confidence": 0.48,
+                "applicationValue": "12.5% Alc./Vol.",
+                "extractedValue": null,
+                "comparisonStatus": "value-mismatch"
+              },
+              "net-contents": null,
+              "applicant-address": null,
+              "country-of-origin": {
+                "status": "review",
+                "summary": "Could not confirm country of origin from the label.",
+                "confidence": 0.48,
+                "applicationValue": "germany",
+                "extractedValue": null,
+                "comparisonStatus": "value-mismatch"
+              }
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.45
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": {
+                "status": "pass",
+                "summary": "Vintage claim is paired with an appellation.",
+                "confidence": 0.94
+              },
+              "same-field-of-vision": null
+            }
+          },
+          {
+            "imageId": "lake-placid-shredder-malt-beverage",
+            "filename": "lake-placid-shredder-malt-beverage.webp",
+            "status": "pass",
+            "expectedRecommendation": "approve",
+            "fixtureTitle": "Lake Placid — Shredder",
+            "fixtureSource": "cola-cloud",
+            "expectedFields": {
+              "brandName": "Lake Placid",
+              "fancifulName": "Shredder",
+              "classType": "ale",
+              "alcoholContent": "",
+              "netContents": "12 FL OZ",
+              "appellation": "",
+              "vintage": ""
+            },
+            "brandName": "Lake Placid",
+            "classType": "ale",
+            "reportId": "8b250ac8-8aa9-42e7-9bb5-22467a020dc1",
+            "extractionQualityState": "ok",
+            "verdictSecondary": "One or more checks still need human review.",
+            "summary": "All extracted checks passed for this label.",
+            "latencyMs": 58490,
+            "issues": {
+              "blocker": 0,
+              "major": 1,
+              "minor": 0,
+              "note": 0
+            },
+            "errorMessage": null,
+            "fieldChecks": {
+              "brand-name": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.85,
+                "applicationValue": "Lake Placid",
+                "extractedValue": "LAKE PLACID PUB & BREWERY",
+                "comparisonStatus": "case-mismatch"
+              },
+              "class-type": {
+                "status": "pass",
+                "summary": "Matches the application value.",
+                "confidence": 0.92,
+                "applicationValue": "ale",
+                "extractedValue": "IPA",
+                "comparisonStatus": "case-mismatch"
+              },
+              "alcohol-content": null,
+              "net-contents": null,
+              "applicant-address": null,
+              "country-of-origin": null
+            },
+            "ruleChecks": {
+              "government-warning": {
+                "status": "review",
+                "summary": "Warning text detected but one or more sub-checks remain inconclusive.",
+                "confidence": 0.37
+              },
+              "abv-format-permitted": null,
+              "vintage-requires-appellation": null,
+              "same-field-of-vision": null
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
