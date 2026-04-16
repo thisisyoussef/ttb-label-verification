@@ -113,6 +113,16 @@ export REGION_DETECTION="${REGION_DETECTION:-disabled}"
 export OLLAMA_MODELS="${OLLAMA_MODELS:-/workspace/models}"
 export OLLAMA_KEEP_ALIVE="${OLLAMA_KEEP_ALIVE:-30m}"
 export OLLAMA_MAX_LOADED_MODELS="${OLLAMA_MAX_LOADED_MODELS:-2}"
+# Latency tuning (defaults chosen for single-user label verification):
+#   FlashAttention: 30-50% speedup on VLM inference. Default off in Ollama.
+#   NumParallel: 1. We process one label at a time; batching adds wait.
+#   ContextLength: 8192. Labels use 2-4K prompt tokens + 1K output. The
+#     default 32768 reserves KV cache memory we don't need and slows
+#     prompt eval marginally. Setting 8192 at the runner level reduces
+#     warmup without clipping real requests.
+export OLLAMA_FLASH_ATTENTION="${OLLAMA_FLASH_ATTENTION:-1}"
+export OLLAMA_NUM_PARALLEL="${OLLAMA_NUM_PARALLEL:-1}"
+export OLLAMA_CONTEXT_LENGTH="${OLLAMA_CONTEXT_LENGTH:-8192}"
 
 # ----------------------------------------------------------------------------
 # Step 1 — install system dependencies we need that the Ollama image doesn't
