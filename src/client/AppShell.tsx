@@ -213,6 +213,7 @@ export function AppShell({
             onReturnToSingle={batch.onReturnToSingle}
             onStartBatch={batch.onStartBatchFromIntake}
             onSelectImages={batch.onSelectLiveImages}
+            onRemoveImage={batch.onRemoveLiveImage}
             onSelectCsv={batch.onSelectLiveCsv}
             onPickAmbiguous={batch.onPickAmbiguous}
             onDropAmbiguous={batch.onDropAmbiguous}

@@ -6,12 +6,14 @@ export function ImagesDropZone({
   overCap,
   interactive,
   onSelectImages,
+  onRemoveImage,
   onPreviewImage
 }: {
   images: BatchLabelImage[];
   overCap: boolean;
   interactive: boolean;
   onSelectImages?: (files: File[]) => void;
+  onRemoveImage?: (imageId: string) => void;
   onPreviewImage: (image: BatchLabelImage) => void;
 }) {
   const empty = images.length === 0;
@@ -106,23 +108,47 @@ export function ImagesDropZone({
 
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               {images.map((image) => (
-                <button
-                  key={image.id}
-                  type="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onPreviewImage(image);
-                  }}
-                  className="bg-surface-container rounded-lg border border-outline-variant/20 p-3 flex gap-3 text-left hover:border-primary/40 transition-colors"
-                >
-                  <ImageChipThumb image={image} />
-                  <div className="min-w-0 flex flex-col gap-1">
-                    <p className="font-mono text-xs text-on-surface truncate">{image.filename}</p>
-                    <p className="text-[11px] font-label uppercase tracking-widest text-on-surface-variant">
-                      {image.sizeLabel}
-                    </p>
-                  </div>
-                </button>
+                // Each image is its own tile. The preview trigger stays on
+                // the main button; a small remove control overlays the
+                // top-right corner so users can drop an image without
+                // clearing the whole batch. Wrapping the preview-button in
+                // a relative <div> is necessary because nested <button>
+                // elements are invalid HTML — the remove button lives as a
+                // sibling, absolutely positioned.
+                <div key={image.id} className="relative group">
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onPreviewImage(image);
+                    }}
+                    className="w-full bg-surface-container rounded-lg border border-outline-variant/20 p-3 flex gap-3 text-left hover:border-primary/40 transition-colors"
+                  >
+                    <ImageChipThumb image={image} />
+                    <div className="min-w-0 flex flex-col gap-1">
+                      <p className="font-mono text-xs text-on-surface truncate">{image.filename}</p>
+                      <p className="text-[11px] font-label uppercase tracking-widest text-on-surface-variant">
+                        {image.sizeLabel}
+                      </p>
+                    </div>
+                  </button>
+                  {interactive && onRemoveImage ? (
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onRemoveImage(image.id);
+                      }}
+                      aria-label={`Remove ${image.filename}`}
+                      title={`Remove ${image.filename}`}
+                      className="absolute top-1.5 right-1.5 inline-flex items-center justify-center h-7 w-7 rounded-full bg-surface-container-highest text-on-surface-variant border border-outline-variant/30 shadow-sm hover:bg-error-container hover:text-on-error-container hover:border-error/50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-1"
+                    >
+                      <span aria-hidden="true" className="material-symbols-outlined text-[18px]">
+                        close
+                      </span>
+                    </button>
+                  ) : null}
+                </div>
               ))}
             </div>
           </div>

@@ -22,6 +22,7 @@ interface BatchUploadProps {
   onReturnToSingle: () => void;
   onStartBatch: () => void;
   onSelectImages?: (files: File[]) => void;
+  onRemoveImage?: (imageId: string) => void;
   onSelectCsv?: (file: File) => void;
   onPickAmbiguous: (imageId: string, rowId: string) => void;
   onDropAmbiguous: (imageId: string) => void;
@@ -57,6 +58,7 @@ export function BatchUpload(props: BatchUploadProps) {
             overCap={seed.overCap}
             interactive={props.interactive === true}
             onSelectImages={props.onSelectImages}
+            onRemoveImage={props.onRemoveImage}
             onPreviewImage={props.onPreviewImage}
           />
           <CsvDropZone
