@@ -203,12 +203,17 @@ fi
 log "head: $(git rev-parse --short HEAD)  msg: $(git log -1 --pretty=%s)"
 
 # ----------------------------------------------------------------------------
-# Step 3 — npm ci + build. --ignore-scripts skips husky git-hook installs that
-# are pointless in a container and can fail on detached HEAD.
+# Step 3 — npm ci + build.
+#
+# --ignore-scripts : skip husky git-hook installs (pointless in containers)
+# --include=dev    : we set NODE_ENV=production above, but vite + tsup are in
+#                    devDependencies. Without --include=dev, npm ci skips
+#                    them, and `npm run build` fails with "vite: not found"
+#                    (seen on pod 21dvf4843sc3kf).
 # ----------------------------------------------------------------------------
 echo "step-3-build" > /workspace/bootstrap.status
-log "STEP 3/5: npm ci + build"
-npm ci --ignore-scripts --no-audit --no-fund
+log "STEP 3/5: npm ci (including devDependencies for build) + build"
+npm ci --ignore-scripts --include=dev --no-audit --no-fund
 npm run build
 
 # ----------------------------------------------------------------------------
