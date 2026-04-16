@@ -200,12 +200,20 @@ ensure_template() {
   fi
 
   section "Creating user template ${RUNPOD_TEMPLATE_NAME}"
-  # docker-start-cmd is comma-separated. Passing 'bash,-lc,<cmd>' runs the
-  # <cmd> string under bash -l (login shell) -c.
-  # Using printf %q to escape nothing here because the command is a fixed
-  # literal — no user input, no special shell chars beyond the pipe which is
-  # safe inside the bash -c string.
-  local start_cmd="curl -fsSL ${BOOTSTRAP_URL} | bash -s -- ${REPO_BRANCH}"
+  # Three-phase start command:
+  #   (a) Start `ollama serve` in the background unconditionally — that way
+  #       even if the bootstrap explodes, the pod stays reachable on :11434.
+  #   (b) Pipe the bootstrap.sh through bash.
+  #   (c) If the Node API ever dies (or the bootstrap fails), fall through to
+  #       `sleep infinity` so the container stays up and you can SSH in to
+  #       read /workspace/bootstrap.log. Without this the container would
+  #       restart-loop and never expose its logs.
+  #
+  # We intentionally DO NOT use `bash -l` (login shell) here. `-l` sources
+  # /etc/profile which some base images hand-craft in ways that break under
+  # non-interactive invocation. `bash -c` is sufficient and deterministic.
+  local start_cmd
+  start_cmd="mkdir -p /workspace && ollama serve >/tmp/ollama.log 2>&1 & curl -fsSL ${BOOTSTRAP_URL} | bash -s -- ${REPO_BRANCH}; echo \"bootstrap exit=\$?\" >> /workspace/bootstrap.log; exec sleep infinity"
   runpodctl template create \
     --name "${RUNPOD_TEMPLATE_NAME}" \
     --image "${BASE_IMAGE}" \
@@ -213,7 +221,7 @@ ensure_template() {
     --volume-in-gb "${RUNPOD_VOLUME_GB}" \
     --volume-mount-path "/workspace" \
     --ports "8787/http,11434/http" \
-    --docker-entrypoint "bash,-lc" \
+    --docker-entrypoint "bash,-c" \
     --docker-start-cmd "${start_cmd}" \
     --env "$(cat <<JSON
 {

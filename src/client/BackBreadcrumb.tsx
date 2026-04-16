@@ -21,9 +21,9 @@ export function BackBreadcrumb({
           type="button"
           onClick={onBack}
           aria-label={ariaLabel}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-label font-bold uppercase tracking-widest bg-surface-container-lowest text-on-surface border border-outline-variant/30 shadow-ambient hover:bg-gradient-to-b hover:from-primary hover:to-primary-dim hover:text-on-primary hover:border-transparent active:scale-[0.98] transition-all focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="inline-flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-label font-semibold bg-surface-container-lowest text-on-surface border border-outline-variant/30 shadow-ambient hover:bg-gradient-to-b hover:from-primary hover:to-primary-dim hover:text-on-primary hover:border-transparent active:scale-[0.98] transition-all focus-visible:outline-2 focus-visible:outline-offset-2 min-h-[44px]"
         >
-          <span aria-hidden="true" className="material-symbols-outlined text-[18px]">
+          <span aria-hidden="true" className="material-symbols-outlined text-[20px]">
             arrow_back
           </span>
           {label}

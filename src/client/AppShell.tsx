@@ -10,7 +10,6 @@ import { ImagePreviewOverlay } from './ImagePreviewOverlay';
 import { Intake } from './Intake';
 import { Processing } from './Processing';
 import { Results } from './Results';
-import { ExtractionModeSelector } from './ExtractionModeSelector';
 import { SessionTimeoutModal } from './SessionTimeoutModal';
 import { SignedInIdentity } from './SignedInIdentity';
 import { type HelpShowMe } from './helpManifest';
@@ -49,7 +48,7 @@ export function AppShell({
   batch,
   help,
   extractionMode,
-  extractionModeDisabled,
+  extractionModeDisabled: _extractionModeDisabled,
   sessionTimeoutOpen,
   sessionTimeoutRemainingSeconds,
   tourExpandedCheckId = null,
@@ -112,7 +111,7 @@ export function AppShell({
                 aria-selected={mode === 'single'}
                 onClick={() => onSelectMode('single')}
                 className={[
-                  'px-4 py-2 text-sm transition-colors',
+                  'px-4 py-3 text-sm min-h-[44px] transition-colors',
                   mode === 'single'
                     ? 'font-semibold text-on-surface border-b-2 border-primary'
                     : 'font-medium text-on-surface-variant hover:text-on-surface'
@@ -127,7 +126,7 @@ export function AppShell({
                 data-tour-target="tour-batch-tab"
                 onClick={() => onSelectMode('batch')}
                 className={[
-                  'px-4 py-2 text-sm transition-colors',
+                  'px-4 py-3 text-sm min-h-[44px] transition-colors',
                   mode === 'batch'
                     ? 'font-semibold text-on-surface border-b-2 border-primary'
                     : 'font-medium text-on-surface-variant hover:text-on-surface'
@@ -138,11 +137,14 @@ export function AppShell({
             </nav>
           </div>
           <div className="flex items-center gap-4 flex-wrap">
-            <ExtractionModeSelector
-              mode={extractionMode}
-              disabled={extractionModeDisabled}
-              onChange={onExtractionModeChange}
-            />
+            {/*
+              Cloud/Local toggle removed from the header per UX decision: Dave
+              and Sarah don't need to choose where inference runs. The override
+              is available to developers via the Toolbench ("Provider Override")
+              so demos can still force a specific mode. The selected mode is
+              still threaded into downstream components (Processing, Results)
+              so existing failure/retry flows keep working.
+            */}
             <HelpLauncher
               active={help.tourOpen}
               showNudge={!help.helpNudgeDismissed && !help.tourOpen}

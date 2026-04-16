@@ -27,6 +27,7 @@ This file is the checked-in branch registry for normal story work.
 | `claude/TTB-000-fix-toolbench-scroll` | `TTB-000` | `claude` | `open` | fix toolbench scroll — move overflow to tabpanel | #45 | `2026-04-15` | `2026-04-15` | `main` | - |
 | `codex/TTB-EVAL-001-corpus-accuracy-merge` | `TTB-EVAL-001` | `codex` | `ready-pr` | expand the real eval corpus and add report-level plus raw extraction benchmark harnesses | #47 | `2026-04-15` | `2026-04-15` | `main` | published via isolated clean worktree; ready to merge |
 | `claude/TTB-000-ux-compact-verdict-strip` | `TTB-000` | `claude` | `draft-local` | compact verdict strip and severity-sorted field checklist | - | `2026-04-15` | `2026-04-15` | `main` | - |
+| `claude/TTB-000-local-fullarch` | `TTB-000` | `claude` | `published` | full-stack local pipeline (Ollama VLM + judgment), RunPod deploy, UX polish pass | #49 | `2026-04-15` | `2026-04-16` | `main` | RunPod Path B deploy + Tier 1-3 UX improvements |
 <!-- ACTIVE_BRANCHES:END -->
 
 ## Closed branches
