@@ -82,27 +82,33 @@ export function readExtractionRoutingPolicy(
   env: Record<string, string | undefined>
 ): ExtractionRoutingPolicyResult {
   // Convenience: AI_PROVIDER=local is shorthand for "run everything local".
-  // It turns on allow-local and sets the default mode to local so callers
-  // don't have to remember the two separate flags.
+  // When set, it OVERRIDES AI_EXTRACTION_MODE_DEFAULT and
+  // AI_EXTRACTION_MODE_ALLOW_LOCAL so a workstation with a cloud-default
+  // .env can still opt into full-local mode for a single run without
+  // editing the file.
   const aiProvider = env.AI_PROVIDER?.trim().toLowerCase();
   const aiProviderIsLocal =
     aiProvider === 'local' ||
     aiProvider === 'ollama' ||
     aiProvider === 'ollama-vlm';
 
-  const defaultModeResult = parseExtractionModeValue(
-    env.AI_EXTRACTION_MODE_DEFAULT,
-    aiProviderIsLocal ? 'local' : DEFAULT_EXTRACTION_MODE
-  );
+  const defaultModeResult = aiProviderIsLocal
+    ? ({ success: true, value: 'local' } as const)
+    : parseExtractionModeValue(
+        env.AI_EXTRACTION_MODE_DEFAULT,
+        DEFAULT_EXTRACTION_MODE
+      );
   if (!defaultModeResult.success) {
     return defaultModeResult;
   }
 
-  const allowLocalResult = parseBooleanValue({
-    rawValue: env.AI_EXTRACTION_MODE_ALLOW_LOCAL,
-    key: 'AI_EXTRACTION_MODE_ALLOW_LOCAL',
-    fallbackValue: aiProviderIsLocal ? true : false
-  });
+  const allowLocalResult = aiProviderIsLocal
+    ? ({ success: true, value: true } as const)
+    : parseBooleanValue({
+        rawValue: env.AI_EXTRACTION_MODE_ALLOW_LOCAL,
+        key: 'AI_EXTRACTION_MODE_ALLOW_LOCAL',
+        fallbackValue: false
+      });
   if (!allowLocalResult.success) {
     return allowLocalResult;
   }

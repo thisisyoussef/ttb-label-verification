@@ -23,9 +23,7 @@
 
 import type { ReviewError } from '../shared/contracts/review';
 import type { ExtractionMode } from './ai-provider-policy';
-import type { LlmEndpointSurface } from './llm-policy';
 import { applyReviewExtractorGuardrails } from './review-extractor-guardrails';
-import type { NormalizedReviewIntake } from './review-intake';
 import {
   buildReviewExtractionPrompt,
   normalizeReviewExtractionModelOutput,
@@ -44,11 +42,16 @@ const DEFAULT_OLLAMA_HOST = 'http://127.0.0.1:11434';
 // Local VLMs are much slower than cloud; allow a generous ceiling but give up
 // rather than stall the whole batch. Override with OLLAMA_VLM_TIMEOUT_MS.
 const DEFAULT_OLLAMA_VLM_TIMEOUT_MS = 120000;
+// Keep the VLM resident between calls so the next image does not pay the
+// model-load tax. Override with OLLAMA_VLM_KEEP_ALIVE (e.g. "30m", "-1" for
+// always, "0" to unload immediately).
+const DEFAULT_OLLAMA_VLM_KEEP_ALIVE = '30m';
 
 export interface OllamaVlmReviewExtractionConfig {
   host: string;
   visionModel: string;
   timeoutMs: number;
+  keepAlive: string;
 }
 
 type ConfigFailure = {
@@ -104,10 +107,12 @@ export function readOllamaVlmReviewExtractionConfig(
     env.OLLAMA_VLM_TIMEOUT_MS,
     DEFAULT_OLLAMA_VLM_TIMEOUT_MS
   );
+  const keepAlive =
+    env.OLLAMA_VLM_KEEP_ALIVE?.trim() || DEFAULT_OLLAMA_VLM_KEEP_ALIVE;
 
   return {
     success: true,
-    value: { host, visionModel, timeoutMs }
+    value: { host, visionModel, timeoutMs, keepAlive }
   };
 }
 
@@ -165,6 +170,7 @@ export function createOllamaVlmReviewExtractor(input: {
             images: [imageBase64],
             stream: false,
             format: reviewExtractionModelOutputJsonSchema,
+            keep_alive: input.config.keepAlive,
             options: {
               temperature: 0,
               num_predict: 2048
