@@ -170,7 +170,7 @@ export function PasteFromJson({
         <span className="material-symbols-outlined text-sm" aria-hidden="true">
           {open ? 'expand_less' : 'data_object'}
         </span>
-        Paste from JSON
+        Paste saved data
       </button>
 
       {open ? (

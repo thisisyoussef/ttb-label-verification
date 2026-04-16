@@ -36,21 +36,17 @@ export function SessionTimeoutModal({
               id="session-timeout-title"
               className="font-headline text-lg font-bold text-on-surface"
             >
-              Your session is about to expire
+              Still there?
             </h2>
             <p
               id="session-timeout-description"
               className="text-sm leading-6 text-on-surface-variant"
             >
-              For security, sessions expire after 15 minutes of inactivity.
-              You will be signed out in{' '}
+              We'll sign you out unless you keep working. You have{' '}
               <span className="font-semibold text-on-surface tabular-nums">
                 {remainingSeconds}
               </span>{' '}
-              second{remainingSeconds === 1 ? '' : 's'}.
-            </p>
-            <p className="text-sm leading-6 text-on-surface-variant">
-              Select <strong className="text-on-surface">Yes, continue session</strong> to stay signed in.
+              second{remainingSeconds === 1 ? '' : 's'} left.
             </p>
           </div>
         </div>
@@ -60,7 +56,7 @@ export function SessionTimeoutModal({
             onClick={onSignOut}
             className="rounded-lg border border-outline-variant/30 px-4 py-2 text-sm font-label font-semibold text-on-surface hover:bg-surface-container-low transition-colors"
           >
-            Sign out
+            Sign out now
           </button>
           <button
             type="button"
@@ -68,7 +64,7 @@ export function SessionTimeoutModal({
             autoFocus
             className="rounded-lg bg-primary px-4 py-2 text-sm font-label font-semibold text-on-primary hover:brightness-110 transition-all focus-visible:outline-2 focus-visible:outline-offset-2"
           >
-            Yes, continue session
+            I'm still here
           </button>
         </div>
       </div>

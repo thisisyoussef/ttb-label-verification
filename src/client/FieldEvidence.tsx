@@ -13,6 +13,8 @@ const SEVERITY_COPY: Record<CheckReview['severity'], string> = {
   note: 'Note'
 };
 
+const LOW_CONFIDENCE_THRESHOLD = 0.6;
+
 export function FieldEvidencePanel({ check, standalone }: FieldEvidencePanelProps) {
   const showSeverity = check.status !== 'pass';
   const showComparison =
@@ -40,6 +42,11 @@ export function FieldEvidencePanel({ check, standalone }: FieldEvidencePanelProp
         </div>
         <div className="flex flex-col gap-4 bg-surface-container-low rounded-lg p-5">
           <ConfidenceMeter confidence={check.confidence} />
+          {check.confidence < LOW_CONFIDENCE_THRESHOLD ? (
+            <p className="text-sm text-caution font-label">
+              AI is unsure — please verify visually.
+            </p>
+          ) : null}
           <div className="flex flex-col gap-1.5">
             <h4 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
               Citations

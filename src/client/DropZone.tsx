@@ -29,14 +29,15 @@ function classifyError(file: File): DropZoneError | null {
   if (!isAccepted) {
     return {
       kind: 'unsupported',
-      message: "We couldn't use that file. Please upload a JPEG, PNG, WEBP, or PDF."
+      message:
+        "We couldn't use that file. Try a different image — we accept JPEG, PNG, WEBP, and PDF up to 10 MB."
     };
   }
 
   if (file.size > MAX_BYTES) {
     return {
       kind: 'oversized',
-      message: `That file is ${formatSize(file.size)}. The limit is 10 MB.`
+      message: `That file is ${formatSize(file.size)}. Try a different image — the limit is 10 MB.`
     };
   }
 
