@@ -1,0 +1,65 @@
+# Keep the Docker build context small. Everything listed here is excluded
+# from `docker build .`, so it never hits the builder image.
+#
+# Rule of thumb: if it's generated, secret, or only useful locally, exclude it.
+#
+# Used by:
+#   docker/runpod/Dockerfile   (GPU pod image)
+#   Any other future Dockerfile in the repo.
+
+# ---- Node artifacts ----
+node_modules
+npm-debug.log*
+yarn-error.log
+pnpm-debug.log*
+.pnp.*
+
+# ---- Build outputs (re-generated inside the image) ----
+dist
+.vite
+coverage
+.stryker-tmp
+build
+
+# ---- Secrets ----
+.env
+.env.*
+.env.local
+.env.stitch
+.stitch.env
+.railway
+
+# ---- Editor / git / worktrees ----
+.git
+.gitignore
+.github/workflows/*.local.*
+.cursor
+.vscode
+.idea
+.cache
+.DS_Store
+
+# Claude/Codex workspace state — large and useless in a container.
+.claude/worktrees
+.claude/launch.json
+.ai/**/*.log
+.mcp.json
+.cursor/mcp.json
+
+# ---- Repo state that bloats the context ----
+# Eval results are large JSON blobs that regenerate on each run.
+evals/results
+evals/experiments
+output
+.models
+*.log
+
+# ---- Tests / story docs that the runtime never reads ----
+# We still want evals/labels/* (the seeded fixture images) inside the image
+# for the seeded review flows, so do NOT exclude evals/labels.
+tests
+docs
+scripts/run-30-experiments.sh
+
+# ---- Misc ----
+*.tsbuildinfo

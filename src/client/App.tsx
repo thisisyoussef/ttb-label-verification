@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppShell } from './AppShell';
 import { AssessorToolbench } from './toolbench/AssessorToolbench';
+import { EvalDemo } from './EvalDemo';
 import type { LabelImage } from './types';
 import { formatFileSize } from '../shared/batch-file-meta';
 import { AuthScreen } from './AuthScreen';
@@ -29,7 +30,36 @@ import { useSingleReviewFlow } from './useSingleReviewFlow';
 import { fixturesEnabled } from './review-runtime';
 import { resolveToolbenchAssetRoute } from './toolbenchRouteState';
 
+function readInitialPathname(): string {
+  if (typeof window === 'undefined') return '/';
+  return window.location.pathname;
+}
+
+function isEvalDemoRoute(pathname: string): boolean {
+  return pathname === '/eval' || pathname.startsWith('/eval/');
+}
+
+function isEvalDemoEnabled(): boolean {
+  const rawFlag = import.meta.env.VITE_ENABLE_EVAL_DEMO;
+  if (rawFlag === undefined) return false;
+  const normalized = String(rawFlag).toLowerCase();
+  return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
+}
+
 export function App() {
+  const evalDemoEnabled = isEvalDemoEnabled();
+  const [pathname, setPathname] = useState<string>(readInitialPathname);
+
+  useEffect(() => {
+    const onPopState = () => setPathname(window.location.pathname);
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  if (evalDemoEnabled && isEvalDemoRoute(pathname)) {
+    return <EvalDemo />;
+  }
+
   const fixtureControlsEnabled = fixturesEnabled({
     isDev: import.meta.env.DEV,
     override: import.meta.env.VITE_ENABLE_DEV_FIXTURES

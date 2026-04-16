@@ -27,3 +27,9 @@ OCR_PREPASS = "enabled"
 # Region detection is OPT-IN only — eval showed it adds 4.5s latency and 4
 # extraction errors without accuracy gains. See accuracy-research-2026-04-15.md.
 REGION_DETECTION = "disabled"
+# LLM judgment layer is ON by default. Upgrades ambiguous review-status field
+# comparisons (country-of-origin, applicant-address) via a fast focused LLM
+# call per field, parallelized across fields. Adds ~300-700ms but catches
+# semantic equivalences a lookup table can't cover (Czechia↔Czech Republic,
+# "Wine of New Zealand"↔"New Zealand", etc.). Set to "disabled" to bypass.
+LLM_JUDGMENT = "enabled"
