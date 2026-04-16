@@ -21,6 +21,8 @@
  *     so the model produces exactly the shape the pipeline expects.
  */
 
+import sharp from 'sharp';
+
 import type { ReviewError } from '../shared/contracts/review';
 import type { ExtractionMode } from './ai-provider-policy';
 import { applyReviewExtractorGuardrails } from './review-extractor-guardrails';
@@ -125,6 +127,47 @@ type OllamaGenerateResponse = {
   model?: string;
 };
 
+// Qwen2.5-VL processes images via a vision tower whose compute cost scales
+// ~linearly with input pixel count. An original 2000x3000 COLA label gets
+// downsampled internally, but our server still pays the decode + send
+// cost for the full image and Ollama still pays for the downsample work.
+//
+// Pre-scaling to an edge <= 896px matches the model's internal patch
+// bucket boundary (~1024 patches of 28px) without truncating text. We
+// preserve aspect ratio and only touch images that exceed the threshold —
+// smaller images pass through unchanged.
+//
+// Override with OCR_MAX_VLM_EDGE=0 to disable the pre-scale.
+async function prepareImageForVlm(buffer: Buffer): Promise<string> {
+  const maxEdgeRaw = (process.env.OCR_MAX_VLM_EDGE ?? '896').trim();
+  const maxEdge = Number.parseInt(maxEdgeRaw, 10);
+  if (!Number.isFinite(maxEdge) || maxEdge <= 0) {
+    return buffer.toString('base64');
+  }
+  try {
+    const meta = await sharp(buffer).metadata();
+    const longest = Math.max(meta.width ?? 0, meta.height ?? 0);
+    if (longest <= maxEdge) {
+      return buffer.toString('base64');
+    }
+    const resized = await sharp(buffer)
+      .resize({
+        width: maxEdge,
+        height: maxEdge,
+        fit: 'inside',
+        withoutEnlargement: true
+      })
+      .toFormat('jpeg', { quality: 85, mozjpeg: true })
+      .toBuffer();
+    return resized.toString('base64');
+  } catch {
+    // Sharp failed (corrupt image, unsupported format) — fall back to
+    // sending the original bytes unchanged. Losing a pre-scale is
+    // strictly better than failing the whole extraction.
+    return buffer.toString('base64');
+  }
+}
+
 export function createOllamaVlmReviewExtractor(input: {
   config: OllamaVlmReviewExtractionConfig;
   fetchImpl?: typeof fetch;
@@ -140,7 +183,18 @@ export function createOllamaVlmReviewExtractor(input: {
     // directly. OCR-augmented prompts suppress VLM warning detection and
     // produce worse results (see llm-trace.ts rationale).
     const promptText = buildReviewExtractionPrompt({ surface, extractionMode });
-    const imageBase64 = intake.label.buffer.toString('base64');
+    // Resize the image before sending to Ollama. The vision encoder's cost
+    // scales ~linearly with pixel count. Qwen2.5-VL-3B has an internal
+    // max of ~1024 patch tokens, derived from the image's pixel count
+    // (at ~28px per patch side). An 800x800 image already saturates that
+    // bucket; larger images get downsampled anyway by the model. Feeding
+    // a pre-scaled image saves the server-side work AND shrinks the
+    // base64 payload we ship to Ollama.
+    //
+    // Target: longest side <= 896px. We stay under 1024 so we never hit
+    // the max-tokens bucket boundary, and leave tiny images untouched.
+    // Disable by setting OCR_MAX_VLM_EDGE=0.
+    const imageBase64 = await prepareImageForVlm(intake.label.buffer);
 
     recordOllamaLatency(
       context,
