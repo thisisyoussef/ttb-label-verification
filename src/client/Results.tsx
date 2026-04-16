@@ -220,8 +220,15 @@ export function Results({
                 />
               </div>
               {!report.standalone ? (
+                // Header row mirrors FieldRow's flex structure exactly so
+                // the "On Application" / "On Label" eyebrows line up with
+                // the value columns below:
+                //   FieldRow outer: [px-6 flex gap-4] → [inner-flex-1] [show-evidence ~144px]
+                //   FieldRow inner:                  → [field-30%] [app-25%] [label-flex-1] [badge-w-[72px]]
+                // Old header had a leftover `w-6` left spacer from the old
+                // pre-Tier-3.1 chevron (removed when we moved the affordance
+                // to the right side), which shifted every column 24px right.
                 <div aria-hidden="true" className="hidden md:flex items-center gap-4 px-6 pb-1">
-                  <span className="w-6 shrink-0" />
                   <div className="flex-1 flex items-center gap-4 min-w-0">
                     <span className="w-[30%] shrink-0" />
                     <span className="w-[25%] shrink-0 font-label text-xs lg:text-sm font-bold uppercase tracking-widest text-on-surface-variant">
@@ -232,6 +239,8 @@ export function Results({
                     </span>
                     <span className="shrink-0 w-[72px]" />
                   </div>
+                  {/* Matches the 'Show evidence' button width on each FieldRow so the rightmost edge lines up. */}
+                  <span className="shrink-0 w-[144px]" />
                 </div>
               ) : null}
               {sortedChecks.map((check, index) => (

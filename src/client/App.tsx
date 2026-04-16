@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppShell } from './AppShell';
 import { AssessorToolbench } from './toolbench/AssessorToolbench';
 import { EvalDemo } from './EvalDemo';
+import { loadScenarioImageFile } from './scenarioImageLoader';
 import type { LabelImage } from './types';
 import { formatFileSize } from '../shared/batch-file-meta';
 import { AuthScreen } from './AuthScreen';
@@ -441,7 +442,19 @@ export function App() {
         <AssessorToolbench
           activeScenarioId={single.scenarioId}
           activeBatchSeedId={batch.batchSeedId}
-          onSelectScenario={single.onSelectScenario}
+          onSelectScenario={(scenario) => {
+            // Populate the form first so the scenario label lights up
+            // immediately, then async-fetch the image asset if the
+            // scenario declares one. The fetch lives in a non-auth module
+            // to keep the auth-privacy grep invariant (App.tsx contains
+            // no fetch calls).
+            single.onSelectScenario(scenario);
+            const asset = scenario.imageAsset;
+            if (!asset) return;
+            void loadScenarioImageFile(asset).then((file) => {
+              if (file) handleToolbenchLoadImage(file);
+            });
+          }}
           onSelectBatchSeed={batch.onSelectBatchSeed}
           onLoadImage={handleToolbenchLoadImage}
           onLoadCsv={handleToolbenchLoadCsv}
