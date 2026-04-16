@@ -200,20 +200,23 @@ ensure_template() {
   fi
 
   section "Creating user template ${RUNPOD_TEMPLATE_NAME}"
-  # Three-phase start command:
-  #   (a) Start `ollama serve` in the background unconditionally — that way
-  #       even if the bootstrap explodes, the pod stays reachable on :11434.
-  #   (b) Pipe the bootstrap.sh through bash.
-  #   (c) If the Node API ever dies (or the bootstrap fails), fall through to
-  #       `sleep infinity` so the container stays up and you can SSH in to
-  #       read /workspace/bootstrap.log. Without this the container would
-  #       restart-loop and never expose its logs.
+  # Minimal start-cmd: just fetch and run the bootstrap. The bootstrap
+  # script does ALL sequencing (start ollama, install deps, clone repo,
+  # build, start node, fall through to sleep-infinity on failure).
   #
-  # We intentionally DO NOT use `bash -l` (login shell) here. `-l` sources
-  # /etc/profile which some base images hand-craft in ways that break under
-  # non-interactive invocation. `bash -c` is sufficient and deterministic.
+  # Why minimal: experimentation on pods s6vjohli27x7vu and
+  # mjglq7uuw02rdw showed that longer start-cmd strings — with `&`
+  # backgrounding + pipes + `;` + `exec` + escaped `$?` — fail silently
+  # at the RunPod API or Docker level. A sibling test pod with just
+  # `apt-get update && apt-get install -y openssh-server && ... sshd -D`
+  # worked on the first try. Everything sequencing-heavy goes in the
+  # script itself.
+  #
+  # `bash -c` (not `-lc`): login shells source /etc/profile, which some
+  # base images mangle in ways that break under non-interactive
+  # invocation. We want a deterministic, minimal shell.
   local start_cmd
-  start_cmd="mkdir -p /workspace && ollama serve >/tmp/ollama.log 2>&1 & curl -fsSL ${BOOTSTRAP_URL} | bash -s -- ${REPO_BRANCH}; echo \"bootstrap exit=\$?\" >> /workspace/bootstrap.log; exec sleep infinity"
+  start_cmd="curl -fsSL ${BOOTSTRAP_URL} | bash -s -- ${REPO_BRANCH}"
   runpodctl template create \
     --name "${RUNPOD_TEMPLATE_NAME}" \
     --image "${BASE_IMAGE}" \
