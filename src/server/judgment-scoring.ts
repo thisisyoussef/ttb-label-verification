@@ -74,20 +74,30 @@ export type WeightedVerdictResult = {
 export function deriveWeightedVerdict(input: WeightedVerdictInput): WeightedVerdictResult {
   const allChecks = [...input.checks, ...input.crossFieldChecks];
 
-  // Rule 1: Any reject from critical or high tier → reject
-  // Exception: government-warning fail with anchor words present in extracted
-  // text ("GOVERNMENT WARNING", "SURGEON GENERAL") → the warning IS on the
-  // label but the VLM garbled the extraction with adjacent text. This is an
-  // extraction quality issue, not a missing warning. Downgrade to review.
+  // Rule 1: Any reject from critical or high tier → reject.
+  //
+  // Exception (government warning ONLY): the warning check is a composite of
+  // several sub-checks. When the failure is caused by extraction noise rather
+  // than a genuine regulatory defect, downgrade to review.
+  //
+  // Heuristic: if the extracted text clearly contains anchor words
+  // ("GOVERNMENT WARNING" / "SURGEON GENERAL") AND the warning's overall
+  // confidence is low (< 0.7) — meaning the model itself wasn't sure about
+  // the defect signal — treat as review. When confidence is high (e.g. 0.9+
+  // saying "heading is NOT in all caps"), that's a confident real defect and
+  // we keep the reject.
   for (const check of allChecks) {
     if (check.status === 'fail') {
       const tier = getTier(check.id);
       if (tier === 'critical' || tier === 'high') {
-        // Government warning garbled-extraction exception
         if (check.id === 'government-warning') {
           const ext = (check.extractedValue ?? check.comparison?.extractedValue ?? '').toUpperCase();
-          if (ext.includes('GOVERNMENT WARNING') || ext.includes('SURGEON GENERAL')) {
-            // Warning is present but garbled — treat as review, not reject
+          const hasAnchorWords = ext.includes('GOVERNMENT WARNING') || ext.includes('SURGEON GENERAL');
+          const lowConfidenceDefect = check.confidence < 0.7;
+          if (hasAnchorWords && lowConfidenceDefect) {
+            // Warning is present but extraction is noisy — treat as review,
+            // not reject. A human reviewer should confirm whether the defect
+            // is real or an OCR artifact.
             continue;
           }
         }
