@@ -14,7 +14,7 @@ import { extractFieldsFromOcrText } from './ocr-field-extractor';
 import { finalizeReviewExtraction } from './review-extraction';
 import { runVlmRegionDetection, isRegionDetectionEnabled, type RegionOcrResult } from './vlm-region-detector';
 import { resolveAmbiguousChecks } from './judgment-llm-executor';
-import { createGeminiJudgmentClient } from './judgment-llm-client';
+import { createJudgmentLlmClient } from './judgment-llm-client-factory';
 import { deriveWeightedVerdict } from './judgment-scoring';
 import { type LlmEndpointSurface } from './llm-policy';
 import {
@@ -338,7 +338,7 @@ const tracedReviewSurface = traceable(
     //
     // Opt-out with LLM_JUDGMENT=disabled env var.
     let finalReport = reportStage.result;
-    const judgmentClient = createGeminiJudgmentClient();
+    const judgmentClient = createJudgmentLlmClient();
     if (judgmentClient) {
       const judgmentStage = await measureStage(async () => {
         // Only upgrade fields that benefit from semantic LLM judgment.

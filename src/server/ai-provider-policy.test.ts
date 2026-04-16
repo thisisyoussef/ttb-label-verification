@@ -39,7 +39,7 @@ describe('AI provider policy', () => {
         mode: 'local',
         capability: 'label-extraction'
       })
-    ).toEqual(['transformers', 'ollama']);
+    ).toEqual(['ollama-vlm', 'transformers', 'ollama']);
   });
 
   it('rejects unknown or duplicate providers in env ordering', () => {
