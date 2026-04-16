@@ -17,7 +17,7 @@
  *   fast             (7 labels)  — representative smoke sample
  */
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
 const BASE_URL = process.env.BASE_URL ?? 'http://127.0.0.1:8787';
@@ -34,6 +34,13 @@ type Case = {
   abv: string;
   net: string;
   beverageType: 'auto' | 'distilled-spirits' | 'wine' | 'malt-beverage';
+  applicantAddress?: string;
+  origin?: 'domestic' | 'imported';
+  country?: string;
+  fancifulName?: string;
+  formulaId?: string;
+  appellation?: string;
+  vintage?: string;
 };
 
 function loadCases(slice: typeof SLICE): Case[] {
@@ -45,7 +52,7 @@ function loadCases(slice: typeof SLICE): Case[] {
   }
   // cola-cloud-all: load from the batch fixture CSV
   const repoRoot = process.cwd();
-  const csvPath = path.join(repoRoot, 'evals/labels/fixtures/cola-cloud-all.csv');
+  const csvPath = path.join(repoRoot, 'evals/batch/cola-cloud/cola-cloud-all.csv');
   return loadFromCsv(csvPath);
 }
 
@@ -55,20 +62,48 @@ function loadFromCsv(csvPath: string): Case[] {
   if (lines.length < 2) return [];
   const headers = parseCsvRow(lines[0]);
   const cases: Case[] = [];
+  // The batch CSVs store a bare filename; images live at
+  // evals/labels/assets/cola-cloud/{filename} (or ../supplemental-generated/).
+  const imageRoots = [
+    'evals/labels/assets/cola-cloud',
+    'evals/labels/assets/supplemental-generated'
+  ];
+  const repoRoot = process.cwd();
+
   for (let i = 1; i < lines.length; i += 1) {
     const row = parseCsvRow(lines[i]);
     const pick = (h: string) => row[headers.indexOf(h)] ?? '';
-    const relImg = pick('label_image_path');
-    if (!relImg) continue;
+    const filename = pick('filename') || pick('label_image_path');
+    if (!filename) continue;
+
+    // Resolve relative image path
+    let relImg = filename;
+    if (!relImg.includes('/')) {
+      for (const root of imageRoots) {
+        const candidate = path.join(repoRoot, root, filename);
+        if (existsSync(candidate)) {
+          relImg = path.join(root, filename);
+          break;
+        }
+      }
+    }
+
     cases.push({
-      id: pick('case_id') || `row-${i}`,
+      id: path.basename(filename, path.extname(filename)),
       path: relImg,
-      expected: 'approve',
+      expected: filename.includes('-negative') ? 'reject' : 'approve',
       brand: pick('brand_name'),
       classType: pick('class_type'),
       abv: pick('alcohol_content'),
       net: pick('net_contents'),
-      beverageType: (pick('beverage_type') as Case['beverageType']) || 'auto'
+      beverageType: (pick('beverage_type') as Case['beverageType']) || 'auto',
+      applicantAddress: pick('applicant_address') || undefined,
+      origin: (pick('origin') as 'domestic' | 'imported') || undefined,
+      country: pick('country') || undefined,
+      fancifulName: pick('fanciful_name') || undefined,
+      formulaId: pick('formula_id') || undefined,
+      appellation: pick('appellation') || undefined,
+      vintage: pick('vintage') || undefined
     });
   }
   return cases;
@@ -103,15 +138,20 @@ function parseCsvRow(line: string): string[] {
   return out;
 }
 
+// Fast slice mirrors the full cola-cloud-all field set (including country +
+// fancifulName + appellation + vintage) so the LLM judgment layer actually
+// has targets to resolve. Leaving these blank meant the judgment path was
+// a no-op on the fast slice — reviews and approvals looked identical to
+// a non-judgment run. Values come from evals/batch/cola-cloud/cola-cloud-all.csv.
 function fastSlice(): Case[] {
   return [
-    { id: 'simply-elegant', path: 'evals/labels/assets/cola-cloud/simply-elegant-simply-elegant-spirits-distilled-spirits.webp', expected: 'approve', brand: 'Simply Elegant', classType: 'straight bourbon whisky', abv: '67% Alc./Vol.', net: '750 mL', beverageType: 'distilled-spirits' },
-    { id: 'persian-empire', path: 'evals/labels/assets/cola-cloud/persian-empire-black-widow-distilled-spirits.webp', expected: 'approve', brand: 'Persian Empire', classType: 'other specialties & proprietaries', abv: '40% Alc./Vol.', net: '750 mL', beverageType: 'distilled-spirits' },
-    { id: 'leitz-rottland', path: 'evals/labels/assets/cola-cloud/leitz-rottland-wine.webp', expected: 'approve', brand: 'Leitz', classType: 'table white wine', abv: '12.5% Alc./Vol.', net: '750 mL', beverageType: 'wine' },
-    { id: 'stormwood', path: 'evals/labels/assets/cola-cloud/stormwood-wines-semillon-wine.webp', expected: 'approve', brand: 'Stormwood Wines', classType: 'table white wine', abv: '13% Alc./Vol.', net: '750 mL', beverageType: 'wine' },
-    { id: 'lake-placid', path: 'evals/labels/assets/cola-cloud/lake-placid-shredder-malt-beverage.webp', expected: 'approve', brand: 'Lake Placid', classType: 'ale', abv: '4% Alc./Vol.', net: '12 FL OZ', beverageType: 'malt-beverage' },
-    { id: 'harpoon', path: 'evals/labels/assets/cola-cloud/harpoon-ale-malt-beverage.webp', expected: 'approve', brand: 'Harpoon', classType: 'ale', abv: '5% Alc./Vol.', net: '1 PINT', beverageType: 'malt-beverage' },
-    { id: 'negative-abv', path: 'evals/labels/assets/supplemental-generated/lake-placid-shredder-abv-negative.webp', expected: 'reject', brand: 'Lake Placid', classType: 'IPA', abv: '5% Alc./Vol.', net: '12 FL OZ', beverageType: 'malt-beverage' }
+    { id: 'simply-elegant', path: 'evals/labels/assets/cola-cloud/simply-elegant-simply-elegant-spirits-distilled-spirits.webp', expected: 'approve', brand: 'Simply Elegant', fancifulName: 'Simply Elegant Spirits', classType: 'straight bourbon whisky', abv: '67% Alc./Vol.', net: '', origin: 'domestic', country: '', beverageType: 'distilled-spirits' },
+    { id: 'persian-empire', path: 'evals/labels/assets/cola-cloud/persian-empire-black-widow-distilled-spirits.webp', expected: 'approve', brand: 'Persian Empire', fancifulName: 'Black Widow', classType: 'other specialties & proprietaries', abv: '40% Alc./Vol.', net: '', origin: 'imported', country: 'canada', beverageType: 'distilled-spirits' },
+    { id: 'leitz-rottland', path: 'evals/labels/assets/cola-cloud/leitz-rottland-wine.webp', expected: 'approve', brand: 'Leitz', fancifulName: 'Rottland', classType: 'table white wine', abv: '12.5% Alc./Vol.', net: '', origin: 'imported', country: 'germany', appellation: 'Rheingau', vintage: '2023', beverageType: 'wine' },
+    { id: 'stormwood', path: 'evals/labels/assets/cola-cloud/stormwood-wines-semillon-wine.webp', expected: 'approve', brand: 'Stormwood Wines', fancifulName: 'Semillon', classType: 'table white wine', abv: '13% Alc./Vol.', net: '', origin: 'imported', country: 'new zealand', appellation: 'Waiheke Island', vintage: '2025', beverageType: 'wine' },
+    { id: 'lake-placid', path: 'evals/labels/assets/cola-cloud/lake-placid-shredder-malt-beverage.webp', expected: 'approve', brand: 'Lake Placid', fancifulName: 'Shredder', classType: 'ale', abv: '', net: '', origin: 'domestic', country: '', beverageType: 'malt-beverage' },
+    { id: 'harpoon', path: 'evals/labels/assets/cola-cloud/harpoon-ale-malt-beverage.webp', expected: 'approve', brand: 'Harpoon', fancifulName: 'Ale', classType: 'ale', abv: '5% Alc./Vol.', net: '', origin: 'domestic', country: '', beverageType: 'malt-beverage' },
+    { id: 'negative-abv', path: 'evals/labels/assets/supplemental-generated/lake-placid-shredder-abv-negative.webp', expected: 'reject', brand: 'Lake Placid', fancifulName: 'Shredder', classType: 'ale', abv: '5% Alc./Vol.', net: '', origin: 'domestic', country: '', beverageType: 'malt-beverage' }
   ];
 }
 
@@ -148,16 +188,16 @@ async function runOne(c: Case, providerOverride?: 'cloud' | 'local'): Promise<Ro
     JSON.stringify({
       beverageType: c.beverageType,
       brandName: c.brand,
-      fancifulName: '',
+      fancifulName: c.fancifulName ?? '',
       classType: c.classType,
       alcoholContent: c.abv,
       netContents: c.net,
-      applicantAddress: '',
-      origin: 'domestic',
-      country: '',
-      formulaId: '',
-      appellation: '',
-      vintage: '',
+      applicantAddress: c.applicantAddress ?? '',
+      origin: c.origin ?? 'domestic',
+      country: c.country ?? '',
+      formulaId: c.formulaId ?? '',
+      appellation: c.appellation ?? '',
+      vintage: c.vintage ?? '',
       varietals: []
     })
   );
