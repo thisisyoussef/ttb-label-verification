@@ -51,6 +51,24 @@ mkdir -p /workspace
 # We use `exec` so every subsequent command in this script inherits the fds.
 exec > >(tee -a /workspace/bootstrap.log) 2>&1
 
+# ----------------------------------------------------------------------------
+# Step 0b — start ollama in the background, unconditionally.
+#
+# We moved this OUT of the template's docker-start-cmd (where it previously
+# lived as `ollama serve >/tmp/ollama.log 2>&1 &`). Experimentation showed
+# that longer start-cmd strings — with `&` backgrounding + pipes + `;` +
+# `exec` — fail silently on RunPod. The debug template that did a single
+# `apt-get && install && sshd -D` worked; anything fancier didn't.
+#
+# Solution: keep the template's start-cmd trivial (just
+# `bash -c "curl -s <URL> | bash"`) and put all sequencing HERE, where we
+# control it and can see the logs.
+# ----------------------------------------------------------------------------
+if ! pgrep -x ollama >/dev/null 2>&1; then
+  ollama serve > /tmp/ollama.log 2>&1 &
+  echo "step-0b-ollama-pid-$!" > /workspace/bootstrap.status
+fi
+
 log() {
   printf '[ttb-bootstrap %s] %s\n' "$(date -u +%FT%TZ)" "$*"
 }
@@ -239,7 +257,13 @@ echo "step-5-node" > /workspace/bootstrap.status
 log "STEP 5/5: starting node dist/server/index.js on port ${PORT}"
 log "env AI_PROVIDER=${AI_PROVIDER} OCR_PREPASS=${OCR_PREPASS} LLM_JUDGMENT=${LLM_JUDGMENT}"
 
-# Use exec so the node process becomes PID 1 of the bootstrap wrapper,
-# inheriting signal handling from the shell.
+# Run node in the foreground. If it dies, fall through to `sleep infinity`
+# so the container stays up for SSH-based debugging instead of
+# restart-looping and losing state. We intentionally do NOT `exec` node —
+# we want the bash wrapper alive as a safety net.
 echo "running" > /workspace/bootstrap.status
-exec node dist/server/index.js
+node dist/server/index.js
+RC=$?
+echo "node-exited-${RC}" > /workspace/bootstrap.status
+log "node exited with code ${RC}; holding container open for SSH debugging"
+exec sleep infinity
