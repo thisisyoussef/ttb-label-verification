@@ -126,14 +126,18 @@ export OLLAMA_MAX_LOADED_MODELS="${OLLAMA_MAX_LOADED_MODELS:-2}"
 # Knobs and why:
 #   FlashAttention: 30-50% speedup on VLM attention. Off by default in
 #     Ollama — no reason not to use it with a modern GPU.
-#   NumParallel=8: let Ollama batch up to 8 concurrent inference
-#     requests per model into a single GPU forward pass. Essential for
-#     batch workflows. Batch throughput scales ~linearly up to this
-#     number; single-request latency creeps up ~10-20% vs NUM_PARALLEL=1
-#     but stays well under the 5s budget.
-#   MaxLoadedModels=3: gives headroom for a future third model
-#     (e.g. a second VLM for A/B or a specialist extractor) without
-#     forcing an evict-and-reload cycle mid-request.
+#   NumParallel=2: let Ollama handle 2 concurrent inference requests
+#     per model. Measured empirically: NUM_PARALLEL=8 caused eval
+#     regression (24/28 -> 19/28, 2 -> 7 errors) because the scheduler
+#     allocated KV cache it couldn't back with real throughput, AND
+#     because uneven token lengths across real labels defeat batched
+#     inference efficiency. NUM_PARALLEL=2 gives graceful concurrency
+#     for 2 simultaneous users without tanking accuracy. For bulk
+#     batch workflows we'll want a dedicated inference server (vLLM
+#     or SGLang) that does true continuous batching — a follow-up
+#     item, not the right fix for today.
+#   MaxLoadedModels=2: VLM + judgment model. A third would evict
+#     one of the existing two (VRAM budget) and cause cold-start tax.
 #   ContextLength=8192: labels use 2-4K prompt tokens + 1K output; the
 #     default 32768 wastes KV cache memory.
 #   KeepAlive=60m: once a model is on the GPU, keep it there for an
@@ -142,8 +146,8 @@ export OLLAMA_MAX_LOADED_MODELS="${OLLAMA_MAX_LOADED_MODELS:-2}"
 #     (observed 502s in the golden eval). 30s bounds stuck requests
 #     without being reachable in normal flow.
 export OLLAMA_FLASH_ATTENTION="${OLLAMA_FLASH_ATTENTION:-1}"
-export OLLAMA_NUM_PARALLEL="${OLLAMA_NUM_PARALLEL:-8}"
-export OLLAMA_MAX_LOADED_MODELS="${OLLAMA_MAX_LOADED_MODELS:-3}"
+export OLLAMA_NUM_PARALLEL="${OLLAMA_NUM_PARALLEL:-2}"
+export OLLAMA_MAX_LOADED_MODELS="${OLLAMA_MAX_LOADED_MODELS:-2}"
 export OLLAMA_CONTEXT_LENGTH="${OLLAMA_CONTEXT_LENGTH:-8192}"
 export OLLAMA_KEEP_ALIVE="${OLLAMA_KEEP_ALIVE:-60m}"
 export OLLAMA_JUDGMENT_TIMEOUT_MS="${OLLAMA_JUDGMENT_TIMEOUT_MS:-30000}"
