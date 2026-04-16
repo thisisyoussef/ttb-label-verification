@@ -81,13 +81,34 @@ print_usage() {
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --build)    MODE="build"; shift ;;
-    --push)     if [[ "$MODE" == "build" ]]; then MODE="build-push"; else MODE="push"; fi; shift ;;
-    --launch)   MODE="launch"; shift ;;
-    --teardown) MODE="teardown"; TEARDOWN_POD_ID="${2:-}"; shift 2 ;;
-    --gpu)      GPU_OVERRIDE="${2:-}"; shift 2 ;;
-    -h|--help)  print_usage; exit 0 ;;
-    *)          echo "unknown flag: $1" >&2; print_usage; exit 1 ;;
+    --build)
+      MODE="build"; shift ;;
+    --push)
+      if [[ "${MODE}" == "build" ]]; then MODE="build-push"; else MODE="push"; fi
+      shift ;;
+    --launch)
+      MODE="launch"; shift ;;
+    --teardown)
+      MODE="teardown"
+      if [[ $# -lt 2 ]]; then
+        echo "error: --teardown requires a pod id, e.g. --teardown abc123xyz" >&2
+        exit 1
+      fi
+      TEARDOWN_POD_ID="$2"
+      shift 2 ;;
+    --gpu)
+      if [[ $# -lt 2 ]]; then
+        echo "error: --gpu requires a GPU name, e.g. --gpu \"NVIDIA RTX A5000\"" >&2
+        exit 1
+      fi
+      GPU_OVERRIDE="$2"
+      shift 2 ;;
+    -h|--help)
+      print_usage; exit 0 ;;
+    *)
+      echo "unknown flag: $1" >&2
+      print_usage
+      exit 1 ;;
   esac
 done
 

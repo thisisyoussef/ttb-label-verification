@@ -121,23 +121,23 @@ ENV OLLAMA_MODELS=/root/.ollama/models \
     OLLAMA_MAX_LOADED_MODELS=2
 
 # Run ollama in the background during build, pull the two models, then stop it.
-# We explicitly use `sh -c` so we can chain the lifecycle cleanly.
-RUN sh -c '\
-  set -eux ; \
-  ollama serve > /tmp/ollama-build.log 2>&1 & \
-  OLLAMA_PID=$! ; \
-  # Wait for ollama to come up. 60s should be ample on a build machine. \
-  for i in $(seq 1 30) ; do \
-    if curl -sf http://127.0.0.1:11434/api/tags >/dev/null ; then break ; fi ; \
-    sleep 2 ; \
-  done ; \
-  ollama pull qwen2.5vl:3b ; \
-  ollama pull qwen2.5:1.5b-instruct ; \
-  kill $OLLAMA_PID || true ; \
-  wait $OLLAMA_PID 2>/dev/null || true ; \
-  # Quick sanity check that the blobs are actually on disk. \
-  du -sh /root/.ollama/models || true \
-'
+# Docker's RUN in shell form already invokes /bin/sh -c, so we write the
+# commands directly. Every ; is a statement terminator; \ at end-of-line
+# continues the RUN instruction.
+RUN set -eux ; \
+    ollama serve > /tmp/ollama-build.log 2>&1 & \
+    OLLAMA_PID=$! ; \
+    # Wait for ollama to come up. 60s should be ample on a build machine.
+    for i in $(seq 1 30) ; do \
+      if curl -sf http://127.0.0.1:11434/api/tags >/dev/null ; then break ; fi ; \
+      sleep 2 ; \
+    done ; \
+    ollama pull qwen2.5vl:3b ; \
+    ollama pull qwen2.5:1.5b-instruct ; \
+    kill $OLLAMA_PID || true ; \
+    wait $OLLAMA_PID 2>/dev/null || true ; \
+    # Quick sanity check that the blobs are actually on disk.
+    du -sh /root/.ollama/models || true
 
 ###############################################################################
 # Runtime environment and launch configuration.
