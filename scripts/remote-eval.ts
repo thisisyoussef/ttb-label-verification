@@ -169,6 +169,14 @@ type Row = {
   failSummary?: string;
 };
 
+// RunPod's Cloudflare proxy occasionally returns 502/504 transients when the
+// upstream takes slightly longer than the proxy's internal tolerance, or
+// during Ollama model swaps. A single re-send almost always succeeds
+// because the model is hot by then. Limited to 1 retry to avoid compounding
+// flakiness into a DDoS on the pod.
+const RETRY_STATUS_CODES = new Set([502, 503, 504, 521, 522, 524]);
+const RETRY_DELAY_MS = 2000;
+
 async function runOne(c: Case, providerOverride?: 'cloud' | 'local'): Promise<Row> {
   const repoRoot = process.cwd();
   const imgPath = path.join(repoRoot, c.path);
@@ -206,30 +214,81 @@ async function runOne(c: Case, providerOverride?: 'cloud' | 'local'): Promise<Ro
   const headers: Record<string, string> = {};
   if (providerOverride) headers['X-Provider-Override'] = providerOverride;
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  // Two attempts max: first request + one retry on transient 5xx. We
+  // re-create the FormData on each attempt because FormData can only be
+  // consumed once by fetch.
+  let res: Response | undefined;
+  let responseText = '';
+  const attempts = 2;
+  let attempt = 0;
+  while (attempt < attempts) {
+    attempt += 1;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const body = attempt === 1 ? form : (() => {
+      const f = new FormData();
+      const imgPath2 = path.join(repoRoot, c.path);
+      f.append(
+        'label',
+        new Blob([readFileSync(imgPath2)], { type: mime }),
+        path.basename(c.path)
+      );
+      f.append('fields', JSON.stringify({
+        beverageType: c.beverageType, brandName: c.brand,
+        fancifulName: c.fancifulName ?? '', classType: c.classType,
+        alcoholContent: c.abv, netContents: c.net,
+        applicantAddress: c.applicantAddress ?? '', origin: c.origin ?? 'domestic',
+        country: c.country ?? '', formulaId: c.formulaId ?? '',
+        appellation: c.appellation ?? '', vintage: c.vintage ?? '', varietals: []
+      }));
+      return f;
+    })();
+    try {
+      res = await fetch(`${BASE_URL}/api/review`, {
+        method: 'POST',
+        body,
+        headers,
+        signal: controller.signal
+      });
+      responseText = await res.text();
+      clearTimeout(timer);
+      // Retry on 5xx transient; break on 2xx/4xx.
+      if (res.ok || !RETRY_STATUS_CODES.has(res.status) || attempt >= attempts) {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    } catch (error) {
+      clearTimeout(timer);
+      if (attempt >= attempts) {
+        return {
+          id: c.id,
+          expected: c.expected,
+          actual: 'error',
+          latencyMs: Date.now() - started,
+          match: false,
+          failSummary: String((error as Error).message ?? error)
+        };
+      }
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    }
+  }
+
+  const elapsed = Date.now() - started;
+
+  if (!res || !res.ok) {
+    return {
+      id: c.id,
+      expected: c.expected,
+      actual: 'error',
+      latencyMs: elapsed,
+      match: false,
+      failSummary: `HTTP ${res?.status ?? 'n/a'}${attempt > 1 ? ` (after ${attempt} attempts)` : ''}: ${responseText.slice(0, 160)}`
+    };
+  }
+
+  const text = responseText;
 
   try {
-    const res = await fetch(`${BASE_URL}/api/review`, {
-      method: 'POST',
-      body: form,
-      headers,
-      signal: controller.signal
-    });
-    const elapsed = Date.now() - started;
-    const text = await res.text();
-
-    if (!res.ok) {
-      return {
-        id: c.id,
-        expected: c.expected,
-        actual: 'error',
-        latencyMs: elapsed,
-        match: false,
-        failSummary: `HTTP ${res.status}: ${text.slice(0, 160)}`
-      };
-    }
-
     const data = JSON.parse(text) as {
       verdict?: string;
       checks?: Array<{ id: string; status: string; applicationValue?: string; extractedValue?: string }>;
@@ -257,12 +316,10 @@ async function runOne(c: Case, providerOverride?: 'cloud' | 'local'): Promise<Ro
       id: c.id,
       expected: c.expected,
       actual: 'error',
-      latencyMs: Date.now() - started,
+      latencyMs: elapsed,
       match: false,
-      failSummary: String((error as Error).message ?? error)
+      failSummary: `parse-failure: ${String((error as Error).message ?? error)}`
     };
-  } finally {
-    clearTimeout(timer);
   }
 }
 
