@@ -20,13 +20,13 @@ export function HelpLauncher({
         aria-label="Open guided tour"
         data-tour-target="tour-launcher"
         className={[
-          'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-label font-bold uppercase tracking-widest transition-all focus-visible:outline-2 focus-visible:outline-offset-2 border',
+          'inline-flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-label font-semibold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 border min-h-[44px]',
           active
             ? 'bg-primary-container text-on-primary-container border-primary shadow-ambient'
             : 'bg-surface-container-lowest text-on-surface border-outline-variant/30 shadow-ambient hover:bg-gradient-to-b hover:from-primary hover:to-primary-dim hover:text-on-primary hover:border-transparent'
         ].join(' ')}
       >
-        <span aria-hidden="true" className="material-symbols-outlined text-[16px]">
+        <span aria-hidden="true" className="material-symbols-outlined text-[18px]">
           school
         </span>
         Guided tour
@@ -50,13 +50,13 @@ export function HelpLauncher({
               school
             </span>
             <div className="flex flex-col gap-2">
-              <p className="text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant">
+              <p className="text-sm font-label font-semibold text-on-surface">
                 How this works
               </p>
               <p className="text-sm text-on-surface font-body leading-relaxed">
                 AI reads the label. Deterministic rules make every decision. You review the evidence and have the final word.
               </p>
-              <p className="text-xs text-on-surface-variant font-mono">
+              <p className="text-sm text-on-surface-variant font-body">
                 Nothing is stored. Inputs and results are discarded when you close the tab.
               </p>
             </div>
@@ -65,17 +65,17 @@ export function HelpLauncher({
             <button
               type="button"
               onClick={onDismissNudge}
-              className="text-[11px] font-label font-bold uppercase tracking-widest text-on-surface-variant hover:text-on-surface transition-colors"
+              className="px-3 py-2 rounded-lg text-sm font-label font-semibold text-on-surface-variant hover:text-on-surface transition-colors min-h-[40px]"
             >
               Got it
             </button>
             <button
               type="button"
               onClick={onLaunch}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-label font-bold uppercase tracking-widest bg-gradient-to-b from-primary to-primary-dim text-on-primary shadow-ambient hover:brightness-110 transition-all"
+              className="inline-flex items-center gap-1 px-4 py-2.5 rounded-lg text-sm font-label font-semibold bg-gradient-to-b from-primary to-primary-dim text-on-primary shadow-ambient hover:brightness-110 transition-all min-h-[40px]"
             >
               Take the tour
-              <span aria-hidden="true" className="material-symbols-outlined text-[14px]">
+              <span aria-hidden="true" className="material-symbols-outlined text-[16px]">
                 chevron_right
               </span>
             </button>

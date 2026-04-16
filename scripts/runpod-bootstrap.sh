@@ -3,55 +3,86 @@
 # runpod-bootstrap.sh — first-boot startup script for a RunPod pod that runs
 # BOTH Ollama and the TTB Node API inside one pod, with no Docker build step.
 #
+# DESIGN NOTES for the recovery after the April 2026 silent-failure incident:
+#
+#   The template's docker-start-cmd is now two-phase:
+#     phase 1: `ollama serve` starts in the background, unconditional.
+#              This guarantees the pod is reachable on 11434 within ~2s of
+#              container start, even if the bootstrap below explodes.
+#     phase 2: this bootstrap.sh runs, redirecting ALL output to
+#              /workspace/bootstrap.log (persists on the volume so it survives
+#              pod restarts) AND /tmp/bootstrap.log (readable via SSH panel).
+#     phase 3: if the Node API never starts, the start-cmd falls through to
+#              `sleep infinity` so the container stays up and you can SSH in
+#              to read the log.
+#
+#   You'll find the full start-cmd in scripts/deploy-app-pod.sh — that's the
+#   wrapper. This file is the second stage.
+#
 # How it is executed:
-#   - The pod's RunPod template sets docker-start-cmd to:
-#         bash -lc 'curl -fsSL https://raw.githubusercontent.com/thisisyoussef/ttb-label-verification/main/scripts/runpod-bootstrap.sh | bash -s -- <branch>'
-#   - That means: fetch this script from the repo's main branch, run it in
-#     bash, optionally passing a branch name as the first positional arg.
-#   - Repo is PUBLIC so no GitHub PAT is required for the clone.
-#
-# What it does (on every pod boot):
-#   1. Install Node.js, tesseract-ocr, git, curl if missing.
-#   2. Clone / fast-forward the repo into /app.
-#   3. Run npm ci + npm run build (idempotent — noop if source hasn't changed).
-#   4. Start ollama serve in the background; wait for it to be ready.
-#   5. Ensure the VLM + judgment models are present (pull if missing).
-#   6. Start the Node API in the foreground — whichever child dies first
-#      propagates its exit code so RunPod's restart policy can decide.
-#
-# State preservation:
-#   - A RunPod network volume mounted at /workspace persists across pod
-#     restarts. We put both the cloned repo (/workspace/app) and the Ollama
-#     model cache (/workspace/models) on it, so restarts are fast.
-#   - First boot on a fresh volume takes ~5-7 min (apt install + npm ci +
-#     model pull). Subsequent restarts with the warm volume are ~30-60s.
+#   - The pod's template start-cmd first starts Ollama, then curls this file
+#     from the branch's main and pipes to bash.
+#   - Repo is PUBLIC so no GitHub PAT is required.
 #
 # Environment variables the pod expects (set via runpodctl pod create --env):
-#   REPO_BRANCH            default 'main' — the branch to deploy
-#   NODE_ENV               default 'production'
-#   PORT                   default 8787
-#   AI_PROVIDER            default 'local'
-#   OLLAMA_HOST            default 'http://127.0.0.1:11434'
-#   OLLAMA_VISION_MODEL    default 'qwen2.5vl:3b'
-#   OLLAMA_JUDGMENT_MODEL  default 'qwen2.5:1.5b-instruct'
-#   OCR_PREPASS            default 'enabled'
-#   LLM_JUDGMENT           default 'disabled' (A/B showed regression — opt-in)
-#   REGION_DETECTION       default 'disabled'
-#   OLLAMA_MODELS          default '/workspace/models'  (goes on the volume)
-#   OLLAMA_KEEP_ALIVE      default '30m'
+#   REPO_BRANCH              default 'main'
+#   NODE_ENV                 default 'production'
+#   PORT                     default 8787
+#   AI_PROVIDER              default 'local'
+#   OLLAMA_HOST              default 'http://127.0.0.1:11434'
+#   OLLAMA_VISION_MODEL      default 'qwen2.5vl:3b'
+#   OLLAMA_JUDGMENT_MODEL    default 'qwen2.5:1.5b-instruct'
+#   OCR_PREPASS              default 'enabled'
+#   LLM_JUDGMENT             default 'disabled'
+#   REGION_DETECTION         default 'disabled'
+#   OLLAMA_MODELS            default '/workspace/models'
+#   OLLAMA_KEEP_ALIVE        default '30m'
 #   OLLAMA_MAX_LOADED_MODELS default '2'
-#   GEMINI_API_KEY         optional — enables cloud fallback
-#   OPENAI_API_KEY         optional — enables cloud fallback
+#   GEMINI_API_KEY           optional
+#   OPENAI_API_KEY           optional
 
-set -euo pipefail
+# ----------------------------------------------------------------------------
+# Step 0 — make every subsequent line visible in /workspace/bootstrap.log.
+# Before this point any output is lost. That's why we don't put heavy work
+# in the template's start-cmd — all of it lives here.
+# ----------------------------------------------------------------------------
+mkdir -p /workspace
+# Tee to both the volume (survives restarts) and stderr (RunPod web console).
+# We use `exec` so every subsequent command in this script inherits the fds.
+exec > >(tee -a /workspace/bootstrap.log) 2>&1
+
+log() {
+  printf '[ttb-bootstrap %s] %s\n' "$(date -u +%FT%TZ)" "$*"
+}
+
+on_error() {
+  local exit_code=$?
+  local line_no=$1
+  log "FATAL: step failed at line ${line_no} with exit ${exit_code}"
+  log "see /workspace/bootstrap.log for details"
+  # Leave a breadcrumb the deploy script can check for
+  echo "failed-at-line-${line_no}-exit-${exit_code}" > /workspace/bootstrap.status
+  # Do NOT exit; caller (template start-cmd) will handle keeping the pod alive.
+  exit "${exit_code}"
+}
+trap 'on_error ${LINENO}' ERR
+
+set -uo pipefail
+# NOTE: we intentionally do NOT use `set -e` because apt-get returns non-zero
+# in cases that are still recoverable (mirror flap). We handle errors via the
+# ERR trap + explicit checks.
+
+log "=============================================================="
+log "TTB bootstrap starting"
+log "branch=${1:-main}  pid=$$  uid=$(id -u)  cwd=$(pwd)"
+log "=============================================================="
 
 REPO_URL="https://github.com/thisisyoussef/ttb-label-verification.git"
 REPO_BRANCH="${REPO_BRANCH:-${1:-main}}"
 APP_DIR="/workspace/app"
 VOLUME_DIR="/workspace"
 
-# Re-export defaults so later exec/env inherits them. Pod-level env takes
-# precedence when set; these only fill in when unset.
+# Re-export defaults so later exec/env inherits them.
 export NODE_ENV="${NODE_ENV:-production}"
 export PORT="${PORT:-8787}"
 export AI_PROVIDER="${AI_PROVIDER:-local}"
@@ -65,40 +96,52 @@ export OLLAMA_MODELS="${OLLAMA_MODELS:-/workspace/models}"
 export OLLAMA_KEEP_ALIVE="${OLLAMA_KEEP_ALIVE:-30m}"
 export OLLAMA_MAX_LOADED_MODELS="${OLLAMA_MAX_LOADED_MODELS:-2}"
 
-log() {
-  printf '[ttb-bootstrap %s] %s\n' "$(date -u +%FT%TZ)" "$*" >&2
-}
-
-###############################################################################
-# 1. Install system dependencies we need that the Ollama image doesn't ship.
+# ----------------------------------------------------------------------------
+# Step 1 — install system dependencies we need that the Ollama image doesn't
+# ship. Each install step logs before it runs.
 #
-# Ollama's stock image is built on Ubuntu and has apt available. It already
-# has ollama + curl. We add: node, git, tesseract.
-###############################################################################
-if ! command -v node >/dev/null 2>&1 \
-  || ! command -v git >/dev/null 2>&1 \
-  || ! command -v tesseract >/dev/null 2>&1; then
-  log "installing node, git, tesseract via apt (first-boot only)"
-  export DEBIAN_FRONTEND=noninteractive
-  apt-get update -qq
-  # Node 20 via NodeSource so we get a recent, supported version.
-  if ! command -v node >/dev/null 2>&1; then
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - >/dev/null
-    apt-get install -y --no-install-recommends nodejs
-  fi
-  apt-get install -y --no-install-recommends \
-    git \
-    tesseract-ocr \
-    tesseract-ocr-eng \
-    ca-certificates
-  apt-get clean
-  rm -rf /var/lib/apt/lists/*
-fi
-log "node $(node -v 2>/dev/null || echo '?')  tesseract $(tesseract --version 2>&1 | head -1)"
+# The Ollama base image is Ubuntu 22.04 and ships curl + bash + apt. It does
+# NOT ship node, git, or tesseract. We install them unconditionally at first
+# boot; apt turns subsequent runs into near-no-ops (~5s).
+# ----------------------------------------------------------------------------
+echo "step-1-deps" > /workspace/bootstrap.status
+log "STEP 1/5: installing system deps (node, git, tesseract)"
 
-###############################################################################
-# 2. Clone or update the repo.
-###############################################################################
+export DEBIAN_FRONTEND=noninteractive
+log "apt-get update"
+apt-get update -qq || log "warn: apt-get update had a non-zero exit; continuing"
+
+if ! command -v git >/dev/null 2>&1; then
+  log "installing git"
+  apt-get install -y --no-install-recommends git ca-certificates
+fi
+
+if ! command -v tesseract >/dev/null 2>&1; then
+  log "installing tesseract-ocr"
+  apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng
+fi
+
+if ! command -v node >/dev/null 2>&1; then
+  log "installing node 20 via NodeSource"
+  curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+  apt-get install -y --no-install-recommends nodejs
+fi
+
+log "versions:"
+log "  node      $(node -v 2>/dev/null || echo 'missing')"
+log "  npm       $(npm -v 2>/dev/null || echo 'missing')"
+log "  git       $(git --version 2>/dev/null || echo 'missing')"
+log "  tesseract $(tesseract --version 2>&1 | head -1 || echo 'missing')"
+log "  ollama    $(ollama --version 2>&1 | head -1 || echo 'missing')"
+
+apt-get clean || true
+rm -rf /var/lib/apt/lists/* || true
+
+# ----------------------------------------------------------------------------
+# Step 2 — clone / update the repo.
+# ----------------------------------------------------------------------------
+echo "step-2-clone" > /workspace/bootstrap.status
+log "STEP 2/5: clone/update repo (${REPO_BRANCH})"
 mkdir -p "${VOLUME_DIR}"
 if [ -d "${APP_DIR}/.git" ]; then
   log "repo exists; fetching + resetting to ${REPO_BRANCH}"
@@ -110,80 +153,64 @@ else
   git clone --depth 1 --branch "${REPO_BRANCH}" "${REPO_URL}" "${APP_DIR}"
   cd "${APP_DIR}"
 fi
+log "head: $(git rev-parse --short HEAD)  msg: $(git log -1 --pretty=%s)"
 
-###############################################################################
-# 3. Install npm deps + build.
-#
-# Use --ignore-scripts because we don't want postinstall hooks (like
-# hooks:install) to run inside the pod — those try to install git hooks into
-# the user's dotfiles, which is pointless in a container.
-###############################################################################
-log "npm ci (this takes ~1-2 min first time; near-instant on warm volume)"
+# ----------------------------------------------------------------------------
+# Step 3 — npm ci + build. --ignore-scripts skips husky git-hook installs that
+# are pointless in a container and can fail on detached HEAD.
+# ----------------------------------------------------------------------------
+echo "step-3-build" > /workspace/bootstrap.status
+log "STEP 3/5: npm ci + build"
 npm ci --ignore-scripts --no-audit --no-fund
-
-log "npm run build"
 npm run build
 
-###############################################################################
-# 4. Start Ollama in the background, wait for it to be healthy.
-###############################################################################
-log "starting ollama serve (models dir: ${OLLAMA_MODELS})"
-mkdir -p "${OLLAMA_MODELS}"
-ollama serve > /tmp/ollama.log 2>&1 &
-OLLAMA_PID=$!
+# ----------------------------------------------------------------------------
+# Step 4 — verify Ollama is up (started by the template's start-cmd before
+# this script ran). Poll until /api/tags responds.
+# ----------------------------------------------------------------------------
+echo "step-4-ollama" > /workspace/bootstrap.status
+log "STEP 4/5: wait for ollama serve (started by template start-cmd)"
 
 READY_URL="${OLLAMA_HOST%/}/api/tags"
+OLLAMA_OK=false
 for i in $(seq 1 60); do
   if curl -sf --max-time 4 "${READY_URL}" >/dev/null 2>&1; then
     log "ollama ready after $((i*2))s"
+    OLLAMA_OK=true
     break
   fi
   sleep 2
-  if [ "$i" -eq 60 ]; then
-    log "ollama failed to come up in 120s; tail of /tmp/ollama.log:"
-    tail -n 50 /tmp/ollama.log >&2 || true
-    exit 1
-  fi
 done
 
-###############################################################################
-# 5. Ensure the two models we need are present. Pull if missing. This is a
-#    no-op when the volume already has them from a prior boot.
-###############################################################################
+if [ "${OLLAMA_OK}" != "true" ]; then
+  log "WARN: ollama did not respond on ${READY_URL} in 120s"
+  log "      pod will still come up but extraction will fail until Ollama starts"
+  log "      check /tmp/ollama.log via SSH for the underlying reason"
+fi
+
 ensure_model() {
   local m="$1"
   if ollama list 2>/dev/null | awk 'NR>1 {print $1}' | grep -qx "${m}"; then
     log "model ${m} present on volume"
   else
-    log "pulling ${m} (this takes 1-5 min on first boot per model)"
-    ollama pull "${m}"
+    log "pulling ${m} (first boot takes 1-5 min per model)"
+    ollama pull "${m}" || log "warn: pull of ${m} failed; app will retry at runtime"
   fi
 }
-ensure_model "${OLLAMA_VISION_MODEL}"
-ensure_model "${OLLAMA_JUDGMENT_MODEL}"
+if [ "${OLLAMA_OK}" = "true" ]; then
+  ensure_model "${OLLAMA_VISION_MODEL}"
+  ensure_model "${OLLAMA_JUDGMENT_MODEL}"
+fi
 
-###############################################################################
-# 6. Trap signals + start the Node API in the foreground.
-###############################################################################
-terminate() {
-  log "SIGTERM/SIGINT received, shutting down"
-  [ -n "${APP_PID:-}" ] && kill -TERM "${APP_PID}" 2>/dev/null || true
-  kill -TERM "${OLLAMA_PID}" 2>/dev/null || true
-  wait 2>/dev/null || true
-  exit 0
-}
-trap terminate SIGTERM SIGINT
+# ----------------------------------------------------------------------------
+# Step 5 — start the Node API in the foreground. RunPod's process supervisor
+# watches PID 1; when this dies the container restarts per the pod policy.
+# ----------------------------------------------------------------------------
+echo "step-5-node" > /workspace/bootstrap.status
+log "STEP 5/5: starting node dist/server/index.js on port ${PORT}"
+log "env AI_PROVIDER=${AI_PROVIDER} OCR_PREPASS=${OCR_PREPASS} LLM_JUDGMENT=${LLM_JUDGMENT}"
 
-log "starting node api on port ${PORT}"
-node dist/server/index.js &
-APP_PID=$!
-
-# Whichever child dies first, we tear down both and propagate.
-set +e
-wait -n
-EXIT_CODE=$?
-log "a child exited with code ${EXIT_CODE}; tearing down"
-kill -TERM "${APP_PID}"   2>/dev/null || true
-kill -TERM "${OLLAMA_PID}" 2>/dev/null || true
-wait 2>/dev/null || true
-exit "${EXIT_CODE}"
+# Use exec so the node process becomes PID 1 of the bootstrap wrapper,
+# inheriting signal handling from the shell.
+echo "running" > /workspace/bootstrap.status
+exec node dist/server/index.js

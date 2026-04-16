@@ -21,7 +21,7 @@ export function abvTagFor(
 
 export function FieldGroupHeading({ children }: { children: ReactNode }) {
   return (
-    <h2 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">
+    <h2 className="font-headline text-base font-semibold text-on-surface mb-3">
       {children}
     </h2>
   );
@@ -36,7 +36,7 @@ export function FieldGroup({
 }) {
   return (
     <fieldset className="flex flex-col gap-6 border-0 p-0">
-      <legend className="font-headline text-sm font-bold uppercase tracking-wider text-on-surface">
+      <legend className="font-headline text-base font-semibold text-on-surface">
         {title}
       </legend>
       {children}
@@ -86,7 +86,7 @@ export function TextField({
   return (
     <label className="flex flex-col gap-2">
       <span className="flex items-center justify-between">
-        <span className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+        <span className="font-label text-sm font-semibold text-on-surface">
           {label}
         </span>
         {tag ? <Tag variant={tag} /> : null}
@@ -102,7 +102,7 @@ export function TextField({
         ].join(' ')}
       />
       {hint ? (
-        <span className="text-xs text-on-surface-variant/80 font-label">
+        <span className="text-sm text-on-surface-variant font-label">
           {hint}
         </span>
       ) : null}
@@ -127,7 +127,7 @@ export function TextAreaField({
 }: TextAreaFieldProps) {
   return (
     <label className="flex flex-col gap-2">
-      <span className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+      <span className="font-label text-sm font-semibold text-on-surface">
         {label}
       </span>
       <textarea
@@ -138,7 +138,7 @@ export function TextAreaField({
         className="bg-surface-container-lowest border border-outline-variant/20 focus:border-primary focus:ring-0 text-on-surface py-3.5 px-3 rounded-lg font-body resize-none"
       />
       {hint ? (
-        <span className="text-xs text-on-surface-variant/80 font-label">
+        <span className="text-sm text-on-surface-variant font-label">
           {hint}
         </span>
       ) : null}
@@ -160,7 +160,7 @@ export function OriginField({
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+      <span className="font-label text-sm font-semibold text-on-surface">
         Origin
       </span>
       <div
@@ -178,7 +178,7 @@ export function OriginField({
               aria-checked={isSelected}
               onClick={() => onChange(option.value)}
               className={[
-                'flex-1 text-xs font-semibold uppercase tracking-widest transition-colors',
+                'flex-1 text-sm font-semibold transition-colors',
                 isSelected
                   ? 'bg-primary text-on-primary'
                   : 'bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-high'
@@ -195,16 +195,17 @@ export function OriginField({
 
 function Tag({ variant }: { variant: 'MANDATORY' | 'OPTIONAL' }) {
   const isMandatory = variant === 'MANDATORY';
+  const label = isMandatory ? 'Required' : 'Optional';
   return (
     <span
       className={[
-        'font-label text-[9px] font-extrabold px-1.5 py-0.5 rounded-sm uppercase tracking-wider',
+        'font-label text-[11px] font-semibold px-2 py-0.5 rounded-sm uppercase tracking-wider',
         isMandatory
           ? 'bg-error/10 text-error'
           : 'bg-surface-container-high text-on-surface-variant'
       ].join(' ')}
     >
-      {variant}
+      {label}
     </span>
   );
 }
