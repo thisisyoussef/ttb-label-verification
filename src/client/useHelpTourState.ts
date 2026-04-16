@@ -63,8 +63,20 @@ export function useHelpTourState(): HelpTourFlow {
     tourCompleted,
     tourSteps,
     onLaunchTour: () => {
+      // Treat the header button as a toggle. Three cases:
+      //   1. Tour is already open → close (bug fix: previously this
+      //      re-opened at step 0, wiping mid-tour progress).
+      //   2. Tour was completed before → restart from step 0.
+      //   3. Tour was never started or was closed mid-tour → open at
+      //      whatever step the user last left off on (0 for first-timers).
+      if (tourOpen) {
+        setTourOpen(false);
+        return;
+      }
+      if (tourCompleted) {
+        setTourStepIndex(0);
+      }
       setTourOpen(true);
-      setTourStepIndex(0);
       setHelpNudgeDismissed(true);
       persistReplay(true, tourCompleted);
     },
