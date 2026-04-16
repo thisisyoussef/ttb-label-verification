@@ -73,16 +73,16 @@ function buildFieldCheck(input: {
       label: input.spec.label,
       status: 'review',
       severity: 'major',
-      summary: `Could not confirm ${input.spec.label.toLowerCase()} from the label.`,
+      summary: `Could not read ${input.spec.label.toLowerCase()} from the label.`,
       details:
-        'The submitted application value is available, but extraction did not return a reliable label value for this row. Leave this in review rather than rejecting automatically.',
+        'The approved record shows a value, but we could not read it clearly on the label. A human reviewer should check this one.',
       confidence: missingFieldConfidence(input.extraction),
       citations: citationsFor(input.extraction.beverageType),
       applicationValue,
       comparison: {
         status: 'value-mismatch',
         applicationValue,
-        note: 'No reliable extracted value was available for this comparison.'
+        note: 'Could not read this field from the label.'
       }
     };
   }
@@ -98,7 +98,7 @@ function buildFieldCheck(input: {
       id: input.spec.id, label: input.spec.label,
       status: judgment.disposition === 'approve' ? 'pass' : judgment.disposition === 'reject' ? 'fail' : 'review',
       severity: judgment.disposition === 'approve' ? 'note' : judgment.disposition === 'reject' ? 'major' : (judgment.confidence >= 0.8 ? 'minor' : 'major'),
-      summary: judgment.disposition === 'approve' ? 'Matches the application value.' : judgment.note,
+      summary: judgment.disposition === 'approve' ? 'Label matches the approved record.' : judgment.note,
       details: `[${judgment.rule}] ${judgment.note}`,
       confidence: judgment.confidence, citations: citationsFor(input.extraction.beverageType),
       applicationValue, extractedValue,
@@ -115,9 +115,9 @@ function buildFieldCheck(input: {
       label: input.spec.label,
       status: 'pass',
       severity: 'note',
-      summary: 'Matches the application value.',
+      summary: 'Label matches the approved record.',
       details:
-        'Application value and extracted label text match exactly within normalization.',
+        'The label and the approved record show the same value.',
       confidence: extractedField.confidence,
       citations: citationsFor(input.extraction.beverageType),
       applicationValue,
@@ -138,12 +138,12 @@ function buildFieldCheck(input: {
     severity: comparison.status === 'case-mismatch' ? 'minor' : 'major',
     summary:
       comparison.status === 'case-mismatch'
-        ? 'Cosmetic difference detected.'
-        : 'Application value and label text do not match.',
+        ? 'Small cosmetic difference.'
+        : 'Label does not match the approved record.',
     details:
       comparison.status === 'case-mismatch'
-        ? 'The difference is limited to casing, spacing, or punctuation, so this stays in review instead of becoming a hard fail.'
-        : 'The submitted application value does not match the extracted label text. Keep this evidence-backed mismatch in review for a human decision.',
+        ? 'Only casing, spacing, or punctuation differs. Take a quick look and confirm.'
+        : 'The label does not match what was approved. A human reviewer should check this one.',
     confidence: extractedField.confidence,
     citations: citationsFor(input.extraction.beverageType),
     applicationValue,
@@ -177,17 +177,17 @@ function buildStandaloneFieldCheck(input: {
     status: confident ? 'pass' : 'review',
     severity: confident ? 'note' : 'minor',
     summary: confident
-      ? `Extracted ${input.label.toLowerCase()} is available for standalone review.`
-      : 'Low extraction confidence.',
+      ? `Label shows ${input.extractedValue}.`
+      : 'The label image is hard to read.',
     details: confident
-      ? 'No application value was supplied, so this row preserves the extracted label text without a comparison verdict.'
-      : 'No application value was supplied, and extraction confidence is too low to auto-pass this row.',
+      ? 'No application data was provided to compare against. Confirm the label reads correctly.'
+      : 'No application data was provided, and the label image is too unclear to be confident.',
     confidence: input.extractedField.confidence,
     citations: citationsFor(input.extraction.beverageType),
     extractedValue: input.extractedValue,
     comparison: {
       status: 'not-applicable',
-      note: 'No application value was supplied for standalone review.'
+      note: 'No application data was provided.'
     }
   };
 }
@@ -203,9 +203,9 @@ function buildForbiddenMaltAbvCheck(input: {
     label: input.label,
     status: 'fail',
     severity: 'major',
-    summary: 'ABV uses a forbidden format.',
+    summary: 'ABV wording is not allowed on beer labels.',
     details:
-      'Malt beverage alcohol statements must use a percentage-of-alcohol-by-volume form such as "5.2% Alc./Vol." The available value uses "ABV," which is not permitted.',
+      'Beer labels must show alcohol content like "5.2% Alc./Vol." The word "ABV" is not allowed.',
     confidence: input.confidence,
     citations: MALT_ABV_CITATIONS,
     applicationValue: input.applicationValue,
@@ -215,11 +215,11 @@ function buildForbiddenMaltAbvCheck(input: {
           status: 'value-mismatch',
           applicationValue: input.applicationValue,
           extractedValue: input.extractedValue,
-          note: 'Format is disallowed for malt beverages.'
+          note: 'This wording is not allowed on beer labels.'
         }
       : {
           status: 'not-applicable',
-          note: 'The extracted value uses a format that is disallowed for malt beverages.'
+          note: 'The label uses wording that is not allowed on beer labels.'
         }
   };
 }

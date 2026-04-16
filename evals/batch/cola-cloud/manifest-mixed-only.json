@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "sourceManifests": [
+    "evals/golden/manifest.json",
+    "evals/labels/cola-cloud.manifest.json"
+  ],
+  "description": "Subset manifest: the 3-label cola-cloud-mixed pack only — used for fast latency-experiment iteration.",
+  "sets": [
+    {
+      "id": "cola-cloud-mixed",
+      "title": "COLA Cloud Mixed",
+      "description": "Mixed real-label sample across all three beverage types.",
+      "csvFile": "cola-cloud-mixed.csv",
+      "imageCases": [
+        {
+          "id": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+          "assetPath": "evals/labels/assets/cola-cloud/simply-elegant-simply-elegant-spirits-distilled-spirits.webp",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "leitz-rottland-wine",
+          "assetPath": "evals/labels/assets/cola-cloud/leitz-rottland-wine.webp",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
+          "id": "lake-placid-shredder-malt-beverage",
+          "assetPath": "evals/labels/assets/cola-cloud/lake-placid-shredder-malt-beverage.webp",
+          "beverageType": "malt-beverage",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        }
+      ]
+    }
+  ]
+}

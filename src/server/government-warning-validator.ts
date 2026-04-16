@@ -114,7 +114,7 @@ function buildPresenceSubCheck(input: {
       id: 'present',
       label: 'Warning text is present',
       status: 'pass',
-      reason: 'Warning text was detected on the label.'
+      reason: 'Warning text is on the label.'
     };
   }
 
@@ -123,8 +123,8 @@ function buildPresenceSubCheck(input: {
     label: 'Warning text is present',
     status: input.textReliable ? 'fail' : 'review',
     reason: input.textReliable
-      ? 'No government warning text was detected on a readable label.'
-      : 'Presence could not be confirmed because the warning read is low confidence.'
+      ? 'No government warning was found on this label.'
+      : 'The label image is too unclear to confirm whether the warning is there.'
   };
 }
 
@@ -133,24 +133,24 @@ function buildOcvBasedWarningCheck(extraction: ReviewExtraction, ocv: WarningOcv
   const extractedText = normalizeGovernmentWarningText(ocv.extractedText);
   const segments = diffGovernmentWarningText({ required: CANONICAL_GOVERNMENT_WARNING, extracted: extractedText });
   const subChecks = warningEvidenceSchema.shape.subChecks.parse([
-    { id: 'present', label: 'Warning text is present', status: 'pass', reason: 'Warning detected and verified via dedicated OCR.' },
+    { id: 'present', label: 'Warning text is present', status: 'pass', reason: 'Warning text is on the label.' },
     { id: 'exact-text', label: 'Warning text matches required wording',
       status: ocv.similarity >= 0.85 ? 'pass' : ocv.similarity >= 0.65 ? 'review' : 'fail',
-      reason: `Warning text ${ocv.similarity >= 0.85 ? 'verified' : 'partially matches'} (${(ocv.similarity * 100).toFixed(1)}% match, ${ocv.editDistance} edits).` },
+      reason: `Warning text ${ocv.similarity >= 0.85 ? 'matches' : 'partly matches'} (${(ocv.similarity * 100).toFixed(1)}% match).` },
     { id: 'uppercase-bold-heading', label: 'Heading is uppercase and bold',
       status: ocv.headingAllCaps ? 'pass' : 'review',
-      reason: ocv.headingAllCaps ? 'GOVERNMENT WARNING heading is in all caps.' : 'Could not confirm all-caps heading from OCR.' },
-    { id: 'continuous-paragraph', label: 'Warning is a continuous paragraph', status: 'pass', reason: 'OCV-verified text extracted as continuous text.' },
+      reason: ocv.headingAllCaps ? 'GOVERNMENT WARNING heading is in all caps.' : 'Could not confirm the heading is all caps from the label image.' },
+    { id: 'continuous-paragraph', label: 'Warning is a continuous paragraph', status: 'pass', reason: 'Warning appears as a single paragraph.' },
     { id: 'legibility', label: 'Warning is legible at label size',
       status: extraction.imageQuality.state === 'ok' ? 'pass' : 'review',
-      reason: extraction.imageQuality.state === 'ok' ? 'Image quality sufficient.' : 'Image quality may affect legibility.' }
+      reason: extraction.imageQuality.state === 'ok' ? 'Image is clear enough to read.' : 'The label image is hard to read.' }
   ]);
   const status = summarizeWarningStatus(subChecks);
   return checkReviewSchema.parse({
     id: 'government-warning', label: 'Government warning', status,
     severity: status === 'fail' ? 'blocker' : status === 'review' ? 'major' : 'note',
-    summary: status === 'pass' ? 'Warning statement verified via dedicated OCR comparison.' : `Warning partially verified (${(ocv.similarity * 100).toFixed(1)}% match).`,
-    details: `OCV: ${ocv.status}, similarity=${ocv.similarity.toFixed(3)}, edits=${ocv.editDistance}`,
+    summary: status === 'pass' ? 'Warning text matches the required wording.' : `Warning text partly matches (${(ocv.similarity * 100).toFixed(1)}% match).`,
+    details: `Similarity ${(ocv.similarity * 100).toFixed(1)}%, ${ocv.editDistance} character changes from required wording.`,
     confidence: ocv.confidence, citations: [...WARNING_CITATIONS], extractedValue: extractedText,
     warning: { subChecks, required: CANONICAL_GOVERNMENT_WARNING, extracted: extractedText, segments }
   });
@@ -167,7 +167,7 @@ function buildExactTextSubCheck(input: {
       label: 'Warning text matches required wording',
       status: 'review',
       reason:
-        'Exact wording could not be confirmed because a reliable warning read was not available.'
+        'Could not read the warning clearly enough to compare it to the required wording.'
     };
   }
 
@@ -177,7 +177,7 @@ function buildExactTextSubCheck(input: {
       label: 'Warning text matches required wording',
       status: 'pass',
       reason:
-        'Extracted warning text matches the required wording after whitespace normalization.'
+        'Warning text matches the required wording.'
     };
   }
 
@@ -186,7 +186,7 @@ function buildExactTextSubCheck(input: {
       id: 'exact-text',
       label: 'Warning text matches required wording',
       status: 'review',
-      reason: 'Text matches after normalization, but extraction confidence is low.'
+      reason: 'Text matches, but the label image is hard to read. Please confirm.'
     };
   }
 
@@ -195,8 +195,8 @@ function buildExactTextSubCheck(input: {
     label: 'Warning text matches required wording',
     status: input.textReliable ? 'fail' : 'review',
     reason: input.textReliable
-      ? 'Extracted wording differs from the required text; see the diff for exact character-level changes.'
-      : 'Extracted wording differs, but the warning read is not reliable enough for a hard failure.'
+      ? 'Warning wording differs from the required text. See the diff below for exact changes.'
+      : 'Warning wording appears to differ, but the label image is hard to read. A human reviewer should confirm.'
   };
 }
 
@@ -212,7 +212,7 @@ function buildHeadingSubCheck(input: {
       id: 'uppercase-bold-heading',
       label: 'Warning heading is uppercase and bold',
       status: 'review',
-      reason: 'Heading format could not be confirmed because warning text was not read reliably.'
+      reason: 'Could not read the heading clearly enough to check its formatting.'
     };
   }
 
@@ -234,7 +234,7 @@ function buildHeadingSubCheck(input: {
       id: 'uppercase-bold-heading',
       label: 'Warning heading is uppercase and bold',
       status: 'pass',
-      reason: 'Heading is uppercase and the visual signal supports bold emphasis.'
+      reason: 'Heading is all caps and bold.'
     };
   }
 
@@ -244,8 +244,8 @@ function buildHeadingSubCheck(input: {
       label: 'Warning heading is uppercase and bold',
       status: input.textReliable ? 'fail' : 'review',
       reason: input.textReliable
-        ? 'Heading text is not fully uppercase.'
-        : 'Heading case could not be confirmed because extraction confidence is low.'
+        ? 'Heading is not all caps.'
+        : 'Could not confirm the heading is all caps because the label image is hard to read.'
     };
   }
 
@@ -254,7 +254,7 @@ function buildHeadingSubCheck(input: {
       id: 'uppercase-bold-heading',
       label: 'Warning heading is uppercase and bold',
       status: 'fail',
-      reason: 'Visual evidence indicates the heading is not bold.'
+      reason: 'The heading does not appear bold.'
     };
   }
 
@@ -263,7 +263,7 @@ function buildHeadingSubCheck(input: {
     label: 'Warning heading is uppercase and bold',
     status: 'review',
     reason:
-      'Uppercase heading is visible, but bold emphasis is uncertain in the current image.'
+      'Heading is all caps, but it is hard to tell whether it is bold in this image.'
   };
 }
 
@@ -276,7 +276,7 @@ function buildContinuousParagraphSubCheck(input: {
       id: 'continuous-paragraph',
       label: 'Warning is a continuous paragraph',
       status: 'review',
-      reason: 'Paragraph continuity could not be confirmed because warning text was not read reliably.'
+      reason: 'Could not read the warning clearly enough to check if it reads as one paragraph.'
     };
   }
 
@@ -287,7 +287,7 @@ function buildContinuousParagraphSubCheck(input: {
       id: 'continuous-paragraph',
       label: 'Warning is a continuous paragraph',
       status: 'pass',
-      reason: 'Warning appears as one continuous paragraph.'
+      reason: 'Warning reads as one paragraph.'
     };
   }
 
@@ -296,7 +296,7 @@ function buildContinuousParagraphSubCheck(input: {
       id: 'continuous-paragraph',
       label: 'Warning is a continuous paragraph',
       status: 'fail',
-      reason: 'Visual evidence indicates the warning is split or interrupted.'
+      reason: 'The warning looks split or broken up on the label.'
     };
   }
 
@@ -304,7 +304,7 @@ function buildContinuousParagraphSubCheck(input: {
     id: 'continuous-paragraph',
     label: 'Warning is a continuous paragraph',
     status: 'review',
-    reason: 'Paragraph continuity is uncertain from the current image.'
+    reason: 'Hard to tell whether the warning reads as one paragraph in this image.'
   };
 }
 
@@ -322,7 +322,7 @@ function buildLegibilitySubCheck(input: {
       label: 'Warning is legible at label size',
       status: 'review',
       reason:
-        'Legibility and separation could not be confirmed because warning text was not read reliably.'
+        'Could not read the warning clearly enough to check if it is readable and set apart.'
     };
   }
 
@@ -331,7 +331,7 @@ function buildLegibilitySubCheck(input: {
       id: 'legibility',
       label: 'Warning is legible at label size',
       status: 'review',
-      reason: 'Image quality is too weak to confirm legibility and separation.'
+      reason: 'The label image is hard to read, so we cannot confirm the warning is legible.'
     };
   }
 
@@ -349,7 +349,7 @@ function buildLegibilitySubCheck(input: {
       id: 'legibility',
       label: 'Warning is legible at label size',
       status: 'review',
-      reason: 'Separation from other content is uncertain in the current image.'
+      reason: 'Hard to tell whether the warning stands apart from other content.'
     };
   }
 
@@ -357,7 +357,7 @@ function buildLegibilitySubCheck(input: {
     id: 'legibility',
     label: 'Warning is legible at label size',
     status: 'pass',
-    reason: 'Warning is readable and appears separated from surrounding content.'
+    reason: 'Warning is readable and stands apart from nearby text.'
   };
 }
 
@@ -415,7 +415,7 @@ function buildWarningSummary(input: {
   exactMatch: boolean;
 }) {
   if (input.status === 'pass') {
-    return 'Warning statement matches required wording and formatting.';
+    return 'Warning text matches the required wording and formatting.';
   }
 
   if (input.status === 'fail') {
@@ -430,21 +430,21 @@ function buildWarningSummary(input: {
       );
 
       return headingFailed
-        ? 'Warning heading and wording do not match required formatting.'
-        : 'Warning wording does not match the required text.';
+        ? 'The heading and the wording do not match what is required.'
+        : 'Warning wording does not match what is required.';
     }
 
-    return 'Government warning formatting does not satisfy CFR requirements.';
+    return 'Warning formatting does not meet the rules.';
   }
 
-  return 'Warning text detected but one or more sub-checks remain inconclusive.';
+  return 'Warning was found, but one or more details still need a human look.';
 }
 
 function buildWarningDetails(subChecks: WarningSubCheck[]) {
   const relevant = subChecks.filter((subCheck) => subCheck.status !== 'pass');
 
   if (relevant.length === 0) {
-    return 'Exact text, heading formatting, paragraph continuity, and legibility all passed under 27 CFR part 16.';
+    return 'Wording, heading, paragraph, and legibility all meet the rules under 27 CFR part 16.';
   }
 
   return relevant.map((subCheck) => subCheck.reason).join(' ');

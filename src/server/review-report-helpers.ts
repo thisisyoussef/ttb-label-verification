@@ -112,27 +112,27 @@ export function compareFieldValues(
   if (normalizedApplication === normalizedExtracted) {
     return {
       status: 'match',
-      note: 'Normalized strings match exactly.'
+      note: 'Values match exactly.'
     };
   }
 
   if (normalizedApplication.toLowerCase() === normalizedExtracted.toLowerCase()) {
     return {
       status: 'case-mismatch',
-      note: 'Only letter casing differs after normalization.'
+      note: 'Only letter casing differs.'
     };
   }
 
   if (normalizeCosmetic(applicationValue) === normalizeCosmetic(extractedValue)) {
     return {
       status: 'case-mismatch',
-      note: 'Only casing, spacing, or punctuation differs after normalization.'
+      note: 'Only casing, spacing, or punctuation differs.'
     };
   }
 
   return {
     status: 'value-mismatch',
-    note: 'Submitted application value does not match extracted label text.'
+    note: 'The label does not match the approved record.'
   };
 }
 
@@ -190,15 +190,15 @@ export function deriveVerdictSecondary(input: {
   }
 
   if (input.standalone) {
-    return 'Standalone review — comparison checks were not run.';
+    return 'No application data to compare against.';
   }
 
   if (input.extraction.imageQuality.state === 'low-confidence') {
-    return 'Low extraction confidence — review carefully.';
+    return 'The label image is hard to read. Please review carefully.';
   }
 
   if ([...input.checks, ...input.crossFieldChecks].some((check) => check.status === 'review')) {
-    return 'One or more checks still need human review.';
+    return 'One or more fields need a human look.';
   }
 
   return undefined;
@@ -210,22 +210,22 @@ export function deriveSummary(input: {
   extraction: ReviewExtraction;
 }) {
   if (input.verdict === 'reject') {
-    return 'One or more deterministic checks failed.';
+    return 'One or more required fields do not match.';
   }
 
   if (input.standalone) {
-    return 'Standalone review preserves extracted evidence while skipping application comparisons.';
+    return 'No application data to compare against. Confirm the label details below match what was approved.';
   }
 
   if (input.extraction.imageQuality.state === 'low-confidence') {
-    return 'Low-confidence extraction keeps the label in review.';
+    return 'The label image is too unclear to be confident. A human reviewer should look at this one.';
   }
 
   if (input.verdict === 'review') {
-    return 'One or more checks need human review.';
+    return 'One or more fields need a human look.';
   }
 
-  return 'All extracted checks passed for this label.';
+  return 'All fields match the approved record.';
 }
 
 export function buildExtractionQualityNote(extraction: ReviewExtraction) {
@@ -234,13 +234,13 @@ export function buildExtractionQualityNote(extraction: ReviewExtraction) {
   }
 
   if (extraction.imageQuality.state === 'no-text-extracted') {
-    return 'The system could not read enough text to produce a meaningful result.';
+    return 'We could not read enough text from the label image to review it.';
   }
 
   if (extraction.imageQuality.state === 'low-confidence') {
     return extraction.imageQuality.issues.length > 0
       ? extraction.imageQuality.issues.join('; ')
-      : 'Image quality is below the threshold required for a confident verdict.';
+      : 'The label image is too unclear to be confident in what was read.';
   }
 
   return undefined;

@@ -48,9 +48,9 @@ function buildSpiritsSameFieldOfVisionCheck(input: {
       label: 'Same field of vision',
       status: 'info',
       severity: 'note',
-      summary: 'Cross-field dependency skipped in standalone mode.',
+      summary: 'Skipped because no application data was provided.',
       details:
-        'Application-backed spatial checks are skipped when no application form was provided.',
+        'This check needs application data to compare against. Nothing was provided, so this one was skipped.',
       confidence: 1,
       citations: DISTILLED_CITATIONS
     };
@@ -61,9 +61,9 @@ function buildSpiritsSameFieldOfVisionCheck(input: {
     label: 'Same field of vision',
     status: 'info',
     severity: 'note',
-    summary: 'Same-field-of-vision check is not yet implemented — not blocking.',
+    summary: 'This check is not yet available. Please confirm by eye.',
     details:
-      'Brand name, class/type, and alcohol content must appear in the same field of vision for distilled spirits labels. This build does not yet have spatial evidence. Marked as informational until spatial analysis is available.',
+      'Brand name, class/type, and alcohol content must all appear together on the same side of a spirits label. This version of the tool does not check that yet. Please confirm by looking at the label.',
     confidence: input.extraction.imageQuality.state === 'ok' ? 0.54 : 0.42,
     citations: DISTILLED_CITATIONS
   };
@@ -90,9 +90,9 @@ function buildWineVintageAppellationCheck(input: {
       label: 'Vintage requires appellation',
       status: 'fail',
       severity: 'major',
-      summary: 'Appellation missing while vintage is present.',
+      summary: 'Vintage shown but no appellation.',
       details:
-        'When a vintage date is shown on a wine label, an appellation of origin must also be shown. This is a clear dependency failure.',
+        'A wine label that shows a vintage year must also show an appellation of origin. This label does not.',
       confidence: 0.94,
       citations: ['27 CFR 4.34']
     };
@@ -103,9 +103,9 @@ function buildWineVintageAppellationCheck(input: {
     label: 'Vintage requires appellation',
     status: 'pass',
     severity: 'note',
-    summary: 'Vintage claim is paired with an appellation.',
+    summary: 'Vintage and appellation are both on the label.',
     details:
-      'The wine label includes an appellation alongside the vintage claim, so the dependency is satisfied.',
+      'The label shows an appellation along with the vintage year, as required.',
     confidence: 0.94,
     citations: ['27 CFR 4.34']
   };
@@ -128,9 +128,9 @@ function buildMaltAbvFormatCheck(input: {
       label: 'ABV format permitted for beverage type',
       status: 'pass',
       severity: 'note',
-      summary: 'Alcohol statement uses permitted wording.',
+      summary: 'Alcohol wording is allowed.',
       details:
-        'The alcohol statement uses an "Alc./Vol." style format that is acceptable for malt beverages.',
+        'The label uses "Alc./Vol." wording, which is allowed on beer labels.',
       confidence: 0.96,
       citations: MALT_ABV_CITATIONS
     };
@@ -141,9 +141,9 @@ function buildMaltAbvFormatCheck(input: {
     label: 'ABV format permitted for beverage type',
     status: 'fail',
     severity: 'major',
-    summary: 'Malt beverage ABV must use "Alc./Vol." wording.',
+    summary: 'Beer labels must say "Alc./Vol.", not "ABV".',
     details:
-      '27 CFR 7.65 requires malt beverage alcohol statements to use a percentage-of-alcohol-by-volume form such as "5.2% Alc./Vol." The available value uses "ABV," which is not permitted.',
+      '27 CFR 7.65 requires beer labels to show alcohol content as a percentage in the form "5.2% Alc./Vol." The word "ABV" is not allowed.',
     confidence: 0.98,
     citations: MALT_ABV_CITATIONS
   };

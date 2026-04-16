@@ -74,11 +74,17 @@ export function Processing({
     return () => window.removeEventListener('keydown', handler);
   }, [phase, onCancel]);
 
-  const displaySteps = steps.map((step, index) =>
-    index === steps.length - 1 && lateStageLabel
-      ? { ...step, label: lateStageLabel }
-      : step
-  );
+  // Hide pending (future) steps so the loading UI doesn't render greyed-out
+  // skeleton rows. Only 'done' and 'active' steps are shown — plus a muted
+  // "N more steps" summary line so reviewers still see there's more coming.
+  const visibleSteps = steps
+    .filter((step) => step.status !== 'pending')
+    .map((step, index, arr) =>
+      index === arr.length - 1 && lateStageLabel
+        ? { ...step, label: lateStageLabel }
+        : step
+    );
+  const pendingStepCount = steps.filter((s) => s.status === 'pending').length;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 h-[calc(100dvh-var(--header-h))]">
@@ -87,9 +93,16 @@ export function Processing({
           Label details
         </h2>
 
+        {/* Image treatment mirrors ResultsPinnedColumn: max-height + object-contain
+            preserves the label's native aspect ratio (wide keg labels, tall bottle
+            labels, square cans all render correctly) instead of cropping to a 3:4
+            box. Keeps the image identical between "reviewing" and "results" screens. */}
         {image.file.type === 'application/pdf' ? (
-          <div className="aspect-[3/4] bg-surface-container-highest rounded-lg flex items-center justify-center">
-            <span className="material-symbols-outlined text-5xl text-on-surface-variant">
+          <div className="min-h-[200px] max-h-[55vh] bg-surface-container-highest rounded-lg flex items-center justify-center">
+            <span
+              aria-hidden="true"
+              className="material-symbols-outlined text-5xl text-on-surface-variant"
+            >
               picture_as_pdf
             </span>
           </div>
@@ -97,7 +110,7 @@ export function Processing({
           <img
             alt="Submitted label thumbnail"
             src={image.previewUrl}
-            className="w-full aspect-[3/4] object-cover rounded-lg bg-surface-container-highest"
+            className="w-full max-h-[55vh] object-contain rounded-lg bg-surface-container-highest"
           />
         )}
 
@@ -163,23 +176,29 @@ export function Processing({
         <header>
           <h1 className="font-headline text-2xl xl:text-4xl font-extrabold text-on-surface tracking-tight">
             Reviewing this label
-            {extractionMode === 'local' ? (
-              <span className="text-on-surface-variant font-semibold"> — local mode</span>
-            ) : null}
           </h1>
           <p className="mt-2 text-on-surface-variant font-body">
-            {extractionMode === 'local'
-              ? 'Running locally. This may take a bit longer and may flag more items for review on layout and formatting checks.'
-              : 'Reading your label, checking fields, and preparing the compliance report.'}
+            Reading the label, checking every required field, and preparing the report.
           </p>
         </header>
 
         <ol role="list" aria-live="polite" className="flex flex-col gap-1 max-w-3xl">
-          {displaySteps.map((step, index) => (
+          {visibleSteps.map((step, index) => (
             <li key={step.id}>
               <StepRow step={step} index={index + 1} reducedMotion={reducedMotion} />
             </li>
           ))}
+          {pendingStepCount > 0 ? (
+            <li
+              className="flex items-center gap-5 p-4 text-on-surface-variant/60"
+              aria-live="polite"
+            >
+              <span className="w-8 h-8 flex-shrink-0" aria-hidden="true" />
+              <span className="font-label text-xs uppercase tracking-wider">
+                {pendingStepCount} more {pendingStepCount === 1 ? 'step' : 'steps'}
+              </span>
+            </li>
+          ) : null}
         </ol>
 
         {phase === 'running' && elapsed > 0 ? (

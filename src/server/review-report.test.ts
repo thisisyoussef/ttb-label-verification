@@ -339,6 +339,6 @@ describe('review report builder', () => {
     expect(report.standalone).toBe(true);
     expect(report.verdict).toBe('reject');
     expect(report.verdictSecondary).toBe('Alcohol content is the deciding check.');
-    expect(report.summary).toBe('One or more deterministic checks failed.');
+    expect(report.summary).toBe('One or more required fields do not match.');
   });
 });

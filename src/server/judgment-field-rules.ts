@@ -45,7 +45,7 @@ export function judgeAlcoholContent(
       disposition: 'review',
       confidence: 0.4,
       rule: 'abv-parse-failure',
-      note: `Could not parse numeric ABV from one or both values. app="${appValue}" ext="${extValue}"`,
+      note: `Could not read the alcohol content clearly. Approved record says "${appValue}", label says "${extValue}".`,
       tier: 'critical'
     };
   }
@@ -62,7 +62,7 @@ export function judgeAlcoholContent(
         disposition: 'reject',
         confidence: 0.95,
         rule: 'abv-crosses-wine-tax-boundary',
-        note: `ABV difference crosses a wine tax class boundary: app=${appAbv}% ext=${extAbv}%`,
+        note: `Alcohol content difference crosses a wine tax class boundary (approved ${appAbv}%, label ${extAbv}%).`,
         tier: 'critical'
       };
     }
@@ -71,7 +71,7 @@ export function judgeAlcoholContent(
         disposition: 'approve',
         confidence: 0.92,
         rule: 'abv-match-wine-tolerance',
-        note: `ABV within 1% wine tolerance: app=${appAbv}% ext=${extAbv}%`,
+        note: `Alcohol content is within the 1% wine tolerance (approved ${appAbv}%, label ${extAbv}%).`,
         tier: 'critical'
       };
     }
@@ -83,7 +83,7 @@ export function judgeAlcoholContent(
       disposition: 'approve',
       confidence: 0.98,
       rule: 'abv-exact-match',
-      note: `ABV matches exactly: ${appAbv}%`,
+      note: `Alcohol content matches exactly: ${appAbv}%.`,
       tier: 'critical'
     };
   }
@@ -94,7 +94,7 @@ export function judgeAlcoholContent(
       disposition: 'approve',
       confidence: 0.88,
       rule: 'abv-rounding-tolerance',
-      note: `ABV within rounding tolerance (${diff}%): app=${appAbv}% ext=${extAbv}%`,
+      note: `Alcohol content is within rounding tolerance (approved ${appAbv}%, label ${extAbv}%).`,
       tier: 'critical'
     };
   }
@@ -103,7 +103,7 @@ export function judgeAlcoholContent(
     disposition: 'reject',
     confidence: 0.95,
     rule: 'abv-numeric-mismatch',
-    note: `ABV differs by ${diff}%: app=${appAbv}% ext=${extAbv}%`,
+    note: `Alcohol content differs by ${diff}% (approved ${appAbv}%, label ${extAbv}%).`,
     tier: 'critical'
   };
 }
@@ -122,7 +122,7 @@ export function judgeGovernmentWarningText(
       disposition: 'approve',
       confidence: 0.98,
       rule: 'warning-exact-match',
-      note: 'Government warning text matches canonical text after normalization.',
+      note: 'Warning text matches the required wording.',
       tier: 'critical'
     };
   }
@@ -135,7 +135,7 @@ export function judgeGovernmentWarningText(
       disposition: 'approve',
       confidence: 0.95,
       rule: 'warning-canonical-plus-extra',
-      note: 'Canonical warning text found with additional messaging appended. Per TTB guidance, additional warnings alongside federal are acceptable.',
+      note: 'Warning text matches and includes extra messaging. TTB guidance allows this.',
       tier: 'critical'
     };
   }
@@ -148,7 +148,7 @@ export function judgeGovernmentWarningText(
       disposition: 'reject',
       confidence: 0.94,
       rule: 'warning-word-substitution',
-      note: `Government warning has word-level changes (edit distance ${distance}).`,
+      note: `Warning text has word changes. ${distance} characters differ from the required wording.`,
       tier: 'critical'
     };
   }
@@ -163,7 +163,7 @@ export function judgeGovernmentWarningText(
       disposition: 'approve',
       confidence: Math.max(0.80, 0.95 - distance * 0.006),
       rule: 'warning-fuzzy-match-close',
-      note: `Warning text within ${distance} edits of canonical (~${maxLen > 0 ? ((1 - distance / maxLen) * 100).toFixed(0) : 0}% match). Normal OCR tolerance.`,
+      note: `Warning text matches the required wording (~${maxLen > 0 ? ((1 - distance / maxLen) * 100).toFixed(0) : 0}% match). Small differences are typical of reading small print.`,
       tier: 'critical'
     };
   }
@@ -173,7 +173,7 @@ export function judgeGovernmentWarningText(
       disposition: 'review',
       confidence: 0.55,
       rule: 'warning-fuzzy-match-moderate',
-      note: `Warning text within ${distance} edits of canonical (~${maxLen > 0 ? ((1 - distance / maxLen) * 100).toFixed(0) : 0}% match). Needs human review.`,
+      note: `Warning text mostly matches the required wording (~${maxLen > 0 ? ((1 - distance / maxLen) * 100).toFixed(0) : 0}% match). A human reviewer should check this one.`,
       tier: 'critical'
     };
   }
@@ -182,7 +182,7 @@ export function judgeGovernmentWarningText(
     disposition: 'reject',
     confidence: 0.90,
     rule: 'warning-text-divergent',
-    note: `Warning text diverges significantly from canonical (distance=${distance}).`,
+    note: `Warning text differs significantly from the required wording.`,
     tier: 'critical'
   };
 }
@@ -201,7 +201,7 @@ export function judgeClassType(
       disposition: 'approve',
       confidence: 0.98,
       rule: 'class-type-exact-match',
-      note: 'Class/type matches after normalization.',
+      note: 'Class/type matches the approved record.',
       tier: 'high'
     };
   }
@@ -212,7 +212,7 @@ export function judgeClassType(
       disposition: 'approve',
       confidence: 0.92,
       rule: 'class-type-taxonomy-match',
-      note: `TTB class "${appValue}" accepts label text "${extValue}" per taxonomy.`,
+      note: `TTB class "${appValue}" accepts label wording "${extValue}".`,
       tier: 'high'
     };
   }
@@ -223,7 +223,7 @@ export function judgeClassType(
       disposition: 'review',
       confidence: 0.70,
       rule: 'class-type-whisky-whiskey',
-      note: 'Whisky/whiskey spelling differs — context-dependent per origin convention.',
+      note: 'Whisky and whiskey are spelled differently. This is a reviewer judgment call.',
       tier: 'high'
     };
   }
@@ -236,7 +236,7 @@ export function judgeClassType(
       disposition: 'approve',
       confidence: 0.85,
       rule: 'class-type-same-base',
-      note: `Both values share base type "${appBase}" — qualifier difference only.`,
+      note: `Both are "${appBase}". Only the descriptor differs.`,
       tier: 'high'
     };
   }
@@ -249,7 +249,7 @@ export function judgeClassType(
       disposition: 'approve',
       confidence: 0.88,
       rule: 'class-type-marketing-qualifier',
-      note: 'Difference is limited to marketing qualifiers (Premium, Reserve, etc.).',
+      note: 'The only difference is a marketing word like Premium or Reserve.',
       tier: 'high'
     };
   }
@@ -258,7 +258,7 @@ export function judgeClassType(
     disposition: 'review',
     confidence: 0.55,
     rule: 'class-type-unresolved',
-    note: `Class/type could not be matched: app="${appValue}" ext="${extValue}"`,
+    note: `Class/type on the label does not match the approved record. Approved: "${appValue}". Label: "${extValue}".`,
     tier: 'high'
   };
 }
@@ -276,7 +276,7 @@ export function judgeBrandName(
       disposition: 'approve',
       confidence: 0.98,
       rule: 'brand-exact-match',
-      note: 'Brand name matches after normalization.',
+      note: 'Brand name matches the approved record.',
       tier: 'medium'
     };
   }
@@ -287,7 +287,7 @@ export function judgeBrandName(
       disposition: 'approve',
       confidence: 0.95,
       rule: 'brand-case-only',
-      note: 'Brand name differs only in casing — approved per TTB guidance.',
+      note: 'Brand name differs only in capitalization. TTB guidance allows this.',
       tier: 'medium'
     };
   }
@@ -300,7 +300,7 @@ export function judgeBrandName(
       disposition: 'approve',
       confidence: 0.93,
       rule: 'brand-diacritical-only',
-      note: 'Brand name differs only in diacritical marks — OCR limitation.',
+      note: 'Brand name differs only by accent marks.',
       tier: 'medium'
     };
   }
@@ -313,7 +313,7 @@ export function judgeBrandName(
       disposition: 'approve',
       confidence: 0.93,
       rule: 'brand-the-prefix',
-      note: 'Difference is only "The" prefix — approved.',
+      note: 'The only difference is the word "The" at the start.',
       tier: 'medium'
     };
   }
@@ -326,7 +326,7 @@ export function judgeBrandName(
       disposition: 'approve',
       confidence: 0.93,
       rule: 'brand-ampersand-and',
-      note: '"&" vs "and" difference — approved.',
+      note: 'The only difference is "&" vs "and".',
       tier: 'medium'
     };
   }
@@ -340,7 +340,7 @@ export function judgeBrandName(
       disposition: 'approve',
       confidence: 0.93,
       rule: 'brand-space-collapsed-match',
-      note: 'Brand name matches when spaces are removed — OCR line break artifact.',
+      note: 'Brand name matches when spaces are ignored (likely split across lines on the label).',
       tier: 'medium'
     };
   }
@@ -353,7 +353,7 @@ export function judgeBrandName(
       disposition: 'approve',
       confidence: 0.85,
       rule: 'brand-substring-match',
-      note: 'One brand value contains the other — likely parent/product brand difference.',
+      note: 'One brand name contains the other. Likely a parent brand and product name.',
       tier: 'medium'
     };
   }
@@ -366,7 +366,7 @@ export function judgeBrandName(
       disposition: 'review',
       confidence: 0.65,
       rule: 'brand-fuzzy-close',
-      note: `Brand names are close (edit distance ${distance}/${maxLen}) — may be OCR error.`,
+      note: `Brand names are close but not exact. This may be a misread. Please confirm by eye.`,
       tier: 'medium'
     };
   }
@@ -375,7 +375,7 @@ export function judgeBrandName(
     disposition: 'review',
     confidence: 0.50,
     rule: 'brand-unresolved',
-    note: `Brand name mismatch: app="${appValue}" ext="${extValue}"`,
+    note: `Brand name does not match. Approved record shows "${appValue}". Label shows "${extValue}".`,
     tier: 'medium'
   };
 }
@@ -394,7 +394,7 @@ export function judgeNetContents(
       disposition: 'review',
       confidence: 0.40,
       rule: 'net-contents-parse-failure',
-      note: `Could not parse net contents. app="${appValue}" ext="${extValue}"`,
+      note: `Could not read net contents clearly. Approved record shows "${appValue}", label shows "${extValue}".`,
       tier: 'medium'
     };
   }
@@ -405,7 +405,7 @@ export function judgeNetContents(
       disposition: 'approve',
       confidence: 0.95,
       rule: 'net-contents-match',
-      note: `Net contents match: ${appML}mL ≈ ${extML}mL`,
+      note: `Net contents match: ${appML} mL.`,
       tier: 'medium'
     };
   }
@@ -414,7 +414,7 @@ export function judgeNetContents(
     disposition: 'reject',
     confidence: 0.92,
     rule: 'net-contents-mismatch',
-    note: `Net contents differ: app=${appML}mL ext=${extML}mL`,
+    note: `Net contents do not match. Approved record: ${appML} mL. Label: ${extML} mL.`,
     tier: 'medium'
   };
 }
@@ -441,7 +441,7 @@ export function judgeApplicantAddress(
       disposition: 'approve',
       confidence: 0.95,
       rule: 'address-exact-match',
-      note: 'Address matches after normalization.',
+      note: 'Address on the label matches the approved record.',
       tier: 'medium'
     };
   }
@@ -470,7 +470,7 @@ export function judgeApplicantAddress(
       disposition: 'approve',
       confidence: 0.88,
       rule: 'address-substring-match',
-      note: 'One address contains the other — likely abbreviation on label.',
+      note: 'One address contains the other. The label likely shows a shorter form.',
       tier: 'medium'
     };
   }
@@ -481,7 +481,7 @@ export function judgeApplicantAddress(
       disposition: 'approve',
       confidence: 0.82,
       rule: 'address-token-overlap',
-      note: `Address tokens overlap ${Math.round(overlap * 100)}% — likely same address formatted differently.`,
+      note: `Address mostly matches (${Math.round(overlap * 100)}% of parts). Likely the same address, formatted differently.`,
       tier: 'medium'
     };
   }
@@ -492,7 +492,7 @@ export function judgeApplicantAddress(
       disposition: 'review',
       confidence: 0.6,
       rule: 'address-partial-overlap',
-      note: `Address partially matches (${Math.round(overlap * 100)}% token overlap) — could be DBA, co-packer, or legal vs trade name.`,
+      note: `Address partly matches (${Math.round(overlap * 100)}% of parts). This could be a DBA, co-packer, or trade name. Please check.`,
       tier: 'medium'
     };
   }
@@ -503,7 +503,7 @@ export function judgeApplicantAddress(
     disposition: 'review',
     confidence: 0.5,
     rule: 'address-mismatch',
-    note: `Bottler/producer address differs: app="${appValue}" ext="${extValue}"`,
+    note: `Address on the label does not match the approved record. Approved: "${appValue}". Label: "${extValue}".`,
     tier: 'medium'
   };
 }
@@ -520,7 +520,7 @@ export function judgeCountryOfOrigin(
       disposition: 'approve',
       confidence: 0.93,
       rule: 'country-equivalent',
-      note: 'Country of origin matches after translation/abbreviation normalization.',
+      note: 'Country of origin matches the approved record.',
       tier: 'high'
     };
   }
