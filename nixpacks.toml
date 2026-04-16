@@ -1,0 +1,29 @@
+[phases.setup]
+aptPkgs = [
+  # OCR engine — used by src/server/ocr-prepass.ts, warning-ocr-cross-check.ts,
+  # vlm-region-detector.ts, and warning-region-ocv.ts. Without this the
+  # pipeline gracefully degrades to VLM-only extraction, which measurably
+  # reduces accuracy on the golden set (0% vs 36% auto-approve).
+  "tesseract-ocr",
+  "tesseract-ocr-eng"
+]
+
+[phases.build]
+# Model cache fetch is optional in CI — continue even if it cannot reach
+# Hugging Face so we don't break the build just because the mirror is slow.
+cmds = [
+  "npm run model:cache || echo 'model:cache skipped'",
+  "npm run build"
+]
+
+[start]
+cmd = "npm run start"
+
+[variables]
+NODE_ENV = "production"
+# OCR pre-pass is on by default in the pipeline itself. Declared here for
+# operator visibility. Flip to "disabled" on Railway to A/B test without OCR.
+OCR_PREPASS = "enabled"
+# Region detection is OPT-IN only — eval showed it adds 4.5s latency and 4
+# extraction errors without accuracy gains. See accuracy-research-2026-04-15.md.
+REGION_DETECTION = "disabled"

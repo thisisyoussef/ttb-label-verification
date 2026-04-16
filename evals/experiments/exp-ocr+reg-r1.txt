@@ -1,0 +1,22 @@
+Fast eval: 7 labels against http://127.0.0.1:57166
+────────────────────────────────────────────────────────────────────────────────
+✓ simply-elegant       expected=approve  actual=approve  
+✓ persian-empire       expected=approve  actual=approve  
+✗ leitz-rottland       expected=approve  actual=review   ← MISMATCH
+✗ stormwood            expected=approve  actual=review   ← MISMATCH
+✗ lake-placid          expected=approve  actual=reject   ← MISMATCH
+✓ harpoon              expected=approve  actual=approve  
+✓ negative-abv         expected=reject   actual=reject   
+────────────────────────────────────────────────────────────────────────────────
+Result: 4/7 correct (57%)
+Approved: 3/6 expected approvals
+Rejected: 2/1 expected rejections
+
+  MISMATCH: leitz-rottland (expected=approve actual=review)
+  Checks: brand-name:pass, class-type:pass, alcohol-content:review [app=12.5% Alc./Vol. ext=?], net-contents:review [app=750 mL ext=?], government-warning:review [app=? ext=?]
+
+  MISMATCH: stormwood (expected=approve actual=review)
+  Checks: brand-name:pass, class-type:pass, alcohol-content:review [app=13% Alc./Vol. ext=?], net-contents:review [app=750 mL ext=?], government-warning:review [app=? ext=?]
+
+  MISMATCH: lake-placid (expected=approve actual=reject)
+  Checks: brand-name:pass, class-type:pass, alcohol-content:fail [app=4% Alc./Vol. ext=6% ALCOHOL BY VOLUME], net-contents:pass, government-warning:review [app=? ext=GOVT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. (2) Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems.]

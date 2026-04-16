@@ -33,6 +33,24 @@ const BASELINE_INSTRUCTIONS = [
   'Populate the structured fields exactly as named, including governmentWarning when warning text is visible.'
 ] as const;
 
+const OCR_AUGMENTED_INSTRUCTIONS = [
+  'You are an OCR structuring engine. Your ONLY job is to organize pre-extracted text into the required fields.',
+  'An independent OCR engine has already extracted the visible text from this alcohol beverage label. The OCR text is provided below.',
+  'Use the OCR text as your PRIMARY source for all text field values. Do not re-read characters from the image.',
+  'Use the image ONLY for visual formatting signals and image quality assessment.',
+  'Structure the OCR text into the typed fields and return structured output only.',
+  'If the OCR text is garbled or clearly wrong for a field, set present=false with a note — do not guess.',
+  'Never guess unsupported field values.',
+  'Never copy label facts from application inputs or infer them from external expectations.',
+  'Never compare extracted text against any "correct" or "expected" value.',
+  'For every field, mark present=true only when the OCR text supports the extraction.',
+  'Use confidence between 0 and 1. Base text field confidence on OCR text clarity.',
+  'Assess image quality from the image itself, and set noTextDetected=true only when the OCR text is empty.',
+  'For warning visual signals: report what you see but mark "uncertain" if unclear.',
+  'Provide a beverageTypeHint only when the OCR text or image supports it; otherwise use unknown.',
+  'Populate the structured fields exactly as named, including governmentWarning when warning text appears in the OCR output.'
+] as const;
+
 const ENDPOINT_OVERLAYS: Record<ReviewPromptSurface, readonly string[]> = {
   review: [
     'Optimize for balanced extraction that preserves reviewer trust for downstream deterministic comparison.',
@@ -103,4 +121,18 @@ export function resolveReviewPromptPolicy(
 
 export function buildReviewExtractionPrompt(input: ReviewPromptPolicyInput) {
   return resolveReviewPromptPolicy(input).prompt;
+}
+
+export function buildOcrAugmentedExtractionPrompt(input: {
+  surface: LlmEndpointSurface | ReviewPromptSurface;
+  extractionMode: ExtractionMode;
+  ocrText: string;
+}): string {
+  const surface = resolveReviewPromptSurface(input.surface);
+  return [
+    ...OCR_AUGMENTED_INSTRUCTIONS,
+    ...ENDPOINT_OVERLAYS[surface],
+    ...MODE_OVERLAYS[input.extractionMode],
+    '', '--- OCR TEXT START ---', input.ocrText, '--- OCR TEXT END ---'
+  ].join(' ');
 }

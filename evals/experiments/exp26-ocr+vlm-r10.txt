@@ -1,0 +1,28 @@
+Fast eval: 7 labels against http://127.0.0.1:57377
+────────────────────────────────────────────────────────────────────────────────
+✗ simply-elegant       expected=approve  actual=reject   ← MISMATCH
+✓ persian-empire       expected=approve  actual=approve  
+✗ leitz-rottland       expected=approve  actual=review   ← MISMATCH
+✗ stormwood            expected=approve  actual=review   ← MISMATCH
+✗ lake-placid          expected=approve  actual=reject   ← MISMATCH
+✗ harpoon              expected=approve  actual=review   ← MISMATCH
+✓ negative-abv         expected=reject   actual=reject   
+────────────────────────────────────────────────────────────────────────────────
+Result: 2/7 correct (29%)
+Approved: 1/6 expected approvals
+Rejected: 3/1 expected rejections
+
+  MISMATCH: simply-elegant (expected=approve actual=reject)
+  Checks: brand-name:pass, class-type:pass, alcohol-content:fail [app=67% Alc./Vol. ext=ALC/VOL 47%], net-contents:pass, government-warning:review [app=? ext=?]
+
+  MISMATCH: leitz-rottland (expected=approve actual=review)
+  Checks: brand-name:pass, class-type:pass, alcohol-content:review [app=12.5% Alc./Vol. ext=?], net-contents:review [app=750 mL ext=?], government-warning:review [app=? ext=?]
+
+  MISMATCH: stormwood (expected=approve actual=review)
+  Checks: brand-name:review [app=Stormwood Wines ext=STORMOWOOD], class-type:pass, alcohol-content:review [app=13% Alc./Vol. ext=?], net-contents:review [app=750 mL ext=?], government-warning:review [app=? ext=?]
+
+  MISMATCH: lake-placid (expected=approve actual=reject)
+  Checks: brand-name:pass, class-type:pass, alcohol-content:fail [app=4% Alc./Vol. ext=6% ALC/VOL], net-contents:pass, government-warning:review [app=? ext=GOVT. WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUSE OF THE RISK OF BIRTH DEFECTS. (2) CONSUMPTION OF ALCOHOLIC BEVERAGES IMPAIRS YOUR ABILITY TO DRIVE A MOTOR VEHICLE OR OPERATE MACHINERY, AND MAY CAUSE HEALTH PROBLEMS.]
+
+  MISMATCH: harpoon (expected=approve actual=review)
+  Checks: brand-name:pass, class-type:pass, alcohol-content:pass, net-contents:pass, government-warning:review [app=? ext=GOVERNMENT WARNING: DRINK ALCOHOLIC BEVERAL HARPOON BREWERY BOSTON, MA, WORCESTER, MA, MANCHESTER, NH & WINDSOR, VT * 5.0% ALC/VOL]

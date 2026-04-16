@@ -13,6 +13,15 @@ import {
   missingFieldConfidence,
   type FieldSpec
 } from './review-report-helpers';
+import {
+  judgeAlcoholContent,
+  judgeApplicantAddress,
+  judgeBrandName,
+  judgeClassType,
+  judgeCountryOfOrigin,
+  judgeNetContents,
+  type FieldJudgment
+} from './judgment-field-rules';
 
 export function buildFieldChecks(input: {
   intake: NormalizedReviewIntake;
@@ -78,6 +87,26 @@ function buildFieldCheck(input: {
     };
   }
 
+  // Use field-specific judgment rules when available
+  const judgment = runFieldJudgment(input.spec.id, applicationValue, extractedValue, input.extraction.beverageType);
+  if (judgment) {
+    const rawMatch = applicationValue.trim() === extractedValue.trim();
+    const comparisonStatus = judgment.disposition === 'approve'
+      ? (rawMatch ? 'match' as const : 'case-mismatch' as const)
+      : 'value-mismatch' as const;
+    return {
+      id: input.spec.id, label: input.spec.label,
+      status: judgment.disposition === 'approve' ? 'pass' : judgment.disposition === 'reject' ? 'fail' : 'review',
+      severity: judgment.disposition === 'approve' ? 'note' : judgment.disposition === 'reject' ? 'major' : (judgment.confidence >= 0.8 ? 'minor' : 'major'),
+      summary: judgment.disposition === 'approve' ? 'Matches the application value.' : judgment.note,
+      details: `[${judgment.rule}] ${judgment.note}`,
+      confidence: judgment.confidence, citations: citationsFor(input.extraction.beverageType),
+      applicationValue, extractedValue,
+      comparison: { status: comparisonStatus, applicationValue, extractedValue, note: `[${judgment.rule}] ${judgment.note}` }
+    };
+  }
+
+  // Fallback to old comparison for fields without specific rules
   const comparison = compareFieldValues(applicationValue, extractedValue);
 
   if (comparison.status === 'match') {
@@ -193,4 +222,16 @@ function buildForbiddenMaltAbvCheck(input: {
           note: 'The extracted value uses a format that is disallowed for malt beverages.'
         }
   };
+}
+
+function runFieldJudgment(fieldId: string, applicationValue: string, extractedValue: string, beverageType: string): FieldJudgment | null {
+  switch (fieldId) {
+    case 'brand-name': return judgeBrandName(applicationValue, extractedValue);
+    case 'class-type': return judgeClassType(applicationValue, extractedValue, beverageType);
+    case 'alcohol-content': return judgeAlcoholContent(applicationValue, extractedValue, beverageType);
+    case 'net-contents': return judgeNetContents(applicationValue, extractedValue);
+    case 'applicant-address': return judgeApplicantAddress(applicationValue, extractedValue);
+    case 'country-of-origin': return judgeCountryOfOrigin(applicationValue, extractedValue);
+    default: return null;
+  }
 }

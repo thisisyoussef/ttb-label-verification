@@ -9,6 +9,7 @@ import { applyReviewExtractorGuardrails } from './review-extractor-guardrails';
 import type { NormalizedReviewIntake } from './review-intake';
 import {
   buildReviewExtractionPrompt,
+  buildOcrAugmentedExtractionPrompt,
   normalizeReviewExtractionModelOutput,
   reviewExtractionModelOutputSchema
 } from './review-extraction-model-output';
@@ -103,6 +104,13 @@ export function buildReviewExtractionRequest(input: {
     extractionMode: ExtractionMode;
   };
 }): ResponsesParseRequest {
+  const surface = input.context?.surface ?? '/api/review';
+  const extractionMode = input.context?.extractionMode ?? 'cloud';
+  const ocrText = input.intake.ocrText;
+  const promptText = ocrText
+    ? buildOcrAugmentedExtractionPrompt({ surface, extractionMode, ocrText })
+    : buildReviewExtractionPrompt({ surface, extractionMode });
+
   return {
     model: input.config.visionModel,
     store: input.config.store,
@@ -119,10 +127,7 @@ export function buildReviewExtractionRequest(input: {
         content: [
           {
             type: 'input_text',
-            text: buildReviewExtractionPrompt({
-              surface: input.context?.surface ?? '/api/review',
-              extractionMode: input.context?.extractionMode ?? 'cloud'
-            })
+            text: promptText
           },
           buildLabelInputContent({
             intake: input.intake,

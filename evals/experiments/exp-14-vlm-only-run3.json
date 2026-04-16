@@ -1,0 +1,74 @@
+{
+  "id": 14,
+  "name": "vlm-only-run3",
+  "description": "VLM only (repeat 3)",
+  "approved": 0,
+  "reviewed": 0,
+  "rejected": 0,
+  "errors": 7,
+  "correct": 0,
+  "total": 7,
+  "avgLatencyMs": 0,
+  "p95LatencyMs": 0,
+  "successRate": "0.0",
+  "approveRate": "0.0",
+  "falseRejectRate": "0.0",
+  "labels": [
+    {
+      "label": "simply-elegant",
+      "expected": "approve",
+      "actual": "error",
+      "correct": false,
+      "latencyMs": 0,
+      "checks": []
+    },
+    {
+      "label": "persian-empire",
+      "expected": "approve",
+      "actual": "error",
+      "correct": false,
+      "latencyMs": 0,
+      "checks": []
+    },
+    {
+      "label": "leitz-rottland",
+      "expected": "approve",
+      "actual": "error",
+      "correct": false,
+      "latencyMs": 0,
+      "checks": []
+    },
+    {
+      "label": "stormwood",
+      "expected": "approve",
+      "actual": "error",
+      "correct": false,
+      "latencyMs": 0,
+      "checks": []
+    },
+    {
+      "label": "lake-placid",
+      "expected": "approve",
+      "actual": "error",
+      "correct": false,
+      "latencyMs": 0,
+      "checks": []
+    },
+    {
+      "label": "harpoon",
+      "expected": "approve",
+      "actual": "error",
+      "correct": false,
+      "latencyMs": 0,
+      "checks": []
+    },
+    {
+      "label": "negative-abv",
+      "expected": "reject",
+      "actual": "error",
+      "correct": false,
+      "latencyMs": 0,
+      "checks": []
+    }
+  ]
+}

@@ -1,0 +1,2222 @@
+[
+  {
+    "id": 1,
+    "name": "vlm-only",
+    "description": "VLM only, no OCR, no regions",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "ocr+vlm",
+    "description": "OCR pre-pass + VLM, no regions",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "full-pipeline",
+    "description": "OCR + VLM + region detection",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "ocr-only-no-vlm",
+    "description": "OCR regex only, VLM disabled (pure deterministic)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "ocr+vlm-run2",
+    "description": "OCR pre-pass + VLM (repeat 2)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "ocr+vlm-run3",
+    "description": "OCR pre-pass + VLM (repeat 3)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "vlm-only-run2",
+    "description": "VLM only (repeat 2)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "name": "gemini-only",
+    "description": "Gemini as sole provider",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "name": "openai-only",
+    "description": "OpenAI as sole provider",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "name": "full-pipeline-run2",
+    "description": "Full pipeline (repeat 2)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "name": "full-pipeline-run3",
+    "description": "Full pipeline (repeat 3)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "name": "ocr+vlm-run4",
+    "description": "OCR + VLM (repeat 4)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "name": "ocr+vlm-run5",
+    "description": "OCR + VLM (repeat 5)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "name": "vlm-only-run3",
+    "description": "VLM only (repeat 3)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "name": "vlm-only-run4",
+    "description": "VLM only (repeat 4)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "name": "vlm-only-run5",
+    "description": "VLM only (repeat 5)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "name": "gemini-only-run2",
+    "description": "Gemini only (repeat 2)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "name": "openai-only-run2",
+    "description": "OpenAI only (repeat 2)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "name": "regions-no-ocr",
+    "description": "Region detection without OCR pre-pass",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "name": "gemini-no-ocr",
+    "description": "Gemini only, no OCR",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "name": "openai-no-ocr",
+    "description": "OpenAI only, no OCR",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "name": "ocr+vlm-run6",
+    "description": "OCR + VLM (repeat 6)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "name": "ocr+vlm-run7",
+    "description": "OCR + VLM (repeat 7)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "name": "ocr+vlm-run8",
+    "description": "OCR + VLM (repeat 8)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "name": "ocr+vlm-run9",
+    "description": "OCR + VLM (repeat 9)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "name": "ocr+vlm-run10",
+    "description": "OCR + VLM (repeat 10)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "name": "full-pipeline-run4",
+    "description": "Full pipeline (repeat 4)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "name": "full-pipeline-run5",
+    "description": "Full pipeline (repeat 5)",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 29,
+    "name": "gemini+regions",
+    "description": "Gemini + region detection",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "name": "openai+regions",
+    "description": "OpenAI + region detection",
+    "approved": 0,
+    "reviewed": 0,
+    "rejected": 0,
+    "errors": 7,
+    "correct": 0,
+    "total": 7,
+    "avgLatencyMs": 0,
+    "p95LatencyMs": 0,
+    "successRate": "0.0",
+    "approveRate": "0.0",
+    "falseRejectRate": "0.0",
+    "labels": [
+      {
+        "label": "simply-elegant",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "persian-empire",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "leitz-rottland",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "stormwood",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "lake-placid",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "harpoon",
+        "expected": "approve",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      },
+      {
+        "label": "negative-abv",
+        "expected": "reject",
+        "actual": "error",
+        "correct": false,
+        "latencyMs": 0,
+        "checks": []
+      }
+    ]
+  }
+]

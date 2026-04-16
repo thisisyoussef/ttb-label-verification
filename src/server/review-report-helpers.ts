@@ -29,17 +29,33 @@ export const MALT_ABV_CITATIONS = [
   'TTB malt beverage ABV format guidance'
 ];
 
-export type ComparedFieldKey =
+// Intake field keys are a superset of extraction field keys because the
+// applicant form captures data (e.g. `country`, `origin`) that maps to a
+// differently named extraction field (`countryOfOrigin`).
+export type IntakeFieldKey =
   | 'brandName'
   | 'classType'
   | 'alcoholContent'
-  | 'netContents';
+  | 'netContents'
+  | 'applicantAddress'
+  | 'country';
+
+export type ExtractionFieldKey =
+  | 'brandName'
+  | 'classType'
+  | 'alcoholContent'
+  | 'netContents'
+  | 'applicantAddress'
+  | 'countryOfOrigin';
+
+// Kept for backwards compatibility — original name was used by tests.
+export type ComparedFieldKey = IntakeFieldKey;
 
 export type FieldSpec = {
   id: string;
   label: string;
-  intakeKey: ComparedFieldKey;
-  extractionKey: ComparedFieldKey;
+  intakeKey: IntakeFieldKey;
+  extractionKey: ExtractionFieldKey;
 };
 
 export const FIELD_SPECS: FieldSpec[] = [
@@ -66,6 +82,18 @@ export const FIELD_SPECS: FieldSpec[] = [
     label: 'Net contents',
     intakeKey: 'netContents',
     extractionKey: 'netContents'
+  },
+  {
+    id: 'applicant-address',
+    label: 'Bottler/producer name & address',
+    intakeKey: 'applicantAddress',
+    extractionKey: 'applicantAddress'
+  },
+  {
+    id: 'country-of-origin',
+    label: 'Country of origin',
+    intakeKey: 'country',
+    extractionKey: 'countryOfOrigin'
   }
 ];
 

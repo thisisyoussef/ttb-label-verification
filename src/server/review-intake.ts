@@ -46,6 +46,8 @@ export interface NormalizedReviewIntake {
   fields: NormalizedReviewFields;
   hasApplicationData: boolean;
   standalone: boolean;
+  /** Pre-extracted OCR text from the Tesseract pre-pass, when available. */
+  ocrText?: string;
 }
 
 type ReviewFieldsParseFailure = {

@@ -82,7 +82,8 @@ describe('LLM trace surfaces', () => {
       extractionMode: 'cloud'
     });
     expect(report.id).toBe('trace-report-custom-001');
-    expect(report.verdict).toBe('review');
+    // Weighted verdict: same-field-of-vision (low tier, 0.5) < threshold (2.5) → approve
+    expect(report.verdict).toBe('approve');
     expect(report.noPersistence).toBe(true);
     expect(report.checks.find((check) => check.id === 'government-warning')?.status).toBe(
       'pass'

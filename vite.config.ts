@@ -36,6 +36,9 @@ function toolbenchLabelsPlugin(): PluginOption {
 
 export default defineConfig({
   plugins: [react(), toolbenchLabelsPlugin()],
+  test: {
+    setupFiles: ["./vitest.setup.ts"]
+  },
   server: {
     host: '0.0.0.0',
     port: 5176,

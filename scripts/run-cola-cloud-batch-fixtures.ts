@@ -66,7 +66,12 @@ const FIELD_CHECK_IDS = [
   'brand-name',
   'class-type',
   'alcohol-content',
-  'net-contents'
+  'net-contents',
+  // TTB requires bottler/producer name & address (27 CFR 5.66/4.35/7.25)
+  // and country of origin for imports — added as field checks so the
+  // eval runner captures them in rowStatuses for analysis.
+  'applicant-address',
+  'country-of-origin'
 ] as const;
 const RULE_CHECK_IDS = [
   'government-warning',
@@ -102,6 +107,66 @@ async function collectNdjsonFrames(response: Response) {
     .split('\n')
     .filter((line) => line.length > 0)
     .map((line) => batchStreamFrameSchema.parse(JSON.parse(line)));
+}
+
+/**
+ * Stream NDJSON frames and record per-item arrival timestamps.
+ * Returns both the parsed frames and a map of itemId/imageId -> latencyMs
+ * measured from request start to the frame's arrival.
+ */
+async function collectNdjsonFramesWithLatency(response: Response, startTime: number) {
+  const frames: Array<import('../src/shared/contracts/review').BatchStreamFrame> = [];
+  const itemLatencyMs = new Map<string, number>();
+
+  if (!response.body) {
+    const body = await response.text();
+    body
+      .trim()
+      .split('\n')
+      .filter((line) => line.length > 0)
+      .forEach((line) => {
+        const frame = batchStreamFrameSchema.parse(JSON.parse(line));
+        frames.push(frame);
+      });
+    return { frames, itemLatencyMs };
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let lastFrameTime = startTime;
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    let newlineIndex;
+    while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+      const line = buffer.slice(0, newlineIndex).trim();
+      buffer = buffer.slice(newlineIndex + 1);
+      if (line.length === 0) continue;
+
+      const frameReceivedAt = performance.now();
+      const frame = batchStreamFrameSchema.parse(JSON.parse(line));
+      frames.push(frame);
+
+      if (frame.type === 'item') {
+        // Latency for this item = time from last item (or start) to now
+        const latencyMs = Math.round(frameReceivedAt - lastFrameTime);
+        itemLatencyMs.set(frame.imageId, latencyMs);
+        lastFrameTime = frameReceivedAt;
+      }
+    }
+  }
+
+  // Handle any trailing content
+  if (buffer.trim().length > 0) {
+    const frame = batchStreamFrameSchema.parse(JSON.parse(buffer.trim()));
+    frames.push(frame);
+  }
+
+  return { frames, itemLatencyMs };
 }
 async function main() {
   const repoRoot = process.cwd();
@@ -185,6 +250,7 @@ async function main() {
         unmatchedRows: number;
         csvError: string | null;
         fileErrors: string[];
+        durationMs: number;
       };
       run: {
         summary: {
@@ -192,6 +258,17 @@ async function main() {
           review: number;
           fail: number;
           error: number;
+        };
+        latency: {
+          runDurationMs: number;
+          exportDurationMs: number;
+          totalDurationMs: number;
+          itemCount: number;
+          avgPerItemMs: number;
+          minPerItemMs: number;
+          maxPerItemMs: number;
+          p50PerItemMs: number;
+          p95PerItemMs: number;
         };
         fieldMetrics: Record<string, FieldMetric>;
         ruleMetrics: Record<string, RuleMetric>;
@@ -209,6 +286,7 @@ async function main() {
           extractionQualityState: ExtractionQualityState | null;
           verdictSecondary: string | null;
           summary: string | null;
+          latencyMs: number | null;
           issues: {
             blocker: number;
             major: number;
@@ -268,11 +346,13 @@ async function main() {
         })
       );
       form.append('csv', makeFile(csvBuffer, path.basename(csvPath), 'text/csv'));
+      const preflightStart = performance.now();
       const preflightResponse = await fetch(`${baseUrl}/api/batch/preflight`, {
         method: 'POST',
         body: form
       });
       const preflight = batchPreflightResponseSchema.parse(await preflightResponse.json());
+      const preflightDurationMs = Math.round(performance.now() - preflightStart);
       const rowByFilename = new Map(
         preflight.csvRows.map((row) => [row.filenameHint, row.id] as const)
       );
@@ -305,6 +385,7 @@ async function main() {
           };
         })
       ];
+      const runStart = performance.now();
       const runResponse = await fetch(`${baseUrl}/api/batch/run`, {
         method: 'POST',
         headers: {
@@ -315,11 +396,33 @@ async function main() {
           resolutions
         })
       });
-      await collectNdjsonFrames(runResponse);
+      const { itemLatencyMs } = await collectNdjsonFramesWithLatency(runResponse, runStart);
+      const runDurationMs = Math.round(performance.now() - runStart);
+      const exportStart = performance.now();
       const exportResponse = await fetch(
         `${baseUrl}/api/batch/${preflight.batchSessionId}/export`
       );
       const exportPayload = batchExportPayloadSchema.parse(await exportResponse.json());
+      const exportDurationMs = Math.round(performance.now() - exportStart);
+
+      // Compute latency stats
+      const latencies = Array.from(itemLatencyMs.values())
+        .filter((n) => n > 0)
+        .sort((a, b) => a - b);
+      const latencyStats = {
+        runDurationMs,
+        exportDurationMs,
+        totalDurationMs: runDurationMs + exportDurationMs,
+        itemCount: latencies.length,
+        avgPerItemMs:
+          latencies.length > 0
+            ? Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length)
+            : 0,
+        minPerItemMs: latencies[0] ?? 0,
+        maxPerItemMs: latencies[latencies.length - 1] ?? 0,
+        p50PerItemMs: latencies[Math.floor(latencies.length / 2)] ?? 0,
+        p95PerItemMs: latencies[Math.floor(latencies.length * 0.95)] ?? 0
+      };
       const summary = batchDashboardResponseSchema.parse({
         batchSessionId: preflight.batchSessionId,
         phase: exportPayload.phase,
@@ -342,10 +445,12 @@ async function main() {
           unmatchedImages: preflight.matching.unmatchedImageIds.length,
           unmatchedRows: preflight.matching.unmatchedRowIds.length,
           csvError: preflight.csvError?.message ?? null,
-          fileErrors: preflight.fileErrors.map((entry) => entry.message)
+          fileErrors: preflight.fileErrors.map((entry) => entry.message),
+          durationMs: preflightDurationMs
         },
         run: {
           summary: summary.summary,
+          latency: latencyStats,
           fieldMetrics,
           ruleMetrics,
           rowStatuses: summary.rows.map((row) => {
@@ -421,6 +526,7 @@ async function main() {
               extractionQualityState: report?.extractionQuality.state ?? null,
               verdictSecondary: report?.verdictSecondary ?? null,
               summary: report?.summary ?? null,
+              latencyMs: itemLatencyMs.get(row.imageId) ?? null,
               issues: row.issues,
               errorMessage: row.errorMessage,
               fieldChecks,
@@ -442,6 +548,46 @@ async function main() {
     );
     await writeFile(outputPath, JSON.stringify(output, null, 2) + '\n');
     console.log(`[batch-fixtures] wrote ${outputPath}`);
+
+    // Aggregate latency across all packs
+    const allItemLatencies: number[] = [];
+    let totalPass = 0;
+    let totalReview = 0;
+    let totalFail = 0;
+    let totalError = 0;
+    for (const pack of runResults) {
+      totalPass += pack.run.summary.pass;
+      totalReview += pack.run.summary.review;
+      totalFail += pack.run.summary.fail;
+      totalError += pack.run.summary.error;
+      for (const row of pack.run.rowStatuses) {
+        if (row.latencyMs !== null && row.latencyMs > 0) {
+          allItemLatencies.push(row.latencyMs);
+        }
+      }
+    }
+    allItemLatencies.sort((a, b) => a - b);
+    const n = allItemLatencies.length;
+
+    console.log('');
+    console.log('═══════════════════════════════════════════════════════════');
+    console.log('AGGREGATE RESULTS');
+    console.log('═══════════════════════════════════════════════════════════');
+    console.log(`Verdicts: pass=${totalPass} review=${totalReview} fail=${totalFail} error=${totalError}`);
+    console.log(`Total items with latency: ${n}`);
+    if (n > 0) {
+      const avg = Math.round(allItemLatencies.reduce((a, b) => a + b, 0) / n);
+      console.log(
+        `Per-item latency (ms): avg=${avg} min=${allItemLatencies[0]} p50=${allItemLatencies[Math.floor(n / 2)]} p95=${allItemLatencies[Math.floor(n * 0.95)]} max=${allItemLatencies[n - 1]}`
+      );
+    }
+    console.log('');
+    console.log('Per-pack latency:');
+    for (const pack of runResults) {
+      console.log(
+        `  ${pack.id.padEnd(35)} run=${pack.run.latency.runDurationMs}ms avg=${pack.run.latency.avgPerItemMs}ms p95=${pack.run.latency.p95PerItemMs}ms`
+      );
+    }
   } finally {
     await new Promise<void>((resolve, reject) => {
       server.close((error) => {
