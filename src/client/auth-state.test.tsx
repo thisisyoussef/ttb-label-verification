@@ -92,9 +92,10 @@ describe('AuthScreen', () => {
 
     expect(html).toContain('Not an official U.S. government website');
     expect(html).toContain('TTB Label Verification System');
-    expect(html).toContain('Sign in with PIV / CAC Card');
-    expect(html).toContain('Sign in with Treasury SSO');
-    expect(html).toContain('Mock auth — either path simulates success. No real credentials are checked.');
+    // Jargon expansion: PIV / CAC -> work ID card, Treasury SSO -> username (UX round 2).
+    expect(html).toContain('your work ID card');
+    expect(html).toContain('your Treasury username');
+    expect(html).toContain('Prototype — either button signs you in. No real credentials are checked.');
   });
 
   it('renders the session-expired banner after inactivity timeout', () => {
