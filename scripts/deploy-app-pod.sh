@@ -215,8 +215,12 @@ ensure_template() {
   # `bash -c` (not `-lc`): login shells source /etc/profile, which some
   # base images mangle in ways that break under non-interactive
   # invocation. We want a deterministic, minimal shell.
+  #
+  # The ollama/ollama base image does NOT ship curl. We have to
+  # `apt-get install -y curl` before we can fetch the bootstrap.
+  # This keeps the start-cmd's operator count low — just `&&` chains.
   local start_cmd
-  start_cmd="curl -fsSL ${BOOTSTRAP_URL} | bash -s -- ${REPO_BRANCH}"
+  start_cmd="apt-get update -qq && apt-get install -y --no-install-recommends curl ca-certificates && curl -fsSL ${BOOTSTRAP_URL} | bash -s -- ${REPO_BRANCH}"
   runpodctl template create \
     --name "${RUNPOD_TEMPLATE_NAME}" \
     --image "${BASE_IMAGE}" \
