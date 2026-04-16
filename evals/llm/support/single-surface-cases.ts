@@ -61,7 +61,7 @@ export const reviewEndpointCases: ReviewEndpointCase[] = [
     byteSignature: '03',
     personas: ['Dave', 'Marcus'],
     personaObservation:
-      'Cosmetic brand differences must stay reversible and never escalate into a hard reject.',
+      'Cosmetic brand differences (casing only) auto-approve — per TTB guidance brand names display in varying case on labels. Regression guard: this must NEVER hard-reject.',
     fields: buildReviewFormFields({
       brandName: 'Trace Brand',
       classType: 'Vodka',
@@ -74,9 +74,11 @@ export const reviewEndpointCases: ReviewEndpointCase[] = [
       }
     }),
     expected: {
-      verdict: 'review',
-      summaryIncludes: 'checks need human review',
-      reviewCheckIds: ['brand-name', 'same-field-of-vision']
+      // Case-only brand difference now auto-approves via judgeBrandName's
+      // "brand-case-only" rule (eliminates a false-reject failure mode that
+      // wasted human review time on cosmetic variations).
+      verdict: 'approve',
+      summaryIncludes: ''
     }
   },
   {
@@ -175,7 +177,9 @@ export const reviewEndpointCases: ReviewEndpointCase[] = [
     expected: {
       verdict: 'review',
       summaryIncludes: 'Low-confidence extraction keeps the label in review',
-      reviewCheckIds: ['government-warning', 'same-field-of-vision'],
+      // same-field-of-vision is now 'info' (non-blocking) until spatial
+      // analysis is wired — it should not appear in reviewCheckIds.
+      reviewCheckIds: ['government-warning'],
       extractionState: 'low-confidence'
     }
   },

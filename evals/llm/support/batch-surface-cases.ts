@@ -73,8 +73,11 @@ export const batchEndpointCases: BatchEndpointCase[] = [
       }
     ],
     expected: {
-      runStatus: 'review',
-      summaryAfterRun: { pass: 0, review: 1, fail: 0, error: 0 }
+      // Brand case-only difference ("Batch Review" vs "BATCH REVIEW") now
+      // auto-approves via the brand-name judgment rule. The test's intent
+      // (batch items stay isolated and don't false-fail) still holds.
+      runStatus: 'pass',
+      summaryAfterRun: { pass: 1, review: 0, fail: 0, error: 0 }
     }
   },
   {
