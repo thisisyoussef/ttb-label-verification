@@ -175,14 +175,38 @@ export function registerReviewRoutes(input: {
     }
 
     try {
-      response.json(
-        await runner({
-          intake: prepared.intake,
-          clientTraceId,
-          latencyCapture,
-          resolution
-        })
-      );
+      const result = await runner({
+        intake: prepared.intake,
+        clientTraceId,
+        latencyCapture,
+        resolution
+      });
+
+      // Expose per-stage timings on the response so we can diagnose where
+      // the wall-clock time goes without needing SSH on the pod. Format:
+      //   X-Stage-Timings: total=9821;ocr=812;vlm=3012;ocv=4123;judge=1431
+      //
+      // The header keeps the breakdown compact (no JSON) so it fits in the
+      // typical 8KB header budget and is trivially grep-able from client
+      // timing tools.
+      try {
+        const finalized = latencyCapture.finalize();
+        const aggregate: Record<string, number> = {};
+        for (const span of finalized.spans) {
+          const ms = Math.round(span.durationMs);
+          if (!Number.isFinite(ms) || ms < 0) continue;
+          aggregate[span.stage] = (aggregate[span.stage] ?? 0) + ms;
+        }
+        const parts = Object.entries(aggregate).map(
+          ([stage, ms]) => `${stage}=${ms}`
+        );
+        parts.unshift(`total=${Math.round(finalized.totalDurationMs)}`);
+        response.setHeader('X-Stage-Timings', parts.join(';'));
+      } catch {
+        /* best-effort; never block the response on telemetry */
+      }
+
+      response.json(result);
     } catch (error) {
       respondToReviewExecutionError(error, response);
     }
