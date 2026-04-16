@@ -22,6 +22,10 @@ import {
   readTransformersReviewExtractionConfig
 } from './transformers-review-extractor';
 import { createTransformersInferenceFn } from './transformers-model-loader';
+import {
+  createOllamaVlmReviewExtractor,
+  readOllamaVlmReviewExtractionConfig
+} from './ollama-vlm-review-extractor';
 import type { NormalizedReviewIntake } from './review-intake';
 import { REVIEW_MAX_RETRYABLE_FALLBACK_ELAPSED_MS } from './review-latency';
 import {
@@ -87,7 +91,8 @@ export type ConfiguredReviewExtractorResult =
 const DEFAULT_PROVIDER_FACTORIES: ReviewExtractorProviderFactories = {
   gemini: createGeminiReviewExtractorProvider,
   openai: createOpenAiReviewExtractorProvider,
-  transformers: createTransformersReviewExtractorProvider
+  transformers: createTransformersReviewExtractorProvider,
+  'ollama-vlm': createOllamaVlmReviewExtractorProvider
 };
 
 export { ReviewProviderFailure } from './review-provider-failure';
@@ -406,6 +411,39 @@ function createOpenAiReviewExtractorProvider(input: {
     success: true,
     provider: {
       provider: 'openai',
+      supports: (capability) => capability === 'label-extraction',
+      execute: (intake, context) => extractor(intake, context)
+    }
+  };
+}
+
+function createOllamaVlmReviewExtractorProvider(input: {
+  env: Record<string, string | undefined>;
+  capability: AiCapability;
+}): ProviderFactorySuccess | ProviderFactoryFailure {
+  const configResult = readOllamaVlmReviewExtractionConfig(input.env);
+  if (!configResult.success) {
+    return {
+      success: false,
+      failure: createReviewProviderFailure({
+        status: configResult.status,
+        error: configResult.error,
+        provider: 'ollama-vlm',
+        mode: 'local',
+        capability: input.capability,
+        reason: 'invalid-provider-config'
+      })
+    };
+  }
+
+  const extractor = createOllamaVlmReviewExtractor({
+    config: configResult.value
+  });
+
+  return {
+    success: true,
+    provider: {
+      provider: 'ollama-vlm',
       supports: (capability) => capability === 'label-extraction',
       execute: (intake, context) => extractor(intake, context)
     }

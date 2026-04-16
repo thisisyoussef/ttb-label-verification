@@ -458,7 +458,8 @@ describe('review extractor factory', () => {
       requestedMode: 'local',
       providers: {
         transformers: failingFactory,
-        ollama: failingFactory
+        ollama: failingFactory,
+        'ollama-vlm': failingFactory
       }
     });
 

@@ -6,7 +6,13 @@ export const AI_CAPABILITIES = [
   'embeddings'
 ] as const;
 export const EXTRACTION_MODES = ['cloud', 'local'] as const;
-export const AI_PROVIDERS = ['openai', 'gemini', 'ollama', 'transformers'] as const;
+export const AI_PROVIDERS = [
+  'openai',
+  'gemini',
+  'ollama',
+  'ollama-vlm',
+  'transformers'
+] as const;
 
 export type AiCapability = (typeof AI_CAPABILITIES)[number];
 export type ExtractionMode = (typeof EXTRACTION_MODES)[number];
@@ -16,7 +22,11 @@ export const DEFAULT_EXTRACTION_MODE: ExtractionMode = 'cloud';
 
 const DEFAULT_CLOUD_PROVIDER_ORDER: readonly AiProvider[] = ['openai', 'gemini'];
 const DEFAULT_LABEL_EXTRACTION_PROVIDER_ORDER: readonly AiProvider[] = ['gemini', 'openai'];
-const DEFAULT_LOCAL_PROVIDER_ORDER: readonly AiProvider[] = ['transformers', 'ollama'];
+const DEFAULT_LOCAL_PROVIDER_ORDER: readonly AiProvider[] = [
+  'ollama-vlm',
+  'transformers',
+  'ollama'
+];
 const TRUTHY_VALUES = new Set(['1', 'true', 'yes', 'on']);
 const FALSY_VALUES = new Set(['0', 'false', 'no', 'off']);
 
@@ -71,9 +81,18 @@ export function fallbackAllowedForProviderFailure(input: {
 export function readExtractionRoutingPolicy(
   env: Record<string, string | undefined>
 ): ExtractionRoutingPolicyResult {
+  // Convenience: AI_PROVIDER=local is shorthand for "run everything local".
+  // It turns on allow-local and sets the default mode to local so callers
+  // don't have to remember the two separate flags.
+  const aiProvider = env.AI_PROVIDER?.trim().toLowerCase();
+  const aiProviderIsLocal =
+    aiProvider === 'local' ||
+    aiProvider === 'ollama' ||
+    aiProvider === 'ollama-vlm';
+
   const defaultModeResult = parseExtractionModeValue(
     env.AI_EXTRACTION_MODE_DEFAULT,
-    DEFAULT_EXTRACTION_MODE
+    aiProviderIsLocal ? 'local' : DEFAULT_EXTRACTION_MODE
   );
   if (!defaultModeResult.success) {
     return defaultModeResult;
@@ -82,7 +101,7 @@ export function readExtractionRoutingPolicy(
   const allowLocalResult = parseBooleanValue({
     rawValue: env.AI_EXTRACTION_MODE_ALLOW_LOCAL,
     key: 'AI_EXTRACTION_MODE_ALLOW_LOCAL',
-    fallbackValue: false
+    fallbackValue: aiProviderIsLocal ? true : false
   });
   if (!allowLocalResult.success) {
     return allowLocalResult;
@@ -163,7 +182,11 @@ export function resolveProviderOrder(input: {
 }
 
 export function providerMode(provider: AiProvider): ExtractionMode {
-  return provider === 'ollama' || provider === 'transformers' ? 'local' : 'cloud';
+  return provider === 'ollama' ||
+    provider === 'ollama-vlm' ||
+    provider === 'transformers'
+    ? 'local'
+    : 'cloud';
 }
 
 function parseExtractionModeValue(
