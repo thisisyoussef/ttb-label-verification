@@ -1,0 +1,10 @@
+filename,beverage_type,brand_name,fanciful_name,class_type,alcohol_content,net_contents,applicant_address,origin,country,formula_id,appellation,vintage
+lake-placid-shredder-malt-beverage.pdf,malt-beverage,Lake Placid,Shredder,ale,,,,domestic,,,,
+lake-placid-ridge-runner-malt-beverage.pdf,malt-beverage,Lake Placid,Ridge Runner,ale,4% Alc./Vol.,,,domestic,,,,
+recluse-brew-works-shy-guy-malt-beverage.pdf,malt-beverage,Recluse Brew Works,Shy Guy,beer,6.5% Alc./Vol.,,,domestic,,,,
+pleasant-prairie-brewing-peach-sour-ale-malt-beverage.pdf,malt-beverage,Pleasant Prairie Brewing,Peach Sour Ale,malt beverages specialities - flavored,5.9% Alc./Vol.,,,domestic,,,,
+sapwood-cellars-albura-lager-malt-beverage.pdf,malt-beverage,Sapwood Cellars,Albura Lager,beer,4.6% Alc./Vol.,,,domestic,,,,
+drekker-brewing-company-piano-necktie-malt-beverage.pdf,malt-beverage,Drekker Brewing Company,Piano Necktie,ale,6.5% Alc./Vol.,,,domestic,,,,
+pilok-broumy-malt-beverage.pdf,malt-beverage,Pilok,Broumy,beer,4.8% Alc./Vol.,,,imported,czech republic,,,
+1840-original-lager-1840-original-lager-malt-beverage.pdf,malt-beverage,1840 Original Lager,1840 Original Lager,beer,,,,domestic,,,,
+harpoon-ale-malt-beverage.pdf,malt-beverage,Harpoon,Ale,ale,5% Alc./Vol.,,,domestic,,,,

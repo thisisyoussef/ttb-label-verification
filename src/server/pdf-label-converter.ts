@@ -8,6 +8,15 @@ import type { NormalizedUploadedLabel } from './review-intake';
  * dependencies, which keeps the deployment story clean for restricted
  * government networks.
  *
+ * Rasterization scale:
+ * - pdfjs renders at `scale * 72 DPI`. We use scale=4 → ~288 DPI, which
+ *   lands close to the 300 DPI standard TTB reviewers expect and gives
+ *   Tesseract enough pixel density to read small warning text reliably.
+ * - Earlier revisions used scale=2 (≈144 DPI), which silently shrank
+ *   300-DPI source scans to ~50% resolution and hurt OCR recall. Labels
+ *   converted image → PDF → PNG now round-trip close to their original
+ *   pixel density.
+ *
  * If the label is already an image, returns it unchanged.
  */
 export async function convertPdfLabelToImage(
@@ -18,7 +27,7 @@ export async function convertPdfLabelToImage(
   }
 
   const { pdf } = await import('pdf-to-img');
-  const document = await pdf(label.buffer, { scale: 2 });
+  const document = await pdf(label.buffer, { scale: 4 });
 
   let firstPage: Buffer | null = null;
   for await (const page of document) {
