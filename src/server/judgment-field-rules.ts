@@ -13,7 +13,6 @@ import {
   normalizeCase,
   normalizeWhitespace,
   normalizeDiacriticals,
-  normalizePunctuation,
   normalizeAmpersand,
   stripThePrefix
 } from './judgment-normalizers';
@@ -193,7 +192,7 @@ export function judgeGovernmentWarningText(
 export function judgeClassType(
   appValue: string,
   extValue: string,
-  beverageType: string
+  _beverageType: string
 ): FieldJudgment {
   const { appNormalized, extNormalized } = runNormalizationPipeline(appValue, extValue);
 

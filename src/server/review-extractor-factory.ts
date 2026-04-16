@@ -189,7 +189,7 @@ export function createConfiguredReviewExtractor(input: {
           disagreementPenalty: 0.15
         }),
         extractionMode,
-        providerOrder: availableProviders.map(p => p.provider)
+        providers: availableProviders.map(p => p.provider)
       }
     };
   }

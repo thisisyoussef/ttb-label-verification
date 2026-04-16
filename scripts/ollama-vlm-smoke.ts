@@ -83,7 +83,7 @@ async function main() {
   }
   console.log('=== QUALITY ===');
   console.log(`  score=${extraction.imageQuality.score}`);
-  console.log(`  noTextDetected=${extraction.imageQuality.noTextDetected}`);
+  console.log(`  state=${extraction.imageQuality.state}`);
   console.log(`  summary=${extraction.summary}`);
 }
 
