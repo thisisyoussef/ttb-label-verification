@@ -8,6 +8,7 @@ import {
 import { LOCAL_HELP_MANIFEST } from '../shared/help-fixture';
 import { BatchSessionStore } from './batch-session';
 import { registerBatchRoutes } from './register-batch-routes';
+import { registerEvalRoutes } from './register-eval-routes';
 import {
   registerReviewRoutes,
   type ResolvedExtractor
@@ -51,4 +52,5 @@ export function registerAppRoutes({
 
   registerReviewRoutes({ app, extractorResolution, latencyObserver });
   registerBatchRoutes({ app, batchSessions, extractorResolution });
+  registerEvalRoutes(app);
 }
