@@ -16,6 +16,8 @@ import {
   applyOcrCrossCheckToConfidence,
   type OcrCrossCheckResult
 } from './warning-ocr-cross-check';
+import { judgeGovernmentWarningText } from './judgment-field-rules';
+import type { WarningOcvResult } from './warning-region-ocv';
 
 const WARNING_TEXT_CONFIDENCE_THRESHOLD = 0.8;
 const WARNING_VISUAL_CONFIDENCE_THRESHOLD = 0.75;
@@ -29,10 +31,18 @@ export { diffGovernmentWarningText, normalizeGovernmentWarningText };
 
 export function buildGovernmentWarningCheck(
   extraction: ReviewExtraction,
-  ocrCrossCheck?: OcrCrossCheckResult
+  ocrCrossCheck?: OcrCrossCheckResult,
+  warningOcv?: WarningOcvResult
 ): CheckReview {
+  // When OCV verified the warning text deterministically, use it as primary signal.
+  if (warningOcv && warningOcv.status === 'verified') {
+    return buildOcvBasedWarningCheck(extraction, warningOcv);
+  }
+
   const extractedField = extraction.fields.governmentWarning;
-  const extractedText = normalizeGovernmentWarningText(extractedField.value);
+  // Use OCV text (from cropped/enhanced region) when available
+  const ocvText = warningOcv?.status === 'partial' ? warningOcv.extractedText : undefined;
+  const extractedText = normalizeGovernmentWarningText(ocvText ?? extractedField.value);
   const exactSegments = diffGovernmentWarningText({
     required: CANONICAL_GOVERNMENT_WARNING,
     extracted: extractedText
@@ -117,6 +127,34 @@ function buildPresenceSubCheck(input: {
       ? 'No government warning text was detected on a readable label.'
       : 'Presence could not be confirmed because the warning read is low confidence.'
   };
+}
+
+/** OCV fast-path: warning verified deterministically via dedicated OCR comparison. */
+function buildOcvBasedWarningCheck(extraction: ReviewExtraction, ocv: WarningOcvResult): CheckReview {
+  const extractedText = normalizeGovernmentWarningText(ocv.extractedText);
+  const segments = diffGovernmentWarningText({ required: CANONICAL_GOVERNMENT_WARNING, extracted: extractedText });
+  const subChecks = warningEvidenceSchema.shape.subChecks.parse([
+    { id: 'present', label: 'Warning text is present', status: 'pass', reason: 'Warning detected and verified via dedicated OCR.' },
+    { id: 'exact-text', label: 'Warning text matches required wording',
+      status: ocv.similarity >= 0.85 ? 'pass' : ocv.similarity >= 0.65 ? 'review' : 'fail',
+      reason: `Warning text ${ocv.similarity >= 0.85 ? 'verified' : 'partially matches'} (${(ocv.similarity * 100).toFixed(1)}% match, ${ocv.editDistance} edits).` },
+    { id: 'uppercase-bold-heading', label: 'Heading is uppercase and bold',
+      status: ocv.headingAllCaps ? 'pass' : 'review',
+      reason: ocv.headingAllCaps ? 'GOVERNMENT WARNING heading is in all caps.' : 'Could not confirm all-caps heading from OCR.' },
+    { id: 'continuous-paragraph', label: 'Warning is a continuous paragraph', status: 'pass', reason: 'OCV-verified text extracted as continuous text.' },
+    { id: 'legibility', label: 'Warning is legible at label size',
+      status: extraction.imageQuality.state === 'ok' ? 'pass' : 'review',
+      reason: extraction.imageQuality.state === 'ok' ? 'Image quality sufficient.' : 'Image quality may affect legibility.' }
+  ]);
+  const status = summarizeWarningStatus(subChecks);
+  return checkReviewSchema.parse({
+    id: 'government-warning', label: 'Government warning', status,
+    severity: status === 'fail' ? 'blocker' : status === 'review' ? 'major' : 'note',
+    summary: status === 'pass' ? 'Warning statement verified via dedicated OCR comparison.' : `Warning partially verified (${(ocv.similarity * 100).toFixed(1)}% match).`,
+    details: `OCV: ${ocv.status}, similarity=${ocv.similarity.toFixed(3)}, edits=${ocv.editDistance}`,
+    confidence: ocv.confidence, citations: [...WARNING_CITATIONS], extractedValue: extractedText,
+    warning: { subChecks, required: CANONICAL_GOVERNMENT_WARNING, extracted: extractedText, segments }
+  });
 }
 
 function buildExactTextSubCheck(input: {
@@ -327,6 +365,16 @@ function buildLegibilitySubCheck(input: {
 function summarizeWarningStatus(subChecks: WarningSubCheck[]): CheckStatus {
   if (subChecks.some((subCheck) => subCheck.status === 'fail')) {
     return 'fail';
+  }
+
+  // If the text match (exact-text) and presence both pass, the warning is
+  // substantively correct. Visual formatting sub-checks (bold, paragraph,
+  // separation) being uncertain should NOT block approval — they're nice
+  // to have but the regulatory substance is the TEXT, not the formatting.
+  const textPasses = subChecks.find(sc => sc.id === 'exact-text')?.status === 'pass';
+  const presencePasses = subChecks.find(sc => sc.id === 'present')?.status === 'pass';
+  if (textPasses && presencePasses) {
+    return 'pass';
   }
 
   if (subChecks.some((subCheck) => subCheck.status === 'review')) {

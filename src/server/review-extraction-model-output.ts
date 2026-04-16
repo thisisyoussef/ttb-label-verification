@@ -7,7 +7,10 @@ import {
 } from '../shared/contracts/review';
 import type { ExtractionMode } from './ai-provider-policy';
 import type { LlmEndpointSurface } from './llm-policy';
-import { buildReviewExtractionPrompt as buildPolicyPrompt } from './review-prompt-policy';
+import {
+  buildReviewExtractionPrompt as buildPolicyPrompt,
+  buildOcrAugmentedExtractionPrompt as buildOcrAugmentedPolicyPrompt
+} from './review-prompt-policy';
 import { type ReviewExtractionModelOutput } from './review-extraction';
 
 const apiExtractionFieldSchema = z.object({
@@ -89,6 +92,14 @@ export function buildReviewExtractionPrompt(input: {
   extractionMode: ExtractionMode;
 }) {
   return buildPolicyPrompt(input);
+}
+
+export function buildOcrAugmentedExtractionPrompt(input: {
+  surface: LlmEndpointSurface;
+  extractionMode: ExtractionMode;
+  ocrText: string;
+}) {
+  return buildOcrAugmentedPolicyPrompt(input);
 }
 
 export function normalizeReviewExtractionModelOutput(

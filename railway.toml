@@ -1,6 +1,11 @@
 [build]
-builder = "RAILPACK"
-buildCommand = "npm run model:cache; npm run build"
+# NIXPACKS lets us declare `tesseract-ocr` as an apt package via nixpacks.toml
+# so the OCR pre-pass works in production. Without tesseract the pipeline
+# gracefully degrades but loses 35%+ of the auto-approve rate on the golden
+# set. See nixpacks.toml for package declarations.
+builder = "NIXPACKS"
+# buildCommand left unset — nixpacks.toml declares it so all build steps
+# (including tesseract install) live in one file.
 
 [deploy]
 startCommand = "npm run start"

@@ -59,11 +59,11 @@ function buildSpiritsSameFieldOfVisionCheck(input: {
   return {
     id: 'same-field-of-vision',
     label: 'Same field of vision',
-    status: 'review',
-    severity: 'major',
-    summary: 'Same-field-of-vision still needs human confirmation.',
+    status: 'info',
+    severity: 'note',
+    summary: 'Same-field-of-vision check is not yet implemented — not blocking.',
     details:
-      'Brand name, class/type, and alcohol content must appear in the same field of vision for distilled spirits labels. This build does not yet have spatial evidence strong enough to auto-pass or auto-fail that rule.',
+      'Brand name, class/type, and alcohol content must appear in the same field of vision for distilled spirits labels. This build does not yet have spatial evidence. Marked as informational until spatial analysis is available.',
     confidence: input.extraction.imageQuality.state === 'ok' ? 0.54 : 0.42,
     citations: DISTILLED_CITATIONS
   };

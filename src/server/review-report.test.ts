@@ -167,9 +167,11 @@ describe('review report builder', () => {
 
     expect(brandCheck?.applicationValue).toBe('STONES THROW');
     expect(brandCheck?.extractedValue).toBe("Stone's Throw");
+    // New judgment layer: apostrophe difference is a fuzzy-close brand match → review
     expect(brandCheck?.status).toBe('review');
-    expect(brandCheck?.comparison?.status).toBe('case-mismatch');
-    expect(report.verdict).toBe('review');
+    expect(brandCheck?.comparison?.status).toBe('value-mismatch');
+    // Weighted verdict: single medium-tier brand review (1.0) < threshold (2.5) → approve
+    expect(report.verdict).toBe('approve');
   });
 
   it('fails wine reviews when a vintage claim appears without an appellation', () => {

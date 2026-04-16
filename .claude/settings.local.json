@@ -5,7 +5,8 @@
       "Bash(echo \"EXIT:$?\")",
       "Bash(npx vite:*)",
       "Bash(npx vitest:*)",
-      "Bash(gh pr:*)"
+      "Bash(gh pr:*)",
+      "Bash(node -e ':*)"
     ]
   }
 }

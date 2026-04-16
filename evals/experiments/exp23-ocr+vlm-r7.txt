@@ -1,0 +1,23 @@
+Fast eval: 7 labels against http://127.0.0.1:57327
+────────────────────────────────────────────────────────────────────────────────
+✓ simply-elegant       expected=approve  actual=approve  
+✓ persian-empire       expected=approve  actual=approve  
+✗ leitz-rottland       expected=approve  actual=review   ← MISMATCH
+✗ stormwood            expected=approve  actual=review   ← MISMATCH
+  HTTP 503: {"kind":"network","message":"We could not reach the extraction service right now.","retryable":true}
+✗ lake-placid          expected=approve  actual=error(503)
+✓ harpoon              expected=approve  actual=approve  
+✓ negative-abv         expected=reject   actual=reject   
+────────────────────────────────────────────────────────────────────────────────
+Result: 4/7 correct (57%)
+Approved: 3/6 expected approvals
+Rejected: 1/1 expected rejections
+
+  MISMATCH: leitz-rottland (expected=approve actual=review)
+  Checks: brand-name:pass, class-type:pass, alcohol-content:review [app=12.5% Alc./Vol. ext=?], net-contents:review [app=750 mL ext=?], government-warning:review [app=? ext=?]
+
+  MISMATCH: stormwood (expected=approve actual=review)
+  Checks: brand-name:pass, class-type:pass, alcohol-content:review [app=13% Alc./Vol. ext=?], net-contents:review [app=750 mL ext=?], government-warning:review [app=? ext=?]
+
+  MISMATCH: lake-placid (expected=approve actual=error)
+  Checks: HTTP 503

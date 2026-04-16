@@ -12,9 +12,9 @@ import {
   buildExtractionQualityNote,
   countStatuses,
   deriveSummary,
-  deriveVerdict,
   deriveVerdictSecondary
 } from './review-report-helpers';
+import { deriveWeightedVerdict } from './judgment-scoring';
 
 export function buildVerificationReport(input: {
   intake: NormalizedReviewIntake;
@@ -54,11 +54,13 @@ export function buildVerificationReport(input: {
 
   const crossFieldChecks = buildCrossFieldChecks(input);
   const counts = countStatuses(checks, crossFieldChecks);
-  const verdict = deriveVerdict({
-    counts,
+  const verdictResult = deriveWeightedVerdict({
+    checks,
+    crossFieldChecks,
     standalone: input.intake.standalone,
     extraction: input.extraction
   });
+  const verdict = verdictResult.verdict;
 
   return verificationReportSchema.parse({
     id: input.id ?? input.extraction.id,

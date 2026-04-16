@@ -146,7 +146,11 @@ function buildCsvRow(testCase: ColaCloudCase) {
     meta.productName,
     meta.className,
     formatAlcoholContent(meta.abv),
-    defaultNetContents(testCase.beverageType),
+    // COLA Cloud applications don't carry net contents — leave blank so the
+    // judgment layer treats this field as "not applicable" rather than
+    // comparing against a synthetic default (which false-fails real labels
+    // that are 355mL, 385mL, 1 PINT, etc.).
+    '',
     '',
     meta.domesticOrImported === 'imported' ? 'imported' : 'domestic',
     meta.domesticOrImported === 'imported' ? meta.originName : '',

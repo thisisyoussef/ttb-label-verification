@@ -1,4 +1,5 @@
 import type { ReviewError, ReviewExtraction } from '../shared/contracts/review';
+import { createParallelExtractor, isParallelExtractionEnabled } from './parallel-extraction';
 import {
   providerMode,
   readExtractionRoutingPolicy,
@@ -169,6 +170,22 @@ export function createConfiguredReviewExtractor(input: {
       extractionMode,
       status: failure.status,
       error: failure.error
+    };
+  }
+
+  // When PARALLEL_EXTRACTION=enabled and we have 2+ providers,
+  // run all extractors concurrently and merge by highest per-field confidence.
+  if (isParallelExtractionEnabled(input.env) && availableProviders.length >= 2) {
+    return {
+      success: true,
+      value: {
+        extractor: createParallelExtractor({
+          extractors: availableProviders.map(p => p.execute),
+          disagreementPenalty: 0.15
+        }),
+        extractionMode,
+        providerOrder: availableProviders.map(p => p.provider)
+      }
     };
   }
 

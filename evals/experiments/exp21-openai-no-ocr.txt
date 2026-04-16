@@ -1,0 +1,41 @@
+Fast eval: 7 labels against http://127.0.0.1:57292
+────────────────────────────────────────────────────────────────────────────────
+  HTTP 502: {"kind":"network","message":"We could not reach the extraction service right now.","retryable":true}
+✗ simply-elegant       expected=approve  actual=error(502)
+  HTTP 502: {"kind":"network","message":"We could not reach the extraction service right now.","retryable":true}
+✗ persian-empire       expected=approve  actual=error(502)
+  HTTP 502: {"kind":"network","message":"We could not reach the extraction service right now.","retryable":true}
+✗ leitz-rottland       expected=approve  actual=error(502)
+  HTTP 502: {"kind":"network","message":"We could not reach the extraction service right now.","retryable":true}
+✗ stormwood            expected=approve  actual=error(502)
+  HTTP 502: {"kind":"network","message":"We could not reach the extraction service right now.","retryable":true}
+✗ lake-placid          expected=approve  actual=error(502)
+  HTTP 502: {"kind":"network","message":"We could not reach the extraction service right now.","retryable":true}
+✗ harpoon              expected=approve  actual=error(502)
+  HTTP 502: {"kind":"network","message":"We could not reach the extraction service right now.","retryable":true}
+✗ negative-abv         expected=reject   actual=error(502)
+────────────────────────────────────────────────────────────────────────────────
+Result: 0/7 correct (0%)
+Approved: 0/6 expected approvals
+Rejected: 0/1 expected rejections
+
+  MISMATCH: simply-elegant (expected=approve actual=error)
+  Checks: HTTP 502
+
+  MISMATCH: persian-empire (expected=approve actual=error)
+  Checks: HTTP 502
+
+  MISMATCH: leitz-rottland (expected=approve actual=error)
+  Checks: HTTP 502
+
+  MISMATCH: stormwood (expected=approve actual=error)
+  Checks: HTTP 502
+
+  MISMATCH: lake-placid (expected=approve actual=error)
+  Checks: HTTP 502
+
+  MISMATCH: harpoon (expected=approve actual=error)
+  Checks: HTTP 502
+
+  MISMATCH: negative-abv (expected=reject actual=error)
+  Checks: HTTP 502

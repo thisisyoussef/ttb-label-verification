@@ -1,0 +1,28 @@
+Fast eval: 7 labels against http://127.0.0.1:57243
+────────────────────────────────────────────────────────────────────────────────
+✗ simply-elegant       expected=approve  actual=review   ← MISMATCH
+✗ persian-empire       expected=approve  actual=reject   ← MISMATCH
+✗ leitz-rottland       expected=approve  actual=review   ← MISMATCH
+✗ stormwood            expected=approve  actual=review   ← MISMATCH
+✗ lake-placid          expected=approve  actual=reject   ← MISMATCH
+✓ harpoon              expected=approve  actual=approve  
+✓ negative-abv         expected=reject   actual=reject   
+────────────────────────────────────────────────────────────────────────────────
+Result: 2/7 correct (29%)
+Approved: 1/6 expected approvals
+Rejected: 3/1 expected rejections
+
+  MISMATCH: simply-elegant (expected=approve actual=review)
+  Checks: brand-name:pass, class-type:pass, alcohol-content:pass, net-contents:review [app=750 mL ext=?], government-warning:review [app=? ext=?]
+
+  MISMATCH: persian-empire (expected=approve actual=reject)
+  Checks: brand-name:review [app=Persian Empire ext=Black Widow], class-type:pass, alcohol-content:fail [app=40% Alc./Vol. ext=80% ALC. / VOL.], net-contents:pass, government-warning:review [app=? ext=?]
+
+  MISMATCH: leitz-rottland (expected=approve actual=review)
+  Checks: brand-name:pass, class-type:review [app=table white wine ext=BERG RÖTTLAND], alcohol-content:review [app=12.5% Alc./Vol. ext=?], net-contents:review [app=750 mL ext=?], government-warning:review [app=? ext=?]
+
+  MISMATCH: stormwood (expected=approve actual=review)
+  Checks: brand-name:pass, class-type:pass, alcohol-content:review [app=13% Alc./Vol. ext=?], net-contents:review [app=750 mL ext=?], government-warning:review [app=? ext=?]
+
+  MISMATCH: lake-placid (expected=approve actual=reject)
+  Checks: brand-name:pass, class-type:pass, alcohol-content:fail [app=4% Alc./Vol. ext=6% ALC/VOL], net-contents:pass, government-warning:fail [app=? ext=GOVERNMENT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. (2) Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems.]

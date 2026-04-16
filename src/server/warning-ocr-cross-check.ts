@@ -1,4 +1,5 @@
 import { exec } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 
 import type { NormalizedUploadedLabel } from './review-intake';
@@ -120,7 +121,7 @@ async function runTesseractWithTempFile(
   label: NormalizedUploadedLabel
 ): Promise<string | null> {
   const { writeFileSync, unlinkSync } = await import('node:fs');
-  const tmpPath = `/tmp/ttb-ocr-${Date.now()}.png`;
+  const tmpPath = `${tmpdir()}/ttb-ocr-${Date.now()}.png`;
 
   try {
     writeFileSync(tmpPath, label.buffer);

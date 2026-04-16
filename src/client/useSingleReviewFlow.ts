@@ -111,8 +111,12 @@ export function useSingleReviewFlow(options: {
     logReviewClientEvent(type, payload);
   }, []);
 
+  // Speculative prefetch is hardcoded on: image upload triggers a background
+  // /api/review call immediately, so clicking "Verify" returns a cached result
+  // in ~0ms instead of waiting 6-8s. The env var override is kept only as an
+  // explicit opt-out ("false" disables it for debugging/testing).
   const speculativePrefetchEnabled =
-    import.meta.env.VITE_ENABLE_SPECULATIVE_PREFETCH === 'true';
+    import.meta.env.VITE_ENABLE_SPECULATIVE_PREFETCH !== 'false';
 
   const {
     steps,
