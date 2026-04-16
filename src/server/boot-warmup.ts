@@ -24,25 +24,130 @@ export type BootWarmupResult = {
   tesseract: { ok: boolean; durationMs: number; note?: string };
   sharp: { ok: boolean; durationMs: number; note?: string };
   ocrPipeline: { ok: boolean; durationMs: number; note?: string };
+  ollamaVlm: { ok: boolean; durationMs: number; note?: string };
+  ollamaJudgment: { ok: boolean; durationMs: number; note?: string };
   totalDurationMs: number;
 };
 
 /**
- * Run all boot-time warmup tasks sequentially. Total time is typically
- * 500-1500ms depending on whether tesseract's language data is on hot cache.
+ * Run all boot-time warmup tasks. CPU-bound steps (tesseract, sharp) run
+ * sequentially because they're fast. Ollama model warmups run IN PARALLEL
+ * with each other, because a cold load of each ~1GB (judgment) or ~3GB
+ * (VLM) model from disk takes ~3-8s and there's no reason to serialize
+ * them at boot time.
+ *
+ * Goal: at the end of warmup, both the VLM and the judgment model are
+ * resident on the GPU with `keep_alive` set to a long horizon, so the
+ * first real request pays zero model-load time. This matters because
+ * our observed 502s were from the Ollama judgment client hitting its
+ * 10s timeout on a cold model load on the critical path.
  */
 export async function runBootWarmup(): Promise<BootWarmupResult> {
   const startedAt = performance.now();
   const tesseract = await warmTesseract();
   const sharpReady = await warmSharp();
   const ocrPipeline = await warmOcrPipeline();
+  const [ollamaVlm, ollamaJudgment] = await Promise.all([
+    warmOllamaVlm(),
+    warmOllamaJudgment()
+  ]);
 
   return {
     tesseract,
     sharp: sharpReady,
     ocrPipeline,
+    ollamaVlm,
+    ollamaJudgment,
     totalDurationMs: Math.round(performance.now() - startedAt)
   };
+}
+
+/**
+ * Fire a trivial prompt at the VLM with `keep_alive: "60m"` to force the
+ * model into VRAM. No image — that would bloat warmup time with vision
+ * tower compute. The first real request will still do vision preproc,
+ * but the attention weights are already loaded.
+ *
+ * Safe to no-op in environments without Ollama (returns ok=false, which
+ * is fine — the server still boots).
+ */
+async function warmOllamaVlm(): Promise<BootWarmupResult['ollamaVlm']> {
+  const startedAt = performance.now();
+  const host = (process.env.OLLAMA_HOST ?? '').trim();
+  const model = (process.env.OLLAMA_VISION_MODEL ?? '').trim();
+  if (!host || !model) {
+    return { ok: false, durationMs: 0, note: 'ollama env not set; skipping' };
+  }
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 30_000);
+    const res = await fetch(`${host.replace(/\/$/, '')}/api/generate`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        model,
+        prompt: 'ok',
+        stream: false,
+        keep_alive: '60m',
+        options: { num_predict: 1, temperature: 0 }
+      }),
+      signal: ctrl.signal
+    });
+    clearTimeout(timer);
+    return {
+      ok: res.ok,
+      durationMs: Math.round(performance.now() - startedAt),
+      note: res.ok ? undefined : `http=${res.status}`
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      durationMs: Math.round(performance.now() - startedAt),
+      note: (error as Error).message.slice(0, 120)
+    };
+  }
+}
+
+/**
+ * Same pattern for the judgment model. Uses `/api/chat` to match the
+ * client's real request shape, so the first post-warmup judgment call
+ * sees a hot path from the very first message.
+ */
+async function warmOllamaJudgment(): Promise<BootWarmupResult['ollamaJudgment']> {
+  const startedAt = performance.now();
+  const host = (process.env.OLLAMA_HOST ?? '').trim();
+  const model = (process.env.OLLAMA_JUDGMENT_MODEL ?? '').trim();
+  if (!host || !model) {
+    return { ok: false, durationMs: 0, note: 'ollama env not set; skipping' };
+  }
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 30_000);
+    const res = await fetch(`${host.replace(/\/$/, '')}/api/chat`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: 'ok' }],
+        stream: false,
+        keep_alive: '60m',
+        options: { num_predict: 1, temperature: 0 }
+      }),
+      signal: ctrl.signal
+    });
+    clearTimeout(timer);
+    return {
+      ok: res.ok,
+      durationMs: Math.round(performance.now() - startedAt),
+      note: res.ok ? undefined : `http=${res.status}`
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      durationMs: Math.round(performance.now() - startedAt),
+      note: (error as Error).message.slice(0, 120)
+    };
+  }
 }
 
 async function warmTesseract(): Promise<BootWarmupResult['tesseract']> {

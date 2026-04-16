@@ -113,16 +113,25 @@ export REGION_DETECTION="${REGION_DETECTION:-disabled}"
 export OLLAMA_MODELS="${OLLAMA_MODELS:-/workspace/models}"
 export OLLAMA_KEEP_ALIVE="${OLLAMA_KEEP_ALIVE:-30m}"
 export OLLAMA_MAX_LOADED_MODELS="${OLLAMA_MAX_LOADED_MODELS:-2}"
-# Latency tuning (defaults chosen for single-user label verification):
-#   FlashAttention: 30-50% speedup on VLM inference. Default off in Ollama.
-#   NumParallel: 1. We process one label at a time; batching adds wait.
-#   ContextLength: 8192. Labels use 2-4K prompt tokens + 1K output. The
-#     default 32768 reserves KV cache memory we don't need and slows
-#     prompt eval marginally. Setting 8192 at the runner level reduces
-#     warmup without clipping real requests.
+# Latency + concurrency tuning:
+#   FlashAttention: 30-50% speedup on VLM attention. Default off in Ollama.
+#   NumParallel: 4. Lets Ollama batch up to 4 concurrent inference
+#     requests PER MODEL into a single GPU forward pass. On a 5090 with
+#     a 3B VLM + 8K context this roughly doubles throughput with a
+#     ~20-30% per-request latency tax. Absolutely necessary for batch
+#     processing — without it, 10 labels would serialize through a
+#     single GPU queue. Set higher (e.g. 8) if VRAM allows and you
+#     submit more concurrent labels.
+#   ContextLength: 8192. Labels use 2-4K prompt tokens + 1K output;
+#     the default 32768 reserves KV cache memory we don't need.
+#   JudgmentTimeout: 30s. The default 10s was too tight — observed 502s
+#     on live pod when the judgment model was cold-loading or queued
+#     behind a VLM inference. 30s is safe and bounded.
 export OLLAMA_FLASH_ATTENTION="${OLLAMA_FLASH_ATTENTION:-1}"
-export OLLAMA_NUM_PARALLEL="${OLLAMA_NUM_PARALLEL:-1}"
+export OLLAMA_NUM_PARALLEL="${OLLAMA_NUM_PARALLEL:-4}"
 export OLLAMA_CONTEXT_LENGTH="${OLLAMA_CONTEXT_LENGTH:-8192}"
+export OLLAMA_JUDGMENT_TIMEOUT_MS="${OLLAMA_JUDGMENT_TIMEOUT_MS:-30000}"
+export OLLAMA_JUDGMENT_KEEP_ALIVE="${OLLAMA_JUDGMENT_KEEP_ALIVE:-30m}"
 
 # ----------------------------------------------------------------------------
 # Step 1 — install system dependencies we need that the Ollama image doesn't

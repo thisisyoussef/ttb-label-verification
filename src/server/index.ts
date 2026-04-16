@@ -63,6 +63,8 @@ function kickOffBootWarmup() {
         `[boot-warmup] tesseract=${result.tesseract.ok ? `ok ${result.tesseract.durationMs}ms` : 'skipped'} ` +
           `sharp=${result.sharp.ok ? `ok ${result.sharp.durationMs}ms` : 'skipped'} ` +
           `ocr=${result.ocrPipeline.ok ? `ok ${result.ocrPipeline.durationMs}ms` : 'skipped'} ` +
+          `ollama-vlm=${result.ollamaVlm.ok ? `ok ${result.ollamaVlm.durationMs}ms` : `skip(${result.ollamaVlm.note ?? '?'})`} ` +
+          `ollama-judge=${result.ollamaJudgment.ok ? `ok ${result.ollamaJudgment.durationMs}ms` : `skip(${result.ollamaJudgment.note ?? '?'})`} ` +
           `total=${result.totalDurationMs}ms`
       );
     })
