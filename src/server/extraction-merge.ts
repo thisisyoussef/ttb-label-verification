@@ -46,8 +46,42 @@ const FIELD_KEYS = [
 ] as const;
 
 const HIGH_CONFIDENCE_OCR_THRESHOLD = 0.8;
-const VLM_ONLY_CONFIDENCE_CAP = 0.55;
 const REGION_OCR_VERIFIED_CONFIDENCE = 0.92;
+
+// Confidence cap applied to VLM-extracted fields when OCR didn't verify them.
+//
+// Why this exists: we used to fully trust VLM output, which let hallucinations
+// slip through (e.g. wrong ABV numbers read off decorative fonts). The cap
+// gives downstream judgment a signal that the read is unverified.
+//
+// Why it's now 0.80 and not 0.55: the old 0.55 was so aggressive that fields
+// the VLM got right but OCR missed (e.g. "40% Alcohol by Volume" when the
+// OCR regex is looking for "40% ALC") got pushed into 'review' status
+// unnecessarily, undercounting valid approvals. 0.80 keeps the signal for
+// judgment ("this wasn't verified") while letting standalone auto-pass
+// paths (which gate at 0.9) still see a reasonable number.
+//
+// Override with OCR_VLM_CAP_CONFIDENCE env var. Set to 1 to disable the cap.
+const VLM_ONLY_CONFIDENCE_CAP = readConfidenceCap();
+
+function readConfidenceCap(): number {
+  const raw = process.env.OCR_VLM_CAP_CONFIDENCE?.trim();
+  if (!raw) return 0.8;
+  const parsed = Number.parseFloat(raw);
+  if (!Number.isFinite(parsed) || parsed <= 0 || parsed > 1) return 0.8;
+  return parsed;
+}
+
+// Fields that are NEVER OCR-overridden AND NEVER capped. These are places
+// where the VLM reliably outperforms the OCR regex:
+//   - governmentWarning: often small/rotated; OCR misses; VLM reads it.
+//   - brandName: decorative fonts; OCR returns fragments.
+//   - fancifulName: same reasoning as brand name; marketing-styled type.
+const VLM_TRUSTED_FIELDS = new Set<string>([
+  'governmentWarning',
+  'brandName',
+  'fancifulName'
+]);
 
 /**
  * Merge OCR-regex extraction with VLM extraction.
@@ -71,8 +105,9 @@ export function mergeOcrAndVlm(
   for (const key of FIELD_KEYS) {
     const ocrField = ocrOutput.fields[key] as FieldShape;
 
-    // Exempt fields keep the VLM value unchanged.
-    if (key === 'governmentWarning' || key === 'brandName') continue;
+    // VLM-trusted fields are never overridden AND never capped. The VLM is
+    // the source of truth for brand/fanciful/warning text.
+    if (VLM_TRUSTED_FIELDS.has(key)) continue;
 
     // Trust OCR when it found a high-confidence pattern.
     if (ocrField.present && ocrField.value && ocrField.confidence >= HIGH_CONFIDENCE_OCR_THRESHOLD) {
@@ -81,8 +116,9 @@ export function mergeOcrAndVlm(
     }
 
     // OCR had nothing but VLM is confident — cap the VLM's confidence so
-    // downstream judgment can see that the read was unverified.
-    if (mergedFields[key]?.present) {
+    // downstream judgment can see that the read was unverified. Skip the
+    // cap entirely when OCR_VLM_CAP_CONFIDENCE=1 (disabled).
+    if (mergedFields[key]?.present && VLM_ONLY_CONFIDENCE_CAP < 1) {
       const vlmField = mergedFields[key];
       mergedFields[key] = {
         ...vlmField,
