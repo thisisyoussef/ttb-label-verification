@@ -94,10 +94,10 @@ function mergeExtractions(
 
     if (allAgree) {
       // Consensus — use the highest confidence value as-is
-      (mergedFields as Record<string, ReviewExtractionField>)[key] = best;
+      (mergedFields as unknown as Record<string, ReviewExtractionField>)[key] = best;
     } else {
       // Disagreement — use highest confidence but penalize
-      (mergedFields as Record<string, ReviewExtractionField>)[key] = {
+      (mergedFields as unknown as Record<string, ReviewExtractionField>)[key] = {
         ...best,
         confidence: Math.max(0.1, best.confidence - disagreementPenalty),
         note: `Models disagree: ${candidates.map(c => c.value).join(' vs ')}. Using highest confidence.`

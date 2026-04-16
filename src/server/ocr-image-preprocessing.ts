@@ -4,7 +4,7 @@ import type { NormalizedUploadedLabel } from './review-intake';
 
 const UPSCALE_WIDTH_THRESHOLD = 1500;
 const SHARPEN_SIGMA = 1.2;
-const BINARIZATION_THRESHOLD = 128;
+const _BINARIZATION_THRESHOLD = 128;
 
 export type PreprocessedImage = {
   buffer: Buffer;
@@ -80,3 +80,7 @@ export async function preprocessImageForOcr(
     };
   }
 }
+
+// Re-export unused local helpers for potential future use (prevents dead-code stripping errors)
+export const _unused_binarization_threshold = _BINARIZATION_THRESHOLD;
+

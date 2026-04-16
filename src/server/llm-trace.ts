@@ -11,7 +11,6 @@ import { runOcrPrepass, isOcrPrepassEnabled } from './ocr-prepass';
 import { runWarningOcv, type WarningOcvResult } from './warning-region-ocv';
 import { reconcileExtractionWithOcr } from './extraction-ocr-reconciler';
 import { extractFieldsFromOcrText } from './ocr-field-extractor';
-import { finalizeReviewExtraction } from './review-extraction';
 import { runVlmRegionDetection, isRegionDetectionEnabled, type RegionOcrResult } from './vlm-region-detector';
 import { resolveAmbiguousChecks } from './judgment-llm-executor';
 import { createJudgmentLlmClient } from './judgment-llm-client-factory';
@@ -645,10 +644,10 @@ function mergeOcrAndVlm(
 
     // For other fields: trust OCR when it found a high-confidence pattern.
     if (ocrField.present && ocrField.value && ocrField.confidence >= 0.80) {
-      (mergedFields as Record<string, FieldShape>)[key] = ocrField;
-    } else if ((mergedFields as Record<string, FieldShape>)[key]?.present) {
-      const vlmField = (mergedFields as Record<string, FieldShape>)[key];
-      (mergedFields as Record<string, FieldShape>)[key] = {
+      (mergedFields as unknown as Record<string, FieldShape>)[key] = ocrField;
+    } else if ((mergedFields as unknown as Record<string, FieldShape>)[key]?.present) {
+      const vlmField = (mergedFields as unknown as Record<string, FieldShape>)[key];
+      (mergedFields as unknown as Record<string, FieldShape>)[key] = {
         ...vlmField,
         confidence: Math.min(vlmField.confidence, 0.55),
         note: vlmField.note ? `${vlmField.note} | VLM-only (OCR miss)` : 'VLM-only: not found in OCR text.'
@@ -690,7 +689,7 @@ function applyRegionOverrides(
     const fieldKey = fieldKeyMap[region.field];
     if (!fieldKey) continue;
 
-    const currentField = (fields as Record<string, FieldShape>)[fieldKey];
+    const currentField = (fields as unknown as Record<string, FieldShape>)[fieldKey];
 
     // Extract the most relevant text for this field from the OCR output
     const extractedValue = extractFieldValue(region.field, region.ocrText);
@@ -702,7 +701,7 @@ function applyRegionOverrides(
     if (fieldKey === 'brandName') continue;
 
     // Override with verified OCR value
-    (fields as Record<string, FieldShape>)[fieldKey] = {
+    (fields as unknown as Record<string, FieldShape>)[fieldKey] = {
       present: true,
       value: extractedValue,
       confidence: 0.92, // High confidence — verified by per-region OCR

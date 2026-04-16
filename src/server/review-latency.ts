@@ -11,7 +11,12 @@ export type ReviewLatencyStage =
   | 'provider-wait'
   | 'fallback-handoff'
   | 'deterministic-validation'
-  | 'report-shaping';
+  | 'report-shaping'
+  // New pipeline stages added in the accuracy pass
+  | 'ocr-prepass'
+  | 'warning-ocv'
+  | 'region-detection'
+  | 'llm-judgment';
 
 export type ReviewLatencyStageOutcome =
   | 'success'

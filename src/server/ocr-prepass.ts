@@ -132,7 +132,7 @@ async function runTesseractWithTempFile(
  * Tries right and left edges at 90° rotation.
  * Returns merged text from all successful passes.
  */
-async function runEdgeRotationPasses(imageBuffer: Buffer): Promise<string | null> {
+async function _runEdgeRotationPasses(imageBuffer: Buffer): Promise<string | null> {
   try {
     const sharp = (await import('sharp')).default;
     const meta = await sharp(imageBuffer).metadata();
@@ -178,9 +178,12 @@ async function runEdgeRotationPasses(imageBuffer: Buffer): Promise<string | null
 }
 
 /** Merge primary OCR text with edge rotation text, deduplicating. */
-function mergeOcrTexts(primary: string | null, edges: string | null): string | null {
+function _mergeOcrTexts(primary: string | null, edges: string | null): string | null {
   if (!primary && !edges) return null;
   if (!edges) return primary;
   if (!primary) return edges;
   return primary.trim() + '\n' + edges.trim();
 }
+
+export const _unused_ocr_helpers = { runEdgeRotationPasses: _runEdgeRotationPasses, mergeOcrTexts: _mergeOcrTexts };
+

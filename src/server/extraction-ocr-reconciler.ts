@@ -92,7 +92,7 @@ export function reconcileExtractionWithOcr(
       reconciliation.fields[key] = 'vlm-only';
       reconciliation.vlmOnly++;
 
-      (reconciledFields as Record<string, ReviewExtractionField>)[key] = {
+      (reconciledFields as unknown as Record<string, ReviewExtractionField>)[key] = {
         ...field,
         confidence: Math.min(field.confidence, VLM_ONLY_CONFIDENCE_CAP),
         note: field.note

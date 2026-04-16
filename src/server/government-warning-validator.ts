@@ -16,7 +16,6 @@ import {
   applyOcrCrossCheckToConfidence,
   type OcrCrossCheckResult
 } from './warning-ocr-cross-check';
-import { judgeGovernmentWarningText } from './judgment-field-rules';
 import type { WarningOcvResult } from './warning-region-ocv';
 
 const WARNING_TEXT_CONFIDENCE_THRESHOLD = 0.8;

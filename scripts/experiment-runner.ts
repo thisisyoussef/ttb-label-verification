@@ -112,8 +112,8 @@ async function runExperiment(config: ExperimentConfig): Promise<ExperimentResult
   process.env.NODE_ENV = 'test';
 
   // Start server
-  const { default: app } = await import('../src/server/index');
-  const server = createServer(app);
+  const { createApp } = await import('../src/server/index');
+  const server = createServer(createApp());
   const port = await new Promise<number>((resolve) => {
     server.listen(0, () => {
       const addr = server.address();
@@ -238,7 +238,8 @@ async function main() {
       env: Object.fromEntries(
         Object.entries(process.env)
           .filter(([k]) => ['OCR_PREPASS', 'REGION_DETECTION', 'SIMPLE_PIPELINE', 'OCR_OVERRIDE'].includes(k))
-      ),
+          .map(([k, v]) => [k, v ?? ''])
+      ) as Record<string, string>,
     };
     const result = await runExperiment(config);
     writeFileSync(resolve(resultsDir, `${name}.json`), JSON.stringify(result, null, 2));

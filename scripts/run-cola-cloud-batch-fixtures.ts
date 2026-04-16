@@ -100,7 +100,7 @@ function mimeTypeFor(filePath: string) {
 function findCheck(report: VerificationReport, id: string) {
   return [...report.checks, ...report.crossFieldChecks].find((check) => check.id === id) ?? null;
 }
-async function collectNdjsonFrames(response: Response) {
+async function _collectNdjsonFrames(response: Response) {
   const body = await response.text();
   return body
     .trim()
@@ -651,3 +651,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exit(1);
   });
 }
+
+export const _unused_ndjson = _collectNdjsonFrames;

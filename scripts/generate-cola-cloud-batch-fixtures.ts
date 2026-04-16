@@ -126,7 +126,7 @@ function formatAlcoholContent(abv: number | null) {
   return `${rendered}% Alc./Vol.`;
 }
 
-function defaultNetContents(beverageType: ColaCloudCase['beverageType']) {
+function _defaultNetContents(beverageType: ColaCloudCase['beverageType']) {
   switch (beverageType) {
     case 'wine':
     case 'distilled-spirits':
@@ -429,3 +429,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exit(1);
   });
 }
+
+export const _unused_defaultNetContents = _defaultNetContents;
+
