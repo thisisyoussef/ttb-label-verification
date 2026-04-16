@@ -98,22 +98,22 @@ export function AuthScreenCardBody({
         <span aria-hidden="true" className="material-symbols-outlined text-[18px]">
           badge
         </span>
-        Sign in with PIV / CAC Card
+        Sign in with your work ID card (PIV/CAC)
       </PrimaryAuthButton>
       <PrimaryAuthButton onClick={onStartSsoForm}>
         <span aria-hidden="true" className="material-symbols-outlined text-[18px]">
           key
         </span>
-        Sign in with Treasury SSO
+        Sign in with your Treasury username (SSO)
       </PrimaryAuthButton>
-      <p className="mt-1 text-[11px] font-label text-on-surface-variant flex items-center gap-1.5">
+      <p className="mt-1 text-sm font-label text-on-surface-variant flex items-center gap-1.5">
         <span
           aria-hidden="true"
-          className="material-symbols-outlined text-[14px] text-caution"
+          className="material-symbols-outlined text-[16px] text-caution"
         >
           info
         </span>
-        Mock auth — either path simulates success. No real credentials are checked.
+        Prototype — either button signs you in. No real credentials are checked.
       </p>
     </div>
   );

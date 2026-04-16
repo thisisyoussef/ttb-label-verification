@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 interface HelpLauncherProps {
   active: boolean;
   showNudge: boolean;
@@ -5,12 +7,25 @@ interface HelpLauncherProps {
   onDismissNudge: () => void;
 }
 
+// Auto-dismiss the first-run nudge after this many ms if the user hasn't
+// clicked or dismissed it. The goal is to suggest the tour without ever
+// blocking the user's view of the intake form column. 8s is long enough
+// for a human to notice and short enough that an idle session with the
+// popup open doesn't leave it stuck there.
+const NUDGE_AUTO_DISMISS_MS = 8000;
+
 export function HelpLauncher({
   active,
   showNudge,
   onLaunch,
   onDismissNudge
 }: HelpLauncherProps) {
+  useEffect(() => {
+    if (!showNudge) return;
+    const timer = setTimeout(onDismissNudge, NUDGE_AUTO_DISMISS_MS);
+    return () => clearTimeout(timer);
+  }, [showNudge, onDismissNudge]);
+
   return (
     <div className="relative">
       <button
