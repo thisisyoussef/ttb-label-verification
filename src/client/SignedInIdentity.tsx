@@ -12,7 +12,7 @@ export function SignedInIdentity({ onSignOut }: SignedInIdentityProps) {
     <div className="flex items-center gap-3">
       <span aria-hidden="true" className="hidden md:inline-block h-6 w-px bg-outline-variant/40" />
       <span className="font-label text-sm font-semibold text-on-surface">
-        {AUTH_IDENTITY.name} · {AUTH_IDENTITY.division}
+        {AUTH_IDENTITY.name}
       </span>
       {confirming ? (
         <div

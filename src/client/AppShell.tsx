@@ -167,6 +167,7 @@ export function AppShell({
             onFieldsChange={single.setFields}
             onVerify={single.onVerify}
             onClear={single.onClear}
+            onLaunchTour={help.onLaunchTour}
           />
         ) : view === 'processing' && single.image ? (
           <Processing

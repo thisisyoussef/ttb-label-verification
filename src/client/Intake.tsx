@@ -46,6 +46,7 @@ interface IntakeProps {
   onFieldsChange: (fields: IntakeFields) => void;
   onVerify: () => void;
   onClear: () => void;
+  onLaunchTour?: () => void;
 }
 
 export function Intake({
@@ -56,7 +57,8 @@ export function Intake({
   onBeverageChange,
   onFieldsChange,
   onVerify,
-  onClear
+  onClear,
+  onLaunchTour
 }: IntakeProps) {
   const [confirmingClear, setConfirmingClear] = useState(false);
   const verifyDisabled = image === null;
@@ -114,7 +116,7 @@ export function Intake({
               </p>
 
               {image === null && isFieldsEmpty(fields) ? (
-                <WelcomePrompt />
+                <WelcomePrompt onLaunchTour={onLaunchTour} />
               ) : null}
 
               <div className="bg-surface-container-low rounded-lg p-5 md:p-6 xl:p-8 flex flex-col gap-6 xl:gap-8">
@@ -145,7 +147,7 @@ export function Intake({
                     />
                     <TextField
                       label="Fanciful name"
-                      hint="Optional"
+                      hint="e.g., Small Batch Reserve — the marketing name if different from the brand"
                       placeholder="Small Batch Reserve"
                       value={fields.fancifulName}
                       onChange={(value) => setField('fancifulName', value)}
@@ -191,7 +193,7 @@ export function Intake({
                     ) : (
                       <TextField
                         label="Formula ID"
-                        hint="Optional"
+                        hint="TTB formula number, if one was assigned"
                         placeholder="If assigned"
                         value={fields.formulaId}
                         onChange={(value) => setField('formulaId', value)}
@@ -211,7 +213,7 @@ export function Intake({
                     <IntakeFieldRow>
                       <TextField
                         label="Formula ID"
-                        hint="Optional"
+                        hint="TTB formula number, if one was assigned"
                         placeholder="If assigned"
                         value={fields.formulaId}
                         onChange={(value) => setField('formulaId', value)}

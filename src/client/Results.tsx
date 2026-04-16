@@ -183,11 +183,7 @@ export function Results({
         ref={workingAreaRef}
         className="md:col-span-7 lg:col-span-8 bg-background px-6 md:px-8 xl:px-14 py-6 xl:py-12 flex flex-col gap-6 xl:gap-8 overflow-y-auto"
       >
-        <header className="flex items-center justify-between">
-          <h1 className="font-headline text-2xl xl:text-4xl font-extrabold text-on-surface tracking-tight">
-            Results
-          </h1>
-        </header>
+        <h1 className="sr-only">Results</h1>
 
         {isNoText ? (
           <NoTextState
@@ -214,10 +210,10 @@ export function Results({
                   <span className="w-6 shrink-0" />
                   <div className="flex-1 flex items-center gap-4 min-w-0">
                     <span className="w-[30%] shrink-0" />
-                    <span className="w-[25%] shrink-0 font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                    <span className="w-[25%] shrink-0 font-label text-xs lg:text-sm font-bold uppercase tracking-widest text-on-surface-variant">
                       On Application
                     </span>
-                    <span className="flex-1 font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                    <span className="flex-1 font-label text-xs lg:text-sm font-bold uppercase tracking-widest text-on-surface-variant">
                       On Label
                     </span>
                     <span className="shrink-0 w-[72px]" />

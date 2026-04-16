@@ -51,7 +51,7 @@ export function HelpLauncher({
           role="dialog"
           aria-modal="false"
           aria-label="Guided tour introduction"
-          className="absolute top-[calc(100%+12px)] right-0 z-30 w-80 bg-surface-container-lowest border border-outline-variant/30 rounded-lg shadow-ambient p-4 flex flex-col gap-3"
+          className="absolute top-[calc(100%+12px)] right-0 z-30 w-[min(20rem,calc(100vw-2rem))] bg-surface-container-lowest border border-outline-variant/30 rounded-lg shadow-ambient p-4 flex flex-col gap-3"
         >
           <span
             aria-hidden="true"

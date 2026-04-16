@@ -180,13 +180,13 @@ describe('SignedInIdentity', () => {
   it('renders the approved signed-in identity shell affordance', () => {
     const html = renderToStaticMarkup(<SignedInIdentity onSignOut={vi.fn()} />);
 
-    expect(html).toContain('Sarah Chen · ALFD');
+    expect(html).toContain('Sarah Chen');
     expect(html).toContain('Sign out');
   });
 });
 
 describe('SessionTimeoutModal', () => {
-  it('renders the government-style timeout warning copy', () => {
+  it('renders the approved timeout warning copy', () => {
     const html = renderToStaticMarkup(
       <SessionTimeoutModal
         open={true}
@@ -196,10 +196,10 @@ describe('SessionTimeoutModal', () => {
       />
     );
 
-    expect(html).toContain('Your session is about to expire');
-    expect(html).toContain('15 minutes of inactivity');
+    expect(html).toContain('Still there?');
     expect(html).toContain('120');
-    expect(html).toContain('Yes, continue session');
+    expect(html).toContain('m still here');
+    expect(html).toContain('Sign out now');
   });
 });
 
