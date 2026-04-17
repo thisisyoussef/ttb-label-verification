@@ -52,6 +52,15 @@ export type WarningOcvResult = {
 export async function runWarningOcv(input: {
   label: NormalizedUploadedLabel;
   prepassOcrText?: string;
+  /**
+   * Optional abort signal. The orchestrator (llm-trace.ts) wires this to
+   * VLM completion — once the VLM returns, any still-in-flight OCV
+   * rotation fallbacks are cancelled so they can't extend wall-clock.
+   * The fast (bottom-crop) path always runs to completion because it's
+   * the primary signal; only the multi-rotation fallbacks honor the
+   * abort.
+   */
+  signal?: AbortSignal;
 }): Promise<WarningOcvResult> {
   const startedAt = performance.now();
 
@@ -70,7 +79,7 @@ export async function runWarningOcv(input: {
 
   // Approach 2: Crop bottom region + enhanced Tesseract OCR
   try {
-    const croppedText = await runCroppedWarningOcr(input.label);
+    const croppedText = await runCroppedWarningOcr(input.label, input.signal);
     if (croppedText) {
       const warningText = extractWarningSection(croppedText);
       if (warningText) {
@@ -127,9 +136,18 @@ export async function runWarningOcv(input: {
  * Tries bottom crop (horizontal), then right/left edge strips
  * at 90° and 270° rotation. Returns the first result that
  * contains recognizable warning text.
+ *
+ * Performance note: OCV always runs in parallel with the Gemini VLM call
+ * (see llm-trace.ts). The VLM is the long pole at ~2.8-3.4s, so even the
+ * 5-region fallback's worst case (~1s) finishes well inside the VLM
+ * window. Trimming the fallback to 2 regions was measured on 2026-04-17
+ * and rejected: it saved ~400ms of OCV stage time but cost 2 labels their
+ * warning-found fallback (+2 false rejects), and the stage-time saving
+ * doesn't move wall-clock because OCV is already parallel with VLM.
  */
 async function runCroppedWarningOcr(
-  label: NormalizedUploadedLabel
+  label: NormalizedUploadedLabel,
+  signal?: AbortSignal
 ): Promise<string | null> {
   try {
     const meta = await sharp(label.buffer).metadata();
@@ -137,11 +155,21 @@ async function runCroppedWarningOcr(
     const w = meta.width;
     const h = meta.height;
 
-    // Strategy 1: Bottom 40% (most common placement)
+    // Strategy 1: Bottom 40% (most common placement). Always runs to
+    // completion — this is the primary signal. On our corpus this catches
+    // ~82% of labels in ~300-500ms.
     const bottomText = await ocrRegion(label.buffer, {
       left: 0, top: Math.floor(h * 0.6), width: w, height: h - Math.floor(h * 0.6)
     }, 0, w * 2);
     if (bottomText && /GOVERNMENT\s*WARNING/i.test(bottomText)) return bottomText;
+
+    // Fallbacks below are only needed for wrap-around labels where the
+    // warning runs up the side. They're cancellable — once the VLM
+    // returns (main pipeline's long pole), we short-circuit out with
+    // whatever bottom text we already have. This preserves the edge-case
+    // coverage on slow VLM responses while guaranteeing OCV never extends
+    // wall-clock when the VLM is fast.
+    if (signal?.aborted) return bottomText ?? null;
 
     // Strategy 2: Right edge strip at 90° rotation (wrap-around labels)
     const stripW = Math.floor(w * 0.15);
@@ -149,18 +177,21 @@ async function runCroppedWarningOcr(
       left: w - stripW, top: 0, width: stripW, height: h
     }, 90, h * 3);
     if (rightText && /GOVERNMENT\s*WARNING/i.test(rightText)) return rightText;
+    if (signal?.aborted) return rightText ?? bottomText ?? null;
 
     // Strategy 3: Right edge at 270°
     const right270 = await ocrRegion(label.buffer, {
       left: w - stripW, top: 0, width: stripW, height: h
     }, 270, h * 3);
     if (right270 && /GOVERNMENT\s*WARNING/i.test(right270)) return right270;
+    if (signal?.aborted) return right270 ?? rightText ?? bottomText ?? null;
 
     // Strategy 4: Left edge strip at 90° and 270°
     const leftText90 = await ocrRegion(label.buffer, {
       left: 0, top: 0, width: stripW, height: h
     }, 90, h * 3);
     if (leftText90 && /GOVERNMENT\s*WARNING/i.test(leftText90)) return leftText90;
+    if (signal?.aborted) return leftText90 ?? right270 ?? rightText ?? bottomText ?? null;
 
     const leftText270 = await ocrRegion(label.buffer, {
       left: 0, top: 0, width: stripW, height: h

@@ -119,9 +119,18 @@ const tracedReviewSurface = traceable(
       ? measureStage(() => runOcrPrepass(input.intake.label))
       : Promise.resolve(null);
 
+    // Wire OCV to a VLM-bounded abort signal. OCV's fast path (bottom crop)
+    // always runs to completion — it's the primary OCV signal and finishes
+    // in ~300-500ms. Its slower rotation fallbacks (up to 5 crops) are
+    // cancellable: once the VLM returns (our long pole), we abort any
+    // still-pending rotation work so OCV can never extend wall-clock on
+    // labels where the VLM comes back fast. Edge-case wrap-around warnings
+    // still get caught when the VLM is slow, which is exactly when we can
+    // afford the extra rotation spawns.
+    const ocvController = new AbortController();
     const ocvPromise = prepassEnabled
       ? measureStage(() =>
-          runWarningOcv({ label: input.intake.label })
+          runWarningOcv({ label: input.intake.label, signal: ocvController.signal })
         )
       : Promise.resolve(null);
 
@@ -134,6 +143,10 @@ const tracedReviewSurface = traceable(
     const vlmPromise = measureStage(() =>
       runTracedReviewExtraction({ ...input, intake: input.intake, latencyCapture })
     );
+    // As soon as the VLM resolves (success or failure), abort OCV's
+    // rotation fallbacks. The fast-path bottom crop has already returned
+    // by then in the overwhelming majority of cases.
+    vlmPromise.finally(() => ocvController.abort()).catch(() => {});
 
     // Await all three in parallel.
     const [ocrStage, ocvStage, vlmStage] = await Promise.all([
