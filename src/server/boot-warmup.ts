@@ -26,6 +26,7 @@ export type BootWarmupResult = {
   ocrPipeline: { ok: boolean; durationMs: number; note?: string };
   ollamaVlm: { ok: boolean; durationMs: number; note?: string };
   ollamaJudgment: { ok: boolean; durationMs: number; note?: string };
+  gemini: { ok: boolean; durationMs: number; note?: string };
   totalDurationMs: number;
 };
 
@@ -46,9 +47,12 @@ export async function runBootWarmup(): Promise<BootWarmupResult> {
   const tesseract = await warmTesseract();
   const sharpReady = await warmSharp();
   const ocrPipeline = await warmOcrPipeline();
-  const [ollamaVlm, ollamaJudgment] = await Promise.all([
+  // Fire all remote warmups in parallel — they're all optional, their
+  // timeouts cap their worst case, and none depends on the others.
+  const [ollamaVlm, ollamaJudgment, gemini] = await Promise.all([
     warmOllamaVlm(),
-    warmOllamaJudgment()
+    warmOllamaJudgment(),
+    warmGemini()
   ]);
 
   return {
@@ -57,8 +61,55 @@ export async function runBootWarmup(): Promise<BootWarmupResult> {
     ocrPipeline,
     ollamaVlm,
     ollamaJudgment,
+    gemini,
     totalDurationMs: Math.round(performance.now() - startedAt)
   };
+}
+
+/**
+ * Establish a warm HTTPS connection to generativelanguage.googleapis.com and
+ * verify GEMINI_API_KEY is valid. Uses a tiny text-only prompt that returns
+ * a bounded response, so the warmup's worst case is a few hundred ms.
+ *
+ * Benefit: the first real review request inherits a warm TLS session and
+ * a validated API key. Without this, the first VLM call pays ~100-200ms of
+ * handshake and opens the pool from cold.
+ */
+async function warmGemini(): Promise<BootWarmupResult['gemini']> {
+  const startedAt = performance.now();
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
+  if (!apiKey) {
+    return { ok: false, durationMs: 0, note: 'GEMINI_API_KEY not set; skipping' };
+  }
+  const model = process.env.GEMINI_VISION_MODEL?.trim() || 'gemini-2.5-flash-lite';
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 4_000);
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        signal: ctrl.signal,
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: 'ok' }] }],
+          generationConfig: { maxOutputTokens: 1, temperature: 0 }
+        })
+      }
+    );
+    clearTimeout(timer);
+    return {
+      ok: res.ok,
+      durationMs: Math.round(performance.now() - startedAt),
+      note: res.ok ? undefined : `http=${res.status}`
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      durationMs: Math.round(performance.now() - startedAt),
+      note: (error as Error).message.slice(0, 120)
+    };
+  }
 }
 
 /**
