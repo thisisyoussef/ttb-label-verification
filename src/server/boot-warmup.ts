@@ -37,10 +37,9 @@ export type BootWarmupResult = {
  * them at boot time.
  *
  * Goal: at the end of warmup, both the VLM and the judgment model are
- * resident on the GPU with `keep_alive` set to a long horizon, so the
- * first real request pays zero model-load time. This matters because
- * our observed 502s were from the Ollama judgment client hitting its
- * 10s timeout on a cold model load on the critical path.
+ * resident with `keep_alive` set to a long horizon, so the first real
+ * request pays zero model-load time. When `AI_PROVIDER=cloud`, the
+ * OLLAMA_* env vars are unset and both Ollama warmups no-op.
  */
 export async function runBootWarmup(): Promise<BootWarmupResult> {
   const startedAt = performance.now();
