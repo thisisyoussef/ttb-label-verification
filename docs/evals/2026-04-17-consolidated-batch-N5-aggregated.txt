@@ -1,0 +1,10 @@
+Preflighting 28 labels at http://127.0.0.1:8787...
+Preflight: 28 matched, sessionId=bcbe62c3-a96b-4761-b72b-5a6226a87028
+Starting run with 0 resolutions...
+
+Total wall:       36353ms
+First frame:      11ms
+First item done:  2899ms
+Last item done:   36353ms
+Items:            28
+Per-label avg:    1298ms

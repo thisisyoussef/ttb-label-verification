@@ -1,0 +1,40 @@
+Remote eval against: http://127.0.0.1:8787
+Slice: cola-cloud-all
+────────────────────────────────────────────────────────────────────────────────
+Server reports: {"status":"ok","service":"ttb-label-verification","mode":"scaffold","responsesApi":true,"store":false,"timestamp":"2026-04-17T22:01:07.361Z"}
+Loaded 28 cases
+
+✓ approve    5.5s [brand-name:review, net-contents:review, government-warning:review]
+[ 2/28] persian-empire-arak-distilled-spirits         ✓ review     3.5s [brand-name:review, class-type:review, net-contents:review, country-of-origin:review, government-warning:review]
+[ 3/28] simply-elegant-simply-elegant-spirits-distilled-spirits ✓ approve    2.8s [country-of-origin:review, government-warning:review]
+[ 4/28] crafy-elk-cranberry-blueberry-acai-distilled-spirits ✓ review     8.1s [brand-name:review, applicant-address:review, government-warning:review]
+[ 5/28] leitz-rottland-wine                           ✓ review     3.1s [alcohol-content:review, country-of-origin:review, government-warning:review]
+[ 6/28] leitz-magdalenenkreuz-wine                    ✓ review     2.8s [brand-name:review, alcohol-content:review, country-of-origin:review, government-warning:review]
+[ 7/28] leitz-klosterlay-wine                         ✓ review     2.9s [alcohol-content:review, country-of-origin:review, government-warning:review]
+[ 8/28] uncorked-in-mayberry-otis-own-wine            ✓ approve    8.2s [government-warning:review]
+[ 9/28] lake-placid-shredder-malt-beverage            ✓ review     2.7s [alcohol-content:review, applicant-address:review, country-of-origin:review, government-warning:review]
+[10/28] lake-placid-ridge-runner-malt-beverage        ✓ approve    7.3s [net-contents:review, applicant-address:review]
+[11/28] recluse-brew-works-shy-guy-malt-beverage      ✓ approve    6.3s
+[12/28] pleasant-prairie-brewing-peach-sour-ale-malt-beverage ✗ reject     8.9s [net-contents:review, applicant-address:review, government-warning:fail]
+[13/28] crafty-elk-mango-honey-distilled-spirits      ✓ review     8.6s [applicant-address:review, government-warning:review]
+[14/28] the-wine-trust-rum-distilled-spirits          ✓ approve    7.1s
+[15/28] flaviar-columbia-creek-tennessee-whiskey-distilled-spirits ✓ approve    5.8s [brand-name:review, net-contents:review]
+[16/28] old-station-31-orange-distilled-spirits       ✓ approve    3.0s [net-contents:review, government-warning:review]
+[17/28] west-peak-tequila-paloma-distilled-spirits    ✓ approve    6.3s [applicant-address:review, country-of-origin:review]
+[18/28] stormwood-wines-semillon-wine                 ✓ review     3.9s [alcohol-content:review, country-of-origin:review, government-warning:review]
+[19/28] forlorn-hope-san-hercurmer-delle-frecce-wine  ✓ review     7.1s [class-type:review, alcohol-content:review, applicant-address:review]
+[20/28] manzone-giovanni-barolo-perno-wine            ✓ approve   16.7s [net-contents:review, applicant-address:review, government-warning:review]
+[21/28] ana-luisa-gran-reserva-parcelas-blend-wine    ✓ review     3.2s [alcohol-content:review, government-warning:review]
+[22/28] carousel-winery-fairy-floss-cotton-candy-wine ✓ approve    6.3s [government-warning:review]
+[23/28] venture-studios-null-wine                     ✓ review     4.5s
+[24/28] sapwood-cellars-albura-lager-malt-beverage    ✓ approve    7.4s [brand-name:review, applicant-address:review, country-of-origin:review]
+[25/28] drekker-brewing-company-piano-necktie-malt-beverage ✓ approve    6.7s
+[26/28] pilok-broumy-malt-beverage                    ✓ review     7.0s [brand-name:review, class-type:review, applicant-address:review, country-of-origin:review, government-warning:review]
+[27/28] 1840-original-lager-1840-original-lager-malt-beverage ✓ approve    6.5s [brand-name:review]
+[28/28] harpoon-ale-malt-beverage                     ✗ reject    23.5s [government-warning:fail]
+────────────────────────────────────────────────────────────────────────────────
+Result:   26/28 correct (93%)
+Verdicts: 14 approve · 12 review · 2 reject · 0 error
+Latency:  avg=6.6s  p50=6.3s  p95=16.7s  max=23.5s
+
+Saved: /Users/youss/Development/gauntlet/ttb-label-verification/evals/results/2026-04-17T22-04-12-remote-cola-cloud-all.json

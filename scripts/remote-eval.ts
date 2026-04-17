@@ -167,6 +167,14 @@ type Row = {
   verdict?: string;
   match: boolean;
   failSummary?: string;
+  /**
+   * Number of HTTP attempts (1 = first call succeeded; 2 = one retry
+   * fired). Populated whenever runOne's retry loop runs more than one
+   * attempt. Used to split the headline latency stat from the one-off
+   * retry tail so optimization judgments aren't polluted by proxy
+   * flakiness or rate-limit retries.
+   */
+  attempts?: number;
 };
 
 // RunPod's Cloudflare proxy occasionally returns 502/504 transients when the
@@ -282,7 +290,8 @@ async function runOne(c: Case, providerOverride?: 'cloud' | 'local'): Promise<Ro
       actual: 'error',
       latencyMs: elapsed,
       match: false,
-      failSummary: `HTTP ${res?.status ?? 'n/a'}${attempt > 1 ? ` (after ${attempt} attempts)` : ''}: ${responseText.slice(0, 160)}`
+      failSummary: `HTTP ${res?.status ?? 'n/a'}${attempt > 1 ? ` (after ${attempt} attempts)` : ''}: ${responseText.slice(0, 160)}`,
+      attempts: attempt
     };
   }
 
@@ -309,7 +318,8 @@ async function runOne(c: Case, providerOverride?: 'cloud' | 'local'): Promise<Ro
       latencyMs: elapsed,
       verdict,
       match,
-      failSummary: fails || undefined
+      failSummary: fails || undefined,
+      attempts: attempt
     };
   } catch (error) {
     return {
@@ -318,7 +328,8 @@ async function runOne(c: Case, providerOverride?: 'cloud' | 'local'): Promise<Ro
       actual: 'error',
       latencyMs: elapsed,
       match: false,
-      failSummary: `parse-failure: ${String((error as Error).message ?? error)}`
+      failSummary: `parse-failure: ${String((error as Error).message ?? error)}`,
+      attempts: attempt
     };
   }
 }
@@ -361,15 +372,42 @@ async function main() {
   const reviewed = rows.filter((r) => r.actual === 'review').length;
   const failed = rows.filter((r) => r.actual === 'reject').length;
   const errored = rows.filter((r) => r.actual === 'error').length;
-  const latencies = rows.filter((r) => r.actual !== 'error').map((r) => r.latencyMs).sort((a, b) => a - b);
-  const avg = latencies.length ? Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length) : 0;
-  const p50 = latencies.length ? latencies[Math.floor(latencies.length * 0.5)] : 0;
-  const p95 = latencies.length ? latencies[Math.floor(latencies.length * 0.95)] : 0;
-  const max = latencies.length ? latencies[latencies.length - 1] : 0;
+  const percentiles = (xs: number[]) => {
+    const sorted = [...xs].sort((a, b) => a - b);
+    const q = (p: number) => sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))] : 0;
+    return {
+      avg: sorted.length ? Math.round(sorted.reduce((a, b) => a + b, 0) / sorted.length) : 0,
+      p50: q(0.5),
+      p95: q(0.95),
+      max: sorted.length ? sorted[sorted.length - 1] : 0
+    };
+  };
+  const allRowsLatencies = rows
+    .filter((r) => r.actual !== 'error')
+    .map((r) => r.latencyMs);
+  const cleanRowsLatencies = rows
+    .filter((r) => r.actual !== 'error' && (r.attempts ?? 1) === 1)
+    .map((r) => r.latencyMs);
+  const allStats = percentiles(allRowsLatencies);
+  const cleanStats = percentiles(cleanRowsLatencies);
+  const retriedRows = rows.filter((r) => (r.attempts ?? 1) > 1);
 
   console.log(`Result:   ${correct}/${rows.length} correct (${((correct / rows.length) * 100).toFixed(0)}%)`);
   console.log(`Verdicts: ${approved} approve · ${reviewed} review · ${failed} reject · ${errored} error`);
-  console.log(`Latency:  avg=${(avg / 1000).toFixed(1)}s  p50=${(p50 / 1000).toFixed(1)}s  p95=${(p95 / 1000).toFixed(1)}s  max=${(max / 1000).toFixed(1)}s`);
+  console.log(
+    `Latency:  avg=${(allStats.avg / 1000).toFixed(1)}s  p50=${(allStats.p50 / 1000).toFixed(1)}s  p95=${(allStats.p95 / 1000).toFixed(1)}s  max=${(allStats.max / 1000).toFixed(1)}s`
+  );
+  if (retriedRows.length > 0) {
+    console.log(
+      `          (excl ${retriedRows.length} retry${retriedRows.length === 1 ? '' : 's'}: avg=${(cleanStats.avg / 1000).toFixed(1)}s  p50=${(cleanStats.p50 / 1000).toFixed(1)}s  p95=${(cleanStats.p95 / 1000).toFixed(1)}s  max=${(cleanStats.max / 1000).toFixed(1)}s)`
+    );
+  }
+
+  // Pre-summary variables reused when serializing the JSON artifact below.
+  const avg = allStats.avg;
+  const p50 = allStats.p50;
+  const p95 = allStats.p95;
+  const max = allStats.max;
 
   // Save to evals/results/
   const timestamp = new Date().toISOString().replace(/[:]/g, '-').slice(0, 19);
@@ -381,7 +419,20 @@ async function main() {
         baseUrl: BASE_URL,
         slice: SLICE,
         providerOverride: providerOverride ?? null,
-        summary: { correct, total: rows.length, approved, reviewed, failed, errored, latencyMs: { avg, p50, p95, max } },
+        summary: {
+          correct,
+          total: rows.length,
+          approved,
+          reviewed,
+          failed,
+          errored,
+          latencyMs: { avg, p50, p95, max },
+          // Latency with retried requests excluded — see runOne retry
+          // loop. Helps A/B optimization work that's otherwise polluted
+          // by one-off proxy retries.
+          latencyMsExcludingRetries: cleanStats,
+          retriedCount: retriedRows.length
+        },
         rows
       },
       null,

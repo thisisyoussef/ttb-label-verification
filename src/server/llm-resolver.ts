@@ -162,6 +162,113 @@ export async function resolveAmbiguousFieldChecks(input: {
   return { checks: patched, resolved, skipped: null };
 }
 
+/**
+ * Batch-mode resolver aggregation. Each entry represents one label's
+ * unresolved check set — the resolver collects candidates from all of
+ * them, makes one Gemini call with the combined list, and returns the
+ * patched check arrays mapped back to each label by its id.
+ *
+ * Why: in sequential batch mode with N=5 concurrency we'd make up to
+ * 5 resolver calls in parallel anyway. But each call is still ~1-2s
+ * and counts against the Gemini rate limit. Aggregating all labels'
+ * ambiguous fields into one call drops N Gemini calls to 1, which is
+ * both faster and cheaper on the rate-limit budget.
+ *
+ * Structure-wise: we flatten candidates across labels, tag each with
+ * its originating label index, send one big prompt with all of them,
+ * then demultiplex the decisions back to each label's check array.
+ * Each label's verdict rollup still happens in its own buildVerification-
+ * Report pass after this aggregation patches the checks.
+ */
+export async function resolveAmbiguousFieldChecksBatch(input: {
+  labels: Array<{
+    id: string;
+    checks: CheckReview[];
+    /** Skip aggregation on this label if sealed by a blocker fail. */
+    sealed?: boolean;
+  }>;
+  config: ResolverConfig;
+}): Promise<{
+  labels: Array<{ id: string; checks: CheckReview[] }>;
+  resolved: number;
+  skipped: 'disabled' | 'no-client' | 'nothing-ambiguous' | 'llm-error' | null;
+}> {
+  const { labels, config } = input;
+
+  if (!config.enabled) {
+    return { labels, resolved: 0, skipped: 'disabled' };
+  }
+  if (!config.client) {
+    return { labels, resolved: 0, skipped: 'no-client' };
+  }
+
+  // Flatten candidates across all non-sealed labels. Each candidate
+  // carries its label index + the within-label check index so we can
+  // demultiplex the LLM's decisions back into the right place.
+  type FlatCandidate = AmbiguousCandidate & {
+    labelIndex: number;
+  };
+  const flat: FlatCandidate[] = [];
+  labels.forEach((label, labelIndex) => {
+    if (label.sealed) return;
+    label.checks.forEach((check, index) => {
+      if (!ELIGIBLE_FIELD_IDS.has(check.id)) return;
+      if (check.status !== 'review') return;
+      if (check.confidence >= config.threshold) return;
+      if (!check.applicationValue || !check.extractedValue) return;
+      flat.push({
+        labelIndex,
+        index,
+        fieldId: check.id,
+        label: check.label,
+        applicationValue: check.applicationValue,
+        extractedValue: check.extractedValue
+      });
+    });
+  });
+
+  if (flat.length === 0) {
+    return { labels, resolved: 0, skipped: 'nothing-ambiguous' };
+  }
+
+  let decisions: ReadonlyArray<'equivalent' | 'uncertain'>;
+  try {
+    decisions = await queryResolver(config.client, flat);
+  } catch {
+    return { labels, resolved: 0, skipped: 'llm-error' };
+  }
+
+  if (decisions.length !== flat.length) {
+    return { labels, resolved: 0, skipped: 'llm-error' };
+  }
+
+  // Clone each label's checks array so we can patch without mutating
+  // the caller's state.
+  const patchedLabels = labels.map((label) => ({
+    id: label.id,
+    checks: [...label.checks]
+  }));
+  let resolved = 0;
+  flat.forEach((candidate, i) => {
+    if (decisions[i] !== 'equivalent') return;
+    const labelChecks = patchedLabels[candidate.labelIndex]?.checks;
+    if (!labelChecks) return;
+    const original = labelChecks[candidate.index];
+    if (!original) return;
+    labelChecks[candidate.index] = {
+      ...original,
+      status: 'pass',
+      severity: 'note',
+      confidence: Math.min(original.confidence, LLM_CONFIDENCE_CAP),
+      summary: 'Label matches the approved record (LLM-assisted).',
+      details: `${original.details}\n\n[LLM-assisted] The language model confirmed the application and label values refer to the same thing despite formatting differences. Confidence capped at ${LLM_CONFIDENCE_CAP} so a human can still verify if desired.`
+    };
+    resolved += 1;
+  });
+
+  return { labels: patchedLabels, resolved, skipped: null };
+}
+
 async function queryResolver(
   client: JudgmentLlmClient,
   candidates: readonly AmbiguousCandidate[]
