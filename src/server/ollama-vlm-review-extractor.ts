@@ -139,7 +139,13 @@ type OllamaGenerateResponse = {
 //
 // Override with OCR_MAX_VLM_EDGE=0 to disable the pre-scale.
 async function prepareImageForVlm(buffer: Buffer): Promise<string> {
-  const maxEdgeRaw = (process.env.OCR_MAX_VLM_EDGE ?? '896').trim();
+  // DEFAULT is now disabled (0). The prescale caused 502s on RunPod pods
+  // under an unreproduced condition — likely a sharp format edge case on
+  // certain COLA webp files under the specific pod's libvips build.
+  // Enable by explicitly setting OCR_MAX_VLM_EDGE=896 (or another
+  // positive pixel edge) once the root cause is understood. Until then,
+  // every pod should send the image unmodified to preserve correctness.
+  const maxEdgeRaw = (process.env.OCR_MAX_VLM_EDGE ?? '0').trim();
   const maxEdge = Number.parseInt(maxEdgeRaw, 10);
   if (!Number.isFinite(maxEdge) || maxEdge <= 0) {
     return buffer.toString('base64');

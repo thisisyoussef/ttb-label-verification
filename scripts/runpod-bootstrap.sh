@@ -152,6 +152,16 @@ export OLLAMA_CONTEXT_LENGTH="${OLLAMA_CONTEXT_LENGTH:-8192}"
 export OLLAMA_KEEP_ALIVE="${OLLAMA_KEEP_ALIVE:-60m}"
 export OLLAMA_JUDGMENT_TIMEOUT_MS="${OLLAMA_JUDGMENT_TIMEOUT_MS:-30000}"
 export OLLAMA_JUDGMENT_KEEP_ALIVE="${OLLAMA_JUDGMENT_KEEP_ALIVE:-60m}"
+# Prescale opt-in. The VLM input prescale (sharp resize to a smaller
+# edge) caused 502s on RunPod under an unreproduced condition — likely
+# a libvips / webp edge case on certain COLA images on specific pods.
+# Until that's diagnosed, default to 0 (OFF) so the image ships to
+# Ollama unchanged. Set to 896 to re-enable on a debugging pod.
+export OCR_MAX_VLM_EDGE="${OCR_MAX_VLM_EDGE:-0}"
+# Confidence cap when OCR doesn't verify a field. 0.8 is the measured
+# sweet spot between "VLM-only hallucination risk" and "valid approvals
+# stuck in review because the regex didn't match a variant format".
+export OCR_VLM_CAP_CONFIDENCE="${OCR_VLM_CAP_CONFIDENCE:-0.8}"
 
 # ----------------------------------------------------------------------------
 # Step 1 — install system dependencies we need that the Ollama image doesn't
