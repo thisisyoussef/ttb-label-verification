@@ -1,0 +1,154 @@
+/**
+ * User-facing display adapter.
+ *
+ * The rule engine produces verdicts in {approve, review, reject} and field
+ * checks in {pass, review, fail, info} with numeric confidence scores.
+ * That surface is correct for eval, export, and internal consumers — but
+ * the reviewer-facing UI deliberately hides it. Assessors see only:
+ *
+ *   - "Approved" (all checks match, we have nothing to show you)
+ *   - "Needs your review" (everything else, with plain-language reasons)
+ *
+ * No confidence percentages. No "fail" status (it becomes "needs review").
+ * No tier jargon. No internal rule ids in copy. The compliance substance
+ * stays the same — every check's citation and evidence is still shown —
+ * but the framing stops treating the tool as the decision-maker.
+ *
+ * This module is the single seam. Upstream code doesn't change; downstream
+ * UI components pull their copy + status from here.
+ */
+
+import type { CheckReview, Verdict, VerificationCounts } from './types';
+
+/** UI-only verdict. The engine's `reject` collapses to `review` here. */
+export type DisplayVerdict = 'approve' | 'review';
+
+/** UI-only check status. The engine's `fail` collapses to `review` here. */
+export type DisplayCheckStatus = 'pass' | 'review' | 'info';
+
+/**
+ * Collapse the engine verdict into the two-state UI verdict. `reject`
+ * becomes `review` so reviewers see a "needs your look" prompt rather
+ * than a machine-generated rejection. The underlying check-level reasons
+ * (warning wording off, ABV mismatch, etc.) still surface as individual
+ * review items — reviewers see *why*, just not labeled as a rejection.
+ */
+export function toDisplayVerdict(verdict: Verdict): DisplayVerdict {
+  return verdict === 'approve' ? 'approve' : 'review';
+}
+
+/** Collapse check-level `fail` to `review`. Pass-through for pass/info. */
+export function toDisplayStatus(status: CheckReview['status']): DisplayCheckStatus {
+  if (status === 'pass') return 'pass';
+  if (status === 'info') return 'info';
+  return 'review';
+}
+
+/**
+ * Collapse the counts. The engine tracks pass/review/fail; the UI shows
+ * "matched" and "needs review" only. Fail rolls into review.
+ */
+export type DisplayCounts = {
+  matched: number;
+  needsReview: number;
+};
+
+export function toDisplayCounts(counts: VerificationCounts): DisplayCounts {
+  return {
+    matched: counts.pass,
+    needsReview: counts.review + counts.fail
+  };
+}
+
+/**
+ * Plain-language headline + explanation for each display verdict. These
+ * intentionally avoid:
+ *   - "reject" / "rejection" / "violation" — tool is guiding, not gating
+ *   - percentages, confidence numbers, probabilistic language
+ *   - regulatory jargon (27 CFR, tier, disposition)
+ */
+export const DISPLAY_VERDICT_COPY: Record<
+  DisplayVerdict,
+  { headline: string; explanation: string; icon: string }
+> = {
+  approve: {
+    headline: 'Looks good',
+    explanation:
+      "We checked every field from the application against the label and everything matches. You can approve without opening each row.",
+    icon: 'verified_user'
+  },
+  review: {
+    headline: 'Needs your review',
+    explanation:
+      "Some fields need a human eye — either the label and application don't match, or the label image is hard for us to read. Open the flagged rows below to see the details.",
+    icon: 'visibility'
+  }
+};
+
+/**
+ * Plain-language status labels for individual field checks. Used by the
+ * per-row badge component.
+ */
+export const DISPLAY_STATUS_COPY: Record<
+  DisplayCheckStatus,
+  { label: string; icon: string }
+> = {
+  pass: { label: 'Matches', icon: 'check_circle' },
+  review: { label: 'Needs review', icon: 'visibility' },
+  info: { label: 'Info', icon: 'info' }
+};
+
+/**
+ * User-facing reason rewrite. The engine's check summaries sometimes
+ * contain internal rule ids or regulation numbers; this strips those so
+ * the reviewer sees plain language only. The stripped content is
+ * preserved in `citation` which the UI can disclose behind an
+ * "Regulatory reference" expander if/when that surface is built.
+ *
+ * Strips:
+ *   - Leading "[rule-id]" bracket tags
+ *   - Trailing "(X% match)" percentage annotations
+ *   - Explicit confidence probability mentions
+ *   - Phrases that imply a machine verdict (e.g. "we reject", "rule fails")
+ */
+export function plainifyReason(raw: string): string {
+  if (!raw) return raw;
+  return raw
+    // Internal rule ids wrapped in square brackets can appear at the
+    // start OR inline (e.g. "Label matches.\n\n[class-type-exact-match]
+    // Class/type matches..."). Strip every occurrence — they're engine
+    // debug breadcrumbs, not reviewer-facing copy.
+    .replace(/\[\s*[a-z0-9][a-z0-9-]*\s*\]\s*/gi, '')
+    // "(95% match)" / "(90% match)" → ""
+    .replace(/\s*\(\s*\d+%\s*match\s*\)/gi, '')
+    // "Warning text matches the required wording (95% match)." handled above
+    // Standalone "XX% match" or "XX%" at end → dropped
+    .replace(/\s*[~≈]?\d+%\s*match[^.]*\.?\s*$/i, '.')
+    // "disposition" → "result" (softer, less juridical)
+    .replace(/\bdisposition\b/gi, 'result')
+    // "reject" / "rejects" / "rejected" / "rejection" → "needs review"
+    .replace(/\brejects?\b/gi, 'needs review')
+    .replace(/\brejected\b/gi, 'flagged for review')
+    .replace(/\brejection\b/gi, 'review')
+    // "fail" / "fails" / "failed" as a check result → "needs review"
+    .replace(/\b(check|rule)\s+fails?\b/gi, '$1 needs review')
+    .replace(/\bfailed the check\b/gi, 'needs review')
+    // Collapse the duplicate-summary pattern — engine often emits
+    // "Label matches the approved record.\n\nClass/type matches the
+    // approved record." where both halves are essentially the same
+    // sentence. Keep the more specific half.
+    .replace(/\s*\n\s*\n\s*/g, '\n\n')
+    // Trim leftover double spaces and leading/trailing whitespace
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+/**
+ * Compose a single, plain-language reason sentence for a given check,
+ * drawing from both the `summary` and `details` strings the engine
+ * emits. Prefers summary when present; falls back to details.
+ */
+export function plainifyCheckReason(check: CheckReview): string {
+  const picked = check.summary && check.summary.length > 0 ? check.summary : check.details;
+  return plainifyReason(picked ?? '');
+}

@@ -1,4 +1,4 @@
-import { ConfidenceMeter } from './ConfidenceMeter';
+import { plainifyCheckReason, plainifyReason } from './reviewDisplayAdapter';
 import type { CheckReview } from './types';
 
 interface FieldEvidencePanelProps {
@@ -6,50 +6,44 @@ interface FieldEvidencePanelProps {
   standalone: boolean;
 }
 
-const SEVERITY_COPY: Record<CheckReview['severity'], string> = {
-  blocker: 'Must fix',
-  major: 'Important',
-  minor: 'Minor',
-  note: 'Note'
-};
-
-const LOW_CONFIDENCE_THRESHOLD = 0.6;
+// Confidence threshold below which we surface a "verify visually" hint
+// to the reviewer. The numeric confidence itself is never displayed —
+// we keep the signal internal and only expose a qualitative prompt.
+const VERIFY_VISUALLY_THRESHOLD = 0.6;
 
 export function FieldEvidencePanel({ check, standalone }: FieldEvidencePanelProps) {
-  const showSeverity = check.status !== 'pass';
   const showComparison =
     !standalone &&
     check.comparison &&
     (check.comparison.status === 'case-mismatch' ||
       check.comparison.status === 'value-mismatch');
+  const uncertain = check.confidence < VERIFY_VISUALLY_THRESHOLD;
+  const summaryText = plainifyCheckReason(check);
+  const detailsText = plainifyReason(check.details ?? '');
 
   return (
     <div className="flex flex-col gap-6 px-6 md:px-8 pt-4 pb-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 flex flex-col gap-3">
           <h4 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
-            Finding
+            What we found
           </h4>
-          <p className="font-headline text-lg font-bold text-on-surface">{check.summary}</p>
-          <p className="font-body text-sm text-on-surface-variant leading-relaxed">
-            {check.details}
-          </p>
-          {showSeverity ? (
-            <p className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
-              Severity: <span className="text-on-surface">{SEVERITY_COPY[check.severity]}</span>
+          <p className="font-headline text-lg font-bold text-on-surface">{summaryText}</p>
+          {detailsText.length > 0 && detailsText !== summaryText ? (
+            <p className="font-body text-sm text-on-surface-variant leading-relaxed">
+              {detailsText}
+            </p>
+          ) : null}
+          {uncertain ? (
+            <p className="text-sm text-caution font-label">
+              Hard to read — please verify against the physical label.
             </p>
           ) : null}
         </div>
         <div className="flex flex-col gap-4 bg-surface-container-low rounded-lg p-5">
-          <ConfidenceMeter confidence={check.confidence} />
-          {check.confidence < LOW_CONFIDENCE_THRESHOLD ? (
-            <p className="text-sm text-caution font-label">
-              AI is unsure — please verify visually.
-            </p>
-          ) : null}
           <div className="flex flex-col gap-1.5">
             <h4 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
-              Citations
+              Regulatory reference
             </h4>
             {check.citations.length > 0 ? (
               <ul className="flex flex-col gap-1">
@@ -60,7 +54,9 @@ export function FieldEvidencePanel({ check, standalone }: FieldEvidencePanelProp
                 ))}
               </ul>
             ) : (
-              <p className="font-body text-xs text-on-surface-variant">No direct citation.</p>
+              <p className="font-body text-xs text-on-surface-variant">
+                No direct citation — general label review.
+              </p>
             )}
           </div>
         </div>

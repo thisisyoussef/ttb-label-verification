@@ -17,10 +17,7 @@ describe('AssessorToolbench', () => {
   it('renders a viewport-capped panel with a full-height scroll region', () => {
     const html = renderToStaticMarkup(
       <AssessorToolbench
-        activeScenarioId="blank"
-        activeBatchSeedId="seed-mixed-blockers"
-        onSelectScenario={vi.fn()}
-        onSelectBatchSeed={vi.fn()}
+        onLoadSample={vi.fn()}
         onLoadImage={vi.fn()}
         onLoadCsv={vi.fn()}
         mode="single"
@@ -34,6 +31,5 @@ describe('AssessorToolbench', () => {
 
     expect(html).toContain('h-[min(520px,calc(100vh-96px))]');
     expect(html).toContain('role="tabpanel" class="flex-1 min-h-0 overflow-y-auto"');
-    expect(html).toContain('flex flex-col gap-4 p-3');
   });
 });

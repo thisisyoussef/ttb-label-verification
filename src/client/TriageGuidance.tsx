@@ -80,42 +80,39 @@ function buildTriageSteps(
 ): TriageStep[] {
   const steps: TriageStep[] = [];
 
-  if (summary.fail > 0) {
+  // User-facing model: collapse fail → review. A reviewer sees one
+  // bucket of "needs review" labels (sorted so clear-mismatch ones come
+  // first) and one bucket of "looks good" labels.
+  const needsReviewCount = summary.fail + summary.review;
+  if (needsReviewCount > 0) {
     const failRows = rows.filter((r) => r.status === 'fail');
-    const blockerCount = failRows.reduce((n, r) => n + r.issues.blocker, 0);
-    const detail = blockerCount > 0
-      ? `${blockerCount} blocking ${blockerCount === 1 ? 'issue' : 'issues'} across ${summary.fail} ${summary.fail === 1 ? 'label' : 'labels'}`
-      : `${summary.fail} ${summary.fail === 1 ? 'label' : 'labels'} with deterministic violations`;
-
-    steps.push({
-      filter: 'reject',
-      headline: `Review ${summary.fail} rejected ${summary.fail === 1 ? 'label' : 'labels'}`,
-      detail,
-      icon: 'cancel',
-      iconClass: 'text-error'
-    });
-  }
-
-  if (summary.review > 0) {
     const reviewRows = rows.filter((r) => r.status === 'review');
+    const blockerCount = failRows.reduce((n, r) => n + r.issues.blocker, 0);
     const lowConfCount = reviewRows.filter((r) => r.confidenceState === 'low-confidence').length;
-    const detail = lowConfCount > 0
-      ? `${lowConfCount} flagged due to low extraction confidence`
-      : 'cosmetic mismatches or advisory issues flagged by rules';
+    const parts: string[] = [];
+    if (blockerCount > 0) {
+      parts.push(`${blockerCount} clear mismatch${blockerCount === 1 ? '' : 'es'}`);
+    }
+    if (lowConfCount > 0) {
+      parts.push(`${lowConfCount} hard to read`);
+    }
+    const detail = parts.length > 0
+      ? parts.join(' · ')
+      : 'small differences worth a second look';
 
     steps.push({
       filter: 'review',
-      headline: `Check ${summary.review} flagged ${summary.review === 1 ? 'label' : 'labels'}`,
+      headline: `Open ${needsReviewCount} ${needsReviewCount === 1 ? 'label' : 'labels'} that need your review`,
       detail,
-      icon: 'warning',
+      icon: 'visibility',
       iconClass: 'text-caution'
     });
   }
 
-  if (summary.pass > 0 && (summary.fail > 0 || summary.review > 0)) {
+  if (summary.pass > 0 && needsReviewCount > 0) {
     steps.push({
       filter: 'approve',
-      headline: `${summary.pass} ${summary.pass === 1 ? 'label' : 'labels'} passed all checks`,
+      headline: `${summary.pass} ${summary.pass === 1 ? 'label' : 'labels'} matched everything`,
       detail: 'spot-check if needed',
       icon: 'check_circle',
       iconClass: 'text-tertiary'

@@ -2,8 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppShell } from './AppShell';
 import { AssessorToolbench } from './toolbench/AssessorToolbench';
 import { EvalDemo } from './EvalDemo';
-import { loadScenarioImageFile } from './scenarioImageLoader';
-import type { LabelImage } from './types';
+// (scenarioImageLoader import removed — scenario panel retired; the
+// toolbench now loads real COLA Cloud samples via /api/eval/sample.)
+import type { LabelImage, OriginChoice } from './types';
+import type { SampleFields } from './toolbench/ToolbenchSamples';
 import { formatFileSize } from '../shared/batch-file-meta';
 import { AuthScreen } from './AuthScreen';
 import {
@@ -317,6 +319,45 @@ export function App() {
     setView(next === 'batch' ? 'batch-intake' : 'intake');
   }, []);
 
+  // One-click COLA sample loader: populates both image and application
+  // fields from a real TTB-approved COLA record. The image fetch +
+  // field payload are handled by ToolbenchSamples and handed to us here.
+  const handleToolbenchLoadSample = useCallback(
+    (file: File, fields: SampleFields, _imageId: string) => {
+      const labelImage: LabelImage = {
+        file,
+        previewUrl: URL.createObjectURL(file),
+        sizeLabel: formatFileSize(file.size)
+      };
+      single.onImageChange(labelImage);
+      // Pack the SampleFields into the IntakeFields shape. SampleFields
+      // strings map 1:1 onto the typed form, except 'origin' needs to
+      // narrow to the OriginChoice union — default to 'domestic' if the
+      // CSV value is blank or unrecognized.
+      const origin: OriginChoice = fields.origin === 'imported' ? 'imported' : 'domestic';
+      single.setFields({
+        brandName: fields.brandName,
+        fancifulName: fields.fancifulName,
+        classType: fields.classType,
+        alcoholContent: fields.alcoholContent,
+        netContents: fields.netContents,
+        applicantAddress: fields.applicantAddress,
+        origin,
+        country: fields.country,
+        formulaId: fields.formulaId,
+        appellation: fields.appellation,
+        vintage: fields.vintage,
+        varietals: []
+      });
+      // Force single-label mode on sample load.
+      if (mode !== 'single') {
+        batch.onSelectMode('single', mode);
+      }
+      setView('intake');
+    },
+    [batch, mode, setView, single]
+  );
+
   const performSignOut = useCallback(() => {
     setExtractionMode('local');
     setSessionRemainingMs(SESSION_TIMEOUTS.inactivityMs);
@@ -432,30 +473,14 @@ export function App() {
         onTourShowMeAndContinue={onTourShowMeAndContinue}
       />
       {/*
-        Toolbench is a developer/demo-only surface. In dev (`vite dev`) it's
-        always visible. In production builds it's hidden unless
-        VITE_ENABLE_TOOLBENCH=true is set at build time. This protects the
-        Grandma-test demo from the developer-facing "Provider Override",
-        scenario picker, and other power-user knobs.
+        Toolbench is visible by default so assessors demoing the tool
+        can load a real COLA sample with one click. Operators who want
+        to hide it (e.g. in a customer-facing demo) can set
+        VITE_ENABLE_TOOLBENCH=false at build time.
       */}
-      {(import.meta.env.DEV || import.meta.env.VITE_ENABLE_TOOLBENCH === 'true') && (
+      {import.meta.env.VITE_ENABLE_TOOLBENCH !== 'false' && (
         <AssessorToolbench
-          activeScenarioId={single.scenarioId}
-          activeBatchSeedId={batch.batchSeedId}
-          onSelectScenario={(scenario) => {
-            // Populate the form first so the scenario label lights up
-            // immediately, then async-fetch the image asset if the
-            // scenario declares one. The fetch lives in a non-auth module
-            // to keep the auth-privacy grep invariant (App.tsx contains
-            // no fetch calls).
-            single.onSelectScenario(scenario);
-            const asset = scenario.imageAsset;
-            if (!asset) return;
-            void loadScenarioImageFile(asset).then((file) => {
-              if (file) handleToolbenchLoadImage(file);
-            });
-          }}
-          onSelectBatchSeed={batch.onSelectBatchSeed}
+          onLoadSample={handleToolbenchLoadSample}
           onLoadImage={handleToolbenchLoadImage}
           onLoadCsv={handleToolbenchLoadCsv}
           mode={mode}

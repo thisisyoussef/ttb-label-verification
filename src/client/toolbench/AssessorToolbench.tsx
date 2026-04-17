@@ -2,15 +2,11 @@ import { useEffect, useRef } from 'react';
 import type { ExtractionMode, Mode } from '../appTypes';
 import { ToolbenchActions } from './ToolbenchActions';
 import { ToolbenchAssets } from './ToolbenchAssets';
-import { ToolbenchScenarios } from './ToolbenchScenarios';
-import type { ToolbenchSingleScenario } from './toolbenchFixtures';
+import { ToolbenchSamples, type SampleFields } from './ToolbenchSamples';
 import { type ToolbenchTab, useToolbenchState } from './useToolbenchState';
 
 interface AssessorToolbenchProps {
-  activeScenarioId: string;
-  activeBatchSeedId: string;
-  onSelectScenario: (scenario: ToolbenchSingleScenario) => void;
-  onSelectBatchSeed: (id: string) => void;
+  onLoadSample: (file: File, fields: SampleFields, imageId: string) => void;
   onLoadImage: (file: File) => void;
   onLoadCsv: (file: File) => void;
   mode: Mode;
@@ -22,16 +18,13 @@ interface AssessorToolbenchProps {
 }
 
 const TABS: { id: ToolbenchTab; label: string }[] = [
-  { id: 'scenarios', label: 'Scenarios' },
-  { id: 'assets', label: 'Assets' },
+  { id: 'samples', label: 'Samples' },
+  { id: 'assets', label: 'Upload' },
   { id: 'actions', label: 'Actions' },
 ];
 
 export function AssessorToolbench({
-  activeScenarioId,
-  activeBatchSeedId,
-  onSelectScenario,
-  onSelectBatchSeed,
+  onLoadSample,
   onLoadImage,
   onLoadCsv,
   extractionMode,
@@ -93,12 +86,12 @@ export function AssessorToolbench({
 
           {/* Tab content */}
           <div role="tabpanel" className="flex-1 min-h-0 overflow-y-auto">
-            {tab === 'scenarios' && (
-              <ToolbenchScenarios
-                activeScenarioId={activeScenarioId}
-                activeBatchSeedId={activeBatchSeedId}
-                onSelectScenario={onSelectScenario}
-                onSelectBatchSeed={onSelectBatchSeed}
+            {tab === 'samples' && (
+              <ToolbenchSamples
+                onLoadSample={(file, fields, imageId) => {
+                  onLoadSample(file, fields, imageId);
+                  close();
+                }}
               />
             )}
             {tab === 'assets' && (

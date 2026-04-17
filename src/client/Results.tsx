@@ -269,7 +269,7 @@ export function Results({
             {expandRowHint.visible ? (
               <p className="text-xs text-on-surface-variant/70 font-label flex items-center gap-1.5 -mt-1">
                 <span className="material-symbols-outlined text-[14px]" aria-hidden="true">lightbulb</span>
-                Click any row to see evidence and confidence details.
+                Click any row to see what was found and the regulatory reference.
               </p>
             ) : null}
 

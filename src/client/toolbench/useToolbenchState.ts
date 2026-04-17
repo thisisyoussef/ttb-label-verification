@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 
-export type ToolbenchTab = 'scenarios' | 'assets' | 'actions';
+// "samples" is the new primary tab: one-click load of a real COLA Cloud
+// label + matching application fields. Replaces the old "scenarios" tab
+// which was a curated synthetic set — less useful than running the real
+// eval corpus directly from the UI.
+export type ToolbenchTab = 'samples' | 'assets' | 'actions';
 
 const STORAGE_KEY = 'toolbench-state';
 
@@ -12,17 +16,19 @@ interface PersistedState {
 function readPersistedState(): PersistedState {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return { open: false, tab: 'scenarios' };
+    // Default to open so assessors see the COLA sample loader on first
+    // visit. Session storage persists the user's preference from there.
+    if (!raw) return { open: true, tab: 'samples' };
     const parsed = JSON.parse(raw) as Partial<PersistedState>;
     return {
-      open: typeof parsed.open === 'boolean' ? parsed.open : false,
+      open: typeof parsed.open === 'boolean' ? parsed.open : true,
       tab:
-        parsed.tab === 'scenarios' || parsed.tab === 'assets' || parsed.tab === 'actions'
+        parsed.tab === 'samples' || parsed.tab === 'assets' || parsed.tab === 'actions'
           ? parsed.tab
-          : 'scenarios',
+          : 'samples',
     };
   } catch {
-    return { open: false, tab: 'scenarios' };
+    return { open: true, tab: 'samples' };
   }
 }
 

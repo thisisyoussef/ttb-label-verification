@@ -1,7 +1,7 @@
-import { ConfidenceMeter } from './ConfidenceMeter';
 import { InfoAnchor } from './InfoAnchor';
 import { StatusBadge } from './StatusBadge';
 import { WarningDiff } from './WarningDiff';
+import { plainifyReason, toDisplayStatus } from './reviewDisplayAdapter';
 import type { CheckReview } from './types';
 
 interface WarningEvidencePanelProps {
@@ -24,47 +24,42 @@ export function WarningEvidencePanel({ check }: WarningEvidencePanelProps) {
             <InfoAnchor anchorKey="warning-evidence" />
           </h4>
           <ul className="flex flex-col gap-3">
-            {warning.subChecks.map((sub) => (
-              <li key={sub.id} className="flex items-start gap-3">
-                <SubCheckIcon status={sub.status} />
-                <div className="flex-1">
-                  <p className="font-body text-sm font-semibold text-on-surface">{sub.label}</p>
-                  <p
-                    className={[
-                      'text-xs mt-0.5',
-                      sub.status === 'fail'
-                        ? 'text-error'
-                        : sub.status === 'review'
+            {warning.subChecks.map((sub) => {
+              const displayStatus = toDisplayStatus(sub.status);
+              return (
+                <li key={sub.id} className="flex items-start gap-3">
+                  <SubCheckIcon status={sub.status} />
+                  <div className="flex-1">
+                    <p className="font-body text-sm font-semibold text-on-surface">{sub.label}</p>
+                    <p
+                      className={[
+                        'text-xs mt-0.5',
+                        displayStatus === 'review'
                           ? 'text-on-caution-container'
                           : 'text-on-surface-variant'
-                    ].join(' ')}
-                  >
-                    {sub.reason}
-                  </p>
-                </div>
-                <StatusBadge status={sub.status} size="sm" />
-              </li>
-            ))}
+                      ].join(' ')}
+                    >
+                      {plainifyReason(sub.reason ?? '')}
+                    </p>
+                  </div>
+                  <StatusBadge status={sub.status} size="sm" />
+                </li>
+              );
+            })}
           </ul>
         </section>
 
         <section className="flex flex-col gap-4 bg-surface-container-low rounded-lg p-5">
           <h4 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
-            Confidence
+            Regulatory reference
           </h4>
-          <ConfidenceMeter confidence={check.confidence} label="Reading accuracy" />
-          <div className="flex flex-col gap-1.5 pt-2">
-            <h4 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
-              Citations
-            </h4>
-            <ul className="flex flex-col gap-1">
-              {check.citations.map((citation) => (
-                <li key={citation} className="font-mono text-xs text-on-surface">
-                  {citation}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul className="flex flex-col gap-1">
+            {check.citations.map((citation) => (
+              <li key={citation} className="font-mono text-xs text-on-surface">
+                {citation}
+              </li>
+            ))}
+          </ul>
         </section>
       </div>
 
