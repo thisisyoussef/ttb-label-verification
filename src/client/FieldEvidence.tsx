@@ -11,6 +11,17 @@ interface FieldEvidencePanelProps {
 // we keep the signal internal and only expose a qualitative prompt.
 const VERIFY_VISUALLY_THRESHOLD = 0.6;
 
+// Sentinel phrase the server writes into `comparison.note` when the
+// extracted value came from the OCR fallback rather than the VLM read.
+// Kept in sync with `OCR_FALLBACK_SENTINEL` in
+// `src/server/review-report-field-checks.ts`. Substring match is safe:
+// the phrase is plain prose and does not appear in any other copy.
+const OCR_FALLBACK_MARKER = 'likely from the label (not verified by the vision model)';
+
+function isOcrFallbackNote(note: string | undefined): boolean {
+  return typeof note === 'string' && note.includes(OCR_FALLBACK_MARKER);
+}
+
 export function FieldEvidencePanel({ check, standalone }: FieldEvidencePanelProps) {
   const showComparison =
     !standalone &&
@@ -76,6 +87,8 @@ function ComparisonBlock({ check }: { check: CheckReview }) {
       ? 'ring-caution/40'
       : 'ring-error/40';
 
+  const likelyFromOcr = isOcrFallbackNote(comparison.note);
+
   return (
     <section
       className="flex flex-col gap-3"
@@ -85,8 +98,19 @@ function ComparisonBlock({ check }: { check: CheckReview }) {
         Comparison
       </h4>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <ComparisonCell label="Application data" value={check.applicationValue} toneClass={toneClass} />
-        <ComparisonCell label="Read from label" value={check.extractedValue} toneClass={toneClass} />
+        <ComparisonCell
+          label="Application data"
+          value={check.applicationValue}
+          toneClass={toneClass}
+          blankCopy="Not in the application"
+        />
+        <ComparisonCell
+          label="Read from label"
+          value={check.extractedValue}
+          toneClass={toneClass}
+          blankCopy="Not visible on the label"
+          likely={likelyFromOcr}
+        />
       </div>
       {comparison.note ? (
         <p className="font-body text-xs text-on-surface-variant">
@@ -100,25 +124,46 @@ function ComparisonBlock({ check }: { check: CheckReview }) {
 function ComparisonCell({
   label,
   value,
-  toneClass
+  toneClass,
+  blankCopy,
+  likely = false
 }: {
   label: string;
   value: string | undefined;
   toneClass: string;
+  blankCopy: string;
+  likely?: boolean;
 }) {
+  const hasValue = Boolean(value && value.length > 0);
   return (
     <div className="bg-surface-container-low rounded-lg p-4">
-      <h5 className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">
-        {label}
-      </h5>
-      <p
-        className={[
-          'font-mono text-base font-semibold tracking-tight text-on-surface bg-surface-container-highest px-3 py-2 rounded ring-1',
-          toneClass
-        ].join(' ')}
-      >
-        {value && value.length > 0 ? value : '—'}
-      </p>
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <h5 className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+          {label}
+        </h5>
+        {hasValue && likely ? (
+          <span
+            className="font-label text-[10px] font-bold uppercase tracking-widest text-caution bg-caution/10 px-2 py-0.5 rounded"
+            title="The vision model didn't read this field cleanly — shown from the label text directly."
+          >
+            Likely
+          </span>
+        ) : null}
+      </div>
+      {hasValue ? (
+        <p
+          className={[
+            'font-mono text-base font-semibold tracking-tight text-on-surface bg-surface-container-highest px-3 py-2 rounded ring-1',
+            toneClass
+          ].join(' ')}
+        >
+          {value}
+        </p>
+      ) : (
+        <p className="font-body text-sm italic text-on-surface-variant px-3 py-2">
+          {blankCopy}
+        </p>
+      )}
     </div>
   );
 }

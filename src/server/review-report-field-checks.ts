@@ -22,6 +22,38 @@ import {
   judgeNetContents,
   type FieldJudgment
 } from './judgment-field-rules';
+import { extractFieldsFromOcrText } from './ocr-field-extractor';
+
+/**
+ * Sentinel phrase included in `comparison.note` when the reviewer-
+ * facing value came from the OCR fallback rather than the VLM read.
+ * The client detects this substring to show a "Likely" badge on the
+ * label-side cell. Keep it intact — `plainifyReason` does not strip
+ * plain prose, so the sentinel survives the display rewrite.
+ */
+export const OCR_FALLBACK_SENTINEL = 'likely from the label (not verified by the vision model)';
+
+/**
+ * When the VLM reports a field as not-present but the Tesseract OCR
+ * prepass caught text at the right regex position, surface that text
+ * as a "likely" best guess instead of leaving the label side blank.
+ *
+ * Returns `null` when there's no OCR text, the text is too short to
+ * be trustworthy, or the OCR regex didn't recognize the field shape.
+ */
+function tryOcrFallbackValue(
+  spec: FieldSpec,
+  ocrText: string | undefined
+): { value: string; confidence: number } | null {
+  if (!ocrText || ocrText.length < 20) return null;
+  const parsed = extractFieldsFromOcrText(ocrText);
+  if (!parsed) return null;
+  const field = parsed.fields[spec.extractionKey];
+  if (!field?.present || !field.value || field.value.trim().length === 0) {
+    return null;
+  }
+  return { value: field.value, confidence: field.confidence };
+}
 
 export function buildFieldChecks(input: {
   intake: NormalizedReviewIntake;
@@ -63,11 +95,35 @@ function buildFieldCheck(input: {
       extractedField,
       extractedValue,
       id: input.spec.id,
-      label: input.spec.label
+      label: input.spec.label,
+      ocrFallback: extractedField.present ? null : tryOcrFallbackValue(input.spec, input.intake.ocrText)
     });
   }
 
   if (!extractedField.present || !extractedValue) {
+    const ocrGuess = tryOcrFallbackValue(input.spec, input.intake.ocrText);
+    if (ocrGuess) {
+      return {
+        id: input.spec.id,
+        label: input.spec.label,
+        status: 'review',
+        severity: 'minor',
+        summary: `Label ${OCR_FALLBACK_SENTINEL}: ${ocrGuess.value}.`,
+        details:
+          'Our vision model did not read this field cleanly, so we fell back to the label text directly. A human reviewer should confirm the value.',
+        confidence: Math.min(ocrGuess.confidence, missingFieldConfidence(input.extraction) || ocrGuess.confidence),
+        citations: citationsFor(input.extraction.beverageType),
+        applicationValue,
+        extractedValue: ocrGuess.value,
+        comparison: {
+          status: 'value-mismatch',
+          applicationValue,
+          extractedValue: ocrGuess.value,
+          note: `This value is ${OCR_FALLBACK_SENTINEL} — the vision model did not read it cleanly, so we read the label text directly.`
+        }
+      };
+    }
+
     return {
       id: input.spec.id,
       label: input.spec.label,
@@ -163,8 +219,28 @@ function buildStandaloneFieldCheck(input: {
   extractedValue: string | undefined;
   id: string;
   label: string;
+  ocrFallback: { value: string; confidence: number } | null;
 }): CheckReview | null {
   if (!input.extractedField.present || !input.extractedValue) {
+    if (input.ocrFallback) {
+      return {
+        id: input.id,
+        label: input.label,
+        status: 'review',
+        severity: 'minor',
+        summary: `Label ${OCR_FALLBACK_SENTINEL}: ${input.ocrFallback.value}.`,
+        details:
+          'No application data was provided. Our vision model did not read this field cleanly, so we fell back to the label text directly. Confirm the value.',
+        confidence: input.ocrFallback.confidence,
+        citations: citationsFor(input.extraction.beverageType),
+        extractedValue: input.ocrFallback.value,
+        comparison: {
+          status: 'not-applicable',
+          extractedValue: input.ocrFallback.value,
+          note: `This value is ${OCR_FALLBACK_SENTINEL} — the vision model did not read it cleanly, so we read the label text directly.`
+        }
+      };
+    }
     return null;
   }
 
