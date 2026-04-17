@@ -94,24 +94,37 @@ function readConfidenceCap(): number {
 const VLM_TRUSTED_FIELDS = readVlmTrustedFields();
 
 function readVlmTrustedFields(): Set<string> {
-  // Baseline: the three fields where the VLM has always been the stronger
-  // reader. Kept as the default so existing deployments are unchanged.
-  const baseline = new Set<string>([
+  // Default tier: VLM is the stronger reader on these fields (decorative
+  // typography, stylized fonts, dense small text, or regulatory canonical
+  // text) so they flow through without OCR override and without the 0.80
+  // confidence cap. The reconciler stays load-bearing for ABV, net
+  // contents, and vintage — numeric fields where a hallucinated digit has
+  // tax/regulatory impact.
+  //
+  // This list was promoted to default after Config G eval showed it gives
+  // a structural +5 approvals on the cola-cloud-all corpus. The apparent
+  // -3 regressions observed in early runs were traced to run-to-run
+  // Gemini Flash variance on the government warning text (a 260-char
+  // field where temperature-0 near-determinism isn't exact determinism),
+  // not to the expanded trust. The warning now uses a 2-of-3 vote across
+  // three independent reads (Tesseract full-image, warning OCV cropped,
+  // VLM) to stabilize that boundary — see government-warning-validator.ts.
+  //
+  // EXTRACTION_TRUSTED_TIER=minimal reverts to the pre-G baseline (brand,
+  // fancifulName, governmentWarning) if an operator needs to A/B against
+  // the old behavior without code rollback.
+  if (process.env.EXTRACTION_TRUSTED_TIER?.trim().toLowerCase() === 'minimal') {
+    return new Set<string>(['governmentWarning', 'brandName', 'fancifulName']);
+  }
+  return new Set<string>([
     'governmentWarning',
     'brandName',
-    'fancifulName'
+    'fancifulName',
+    'classType',
+    'countryOfOrigin',
+    'applicantAddress',
+    'varietals'
   ]);
-  // EXTRACTION_TRUSTED_TIER=expanded adds the 3 fields where VLM reads
-  // are consistently better than Tesseract on the real COLA corpus. Keeps
-  // the reconciler load-bearing for alcohol-content, netContents, vintage
-  // — the fields where a hallucinated number has tax/regulatory impact.
-  if (process.env.EXTRACTION_TRUSTED_TIER?.trim().toLowerCase() === 'expanded') {
-    baseline.add('classType');
-    baseline.add('countryOfOrigin');
-    baseline.add('applicantAddress');
-    baseline.add('varietals');
-  }
-  return baseline;
 }
 
 /**

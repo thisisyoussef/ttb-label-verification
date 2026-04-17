@@ -49,15 +49,29 @@ export function buildGovernmentWarningCheck(
   const exactMatch = extractedText === CANONICAL_GOVERNMENT_WARNING;
   const textReliable = isTextReliable(extraction);
   const hasWarningText = extractedField.present && extractedText.length > 0;
-  // Similarity score between extracted and canonical, using same tiers as
-  // the OCV fast-path (≥0.85 pass, ≥0.65 review, else fail). Without this,
-  // the non-OCV path treated ANY character difference as fail, which drove
-  // a malt-beverage false-reject cluster on labels where Gemini VLM read
-  // the warning cleanly but not perfectly (mixed-case vs all-caps source,
-  // state-addition suffixes, subtle punctuation drift).
-  const textSimilarity = hasWarningText
+  // 2-of-3 warning vote across three independent reads. Stabilizes the
+  // fuzzy-match boundary so a single-signal ~260-char similarity that
+  // jitters across the 0.65/0.90 tier lines (Gemini Flash run-to-run
+  // variance) cannot single-handedly flip a label between review and
+  // fail. The three signals:
+  //   1. VLM extraction (via extraction.fields.governmentWarning.value)
+  //   2. Warning OCV on the cropped region (via warningOcv)
+  //   3. Full-image Tesseract OCR (via ocrCrossCheck)
+  //
+  // Each signal votes pass|review|fail using the same 0.90 / 0.65
+  // Levenshtein tiers. A signal abstains when it couldn't read the
+  // warning at all (no ocrCrossCheck result, OCV failed, etc.). Final
+  // status = majority (with a conservative-tie-break toward review).
+  const vlmSimilarity = hasWarningText
     ? computeWarningSimilarity(extractedText, CANONICAL_GOVERNMENT_WARNING)
     : 0;
+  const voteSignals = collectWarningVoteSignals({
+    vlmSimilarity,
+    hasVlmText: hasWarningText,
+    ocrCrossCheck,
+    warningOcv
+  });
+  const textSimilarity = deriveVotedSimilarity(voteSignals, vlmSimilarity);
 
   const subChecks = warningEvidenceSchema.shape.subChecks.parse([
     buildPresenceSubCheck({
@@ -250,9 +264,23 @@ function buildHeadingSubCheck(input: {
   }
 
   const prefixText = detectWarningPrefix(input.extractedText);
+  // Accept the "GOVERNMENT WARNING" phrase anywhere near the start of the
+  // extracted text, not only at position 0. Gemini Flash occasionally
+  // reformats the extraction to lead with "(1) According to..." when the
+  // on-label layout stacks the heading above the body; the heading is
+  // still present in the image and in the extracted string, just not at
+  // the start. Requiring position-0 match caused persistent false-fails
+  // on those labels. The text still has to contain the phrase — and
+  // `detectWarningPrefix` (position 0) still supplies the primary signal
+  // when present, which lets the downstream bold/allcaps check engage.
+  const headingAppearsInBody = /GOVERN(?:MENT)?\s*WARNING/i.test(
+    input.extractedText.slice(0, 300)
+  );
   const prefixHasExpectedWords =
-    prefixText.toUpperCase() === 'GOVERNMENT WARNING' && prefixText.length > 0;
-  const prefixIsUppercase = prefixText === prefixText.toUpperCase();
+    (prefixText.toUpperCase() === 'GOVERNMENT WARNING' && prefixText.length > 0) ||
+    headingAppearsInBody;
+  const prefixIsUppercase =
+    prefixText.length === 0 ? headingAppearsInBody : prefixText === prefixText.toUpperCase();
   const allCapsSignal = summarizeVisualSignal(input.prefixAllCaps);
   const boldStatus = summarizeVisualSignal(input.prefixBold);
 
@@ -530,6 +558,116 @@ function computeWarningSimilarity(extracted: string, canonical: string): number 
   if (max === 0) return 0;
   const distance = levenshteinDistance(a, b);
   return Math.max(0, 1 - distance / max);
+}
+
+type WarningSignalVote = 'pass' | 'review' | 'fail' | 'abstain';
+
+type WarningVoteSignal = {
+  source: 'vlm' | 'ocv' | 'ocr-cross-check';
+  vote: WarningSignalVote;
+  similarity: number;
+};
+
+/**
+ * Build the three independent warning signals. Each signal votes
+ * pass/review/fail using the same Levenshtein tiers the exact-text
+ * subCheck uses, OR abstains when its input is unusable.
+ */
+function collectWarningVoteSignals(input: {
+  vlmSimilarity: number;
+  hasVlmText: boolean;
+  ocrCrossCheck?: OcrCrossCheckResult;
+  warningOcv?: WarningOcvResult;
+}): WarningVoteSignal[] {
+  const signals: WarningVoteSignal[] = [];
+
+  // VLM signal — always available when the VLM extraction has warning text.
+  signals.push({
+    source: 'vlm',
+    vote: input.hasVlmText ? similarityToVote(input.vlmSimilarity) : 'abstain',
+    similarity: input.hasVlmText ? input.vlmSimilarity : 0
+  });
+
+  // OCV cropped-region signal.
+  if (input.warningOcv) {
+    if (input.warningOcv.status === 'verified' || input.warningOcv.status === 'partial') {
+      const ocvSim = typeof input.warningOcv.similarity === 'number'
+        ? input.warningOcv.similarity
+        : computeWarningSimilarity(
+            input.warningOcv.extractedText ?? '',
+            CANONICAL_GOVERNMENT_WARNING
+          );
+      signals.push({
+        source: 'ocv',
+        vote: similarityToVote(ocvSim),
+        similarity: ocvSim
+      });
+    } else {
+      signals.push({ source: 'ocv', vote: 'abstain', similarity: 0 });
+    }
+  }
+
+  // Full-image Tesseract OCR cross-check signal. It measures edit distance
+  // against the VLM's warning text, not the canonical, so we translate
+  // its status into a vote: agree with VLM that reads at ≥pass tier →
+  // pass; disagree → review (one of the two reads is noisy, hold for
+  // human); abstain → no signal.
+  if (input.ocrCrossCheck) {
+    if (input.ocrCrossCheck.status === 'agree') {
+      // OCR confirms what the VLM read; inherits the VLM's confidence tier.
+      signals.push({
+        source: 'ocr-cross-check',
+        vote: input.hasVlmText ? similarityToVote(input.vlmSimilarity) : 'abstain',
+        similarity: input.vlmSimilarity
+      });
+    } else if (input.ocrCrossCheck.status === 'disagree') {
+      // Two independent readers produced different strings — one hallucinated.
+      // The safe vote is 'review' (escalate to human) rather than passing
+      // or failing on one read's authority.
+      signals.push({ source: 'ocr-cross-check', vote: 'review', similarity: 0 });
+    } else {
+      signals.push({ source: 'ocr-cross-check', vote: 'abstain', similarity: 0 });
+    }
+  }
+
+  return signals;
+}
+
+function similarityToVote(similarity: number): WarningSignalVote {
+  if (similarity >= 0.9) return 'pass';
+  if (similarity >= 0.65) return 'review';
+  return 'fail';
+}
+
+/**
+ * Resolve the three-signal vote into a single similarity score that
+ * downstream subChecks can use with the existing 0.9 / 0.65 tiers.
+ *
+ * Conservative rules:
+ *   - 2+ signals pass (regardless of the third) → treat as pass (1.0)
+ *   - 2+ signals fail (regardless of the third) → treat as fail (0.0)
+ *   - Otherwise → weighted average of non-abstaining similarities,
+ *     biased toward the median so one noisy signal can't dominate.
+ *
+ * Single-signal runs (e.g., Tesseract unavailable + OCV abstained)
+ * collapse back to vlmSimilarity for backwards compatibility.
+ */
+function deriveVotedSimilarity(signals: WarningVoteSignal[], fallback: number): number {
+  const active = signals.filter((s) => s.vote !== 'abstain');
+  if (active.length === 0) return fallback;
+  if (active.length === 1) return active[0]!.similarity || fallback;
+
+  const passes = active.filter((s) => s.vote === 'pass').length;
+  const fails = active.filter((s) => s.vote === 'fail').length;
+  if (passes >= 2) return 1.0;
+  if (fails >= 2) return 0.0;
+
+  // Mixed outcomes — use the median similarity so a single outlier signal
+  // (e.g., Tesseract read at 0.4 when OCV + VLM both read at 0.85) doesn't
+  // drag the composite below the review threshold.
+  const sims = active.map((s) => s.similarity).sort((a, b) => a - b);
+  if (sims.length === 2) return (sims[0]! + sims[1]!) / 2;
+  return sims[Math.floor(sims.length / 2)]!;
 }
 
 function levenshteinDistance(a: string, b: string): number {
