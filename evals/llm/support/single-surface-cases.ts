@@ -50,7 +50,7 @@ export const reviewEndpointCases: ReviewEndpointCase[] = [
     }),
     expected: {
       verdict: 'reject',
-      summaryIncludes: 'deterministic checks failed',
+      summaryIncludes: 'One or more required fields do not match',
       failCheckIds: ['government-warning']
     }
   },
@@ -108,7 +108,7 @@ export const reviewEndpointCases: ReviewEndpointCase[] = [
     }),
     expected: {
       verdict: 'reject',
-      summaryIncludes: 'deterministic checks failed',
+      summaryIncludes: 'One or more required fields do not match',
       failCheckIds: ['vintage-requires-appellation']
     }
   },
@@ -137,7 +137,7 @@ export const reviewEndpointCases: ReviewEndpointCase[] = [
     }),
     expected: {
       verdict: 'reject',
-      summaryIncludes: 'deterministic checks failed',
+      summaryIncludes: 'One or more required fields do not match',
       failCheckIds: ['alcohol-content', 'abv-format-permitted']
     }
   },
@@ -176,7 +176,7 @@ export const reviewEndpointCases: ReviewEndpointCase[] = [
     }),
     expected: {
       verdict: 'review',
-      summaryIncludes: 'Low-confidence extraction keeps the label in review',
+      summaryIncludes: 'The label image is too unclear to be confident',
       // same-field-of-vision is now 'info' (non-blocking) until spatial
       // analysis is wired — it should not appear in reviewCheckIds.
       reviewCheckIds: ['government-warning'],
@@ -202,7 +202,7 @@ export const reviewEndpointCases: ReviewEndpointCase[] = [
     }),
     expected: {
       verdict: 'review',
-      summaryIncludes: 'Standalone review preserves extracted evidence',
+      summaryIncludes: 'No application data to compare against',
       standalone: true
     }
   }
