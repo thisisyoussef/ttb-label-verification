@@ -147,7 +147,7 @@ function buildExtraction(
 }
 
 describe('review report builder', () => {
-  it('keeps cosmetic brand differences in review while preserving submitted values', () => {
+  it('keeps cosmetic brand differences in review while preserving submitted values', async () => {
     const intake = buildIntake({
       brandName: 'STONES THROW',
       classType: 'Vodka',
@@ -157,7 +157,7 @@ describe('review report builder', () => {
     const extraction = buildExtraction();
     const warningCheck = buildGovernmentWarningCheck(extraction);
 
-    const report = buildVerificationReport({
+    const report = await buildVerificationReport({
       intake,
       extraction,
       warningCheck
@@ -174,7 +174,7 @@ describe('review report builder', () => {
     expect(report.verdict).toBe('approve');
   });
 
-  it('fails wine reviews when a vintage claim appears without an appellation', () => {
+  it('fails wine reviews when a vintage claim appears without an appellation', async () => {
     const intake = buildIntake({
       beverageTypeHint: 'wine',
       brandName: 'Heritage Hill',
@@ -198,7 +198,7 @@ describe('review report builder', () => {
     });
     const warningCheck = buildGovernmentWarningCheck(extraction);
 
-    const report = buildVerificationReport({
+    const report = await buildVerificationReport({
       intake,
       extraction,
       warningCheck
@@ -213,7 +213,7 @@ describe('review report builder', () => {
     expect(report.verdict).toBe('reject');
   });
 
-  it('fails malt beverage reports that use forbidden ABV wording', () => {
+  it('fails malt beverage reports that use forbidden ABV wording', async () => {
     const intake = buildIntake({
       beverageTypeHint: 'malt-beverage',
       brandName: 'Harbor Brewing',
@@ -234,7 +234,7 @@ describe('review report builder', () => {
     });
     const warningCheck = buildGovernmentWarningCheck(extraction);
 
-    const report = buildVerificationReport({
+    const report = await buildVerificationReport({
       intake,
       extraction,
       warningCheck
@@ -253,7 +253,7 @@ describe('review report builder', () => {
     expect(report.verdict).toBe('reject');
   });
 
-  it('returns the approved empty-check state when no text is extracted', () => {
+  it('returns the approved empty-check state when no text is extracted', async () => {
     const intake = buildIntake({
       brandName: "Stone's Throw"
     });
@@ -277,7 +277,7 @@ describe('review report builder', () => {
     });
     const warningCheck = buildGovernmentWarningCheck(extraction);
 
-    const report = buildVerificationReport({
+    const report = await buildVerificationReport({
       intake,
       extraction,
       warningCheck
@@ -289,7 +289,7 @@ describe('review report builder', () => {
     expect(report.crossFieldChecks).toEqual([]);
   });
 
-  it('passes the warning evidence through unchanged in the integrated report', () => {
+  it('passes the warning evidence through unchanged in the integrated report', async () => {
     const intake = buildIntake({
       brandName: "Stone's Throw",
       classType: 'Vodka',
@@ -299,7 +299,7 @@ describe('review report builder', () => {
     const extraction = buildExtraction();
     const warningCheck = buildGovernmentWarningCheck(extraction);
 
-    const report = buildVerificationReport({
+    const report = await buildVerificationReport({
       intake,
       extraction,
       warningCheck
@@ -313,7 +313,7 @@ describe('review report builder', () => {
     expect(reportWarningCheck?.status).toBe(warningCheck.status);
   });
 
-  it('keeps reject summaries explicit even in standalone mode', () => {
+  it('keeps reject summaries explicit even in standalone mode', async () => {
     const intake = buildIntake();
     const extraction = buildExtraction({
       beverageType: 'malt-beverage',
@@ -330,7 +330,7 @@ describe('review report builder', () => {
     });
     const warningCheck = buildGovernmentWarningCheck(extraction);
 
-    const report = buildVerificationReport({
+    const report = await buildVerificationReport({
       intake,
       extraction,
       warningCheck

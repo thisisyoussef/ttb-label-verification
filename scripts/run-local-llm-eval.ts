@@ -338,7 +338,7 @@ async function main() {
     const warningCheck = buildGovernmentWarningCheck(extraction);
     let report: VerificationReport;
     try {
-      report = buildVerificationReport({
+      report = await buildVerificationReport({
         intake: intakeWithOcr,
         extraction,
         warningCheck

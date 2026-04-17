@@ -65,7 +65,7 @@ async function main() {
   console.log('warning:', extraction.fields.governmentWarning.value?.slice(0, 100) ?? '(none)');
 
   const warningCheck = buildGovernmentWarningCheck(extraction);
-  const report = buildVerificationReport({ intake, extraction, warningCheck });
+  const report = await buildVerificationReport({ intake, extraction, warningCheck });
   console.log('verdict:', report.verdict);
   console.log('counts:', report.counts);
 

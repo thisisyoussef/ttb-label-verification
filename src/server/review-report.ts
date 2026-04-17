@@ -15,13 +15,18 @@ import {
   deriveVerdictSecondary
 } from './review-report-helpers';
 import { deriveWeightedVerdict } from './judgment-scoring';
+import { createJudgmentLlmClient } from './judgment-llm-client-factory';
+import {
+  readResolverConfig,
+  resolveAmbiguousFieldChecks
+} from './llm-resolver';
 
-export function buildVerificationReport(input: {
+export async function buildVerificationReport(input: {
   intake: NormalizedReviewIntake;
   extraction: ReviewExtraction;
   warningCheck: CheckReview;
   id?: string;
-}): VerificationReport {
+}): Promise<VerificationReport> {
   const extractionQuality = {
     globalConfidence: input.extraction.imageQuality.score,
     state: input.extraction.imageQuality.state,
@@ -49,8 +54,21 @@ export function buildVerificationReport(input: {
     });
   }
 
-  const checks = buildFieldChecks(input);
-  checks.push(input.warningCheck);
+  const initialChecks = buildFieldChecks(input);
+  initialChecks.push(input.warningCheck);
+
+  // LLM uncertainty resolver — one-directional review→pass upgrader. Only
+  // fires when LLM_RESOLVER=enabled AND there are eligible ambiguous
+  // fields. See src/server/llm-resolver.ts for constraints.
+  const resolverBase = readResolverConfig();
+  const resolverOutcome = await resolveAmbiguousFieldChecks({
+    checks: initialChecks,
+    config: {
+      ...resolverBase,
+      client: resolverBase.enabled ? createJudgmentLlmClient() : null
+    }
+  });
+  const checks = resolverOutcome.checks;
 
   const crossFieldChecks = buildCrossFieldChecks(input);
   const counts = countStatuses(checks, crossFieldChecks);

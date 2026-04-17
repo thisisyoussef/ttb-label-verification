@@ -72,16 +72,47 @@ function readConfidenceCap(): number {
   return parsed;
 }
 
-// Fields that are NEVER OCR-overridden AND NEVER capped. These are places
-// where the VLM reliably outperforms the OCR regex:
-//   - governmentWarning: often small/rotated; OCR misses; VLM reads it.
-//   - brandName: decorative fonts; OCR returns fragments.
-//   - fancifulName: same reasoning as brand name; marketing-styled type.
-const VLM_TRUSTED_FIELDS = new Set<string>([
-  'governmentWarning',
-  'brandName',
-  'fancifulName'
-]);
+// Fields where the VLM reliably outperforms Tesseract OCR and therefore
+// receive NO OCR override AND NO confidence cap. These are characterized
+// by decorative typography, stylized fonts, or dense small text where
+// character-by-character OCR produces fragments but the VLM reads the
+// content correctly from visual context.
+//
+//   - brandName: decorative fonts; OCR returns fragments like "ae aw a _"
+//     instead of "LEITZ".
+//   - fancifulName: marketing-styled type; same failure mode as brand.
+//   - classType: often in stylized or secondary fonts ("Bourbon Whiskey").
+//   - countryOfOrigin: usually small text but straightforward — VLM reads
+//     "Product of France" reliably; Tesseract may garble a character.
+//   - applicantAddress: dense text with abbreviations; the VLM understands
+//     what an address should look like and normalizes format accordingly.
+//   - varietal: grape names in stylized fonts; same as brand.
+//
+// When LLM_RESOLVER_TIERED=enabled the resolver gate also reads this set
+// so it doesn't re-examine a field the reconciler has already declared
+// VLM-trusted.
+const VLM_TRUSTED_FIELDS = readVlmTrustedFields();
+
+function readVlmTrustedFields(): Set<string> {
+  // Baseline: the three fields where the VLM has always been the stronger
+  // reader. Kept as the default so existing deployments are unchanged.
+  const baseline = new Set<string>([
+    'governmentWarning',
+    'brandName',
+    'fancifulName'
+  ]);
+  // EXTRACTION_TRUSTED_TIER=expanded adds the 3 fields where VLM reads
+  // are consistently better than Tesseract on the real COLA corpus. Keeps
+  // the reconciler load-bearing for alcohol-content, netContents, vintage
+  // — the fields where a hallucinated number has tax/regulatory impact.
+  if (process.env.EXTRACTION_TRUSTED_TIER?.trim().toLowerCase() === 'expanded') {
+    baseline.add('classType');
+    baseline.add('countryOfOrigin');
+    baseline.add('applicantAddress');
+    baseline.add('varietals');
+  }
+  return baseline;
+}
 
 /**
  * Merge OCR-regex extraction with VLM extraction.
