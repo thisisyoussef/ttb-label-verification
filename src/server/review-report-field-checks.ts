@@ -1,7 +1,8 @@
-import type {
-  CheckReview,
-  ReviewExtraction,
-  ReviewExtractionField
+import {
+  OCR_FALLBACK_SENTINEL,
+  type CheckReview,
+  type ReviewExtraction,
+  type ReviewExtractionField
 } from '../shared/contracts/review';
 import type { NormalizedReviewIntake } from './review-intake';
 import {
@@ -23,15 +24,6 @@ import {
   type FieldJudgment
 } from './judgment-field-rules';
 import { extractFieldsFromOcrText } from './ocr-field-extractor';
-
-/**
- * Sentinel phrase included in `comparison.note` when the reviewer-
- * facing value came from the OCR fallback rather than the VLM read.
- * The client detects this substring to show a "Likely" badge on the
- * label-side cell. Keep it intact — `plainifyReason` does not strip
- * plain prose, so the sentinel survives the display rewrite.
- */
-export const OCR_FALLBACK_SENTINEL = 'likely from the label (not verified by the vision model)';
 
 /**
  * When the VLM reports a field as not-present but the Tesseract OCR

@@ -328,3 +328,13 @@ export type FieldReview = CheckReview;
 
 export const CANONICAL_GOVERNMENT_WARNING =
   'GOVERNMENT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. (2) Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems.';
+
+/**
+ * Sentinel phrase included in `comparison.note` when a field value came
+ * from the OCR fallback rather than the VLM's primary read. The server
+ * writes it; the client uses substring detection to surface a "Likely"
+ * badge on the label-side comparison cell. Kept as a shared constant
+ * so there is one canonical phrase — drift between server and client
+ * would silently break the badge.
+ */
+export const OCR_FALLBACK_SENTINEL = 'likely from the label (not verified by the vision model)';

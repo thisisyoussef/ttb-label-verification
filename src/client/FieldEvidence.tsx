@@ -1,3 +1,4 @@
+import { OCR_FALLBACK_SENTINEL } from '../shared/contracts/review';
 import { plainifyCheckReason, plainifyReason } from './reviewDisplayAdapter';
 import type { CheckReview } from './types';
 
@@ -11,15 +12,8 @@ interface FieldEvidencePanelProps {
 // we keep the signal internal and only expose a qualitative prompt.
 const VERIFY_VISUALLY_THRESHOLD = 0.6;
 
-// Sentinel phrase the server writes into `comparison.note` when the
-// extracted value came from the OCR fallback rather than the VLM read.
-// Kept in sync with `OCR_FALLBACK_SENTINEL` in
-// `src/server/review-report-field-checks.ts`. Substring match is safe:
-// the phrase is plain prose and does not appear in any other copy.
-const OCR_FALLBACK_MARKER = 'likely from the label (not verified by the vision model)';
-
 function isOcrFallbackNote(note: string | undefined): boolean {
-  return typeof note === 'string' && note.includes(OCR_FALLBACK_MARKER);
+  return typeof note === 'string' && note.includes(OCR_FALLBACK_SENTINEL);
 }
 
 export function FieldEvidencePanel({ check, standalone }: FieldEvidencePanelProps) {
