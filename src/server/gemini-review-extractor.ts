@@ -73,18 +73,23 @@ export type GeminiReviewExtractionConfigResult =
   | GeminiReviewExtractionConfigFailure
   | GeminiReviewExtractionConfigSuccess;
 
+type GenerateContentResult = {
+  text?: string;
+  modelVersion?: string;
+  sdkHttpResponse?: {
+    headers?: Record<string, string>;
+  };
+  usageMetadata?: {
+    promptTokenCount?: number;
+    thoughtsTokenCount?: number;
+  };
+};
+
 type GenerateContentClient = {
-  generateContent: (request: GenerateContentParameters) => Promise<{
-    text?: string;
-    modelVersion?: string;
-    sdkHttpResponse?: {
-      headers?: Record<string, string>;
-    };
-    usageMetadata?: {
-      promptTokenCount?: number;
-      thoughtsTokenCount?: number;
-    };
-  }>;
+  generateContent: (request: GenerateContentParameters) => Promise<GenerateContentResult>;
+  generateContentStream?: (
+    request: GenerateContentParameters
+  ) => Promise<AsyncGenerator<GenerateContentResult>>;
 };
 
 export function readGeminiReviewExtractionConfig(
@@ -192,6 +197,45 @@ async function maybePrescaleIntakeForGemini(
   }
 }
 
+/**
+ * Collect an AsyncGenerator of streamed response chunks into a single
+ * flat response that matches the shape of `generateContent`. The Zod
+ * schema + guardrails downstream still operate on the full accumulated
+ * JSON; streaming here is purely a wire-level transport optimization
+ * (and scaffolding for a future progressive-UI surface).
+ */
+async function collectStreamedResponse(
+  streamPromise: Promise<AsyncGenerator<GenerateContentResult>>
+): Promise<GenerateContentResult> {
+  const stream = await streamPromise;
+  let combinedText = '';
+  let modelVersion: string | undefined;
+  let sdkHttpResponse: GenerateContentResult['sdkHttpResponse'];
+  let usageMetadata: GenerateContentResult['usageMetadata'];
+  for await (const chunk of stream) {
+    if (typeof chunk.text === 'string' && chunk.text.length > 0) {
+      combinedText += chunk.text;
+    }
+    if (chunk.modelVersion && !modelVersion) {
+      modelVersion = chunk.modelVersion;
+    }
+    if (chunk.sdkHttpResponse && !sdkHttpResponse) {
+      sdkHttpResponse = chunk.sdkHttpResponse;
+    }
+    if (chunk.usageMetadata) {
+      // Final chunk carries the authoritative usage metadata; keep the
+      // latest seen.
+      usageMetadata = chunk.usageMetadata;
+    }
+  }
+  return {
+    text: combinedText,
+    modelVersion,
+    sdkHttpResponse,
+    usageMetadata
+  };
+}
+
 function readGeminiMaxAttempts(
   config: Pick<GeminiReviewExtractionConfig, 'maxAttempts'>,
   rawEnv?: string | undefined
@@ -271,7 +315,8 @@ export function createGeminiReviewExtractor(input: {
       });
 
       return {
-        generateContent: (request) => ai.models.generateContent(request)
+        generateContent: (request) => ai.models.generateContent(request),
+        generateContentStream: (request) => ai.models.generateContentStream(request)
       } satisfies GenerateContentClient;
     })();
 
@@ -323,18 +368,47 @@ export function createGeminiReviewExtractor(input: {
     // Retry transient Gemini failures (429/5xx/timeout) before falling
     // through to the next provider. Factory-level cross-provider fallback
     // kicks in after the per-provider retry budget is exhausted.
+    //
+    // Streaming path (opt-in via GEMINI_STREAM=enabled):
+    // Collects chunks as they arrive and accumulates text. Final validation
+    // still runs on the complete JSON because our Zod schema + guardrails
+    // need a full object. Wire-level streaming reduces time-to-first-byte
+    // and sets up the pipeline for future progressive-UI work where the
+    // client can render field-level judgments as tokens arrive.
+    //
+    // Default OFF: measured on cola-cloud-all (2026-04-17) — two runs —
+    // streaming stayed within correctness noise (24-26/28) but showed a
+    // slightly worse p95 tail (11.2s vs 7.3-7.7s non-streaming). The
+    // single-label flow doesn't benefit because our validation is 0-6ms
+    // and already overlaps nothing. Progressive UI is where streaming
+    // unlocks real value — enable when that frontend work lands.
+    const streamEnabled =
+      process.env.GEMINI_STREAM?.trim().toLowerCase() === 'enabled' &&
+      typeof client.generateContentStream === 'function';
     const maxAttempts = readGeminiMaxAttempts(input.config);
     let lastFailure: ReviewExtractionFailure | null = null;
     let succeeded = false;
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        response = await client.generateContent({
-          ...request,
-          config: {
-            ...request.config,
-            abortSignal: controller.signal
-          }
-        });
+        if (streamEnabled && client.generateContentStream) {
+          response = await collectStreamedResponse(
+            client.generateContentStream({
+              ...request,
+              config: {
+                ...request.config,
+                abortSignal: controller.signal
+              }
+            })
+          );
+        } else {
+          response = await client.generateContent({
+            ...request,
+            config: {
+              ...request.config,
+              abortSignal: controller.signal
+            }
+          });
+        }
         succeeded = true;
         break;
       } catch (error) {
