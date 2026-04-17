@@ -108,8 +108,14 @@ const tracedReviewSurface = traceable(
     // OCV truly independently — it always does its own pass, but gets
     // the wall-clock parallelism with OCR + VLM.
     const prepassEnabled = isOcrPrepassEnabled();
+    // EXTRACTION_PIPELINE=simple: skip OCR pre-pass + merge entirely,
+    // trust the VLM's structured extraction as-is. Keep the warning OCV
+    // because it's a canonical-text verifier (checking known text against
+    // a fixed target), not an extractor — a genuinely complementary signal.
+    // See docs/ARCHITECTURE_AND_DECISIONS.md for the rationale.
+    const useSimplePipeline = process.env.EXTRACTION_PIPELINE?.trim().toLowerCase() === 'simple';
 
-    const ocrPromise = prepassEnabled
+    const ocrPromise = prepassEnabled && !useSimplePipeline
       ? measureStage(() => runOcrPrepass(input.intake.label))
       : Promise.resolve(null);
 

@@ -210,9 +210,17 @@ describe('government warning validator', () => {
 
     expect(check.status).toBe('fail');
     expect(check.severity).toBe('blocker');
+    // exact-text is now a case-insensitive fuzzy check (see
+    // government-warning-validator.ts computeWarningSimilarity). The
+    // showcase defect body text is ~98% similar to the canonical after
+    // case folding, so exact-text passes — but the heading casing defect
+    // is caught by uppercase-bold-heading, which still drives the overall
+    // fail verdict. This matches TTB 27 CFR 16.22 where the heading
+    // conspicuousness is a separate regulatory requirement from the body
+    // wording.
     expect(check.warning?.subChecks).toMatchObject([
       { id: 'present', status: 'pass' },
-      { id: 'exact-text', status: 'fail' },
+      { id: 'exact-text', status: 'pass' },
       { id: 'uppercase-bold-heading', status: 'fail' },
       { id: 'continuous-paragraph', status: 'pass' },
       { id: 'legibility', status: 'pass' }
