@@ -111,16 +111,26 @@ describe('verification-mode prompt', () => {
     });
 
     expect(prompt).not.toBeNull();
-    expect(prompt).toContain('APPLICATION-DECLARED IDENTIFIERS');
-    expect(prompt).toContain('brandName');
-    expect(prompt).toContain("Stone's Throw");
-    expect(prompt).toContain('classType');
-    expect(prompt).toContain('countryOfOrigin');
-    expect(prompt).toContain('`visibleText`');
-    expect(prompt).toContain('`alternativeReading`');
-    // Critical guardrail: must not let the model echo application data
-    // without actually reading the label.
-    expect(prompt).toContain('do NOT echo the applicant string back');
+    // Standard baseline instructions belong to the pre-image text so
+    // the model has them before visually scanning the label.
+    expect(prompt!.preImage).toContain('You observe. You do not judge.');
+    // Identifier + re-anchor blocks go AFTER the image so they're
+    // the most recent context before the JSON output.
+    expect(prompt!.postImage).toContain('APPLICATION-DECLARED IDENTIFIERS');
+    expect(prompt!.postImage).toContain('brandName');
+    expect(prompt!.postImage).toContain("Stone's Throw");
+    expect(prompt!.postImage).toContain('classType');
+    expect(prompt!.postImage).toContain('countryOfOrigin');
+    expect(prompt!.postImage).toContain('`visibleText`');
+    expect(prompt!.postImage).toContain('`alternativeReading`');
+    expect(prompt!.postImage).toContain('do NOT echo the applicant string back');
+    // Numeric re-anchor is the most important recency signal — counters
+    // the warning-text regression seen in the first verification-mode
+    // eval run.
+    expect(prompt!.postImage).toContain('DOUBLE-CHECK');
+    expect(prompt!.postImage).toContain('governmentWarning.value');
+    expect(prompt!.postImage).toContain('alcoholContent.value');
+    expect(prompt!.postImage).toContain('netContents.value');
   });
 
   it('honors VERIFICATION_MODE env flag parsing', () => {

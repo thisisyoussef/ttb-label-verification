@@ -280,24 +280,34 @@ export function buildGeminiReviewExtractionRequest(input: {
       })
     : null;
 
-  const promptText = verificationPrompt
-    ?? (ocrText
-      ? buildOcrAugmentedExtractionPrompt({ surface, extractionMode, ocrText })
-      : buildReviewExtractionPrompt({ surface, extractionMode }));
+  const imagePart = {
+    inlineData: {
+      mimeType: input.intake.label.mimeType,
+      data: input.intake.label.buffer.toString('base64')
+    }
+  };
+
+  // Verification-mode uses a [preImage text, image, postImage text]
+  // structure so the numeric re-anchor is the LAST thing the model
+  // reads. Standard path sends a single text block before the image.
+  const contents = verificationPrompt
+    ? [
+        { text: verificationPrompt.preImage },
+        imagePart,
+        { text: verificationPrompt.postImage }
+      ]
+    : [
+        {
+          text: ocrText
+            ? buildOcrAugmentedExtractionPrompt({ surface, extractionMode, ocrText })
+            : buildReviewExtractionPrompt({ surface, extractionMode })
+        },
+        imagePart
+      ];
 
   return {
     model: input.config.visionModel,
-    contents: [
-      {
-        text: promptText
-      },
-      {
-        inlineData: {
-          mimeType: input.intake.label.mimeType,
-          data: input.intake.label.buffer.toString('base64')
-        }
-      }
-    ],
+    contents,
     config: {
       responseMimeType: 'application/json',
       responseJsonSchema: reviewExtractionModelOutputJsonSchema,

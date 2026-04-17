@@ -147,15 +147,17 @@ export function buildOcrAugmentedExtractionPrompt(input: {
 
 /**
  * Thin wrapper around the policy-level verification prompt. Returns
- * `null` when no identifier fields were declared — callers should then
- * fall back to the standard extraction prompt.
+ * `{ preImage, postImage }` when there are identifier fields to
+ * verify; `null` otherwise so callers fall back to the standard
+ * extraction prompt. Callers must place the label image BETWEEN the
+ * two text halves for the recency-anchored structure to work.
  */
 export function buildVerificationExtractionPrompt(input: {
   surface: LlmEndpointSurface;
   extractionMode: ExtractionMode;
   fields: Parameters<typeof buildVerificationPolicyPrompt>[0]['fields'];
   ocrText?: string;
-}): string | null {
+}): { preImage: string; postImage: string } | null {
   return buildVerificationPolicyPrompt({
     surface: input.surface,
     extractionMode: input.extractionMode,

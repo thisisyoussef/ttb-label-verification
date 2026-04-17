@@ -215,8 +215,8 @@ export function Results({
               <div className="flex items-center justify-end px-1 -mb-1">
                 <HelpTooltip
                   label="What do these statuses mean?"
-                  term="Pass, Review, Fail, Info"
-                  explanation="Pass — we checked this and it's fine. Review — we're not sure; a person should look. Fail — we found a clear mismatch; this needs to be fixed. Info — a note for the reviewer, not a problem."
+                  term="Matches, Needs review, Info"
+                  explanation="Matches — we checked this and it's fine. Needs review — either we couldn't confirm the match or the label differs from the application; a person should take a look. Info — a note for the reviewer, not a problem."
                 />
               </div>
               {!report.standalone ? (

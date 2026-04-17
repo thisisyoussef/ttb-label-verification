@@ -145,10 +145,29 @@ export function buildReviewExtractionRequest(input: {
       })
     : null;
 
-  const promptText = verificationPrompt
-    ?? (ocrText
-      ? buildOcrAugmentedExtractionPrompt({ surface, extractionMode, ocrText })
-      : buildReviewExtractionPrompt({ surface, extractionMode }));
+  const imageContent = buildLabelInputContent({
+    intake: input.intake,
+    config: input.config
+  });
+
+  // Verification-mode: [preImage text, image, postImage text] so the
+  // numeric re-anchor is the last thing the model reads. Standard
+  // path: [text, image].
+  const content = verificationPrompt
+    ? [
+        { type: 'input_text' as const, text: verificationPrompt.preImage },
+        imageContent,
+        { type: 'input_text' as const, text: verificationPrompt.postImage }
+      ]
+    : [
+        {
+          type: 'input_text' as const,
+          text: ocrText
+            ? buildOcrAugmentedExtractionPrompt({ surface, extractionMode, ocrText })
+            : buildReviewExtractionPrompt({ surface, extractionMode })
+        },
+        imageContent
+      ];
 
   return {
     model: input.config.visionModel,
@@ -163,16 +182,7 @@ export function buildReviewExtractionRequest(input: {
     input: [
       {
         role: 'user',
-        content: [
-          {
-            type: 'input_text',
-            text: promptText
-          },
-          buildLabelInputContent({
-            intake: input.intake,
-            config: input.config
-          })
-        ]
+        content
       }
     ]
   };
