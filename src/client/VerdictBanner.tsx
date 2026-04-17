@@ -1,4 +1,10 @@
 import { HelpTooltip } from './HelpTooltip';
+import {
+  DISPLAY_VERDICT_COPY,
+  toDisplayCounts,
+  toDisplayVerdict,
+  type DisplayVerdict
+} from './reviewDisplayAdapter';
 import type { VerificationCounts, Verdict } from './types';
 
 interface VerdictBannerProps {
@@ -9,35 +15,12 @@ interface VerdictBannerProps {
   rulesAppliedCount?: number;
 }
 
-const VERDICT_COPY: Record<Verdict, { headline: string; icon: string }> = {
-  approve: { headline: 'Recommend approval', icon: 'verified_user' },
-  review: { headline: 'Recommend manual review', icon: 'warning' },
-  reject: { headline: 'Recommend rejection', icon: 'cancel' }
-};
-
-// Plain-English definitions for the three verdicts. Written for a
-// first-time visitor with no compliance background. Intentionally
-// non-legal language — this is the "escape hatch" tooltip the UX plan
-// calls for.
-const VERDICT_HELP: Record<Verdict, { term: string; explanation: string }> = {
-  approve: {
-    term: 'Recommend approval',
-    explanation:
-      "We checked the label against the application and didn't find anything wrong. A reviewer can approve this without opening every field."
-  },
-  review: {
-    term: 'Recommend manual review',
-    explanation:
-      "We're not sure. Some of the fields are hard to read, or there's a small difference that a person needs to judge. Open the flagged rows to see why."
-  },
-  reject: {
-    term: 'Recommend rejection',
-    explanation:
-      "We found a clear mismatch between the application and the label — like a different alcohol percentage, or a missing government warning. A reviewer should decline this label."
-  }
-};
-
-const VERDICT_SKIN: Record<Verdict, { bg: string; border: string; icon: string; text: string }> = {
+// Display-only skins. The third state (engine's `reject`) is collapsed
+// into `review` by toDisplayVerdict — users only see "Looks good" or
+// "Needs your review". Engine rejects still surface as review rows with
+// their own plain-language reasons; they just don't label the whole
+// label as "rejected" in the banner.
+const VERDICT_SKIN: Record<DisplayVerdict, { bg: string; border: string; icon: string; text: string }> = {
   approve: {
     bg: 'bg-tertiary-container/30',
     border: 'border-tertiary',
@@ -49,12 +32,6 @@ const VERDICT_SKIN: Record<Verdict, { bg: string; border: string; icon: string; 
     border: 'border-caution',
     icon: 'text-on-caution-container',
     text: 'text-on-caution-container'
-  },
-  reject: {
-    bg: 'bg-error-container/15',
-    border: 'border-error',
-    icon: 'text-error',
-    text: 'text-on-error-container'
   }
 };
 
@@ -65,9 +42,18 @@ export function VerdictBanner({
   extractedFieldCount,
   rulesAppliedCount
 }: VerdictBannerProps) {
-  const copy = VERDICT_COPY[verdict];
-  const skin = VERDICT_SKIN[verdict];
-  const attribution = buildAttribution(verdict, extractedFieldCount, rulesAppliedCount);
+  // Collapse to the two-state UI verdict. Engine rejects become review
+  // so the banner reads as guidance, not a machine verdict. Per-row
+  // reasons still surface individually.
+  const displayVerdict = toDisplayVerdict(verdict);
+  const copy = DISPLAY_VERDICT_COPY[displayVerdict];
+  const skin = VERDICT_SKIN[displayVerdict];
+  const displayCounts = toDisplayCounts(counts);
+  const attribution = buildAttribution(
+    displayVerdict,
+    extractedFieldCount,
+    rulesAppliedCount
+  );
 
   return (
     <section
@@ -98,8 +84,8 @@ export function VerdictBanner({
         </h2>
         <HelpTooltip
           iconOnly
-          term={VERDICT_HELP[verdict].term}
-          explanation={VERDICT_HELP[verdict].explanation}
+          term={copy.headline}
+          explanation={copy.explanation}
         />
       </div>
 
@@ -113,22 +99,20 @@ export function VerdictBanner({
 
       <div
         className="flex items-center gap-3 text-sm font-label font-semibold whitespace-nowrap"
-        aria-label="Check counts"
+        aria-label="Check summary"
       >
-        <span className={counts.pass > 0 ? 'text-tertiary' : 'text-on-surface-variant/50'}>
-          {counts.pass} pass
+        <span
+          className={displayCounts.matched > 0 ? 'text-tertiary' : 'text-on-surface-variant/50'}
+        >
+          {displayCounts.matched} matched
         </span>
         <span className="text-on-surface-variant/30" aria-hidden="true">
           ·
         </span>
-        <span className={counts.review > 0 ? 'text-caution' : 'text-on-surface-variant/50'}>
-          {counts.review} review
-        </span>
-        <span className="text-on-surface-variant/30" aria-hidden="true">
-          ·
-        </span>
-        <span className={counts.fail > 0 ? 'text-error' : 'text-on-surface-variant/50'}>
-          {counts.fail} fail
+        <span
+          className={displayCounts.needsReview > 0 ? 'text-caution' : 'text-on-surface-variant/50'}
+        >
+          {displayCounts.needsReview} needs review
         </span>
       </div>
     </section>
@@ -136,7 +120,7 @@ export function VerdictBanner({
 }
 
 function buildAttribution(
-  verdict: Verdict,
+  verdict: DisplayVerdict,
   fieldCount: number | undefined,
   ruleCount: number | undefined
 ): string | null {
@@ -144,14 +128,12 @@ function buildAttribution(
 
   const parts: string[] = [];
   if (fieldCount != null) parts.push('AI extracted ' + fieldCount + ' fields');
-  if (ruleCount != null) parts.push(ruleCount + ' deterministic rules applied');
+  if (ruleCount != null) parts.push(ruleCount + ' checks applied');
 
   const tail =
     verdict === 'approve'
-      ? 'no violations found'
-      : verdict === 'reject'
-        ? 'blocking violation detected by rules'
-        : 'flagged for human review by rules';
+      ? 'everything matched'
+      : 'some fields need a human look';
 
   parts.push(tail);
   return parts.join(' · ');
