@@ -14,6 +14,12 @@ import { useCallback, useEffect, useState } from 'react';
  */
 interface ToolbenchSamplesProps {
   onLoadSample: (file: File, fields: SampleFields, imageId: string) => void;
+  /**
+   * Load a batch of sample labels + their CSV into the batch intake.
+   * Used by the "Load test batch" button so assessors can evaluate the
+   * batch review flow without having to prepare their own fixtures.
+   */
+  onLoadBatch: (images: File[], csv: File) => void;
 }
 
 export type SampleFields = {
@@ -36,13 +42,18 @@ type SamplePreview = {
   filename: string;
 };
 
-export function ToolbenchSamples({ onLoadSample }: ToolbenchSamplesProps) {
+export function ToolbenchSamples({ onLoadSample, onLoadBatch }: ToolbenchSamplesProps) {
   const [samples, setSamples] = useState<SamplePreview[]>([]);
   const [loadingList, setLoadingList] = useState(true);
   const [loadingSampleId, setLoadingSampleId] = useState<string | null>(null);
   const [lastError, setLastError] = useState<string | null>(null);
+  const [liveAvailable, setLiveAvailable] = useState(false);
+  const [loadingLive, setLoadingLive] = useState(false);
+  const [loadingBatch, setLoadingBatch] = useState(false);
 
   // Fetch the list once on mount so the panel can show what's available.
+  // Also probe the COLA Cloud live status so we only render the "Fetch
+  // live" button when an API key is wired up server-side.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -72,6 +83,19 @@ export function ToolbenchSamples({ onLoadSample }: ToolbenchSamplesProps) {
         if (!cancelled) setLoadingList(false);
       }
     })();
+
+    // COLA Cloud live availability probe — non-blocking.
+    (async () => {
+      try {
+        const res = await fetch('/api/eval/cola-cloud/status');
+        if (!res.ok) return;
+        const data = (await res.json()) as { available: boolean };
+        if (!cancelled && data.available) setLiveAvailable(true);
+      } catch {
+        /* ignore — button just stays hidden */
+      }
+    })();
+
     return () => {
       cancelled = true;
     };
@@ -105,6 +129,80 @@ export function ToolbenchSamples({ onLoadSample }: ToolbenchSamplesProps) {
     [onLoadSample]
   );
 
+  // Live COLA Cloud fetch — hits the federal API server-side (the key
+  // lives on the server), returns a fresh record each click.
+  const loadLiveSample = useCallback(async () => {
+    setLoadingLive(true);
+    setLastError(null);
+    try {
+      const res = await fetch('/api/eval/cola-cloud/fresh');
+      if (!res.ok) throw new Error(`live HTTP ${res.status}`);
+      const body = (await res.json()) as {
+        image: { id: string; url: string; filename: string };
+        fields: SampleFields;
+      };
+      const imgRes = await fetch(body.image.url);
+      if (!imgRes.ok) throw new Error(`image HTTP ${imgRes.status}`);
+      const blob = await imgRes.blob();
+      // COLA Cloud's CDN sometimes returns generic octet-stream; fall
+      // back to the filename extension so multer accepts the upload.
+      const file = new File([blob], body.image.filename, {
+        type: deriveImageMime(blob.type, body.image.filename)
+      });
+      onLoadSample(file, body.fields, body.image.id);
+    } catch (err) {
+      setLastError((err as Error).message);
+    } finally {
+      setLoadingLive(false);
+    }
+  }, [onLoadSample]);
+
+  // Batch loader — pulls 10 images + the CSV from the local pack and
+  // populates batch intake. Local only for now; live batch would hit
+  // the COLA Cloud rate limit hard (7s per call × 10 = 70s).
+  const loadBatchPack = useCallback(async () => {
+    setLoadingBatch(true);
+    setLastError(null);
+    try {
+      const packsRes = await fetch('/api/eval/packs');
+      if (!packsRes.ok) throw new Error(`packs HTTP ${packsRes.status}`);
+      const packsData = (await packsRes.json()) as {
+        packs: Array<{
+          id: string;
+          csvFile: string;
+          images: Array<{ id: string; filename: string; assetPath: string; beverageType: string }>;
+        }>;
+      };
+      const pack = packsData.packs.find((p) => p.id === 'cola-cloud-all');
+      if (!pack) throw new Error('cola-cloud-all pack missing');
+
+      const csvRes = await fetch(`/api/eval/pack/${encodeURIComponent(pack.id)}/csv`);
+      if (!csvRes.ok) throw new Error(`csv HTTP ${csvRes.status}`);
+      const csvBlob = await csvRes.blob();
+      const csvFile = new File([csvBlob], pack.csvFile, { type: 'text/csv' });
+
+      // Pull the first 10 images; 10 is the sweet spot where the batch
+      // pipelining bench runs in ~15s at BATCH_CONCURRENCY=5.
+      const MAX_PACK_IMAGES = 10;
+      const slice = pack.images.slice(0, MAX_PACK_IMAGES);
+      const imageFiles: File[] = [];
+      for (const img of slice) {
+        const source = img.assetPath.split('/')[3] ?? 'cola-cloud';
+        const url = `/api/eval/label-image/${encodeURIComponent(source)}/${encodeURIComponent(img.filename)}`;
+        const imgRes = await fetch(url);
+        if (!imgRes.ok) continue;
+        const blob = await imgRes.blob();
+        imageFiles.push(new File([blob], img.filename, { type: blob.type || 'image/webp' }));
+      }
+      if (imageFiles.length === 0) throw new Error('No images could be fetched from the pack.');
+      onLoadBatch(imageFiles, csvFile);
+    } catch (err) {
+      setLastError((err as Error).message);
+    } finally {
+      setLoadingBatch(false);
+    }
+  }, [onLoadBatch]);
+
   return (
     <div className="flex flex-col gap-3 p-3">
       <section className="flex flex-col gap-2">
@@ -123,6 +221,45 @@ export function ToolbenchSamples({ onLoadSample }: ToolbenchSamplesProps) {
         <p className="text-[11px] text-on-surface-variant leading-snug">
           Populates both the label image and the application form fields from a real
           TTB-approved COLA record.
+        </p>
+      </section>
+
+      {liveAvailable ? (
+        <section className="flex flex-col gap-2 rounded-md border border-dashed border-outline-variant/50 bg-surface-container-lowest px-3 py-3">
+          <p className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+            Live COLA Cloud (fresh data)
+          </p>
+          <button
+            type="button"
+            onClick={() => void loadLiveSample()}
+            disabled={loadingLive}
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-secondary text-on-secondary px-3 py-2 text-sm font-label font-semibold transition-colors hover:bg-secondary/90 disabled:bg-secondary/40 disabled:cursor-not-allowed"
+          >
+            <span className="material-symbols-outlined text-[16px]">cloud_download</span>
+            {loadingLive ? 'Connecting to COLA Cloud…' : 'Fetch live sample'}
+          </button>
+          <p className="text-[11px] text-on-surface-variant leading-snug">
+            Hits the federal COLA Cloud REST API using our server-side key. Pulls a
+            fresh random approved label each click.
+          </p>
+        </section>
+      ) : null}
+
+      <section className="flex flex-col gap-2 rounded-md border border-dashed border-outline-variant/50 bg-surface-container-lowest px-3 py-3">
+        <p className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+          Batch testing
+        </p>
+        <button
+          type="button"
+          onClick={() => void loadBatchPack()}
+          disabled={loadingBatch}
+          className="inline-flex items-center justify-center gap-2 rounded-md bg-tertiary text-on-tertiary px-3 py-2 text-sm font-label font-semibold transition-colors hover:bg-tertiary/90 disabled:bg-tertiary/40 disabled:cursor-not-allowed"
+        >
+          <span className="material-symbols-outlined text-[16px]">inventory_2</span>
+          {loadingBatch ? 'Loading pack…' : 'Load test batch (10 labels)'}
+        </button>
+        <p className="text-[11px] text-on-surface-variant leading-snug">
+          Populates the batch intake with 10 real COLA labels + their matching CSV.
         </p>
       </section>
 
@@ -166,6 +303,23 @@ export function ToolbenchSamples({ onLoadSample }: ToolbenchSamplesProps) {
       ) : null}
     </div>
   );
+}
+
+/**
+ * Some upstream CDNs (notably COLA Cloud's CloudFront) return a generic
+ * `binary/octet-stream` content-type for images. Multer on our server
+ * rejects uploads without a recognized image MIME, so fall back to the
+ * filename extension when the blob's own type isn't useful.
+ */
+function deriveImageMime(blobType: string, filename: string): string {
+  if (blobType && blobType.startsWith('image/')) return blobType;
+  if (blobType === 'application/pdf') return blobType;
+  const lower = filename.toLowerCase();
+  if (lower.endsWith('.webp')) return 'image/webp';
+  if (lower.endsWith('.png')) return 'image/png';
+  if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
+  if (lower.endsWith('.pdf')) return 'application/pdf';
+  return 'image/jpeg';
 }
 
 // Turn "persian-empire-arak-distilled-spirits" into "Persian Empire — Arak"

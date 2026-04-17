@@ -18,6 +18,7 @@ describe('AssessorToolbench', () => {
     const html = renderToStaticMarkup(
       <AssessorToolbench
         onLoadSample={vi.fn()}
+        onLoadBatch={vi.fn()}
         onLoadImage={vi.fn()}
         onLoadCsv={vi.fn()}
         mode="single"

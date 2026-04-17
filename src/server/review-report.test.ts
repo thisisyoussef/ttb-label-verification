@@ -147,7 +147,7 @@ function buildExtraction(
 }
 
 describe('review report builder', () => {
-  it('keeps cosmetic brand differences in review while preserving submitted values', async () => {
+  it('passes cosmetic brand differences while preserving submitted values', async () => {
     const intake = buildIntake({
       brandName: 'STONES THROW',
       classType: 'Vodka',
@@ -167,10 +167,14 @@ describe('review report builder', () => {
 
     expect(brandCheck?.applicationValue).toBe('STONES THROW');
     expect(brandCheck?.extractedValue).toBe("Stone's Throw");
-    // New judgment layer: apostrophe difference is a fuzzy-close brand match → review
-    expect(brandCheck?.status).toBe('review');
-    expect(brandCheck?.comparison?.status).toBe('value-mismatch');
-    // Weighted verdict: single medium-tier brand review (1.0) < threshold (2.5) → approve
+    // Brand names aren't a regulatory-exact field — fuzzy-close matches
+    // approve so the reviewer isn't nagged about apostrophes, casing, or
+    // OCR noise that happens to land within 20% edit distance.
+    expect(brandCheck?.status).toBe('pass');
+    // Fuzzy-close rule still tags the visual difference for the
+    // comparison panel — "case-mismatch" is the narrower framing here
+    // because apostrophe + casing are both cosmetic.
+    expect(brandCheck?.comparison?.status).toBe('case-mismatch');
     expect(report.verdict).toBe('approve');
   });
 

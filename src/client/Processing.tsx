@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import type { ExtractionMode } from './appTypes';
 import type { BeverageSelection, LabelImage, ProcessingPhase, ProcessingStep } from './types';
 import { classifyCause } from './reviewFailureMessage';
-import { useElapsed } from './useElapsed';
 import { useReducedMotion } from './useReducedMotion';
 
 const LATE_STAGE_DELAY_MS = 4000;
@@ -46,7 +45,6 @@ export function Processing({
   const lastStep = steps[steps.length - 1];
   const lastStepActive = lastStep?.status === 'active';
 
-  const elapsed = useElapsed(phase === 'running');
   const reducedMotion = useReducedMotion();
 
   const [lateStageLabel, setLateStageLabel] = useState<string | null>(null);
@@ -74,17 +72,18 @@ export function Processing({
     return () => window.removeEventListener('keydown', handler);
   }, [phase, onCancel]);
 
-  // Hide pending (future) steps so the loading UI doesn't render greyed-out
-  // skeleton rows. Only 'done' and 'active' steps are shown — plus a muted
-  // "N more steps" summary line so reviewers still see there's more coming.
-  const visibleSteps = steps
-    .filter((step) => step.status !== 'pending')
-    .map((step, index, arr) =>
-      index === arr.length - 1 && lateStageLabel
-        ? { ...step, label: lateStageLabel }
-        : step
-    );
-  const pendingStepCount = steps.filter((s) => s.status === 'pending').length;
+  // Show every step up front — "Reading label image 1 of 5" through
+  // "Preparing evidence 5 of 5" — so the reviewer sees the full ladder
+  // from the moment the page opens, not a surprise reveal as each step
+  // activates. Pending rows render muted (see StepRow's opacity-50 for
+  // pending status); the active row is highlighted; the done rows keep
+  // their check mark. Late-stage relabeling still applies to the final
+  // active step.
+  const visibleSteps = steps.map((step, index, arr) =>
+    index === arr.length - 1 && step.status === 'active' && lateStageLabel
+      ? { ...step, label: lateStageLabel }
+      : step
+  );
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 h-[calc(100dvh-var(--header-h))]">
@@ -188,24 +187,7 @@ export function Processing({
               <StepRow step={step} index={index + 1} reducedMotion={reducedMotion} />
             </li>
           ))}
-          {pendingStepCount > 0 ? (
-            <li
-              className="flex items-center gap-5 p-4 text-on-surface-variant/60"
-              aria-live="polite"
-            >
-              <span className="w-8 h-8 flex-shrink-0" aria-hidden="true" />
-              <span className="font-label text-xs uppercase tracking-wider">
-                {pendingStepCount} more {pendingStepCount === 1 ? 'step' : 'steps'}
-              </span>
-            </li>
-          ) : null}
         </ol>
-
-        {phase === 'running' && elapsed > 0 ? (
-          <p className="font-label text-xs text-on-surface-variant/60 tabular-nums">
-            {elapsed}s elapsed
-          </p>
-        ) : null}
 
         {localUnavailable ? (
           <div

@@ -7,6 +7,7 @@ import { type ToolbenchTab, useToolbenchState } from './useToolbenchState';
 
 interface AssessorToolbenchProps {
   onLoadSample: (file: File, fields: SampleFields, imageId: string) => void;
+  onLoadBatch: (images: File[], csv: File) => void;
   onLoadImage: (file: File) => void;
   onLoadCsv: (file: File) => void;
   mode: Mode;
@@ -25,6 +26,7 @@ const TABS: { id: ToolbenchTab; label: string }[] = [
 
 export function AssessorToolbench({
   onLoadSample,
+  onLoadBatch,
   onLoadImage,
   onLoadCsv,
   extractionMode,
@@ -90,6 +92,10 @@ export function AssessorToolbench({
               <ToolbenchSamples
                 onLoadSample={(file, fields, imageId) => {
                   onLoadSample(file, fields, imageId);
+                  close();
+                }}
+                onLoadBatch={(images, csv) => {
+                  onLoadBatch(images, csv);
                   close();
                 }}
               />
