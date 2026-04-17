@@ -40,7 +40,11 @@ type JudgmentLlmClient = {
 
 const DEFAULT_CONFIDENCE_THRESHOLD = 0.6;
 const LLM_CONFIDENCE_CAP = 0.82;
-const RESOLVER_TIMEOUT_MS = 3000;
+// 2s cap: the resolver is strictly additive (can only upgrade review→pass),
+// so bailing out on timeout is safe — we keep the deterministic reviews
+// as-is rather than blowing the latency budget. Prior value was 3000ms,
+// which let a single slow resolver call add ~3.4s to harpoon-ale wall.
+const RESOLVER_TIMEOUT_MS = 2000;
 
 // Field IDs that MAY be forwarded to the LLM when ambiguous. These are
 // the fields where taxonomies and alias tables leave a long tail that
