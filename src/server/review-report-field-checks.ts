@@ -63,7 +63,13 @@ function buildFieldCheck(input: {
 }): CheckReview | null {
   const applicationValue = input.intake.fields[input.spec.intakeKey];
   const extractedField = input.extraction.fields[input.spec.extractionKey];
-  const extractedValue = extractedField.present ? extractedField.value : undefined;
+  // Verification-mode populates `visibleText` with the exact label text.
+  // Prefer it when present; fall back to the bottom-up `value` otherwise.
+  // Both paths coexist so existing consumers keep working during rollout.
+  const extractedValue = extractedField.present
+    ? (extractedField.visibleText?.trim() || extractedField.value)
+    : undefined;
+  const alternativeReading = extractedField.alternativeReading?.trim() || undefined;
 
   if (!applicationValue && !extractedField.present) {
     return null;
@@ -139,18 +145,37 @@ function buildFieldCheck(input: {
   const judgment = runFieldJudgment(input.spec.id, applicationValue, extractedValue, input.extraction.beverageType);
   if (judgment) {
     const rawMatch = applicationValue.trim() === extractedValue.trim();
-    const comparisonStatus = judgment.disposition === 'approve'
+    // Verification-mode: the model reported a DIFFERENT prominent value
+    // in the expected position. Downgrade an otherwise-passing judgment
+    // to review so the human sees the mismatch, and surface the
+    // alternative in the comparison note.
+    const hasAlternative = Boolean(
+      alternativeReading &&
+        alternativeReading.toLowerCase() !== extractedValue.toLowerCase()
+    );
+    const effectiveDisposition =
+      judgment.disposition === 'approve' && hasAlternative
+        ? 'review'
+        : judgment.disposition;
+    const comparisonStatus = effectiveDisposition === 'approve'
       ? (rawMatch ? 'match' as const : 'case-mismatch' as const)
       : 'value-mismatch' as const;
+    const altNote = hasAlternative
+      ? ` Label also shows "${alternativeReading}" in the expected position — human review recommended.`
+      : '';
     return {
       id: input.spec.id, label: input.spec.label,
-      status: judgment.disposition === 'approve' ? 'pass' : judgment.disposition === 'reject' ? 'fail' : 'review',
-      severity: judgment.disposition === 'approve' ? 'note' : judgment.disposition === 'reject' ? 'major' : (judgment.confidence >= 0.8 ? 'minor' : 'major'),
-      summary: judgment.disposition === 'approve' ? 'Label matches the approved record.' : judgment.note,
-      details: `[${judgment.rule}] ${judgment.note}`,
+      status: effectiveDisposition === 'approve' ? 'pass' : effectiveDisposition === 'reject' ? 'fail' : 'review',
+      severity: effectiveDisposition === 'approve' ? 'note' : effectiveDisposition === 'reject' ? 'major' : (judgment.confidence >= 0.8 ? 'minor' : 'major'),
+      summary: effectiveDisposition === 'approve'
+        ? 'Label matches the approved record.'
+        : hasAlternative
+          ? `Label shows "${alternativeReading}" in the expected position.`
+          : judgment.note,
+      details: `[${judgment.rule}] ${judgment.note}${altNote}`,
       confidence: judgment.confidence, citations: citationsFor(input.extraction.beverageType),
       applicationValue, extractedValue,
-      comparison: { status: comparisonStatus, applicationValue, extractedValue, note: `[${judgment.rule}] ${judgment.note}` }
+      comparison: { status: comparisonStatus, applicationValue, extractedValue, note: `[${judgment.rule}] ${judgment.note}${altNote}` }
     };
   }
 

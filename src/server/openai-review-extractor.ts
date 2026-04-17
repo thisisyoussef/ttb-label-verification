@@ -10,6 +10,8 @@ import type { NormalizedReviewIntake } from './review-intake';
 import {
   buildReviewExtractionPrompt,
   buildOcrAugmentedExtractionPrompt,
+  buildVerificationExtractionPrompt,
+  isVerificationModeEnabled,
   normalizeReviewExtractionModelOutput,
   reviewExtractionModelOutputSchema
 } from './review-extraction-model-output';
@@ -133,9 +135,20 @@ export function buildReviewExtractionRequest(input: {
   const surface = input.context?.surface ?? '/api/review';
   const extractionMode = input.context?.extractionMode ?? 'cloud';
   const ocrText = input.intake.ocrText;
-  const promptText = ocrText
-    ? buildOcrAugmentedExtractionPrompt({ surface, extractionMode, ocrText })
-    : buildReviewExtractionPrompt({ surface, extractionMode });
+
+  const verificationPrompt = isVerificationModeEnabled()
+    ? buildVerificationExtractionPrompt({
+        surface,
+        extractionMode,
+        fields: input.intake.fields,
+        ocrText
+      })
+    : null;
+
+  const promptText = verificationPrompt
+    ?? (ocrText
+      ? buildOcrAugmentedExtractionPrompt({ surface, extractionMode, ocrText })
+      : buildReviewExtractionPrompt({ surface, extractionMode }));
 
   return {
     model: input.config.visionModel,

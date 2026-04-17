@@ -9,7 +9,9 @@ import type { ExtractionMode } from './ai-provider-policy';
 import type { LlmEndpointSurface } from './llm-policy';
 import {
   buildReviewExtractionPrompt as buildPolicyPrompt,
-  buildOcrAugmentedExtractionPrompt as buildOcrAugmentedPolicyPrompt
+  buildOcrAugmentedExtractionPrompt as buildOcrAugmentedPolicyPrompt,
+  buildVerificationExtractionPrompt as buildVerificationPolicyPrompt,
+  isVerificationModeEnabled
 } from './review-prompt-policy';
 import { type ReviewExtractionModelOutput } from './review-extraction';
 
@@ -17,7 +19,12 @@ const apiExtractionFieldSchema = z.object({
   present: z.boolean(),
   value: z.string().nullable(),
   confidence: z.number().min(0).max(1),
-  note: z.string().nullable()
+  note: z.string().nullable(),
+  // Verification-mode outputs — populated only when the extractor runs
+  // with VERIFICATION_MODE=on AND the applicant declared the field.
+  // Nullable so the model can omit them under the standard prompt.
+  visibleText: z.string().nullable().optional(),
+  alternativeReading: z.string().nullable().optional()
 });
 
 const apiExtractionVarietalSchema = z.object({
@@ -138,6 +145,28 @@ export function buildOcrAugmentedExtractionPrompt(input: {
   return buildOcrAugmentedPolicyPrompt(input);
 }
 
+/**
+ * Thin wrapper around the policy-level verification prompt. Returns
+ * `null` when no identifier fields were declared — callers should then
+ * fall back to the standard extraction prompt.
+ */
+export function buildVerificationExtractionPrompt(input: {
+  surface: LlmEndpointSurface;
+  extractionMode: ExtractionMode;
+  fields: Parameters<typeof buildVerificationPolicyPrompt>[0]['fields'];
+  ocrText?: string;
+}): string | null {
+  return buildVerificationPolicyPrompt({
+    surface: input.surface,
+    extractionMode: input.extractionMode,
+    fields: input.fields,
+    ocrText: input.ocrText
+  });
+}
+
+/** Re-export so extractors don't import `review-prompt-policy` directly. */
+export { isVerificationModeEnabled };
+
 export function normalizeReviewExtractionModelOutput(
   input: z.infer<typeof reviewExtractionModelOutputSchema>
 ): ReviewExtractionModelOutput {
@@ -208,6 +237,8 @@ function normalizeExtractionField(
     present: field.present,
     value: field.value ?? undefined,
     confidence: field.confidence,
-    note: field.note ?? undefined
+    note: field.note ?? undefined,
+    visibleText: field.visibleText ?? undefined,
+    alternativeReading: field.alternativeReading ?? undefined
   };
 }

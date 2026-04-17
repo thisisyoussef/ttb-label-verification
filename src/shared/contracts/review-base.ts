@@ -108,7 +108,24 @@ export const reviewExtractionFieldSchema = z
     present: z.boolean(),
     value: z.string().optional(),
     confidence: z.number().min(0).max(1),
-    note: z.string().optional()
+    note: z.string().optional(),
+    /**
+     * Verification-mode output for identifier fields. When the extractor
+     * runs in verification mode (VERIFICATION_MODE=on and application
+     * data was provided), the model is asked "is this applicant-declared
+     * value visible on the label?" — and the answer, the exact label
+     * text, goes here. Bottom-up extraction paths leave this undefined
+     * and keep writing to `value` as before.
+     */
+    visibleText: z.string().optional(),
+    /**
+     * When the model sees a DIFFERENT value in the position where it
+     * expected the applicant-declared one (e.g. a prominent fanciful
+     * name where the brand was expected), it reports it here so the
+     * reviewer can see the mismatch. Always paired with
+     * `present: true` and `visibleText` of the primary read.
+     */
+    alternativeReading: z.string().optional()
   })
   .superRefine((field, context) => {
     const hasValue = field.value !== undefined && field.value.trim().length > 0;

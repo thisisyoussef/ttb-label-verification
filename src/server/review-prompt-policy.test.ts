@@ -2,8 +2,22 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildReviewExtractionPrompt,
+  buildVerificationExtractionPrompt,
+  isVerificationModeEnabled,
   resolveReviewPromptPolicy
 } from './review-prompt-policy';
+import type { NormalizedReviewFields } from './review-intake';
+
+function buildFields(
+  overrides: Partial<NormalizedReviewFields> = {}
+): NormalizedReviewFields {
+  return {
+    beverageTypeHint: 'auto',
+    origin: 'domestic',
+    varietals: [],
+    ...overrides
+  };
+}
 
 describe('review prompt policy', () => {
   it('keeps the shared extraction baseline guardrails in every prompt', () => {
@@ -72,5 +86,50 @@ describe('review prompt policy', () => {
         extractionMode: 'cloud'
       })
     ).toBe(policy.prompt);
+  });
+});
+
+describe('verification-mode prompt', () => {
+  it('returns null when no identifier fields are declared', () => {
+    const prompt = buildVerificationExtractionPrompt({
+      surface: '/api/review',
+      extractionMode: 'cloud',
+      fields: buildFields()
+    });
+    expect(prompt).toBeNull();
+  });
+
+  it('adds a declared-identifiers block + verification instructions when applicant data is present', () => {
+    const prompt = buildVerificationExtractionPrompt({
+      surface: '/api/review',
+      extractionMode: 'cloud',
+      fields: buildFields({
+        brandName: "Stone's Throw",
+        classType: 'Vodka',
+        country: 'USA'
+      })
+    });
+
+    expect(prompt).not.toBeNull();
+    expect(prompt).toContain('APPLICATION-DECLARED IDENTIFIERS');
+    expect(prompt).toContain('brandName');
+    expect(prompt).toContain("Stone's Throw");
+    expect(prompt).toContain('classType');
+    expect(prompt).toContain('countryOfOrigin');
+    expect(prompt).toContain('`visibleText`');
+    expect(prompt).toContain('`alternativeReading`');
+    // Critical guardrail: must not let the model echo application data
+    // without actually reading the label.
+    expect(prompt).toContain('do NOT echo the applicant string back');
+  });
+
+  it('honors VERIFICATION_MODE env flag parsing', () => {
+    expect(isVerificationModeEnabled({ VERIFICATION_MODE: 'on' })).toBe(true);
+    expect(isVerificationModeEnabled({ VERIFICATION_MODE: 'enabled' })).toBe(true);
+    expect(isVerificationModeEnabled({ VERIFICATION_MODE: 'true' })).toBe(true);
+    expect(isVerificationModeEnabled({ VERIFICATION_MODE: '1' })).toBe(true);
+    expect(isVerificationModeEnabled({ VERIFICATION_MODE: 'off' })).toBe(false);
+    expect(isVerificationModeEnabled({ VERIFICATION_MODE: '' })).toBe(false);
+    expect(isVerificationModeEnabled({})).toBe(false);
   });
 });

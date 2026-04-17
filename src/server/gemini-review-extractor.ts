@@ -15,6 +15,8 @@ import type { NormalizedReviewIntake } from './review-intake';
 import {
   buildReviewExtractionPrompt,
   buildOcrAugmentedExtractionPrompt,
+  buildVerificationExtractionPrompt,
+  isVerificationModeEnabled,
   normalizeReviewExtractionModelOutput,
   reviewExtractionModelOutputJsonSchema,
   reviewExtractionModelOutputSchema
@@ -264,9 +266,24 @@ export function buildGeminiReviewExtractionRequest(input: {
   const surface = input.context?.surface ?? '/api/review';
   const extractionMode = input.context?.extractionMode ?? 'cloud';
   const ocrText = input.intake.ocrText;
-  const promptText = ocrText
-    ? buildOcrAugmentedExtractionPrompt({ surface, extractionMode, ocrText })
-    : buildReviewExtractionPrompt({ surface, extractionMode });
+
+  // When verification-mode is enabled and the applicant declared
+  // identifier fields, send a prompt that asks the model to verify
+  // them against the label. Falls back to the standard extraction
+  // prompt when the flag is off or no identifiers were declared.
+  const verificationPrompt = isVerificationModeEnabled()
+    ? buildVerificationExtractionPrompt({
+        surface,
+        extractionMode,
+        fields: input.intake.fields,
+        ocrText
+      })
+    : null;
+
+  const promptText = verificationPrompt
+    ?? (ocrText
+      ? buildOcrAugmentedExtractionPrompt({ surface, extractionMode, ocrText })
+      : buildReviewExtractionPrompt({ surface, extractionMode }));
 
   return {
     model: input.config.visionModel,
