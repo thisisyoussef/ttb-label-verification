@@ -60,6 +60,13 @@ export type TracedReviewReportInput = TraceMetadataInput & {
   extraction: ReviewExtraction;
   warningCheck: CheckReview;
   reportId?: string;
+  /**
+   * Batch aggregation path: set true to skip the per-label resolver so
+   * the batch orchestrator can collect ambiguous fields across all
+   * labels and make one aggregated Gemini call instead of N sequential
+   * per-label calls. See batch-session.ts for the aggregation code.
+   */
+  deferResolver?: boolean;
 };
 
 export const tracedReviewExtraction = traceable(
@@ -124,7 +131,8 @@ export const tracedReviewReport = traceable(
       intake: input.intake,
       extraction: input.extraction,
       warningCheck: input.warningCheck,
-      id: input.reportId
+      id: input.reportId,
+      deferResolver: input.deferResolver
     });
   },
   {

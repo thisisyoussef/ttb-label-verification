@@ -5,8 +5,16 @@ import {
   batchDashboardResponseSchema,
   batchExportPayloadSchema,
   batchStreamFrameSchema,
-  type BatchStartRequest
+  type BatchStartRequest,
+  type ReviewExtraction,
+  type VerificationReport
 } from '../shared/contracts/review';
+import { createJudgmentLlmClient } from './judgment-llm-client-factory';
+import {
+  readResolverConfig,
+  resolveAmbiguousFieldChecksBatch
+} from './llm-resolver';
+import { rebuildReportWithPatchedChecks } from './review-report';
 import { type AiProvider, type ExtractionMode } from './ai-provider-policy';
 import type { LlmEndpointSurface } from './llm-policy';
 import { runTracedReviewSurface } from './llm-trace';
@@ -137,6 +145,30 @@ export class BatchSessionStore {
     const inFlight = new Map<number, Promise<CompletedItem>>();
     let nextDispatchId = 0;
 
+    // Track per-label intake + extraction when the aggregated resolver
+    // is active; populated during emitCompletion, consumed in the
+    // post-drain aggregation step.
+    type DeferredLabel = {
+      imageId: string;
+      intake: NonNullable<CompletedItem['result']['intake']>;
+      extraction: NonNullable<CompletedItem['result']['extraction']>;
+      report: VerificationReport;
+    };
+    const deferredLabels: DeferredLabel[] = [];
+
+    // Opt D — cross-label resolver aggregation. When enabled, each label's
+    // processAssignment skips the per-label LLM resolver; after all labels
+    // land, we run a single aggregated Gemini call over every non-sealed
+    // label's ambiguous fields. This drops N Gemini calls to 1 on a batch
+    // of N labels with ambiguous fields.
+    //
+    // Off by default: at BATCH_CONCURRENCY=5 the per-label calls already
+    // parallelize naturally, so the payoff is rate-limit budget (1 call
+    // vs N) rather than wall-clock. Enable with BATCH_RESOLVER_AGGREGATION
+    // =enabled if you're close to the provider's rate-limit ceiling.
+    const useAggregatedResolver =
+      process.env.BATCH_RESOLVER_AGGREGATION?.trim().toLowerCase() === 'enabled';
+
     const dispatch = (assignmentIndex: number) => {
       const dispatchId = nextDispatchId++;
       const startedAt = Date.now();
@@ -147,7 +179,8 @@ export class BatchSessionStore {
           assignment,
           completedOrder,
           surface: '/api/batch/run',
-          override
+          override,
+          deferResolver: useAggregatedResolver
         });
         return {
           index: assignmentIndex,
@@ -172,6 +205,14 @@ export class BatchSessionStore {
       });
       if (result.report) {
         session.reports.set(result.report.id, result.report);
+        if (useAggregatedResolver && result.intake && result.extraction) {
+          deferredLabels.push({
+            imageId: assignment.image.id,
+            intake: result.intake,
+            extraction: result.extraction,
+            report: result.report
+          });
+        }
       }
       incrementSummary(session.summary, result.row.status);
       session.totals.done += 1;
@@ -227,6 +268,82 @@ export class BatchSessionStore {
     while (inFlight.size > 0) {
       const completed = await Promise.race(inFlight.values());
       await emitCompletion(completed);
+    }
+
+    // Opt D post-pass: one aggregated Gemini resolver call across all
+    // non-sealed labels' ambiguous fields. Only runs when
+    // BATCH_RESOLVER_AGGREGATION=enabled AND LLM_RESOLVER=enabled.
+    if (useAggregatedResolver && deferredLabels.length > 0) {
+      const resolverConfig = readResolverConfig();
+      if (resolverConfig.enabled) {
+        const client = createJudgmentLlmClient();
+        if (client) {
+          const aggregated = await resolveAmbiguousFieldChecksBatch({
+            labels: deferredLabels.map((l) => ({
+              id: l.imageId,
+              checks: l.report.checks as VerificationReport['checks'],
+              sealed: l.report.checks.some(
+                (c) => c.status === 'fail' && c.severity === 'blocker'
+              )
+            })),
+            config: { ...resolverConfig, client }
+          });
+          if (aggregated.resolved > 0) {
+            // Patch affected reports, re-derive their verdict, update
+            // the session state, and emit update frames so the UI
+            // shows the post-resolver status.
+            const patchedByImageId = new Map(
+              aggregated.labels.map((entry) => [entry.id, entry.checks])
+            );
+            const priorSummary = { ...session.summary };
+            session.summary = emptySummary();
+            for (const deferred of deferredLabels) {
+              const patchedChecks = patchedByImageId.get(deferred.imageId);
+              const originalReport = deferred.report;
+              let finalReport = originalReport;
+              if (patchedChecks && patchedChecks !== originalReport.checks) {
+                finalReport = rebuildReportWithPatchedChecks({
+                  report: originalReport,
+                  patchedChecks,
+                  intake: deferred.intake,
+                  extraction: deferred.extraction
+                });
+                session.reports.set(finalReport.id, finalReport);
+              }
+              // Rebuild the dashboard row against whichever verdict we
+              // landed on, then re-emit the summary counters.
+              const existing = session.results.get(deferred.imageId);
+              if (existing) {
+                const row = buildDashboardRow({
+                  assignment: existing.assignment,
+                  report: finalReport,
+                  completedOrder: existing.row.completedOrder
+                });
+                session.results.set(deferred.imageId, {
+                  row,
+                  assignment: existing.assignment
+                });
+                incrementSummary(session.summary, row.status);
+                if (row.status !== existing.row.status) {
+                  await onFrame(
+                    batchStreamFrameSchema.parse({
+                      type: 'item',
+                      itemId: `item-${deferred.imageId}-${existing.row.completedOrder}`,
+                      imageId: deferred.imageId,
+                      filename: existing.assignment.image.filename,
+                      identity: `${existing.assignment.row.brandName} — ${existing.assignment.row.classType}`,
+                      status: row.status,
+                      reportId: row.reportId ?? undefined,
+                      errorMessage: row.errorMessage ?? undefined
+                    })
+                  );
+                }
+              }
+            }
+            void priorSummary;
+          }
+        }
+      }
     }
 
     session.phase =
@@ -325,6 +442,14 @@ export class BatchSessionStore {
     completedOrder: number;
     surface: LlmEndpointSurface;
     override?: ExtractorOverride;
+    /**
+     * Skip the per-label LLM resolver so the batch orchestrator can
+     * aggregate ambiguous fields across all labels into one call.
+     * The returned row/report reflect the pre-resolver verdict; the
+     * orchestrator is responsible for patching them after the
+     * aggregated call.
+     */
+    deferResolver?: boolean;
   }) {
     const latencyCapture = createReviewLatencyCapture({
       surface: input.surface,
@@ -369,8 +494,11 @@ export class BatchSessionStore {
         fixtureId: input.assignment.image.id,
         reportId: randomUUID(),
         latencyCapture,
-        latencyObserver: this.latencyObserver
+        latencyObserver: this.latencyObserver,
+        deferResolver: input.deferResolver
       });
+      const extraction =
+        (report as VerificationReport & { __extraction?: ReviewExtraction }).__extraction;
 
       return {
         row: buildDashboardRow({
@@ -378,7 +506,9 @@ export class BatchSessionStore {
           report,
           completedOrder: input.completedOrder
         }),
-        report
+        report,
+        intake,
+        extraction
       };
     } catch (error) {
       if (!latencyCapture.getOutcomePath()) {

@@ -21,11 +21,66 @@ import {
   resolveAmbiguousFieldChecks
 } from './llm-resolver';
 
+/**
+ * Re-derive the verdict, counts, and summary for an existing report
+ * whose `checks` array has been patched after the fact (e.g. by the
+ * batch-mode aggregated LLM resolver). This is the post-hoc companion
+ * to `buildVerificationReport`'s inline resolver call: the caller
+ * provides the already-built report plus the already-patched checks,
+ * and we re-run the deterministic rollup steps only (no new LLM calls,
+ * no new deterministic rule evaluations — both would be wasted work
+ * since nothing else changed).
+ *
+ * Preserves all other fields of the original report verbatim.
+ */
+export function rebuildReportWithPatchedChecks(input: {
+  report: VerificationReport;
+  patchedChecks: CheckReview[];
+  intake: NormalizedReviewIntake;
+  extraction: ReviewExtraction;
+}): VerificationReport {
+  const counts = countStatuses(input.patchedChecks, input.report.crossFieldChecks);
+  const verdictResult = deriveWeightedVerdict({
+    checks: input.patchedChecks,
+    crossFieldChecks: input.report.crossFieldChecks,
+    standalone: input.report.standalone,
+    extraction: input.extraction
+  });
+  const verdict = verdictResult.verdict;
+  return verificationReportSchema.parse({
+    ...input.report,
+    verdict,
+    verdictSecondary: deriveVerdictSecondary({
+      verdict,
+      checks: input.patchedChecks,
+      crossFieldChecks: input.report.crossFieldChecks,
+      standalone: input.report.standalone,
+      extraction: input.extraction
+    }),
+    counts,
+    checks: input.patchedChecks,
+    summary: deriveSummary({
+      verdict,
+      standalone: input.report.standalone,
+      extraction: input.extraction
+    })
+  });
+}
+
 export async function buildVerificationReport(input: {
   intake: NormalizedReviewIntake;
   extraction: ReviewExtraction;
   warningCheck: CheckReview;
   id?: string;
+  /**
+   * When true, skip the per-label LLM uncertainty resolver. The caller is
+   * responsible for running the resolver later (typically in batch mode
+   * so multiple labels' ambiguous fields can be aggregated into one
+   * Gemini call instead of N sequential ones).
+   *
+   * Default false — single-label flow runs the resolver inline.
+   */
+  deferResolver?: boolean;
 }): Promise<VerificationReport> {
   const extractionQuality = {
     globalConfidence: input.extraction.imageQuality.score,
@@ -69,18 +124,18 @@ export async function buildVerificationReport(input: {
 
   // LLM uncertainty resolver — one-directional review→pass upgrader. Only
   // fires when LLM_RESOLVER=enabled AND there are eligible ambiguous
-  // fields AND the verdict isn't already sealed by a blocker fail.
+  // fields AND the verdict isn't already sealed by a blocker fail AND
+  // the caller hasn't explicitly deferred it (batch aggregation path).
   // See src/server/llm-resolver.ts for constraints.
   const resolverBase = readResolverConfig();
+  const shouldRunResolver =
+    resolverBase.enabled && !verdictAlreadySealed && !input.deferResolver;
   const resolverOutcome = await resolveAmbiguousFieldChecks({
     checks: initialChecks,
     config: {
       ...resolverBase,
-      enabled: resolverBase.enabled && !verdictAlreadySealed,
-      client:
-        resolverBase.enabled && !verdictAlreadySealed
-          ? createJudgmentLlmClient()
-          : null
+      enabled: shouldRunResolver,
+      client: shouldRunResolver ? createJudgmentLlmClient() : null
     }
   });
   const checks = resolverOutcome.checks;

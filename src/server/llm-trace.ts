@@ -47,6 +47,13 @@ export type { TracedReviewExtractionInput };
 export type TracedReviewSurfaceInput = TracedReviewExtractionInput & {
   reportId?: string;
   latencyObserver?: ReviewLatencyObserver;
+  /**
+   * Batch aggregation path: skip the per-label resolver (see
+   * review-report.ts `deferResolver`). Set by batch-session.ts when it
+   * wants to aggregate ambiguous fields across all labels into one
+   * resolver call.
+   */
+  deferResolver?: boolean;
 };
 
 export type TracedExtractionSurfaceInput = TracedReviewExtractionInput & {
@@ -59,6 +66,7 @@ export type TracedWarningSurfaceInput = TracedReviewExtractionInput & {
 
 type ReviewSurfaceTraceResult = {
   report: VerificationReport;
+  extraction: ReviewExtraction;
   warningCheck: CheckReview;
   stageTimingsMs: TraceStageTimings;
   latencySummary: ReviewLatencySummary;
@@ -239,7 +247,8 @@ const tracedReviewSurface = traceable(
         ...input,
         extraction: reconciledExtraction,
         warningCheck: warningStage.result,
-        reportId: input.reportId
+        reportId: input.reportId,
+        deferResolver: input.deferResolver
       })
     );
     latencyCapture.recordSpan({
@@ -278,6 +287,7 @@ const tracedReviewSurface = traceable(
 
     return {
       report: finalReport,
+      extraction: reconciledExtraction,
       warningCheck: warningStage.result,
       stageTimingsMs: {
         extraction: extractionElapsedMs,
@@ -438,7 +448,24 @@ export async function runTracedReviewSurface(input: TracedReviewSurfaceInput) {
       latencyCapture
     });
     emitReviewLatencySummary(latencyCapture, input.latencyObserver);
-    return result.report;
+    // Return the report directly for backward compatibility with the
+    // single-label review route (which only needs the report), but
+    // attach the reconciled extraction as a non-enumerable property so
+    // the batch orchestrator can pick it up when it needs to re-derive
+    // the verdict after aggregated-resolver patching.
+    //
+    // Callers that don't know about extraction just see it as
+    // `result.report` and are unaffected. Callers that do — i.e.
+    // batch-session.ts in the Opt D path — read `result.extraction`
+    // after type-narrowing.
+    const report = result.report as VerificationReport & { __extraction?: ReviewExtraction };
+    Object.defineProperty(report, '__extraction', {
+      value: result.extraction,
+      enumerable: false,
+      writable: false,
+      configurable: false
+    });
+    return report;
   } catch (error) {
     finalizeFailureLatency({
       ...input,
