@@ -93,8 +93,6 @@ function record(
   };
 }
 
-// ─── Brand name variations ───────────────────────────────────────────
-
 function brandVariations(row: GoldenRow): Variation[] {
   if (!row.brand_name) return [];
   const app = row.brand_name;
@@ -130,8 +128,6 @@ function brandVariations(row: GoldenRow): Variation[] {
   return out;
 }
 
-// ─── Class/type variations ───────────────────────────────────────────
-
 function classTypeVariations(row: GoldenRow): Variation[] {
   if (!row.class_type) return [];
   const app = row.class_type;
@@ -161,8 +157,6 @@ function classTypeVariations(row: GoldenRow): Variation[] {
 
   return out;
 }
-
-// ─── ABV variations ──────────────────────────────────────────────────
 
 function abvVariations(row: GoldenRow): Variation[] {
   if (!row.alcohol_content) return [];
@@ -202,8 +196,6 @@ function abvVariations(row: GoldenRow): Variation[] {
   return out;
 }
 
-// ─── Net contents variations ─────────────────────────────────────────
-
 function netContentsVariations(row: GoldenRow): Variation[] {
   const app = row.net_contents || '750 mL';
   const match = app.match(/([\d.]+)\s*(ml|mL|L|l)/);
@@ -229,8 +221,6 @@ function netContentsVariations(row: GoldenRow): Variation[] {
   return out;
 }
 
-// ─── Applicant address variations ────────────────────────────────────
-
 function addressVariations(row: GoldenRow): Variation[] {
   const app = row.applicant_address || '';
   if (!app) return [];
@@ -254,8 +244,6 @@ function addressVariations(row: GoldenRow): Variation[] {
 
   return out;
 }
-
-// ─── Country of origin variations ────────────────────────────────────
 
 function countryVariations(row: GoldenRow): Variation[] {
   if (!row.country) return [];
@@ -282,8 +270,6 @@ function countryVariations(row: GoldenRow): Variation[] {
 
   return out;
 }
-
-// ─── Government warning variations ───────────────────────────────────
 
 function warningVariations(row: GoldenRow): Variation[] {
   const out: Variation[] = [];
@@ -331,8 +317,6 @@ function warningVariations(row: GoldenRow): Variation[] {
   return out;
 }
 
-// ─── Varietal variations ─────────────────────────────────────────────
-
 function varietalVariations(row: GoldenRow): Variation[] {
   if (row.beverage_type !== 'wine') return [];
   const app = row.appellation || 'Chardonnay';
@@ -352,8 +336,6 @@ function varietalVariations(row: GoldenRow): Variation[] {
 
   return out;
 }
-
-// ─── Vintage variations ──────────────────────────────────────────────
 
 function vintageVariations(row: GoldenRow): Variation[] {
   const app = row.vintage || (row.beverage_type === 'wine' ? '2020' : '');
@@ -378,8 +360,6 @@ function vintageVariations(row: GoldenRow): Variation[] {
 
   return out;
 }
-
-// ─── Runner ──────────────────────────────────────────────────────────
 
 function generateVariations(rows: GoldenRow[]): Variation[] {
   const all: Variation[] = [];
