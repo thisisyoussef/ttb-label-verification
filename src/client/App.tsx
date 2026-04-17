@@ -319,6 +319,22 @@ export function App() {
     setView(next === 'batch' ? 'batch-intake' : 'intake');
   }, []);
 
+  // Load a 10-label batch pack from the toolbench — images go into the
+  // batch image intake, CSV into the batch CSV intake, and we route the
+  // user to the batch view so they can see the preflight/matching
+  // screen populated out of the box.
+  const handleToolbenchLoadBatch = useCallback(
+    (images: File[], csv: File) => {
+      batch.onSelectLiveImages(images);
+      batch.onSelectLiveCsv(csv);
+      if (mode !== 'batch') {
+        batch.onSelectMode('batch', mode);
+      }
+      setView('batch-intake');
+    },
+    [batch, mode, setView]
+  );
+
   // One-click COLA sample loader: populates both image and application
   // fields from a real TTB-approved COLA record. The image fetch +
   // field payload are handled by ToolbenchSamples and handed to us here.
@@ -481,6 +497,7 @@ export function App() {
       {import.meta.env.VITE_ENABLE_TOOLBENCH !== 'false' && (
         <AssessorToolbench
           onLoadSample={handleToolbenchLoadSample}
+          onLoadBatch={handleToolbenchLoadBatch}
           onLoadImage={handleToolbenchLoadImage}
           onLoadCsv={handleToolbenchLoadCsv}
           mode={mode}

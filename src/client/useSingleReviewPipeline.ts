@@ -190,6 +190,13 @@ export function useSingleReviewPipeline(
     });
   }, [options.onEvent, options.scenarioId, phase, steps]);
 
+  // Mirror `steps` into a ref so completePipeline can observe current
+  // step status synchronously when it runs (setSteps is async).
+  const stepsRef = useRef<ProcessingStep[]>(steps);
+  useEffect(() => {
+    stepsRef.current = steps;
+  }, [steps]);
+
   const completePipeline = useCallback(
     (requestId: number, liveReport: UIVerificationReport | null) => {
       if (requestId !== requestIdRef.current) {
@@ -206,14 +213,63 @@ export function useSingleReviewPipeline(
         resultVerdict: liveReport?.verdict ?? null
       });
 
+      // Stop any in-flight scheduleAdvance timer from racing us.
       clearPipelineTimer();
       abortControllerRef.current = null;
-      setSteps((previous) =>
-        previous.map((step) => ({ ...step, status: 'done' }))
+
+      // Cache the terminal report so the walk-through animator can
+      // commit it at the end without re-resolving.
+      const finalReport = options.resolveTerminalReport(liveReport);
+
+      const finalize = () => {
+        if (requestId !== requestIdRef.current) return;
+        setSteps((previous) =>
+          previous.map((step) => ({ ...step, status: 'done' }))
+        );
+        setPhase('terminal');
+        setReport(finalReport);
+        options.setView('results');
+      };
+
+      // If the scheduleAdvance timer already ticked every step to 'done'
+      // before the API responded, finalize without any extra pacing.
+      const firstUnfinished = stepsRef.current.findIndex(
+        (step) => step.status !== 'done'
       );
-      setPhase('terminal');
-      setReport(options.resolveTerminalReport(liveReport));
-      options.setView('results');
+      if (firstUnfinished === -1) {
+        finalize();
+        return;
+      }
+
+      // Otherwise, walk through remaining steps with a tight pace so the
+      // reviewer always SEES each step tick through active → done before
+      // the page flips. Without this, a fast API response (e.g. a
+      // prefetch hit landing in 600ms) would teleport from "step 2
+      // active" straight to Results.
+      const TAIL_ADVANCE_MS = 250;
+      const totalSteps = stepsRef.current.length;
+      const advance = (index: number) => {
+        if (requestId !== requestIdRef.current) return;
+        setSteps((previous) => {
+          const next = previous.map((step) => ({ ...step }));
+          if (index < next.length) {
+            next[index] = { ...next[index], status: 'done' };
+          }
+          if (index + 1 < next.length) {
+            next[index + 1] = { ...next[index + 1], status: 'active' };
+          }
+          return next;
+        });
+        if (index + 1 < totalSteps) {
+          timerRef.current = window.setTimeout(
+            () => advance(index + 1),
+            TAIL_ADVANCE_MS
+          );
+        } else {
+          timerRef.current = window.setTimeout(finalize, TAIL_ADVANCE_MS);
+        }
+      };
+      advance(firstUnfinished);
     },
     [clearPipelineTimer, options]
   );

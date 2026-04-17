@@ -89,7 +89,9 @@ function ComparisonBlock({ check }: { check: CheckReview }) {
         <ComparisonCell label="Read from label" value={check.extractedValue} toneClass={toneClass} />
       </div>
       {comparison.note ? (
-        <p className="font-body text-xs text-on-surface-variant">{comparison.note}</p>
+        <p className="font-body text-xs text-on-surface-variant">
+          {plainifyReason(comparison.note)}
+        </p>
       ) : null}
     </section>
   );

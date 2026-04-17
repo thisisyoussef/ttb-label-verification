@@ -217,13 +217,13 @@ export function judgeClassType(
     };
   }
 
-  // Whisky/whiskey context — review, not reject
+  // Whisky/whiskey — TTB permits both spellings. Approve, not review.
   if (/whisk[ey]y/i.test(appValue) && /whisk[ey]y/i.test(extValue)) {
     return {
-      disposition: 'review',
-      confidence: 0.70,
+      disposition: 'approve',
+      confidence: 0.90,
       rule: 'class-type-whisky-whiskey',
-      note: 'Whisky and whiskey are spelled differently. This is a reviewer judgment call.',
+      note: 'Whisky and whiskey are both accepted spellings on TTB labels.',
       tier: 'high'
     };
   }
@@ -358,15 +358,21 @@ export function judgeBrandName(
     };
   }
 
-  // Fuzzy match for OCR errors (short edit distance relative to length)
+  // Fuzzy match for OCR errors (short edit distance relative to length).
+  // Brand names aren't a regulatory-exact field — stylized typography,
+  // ligatures, and scan noise routinely shift a few characters. If we're
+  // within 20% edit distance we approve (soft confidence so downstream
+  // sees it as "matched but verify if curious"). Only government warning
+  // text stays strictly exact; all other fields skew toward approve on
+  // minor differences.
   const distance = levenshteinDistance(appNormalized, extNormalized);
   const maxLen = Math.max(appNormalized.length, extNormalized.length);
   if (maxLen > 0 && distance / maxLen <= 0.2) {
     return {
-      disposition: 'review',
-      confidence: 0.65,
+      disposition: 'approve',
+      confidence: 0.78,
       rule: 'brand-fuzzy-close',
-      note: `Brand names are close but not exact. This may be a misread. Please confirm by eye.`,
+      note: 'Brand name matches the approved record. Small character differences (OCR noise, stylized fonts) were ignored.',
       tier: 'medium'
     };
   }
@@ -399,13 +405,18 @@ export function judgeNetContents(
     };
   }
 
-  // Allow small rounding tolerance (1 mL) for unit conversion
-  if (Math.abs(appML - extML) <= 1) {
+  // Allow rounding + unit-conversion tolerance. TTB labels round fluid
+  // ounces to one decimal (e.g. "25.4 fl oz" = ~751.2 mL for a 750 mL
+  // declaration, ~2 mL over; "12 fl oz" = ~354.9 mL for 355 mL declared,
+  // ~0.1 mL under). A 5 mL band absorbs that rounding without letting
+  // real mismatches (e.g. 750 mL declared vs 700 mL label) slip through.
+  const NET_CONTENTS_TOLERANCE_ML = 5;
+  if (Math.abs(appML - extML) <= NET_CONTENTS_TOLERANCE_ML) {
     return {
       disposition: 'approve',
       confidence: 0.95,
       rule: 'net-contents-match',
-      note: `Net contents match: ${appML} mL.`,
+      note: `Net contents match: ${appML} mL (label shows ${extML} mL, within rounding tolerance).`,
       tier: 'medium'
     };
   }
