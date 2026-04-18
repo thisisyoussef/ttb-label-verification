@@ -16,6 +16,7 @@ import type {
 /** Deterministic key for comparing prefetch inputs to verify-time inputs. */
 export function buildInputFingerprint(
   image: LabelImage,
+  secondaryImage: LabelImage | null,
   beverage: BeverageSelection,
   fields: IntakeFields
 ): string {
@@ -24,6 +25,10 @@ export function buildInputFingerprint(
     fs: image.file.size,
     fm: image.file.lastModified,
     ft: image.file.type,
+    sfn: secondaryImage?.file.name ?? null,
+    sfs: secondaryImage?.file.size ?? null,
+    sfm: secondaryImage?.file.lastModified ?? null,
+    sft: secondaryImage?.file.type ?? null,
     bv: beverage,
     bn: fields.brandName,
     fa: fields.fancifulName,
@@ -53,6 +58,7 @@ export interface PrefetchCacheEntry {
 export interface SpeculativePrefetchHandle {
   consumeCacheHit: (
     image: LabelImage,
+    secondaryImage: LabelImage | null,
     beverage: BeverageSelection,
     fields: IntakeFields
   ) => PrefetchCacheEntry | null;
@@ -68,6 +74,7 @@ const DEBOUNCE_MS = 1500;
 export function useSpeculativePrefetch(options: {
   enabled: boolean;
   image: LabelImage | null;
+  secondaryImage: LabelImage | null;
   beverage: BeverageSelection;
   fields: IntakeFields;
   forceFailure: boolean;
@@ -97,13 +104,18 @@ export function useSpeculativePrefetch(options: {
   // -- fire -----------------------------------------------------------------
 
   const firePrefetch = useCallback(
-    (image: LabelImage, beverage: BeverageSelection, fields: IntakeFields) => {
+    (
+      image: LabelImage,
+      secondaryImage: LabelImage | null,
+      beverage: BeverageSelection,
+      fields: IntakeFields
+    ) => {
       abortRef.current?.abort();
       cacheRef.current = null;
 
       idRef.current += 1;
       const prefetchId = idRef.current;
-      const fingerprint = buildInputFingerprint(image, beverage, fields);
+      const fingerprint = buildInputFingerprint(image, secondaryImage, beverage, fields);
       const controller = new AbortController();
       abortRef.current = controller;
 
@@ -111,6 +123,7 @@ export function useSpeculativePrefetch(options: {
 
       submitReview({
         image,
+        secondaryImage,
         beverage,
         fields,
         signal: controller.signal
@@ -157,17 +170,23 @@ export function useSpeculativePrefetch(options: {
   // -- Effect 1: fire on image change (immediate) --------------------------
 
   const imageIdentity = options.image?.file;
+  const secondaryImageIdentity = options.secondaryImage?.file;
 
   useEffect(() => {
     if (!options.enabled || !options.image || options.forceFailure) {
       clearPrefetch();
       return;
     }
-    firePrefetch(options.image, options.beverage, options.fields);
+    firePrefetch(
+      options.image,
+      options.secondaryImage,
+      options.beverage,
+      options.fields
+    );
     // Intentionally narrow deps: only re-fire when the image identity changes.
     // beverage/fields changes are handled by Effect 2 with debounce.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageIdentity, options.enabled, options.forceFailure]);
+  }, [imageIdentity, secondaryImageIdentity, options.enabled, options.forceFailure]);
 
   // -- Effect 2: re-fire on beverage/fields change (debounced) -------------
 
@@ -178,6 +197,8 @@ export function useSpeculativePrefetch(options: {
 
   const imageRef = useRef(options.image);
   imageRef.current = options.image;
+  const secondaryImageRef = useRef(options.secondaryImage);
+  secondaryImageRef.current = options.secondaryImage;
 
   useEffect(() => {
     if (!options.enabled || !options.image || options.forceFailure) return;
@@ -188,13 +209,15 @@ export function useSpeculativePrefetch(options: {
       debounceRef.current = null;
       const img = imageRef.current;
       if (!img) return;
+      const secondaryImg = secondaryImageRef.current;
       const fp = buildInputFingerprint(
         img,
+        secondaryImg,
         beverageRef.current,
         fieldsRef.current
       );
       if (cacheRef.current?.fingerprint === fp) return;
-      firePrefetch(img, beverageRef.current, fieldsRef.current);
+      firePrefetch(img, secondaryImg, beverageRef.current, fieldsRef.current);
     }, DEBOUNCE_MS);
 
     return clearDebounce;
@@ -215,6 +238,7 @@ export function useSpeculativePrefetch(options: {
   const consumeCacheHit = useCallback(
     (
       image: LabelImage,
+      secondaryImage: LabelImage | null,
       beverage: BeverageSelection,
       fields: IntakeFields
     ): PrefetchCacheEntry | null => {
@@ -224,7 +248,7 @@ export function useSpeculativePrefetch(options: {
         return null;
       }
 
-      const currentFp = buildInputFingerprint(image, beverage, fields);
+      const currentFp = buildInputFingerprint(image, secondaryImage, beverage, fields);
       if (entry.fingerprint !== currentFp) {
         logReviewClientEvent('review.prefetch.cache-miss', { reason: 'stale' });
         return null;

@@ -6,6 +6,7 @@ import {
   StepRow,
   WarningSkeletonRow
 } from './ProcessingViews';
+import { LabelImageGallery } from './LabelImageGallery';
 import type { BeverageSelection, LabelImage, ProcessingPhase, ProcessingStep } from './types';
 import { classifyCause } from './reviewFailureMessage';
 import type { OcrPreviewFields } from './useOcrPreview';
@@ -24,6 +25,7 @@ const BEVERAGE_LABELS: Record<BeverageSelection, string> = {
 
 interface ProcessingProps {
   image: LabelImage;
+  secondaryImage?: LabelImage | null;
   beverage: BeverageSelection;
   steps: ProcessingStep[];
   phase: ProcessingPhase;
@@ -68,6 +70,7 @@ const SKELETON_ROWS: Array<{
 
 export function Processing({
   image,
+  secondaryImage = null,
   beverage,
   steps,
   phase,
@@ -140,36 +143,31 @@ export function Processing({
           Label details
         </h2>
 
-        {/* Image treatment mirrors ResultsPinnedColumn: max-height + object-contain
-            preserves the label's native aspect ratio (wide keg labels, tall bottle
-            labels, square cans all render correctly) instead of cropping to a 3:4
-            box. Keeps the image identical between "reviewing" and "results" screens. */}
-        {image.file.type === 'application/pdf' ? (
-          <div className="min-h-[200px] max-h-[55vh] bg-surface-container-highest rounded-lg flex items-center justify-center">
-            <span
-              aria-hidden="true"
-              className="material-symbols-outlined text-5xl text-on-surface-variant"
-            >
-              picture_as_pdf
-            </span>
-          </div>
-        ) : (
-          <img
-            alt="Submitted label thumbnail"
-            src={image.previewUrl}
-            className="w-full max-h-[55vh] object-contain rounded-lg bg-surface-container-highest"
-          />
-        )}
+        <LabelImageGallery
+          primaryImage={image}
+          secondaryImage={secondaryImage}
+          variant="processing"
+        />
 
         <dl className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
             <dt className="font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
-              Filename
+              Primary file
             </dt>
             <dd className="font-mono text-sm font-semibold text-on-surface break-all">
               {image.file.name}
             </dd>
           </div>
+          {secondaryImage ? (
+            <div className="flex flex-col gap-1">
+              <dt className="font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
+                Secondary file
+              </dt>
+              <dd className="font-mono text-sm font-semibold text-on-surface break-all">
+                {secondaryImage.file.name}
+              </dd>
+            </div>
+          ) : null}
           <div className="flex flex-col gap-1">
             <dt className="font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
               Beverage type
@@ -350,4 +348,3 @@ export function Processing({
     </div>
   );
 }
-

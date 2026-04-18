@@ -49,13 +49,16 @@ function buildIntake(
       fields.varietals.length > 0
   );
 
+  const label = {
+    originalName: 'label.png',
+    mimeType: 'image/png',
+    bytes: 8,
+    buffer: Buffer.from([1, 2, 3, 4])
+  };
+
   return {
-    label: {
-      originalName: 'label.png',
-      mimeType: 'image/png',
-      bytes: 8,
-      buffer: Buffer.from([1, 2, 3, 4])
-    },
+    label,
+    labels: [label],
     fields,
     hasApplicationData,
     standalone: !hasApplicationData

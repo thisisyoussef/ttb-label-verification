@@ -10,8 +10,8 @@ export function MatchingExplanation() {
   return (
     <p className="text-sm text-on-surface-variant font-body leading-relaxed flex items-center gap-2 flex-wrap">
       <span>
-        Images are matched to CSV rows by filename first, then by row order if no
-        filename match is found.
+        Images are matched to CSV rows by the primary filename first, then by row order if no
+        filename match is found. Add `secondary_filename` when a row has an optional second label.
       </span>
       <InfoAnchor anchorKey="batch-matching-logic" />
     </p>
@@ -144,6 +144,11 @@ export function RowHeader({ row }: { row: BatchCsvRow }) {
         {row.filenameHint ? (
           <p className="text-[10px] font-mono text-on-surface-variant/80 truncate">
             filename hint: {row.filenameHint}
+          </p>
+        ) : null}
+        {row.secondaryFilenameHint ? (
+          <p className="text-[10px] font-mono text-on-surface-variant/80 truncate">
+            secondary hint: {row.secondaryFilenameHint}
           </p>
         ) : null}
       </div>
@@ -314,7 +319,12 @@ export function allCsvRows(matching: BatchMatchingState): BatchCsvRow[] {
 
 export function allImages(matching: BatchMatchingState): BatchLabelImage[] {
   const images: BatchLabelImage[] = [];
-  for (const pair of matching.matched) images.push(pair.image);
+  for (const pair of matching.matched) {
+    images.push(pair.image);
+    if (pair.secondaryImage) {
+      images.push(pair.secondaryImage);
+    }
+  }
   for (const ambiguous of matching.ambiguous) images.push(ambiguous.image);
   for (const item of matching.unmatchedImages) images.push(item.image);
   const seen = new Set<string>();

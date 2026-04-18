@@ -19,7 +19,8 @@ export type StoredBatchImage = {
 };
 
 export type StoredBatchAssignment = {
-  image: StoredBatchImage;
+  primaryImage: StoredBatchImage;
+  secondaryImage: StoredBatchImage | null;
   row: ParsedBatchCsvRow;
 };
 

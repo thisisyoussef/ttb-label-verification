@@ -29,13 +29,9 @@ import {
   type ReviewExtractorContext
 } from './review-extraction';
 
-// Flash Lite beats Flash on our 28-label corpus on both accuracy and
-// latency (measured 2026-04-17):
-//   Flash Lite: 27/28 correct, avg 5.0s, p95 7.3s
-//   Flash:      23/28 correct, avg 6.5s, p95 9.9s (+4 false rejects)
-// Counterintuitive — the theory was Flash would be faster on structured
-// output. Actual measurement says otherwise for this payload + schema.
-// Override via GEMINI_VISION_MODEL env if a future corpus says different.
+// Measured 2026-04-17 on our 28-label corpus:
+// Flash Lite: 27/28 correct, avg 5.0s, p95 7.3s.
+// Flash: 23/28 correct, avg 6.5s, p95 9.9s.
 const DEFAULT_GEMINI_VISION_MODEL = 'gemini-2.5-flash-lite';
 const DEFAULT_GEMINI_TIMEOUT_MS = 5000;
 const DEFAULT_GEMINI_MAX_ATTEMPTS = 3;
@@ -132,80 +128,72 @@ export function readGeminiReviewExtractionConfig(
   };
 }
 
-/**
- * Returns the effective per-request retry budget. Reads env as a fallback
- * so operators can tune without code changes. Clamps to [1, 5] to avoid
- * runaway retries.
- */
-// Default prescale is OFF. Measured on our 28-label corpus (2026-04-17):
-// pre-downscaling to 1024px did not cut provider-wait time because
-// mediaResolution='low' already bakes Gemini's own downscale into every
-// request, and our extra resize introduced no additional speedup while
-// trading a small accuracy dip (+1 false reject on the corpus). Enable
-// with GEMINI_PRESCALE_EDGE=1024 if a future Gemini tier removes the
-// internal downscale or a different model is introduced.
+// Returns the effective per-request retry budget. Reads env as a fallback
+// and clamps to [1, 5] to avoid runaway retries.
+// Default prescale is OFF; on the 2026-04-17 corpus, 1024px downscaling
+// did not improve latency over Gemini's low-resolution path and slightly
+// hurt accuracy.
 const DEFAULT_GEMINI_PRESCALE_EDGE = 0;
 
-/**
- * Resize the label image to at most N px on the longest edge before handing
- * it to Gemini. TTB labels are printed text so 1024px preserves every glyph
- * the model needs while cutting the base64 payload (and therefore the
- * number of visual tokens the model must process).
- *
- * No-ops on PDFs — those already go through Gemini's document resolution.
- * No-ops on images already smaller than the target edge. Silently falls
- * back to the original buffer if sharp can't decode the image.
- *
- * Override via GEMINI_PRESCALE_EDGE env (positive int to change target,
- * 0 to disable). Default is 0 (disabled) as of the 2026-04-17 eval run.
- */
+// Resize image labels to at most N px on the longest edge before Gemini.
+// PDFs, already-small images, and sharp decode failures fall back untouched.
 async function maybePrescaleIntakeForGemini(
   intake: NormalizedReviewIntake
 ): Promise<NormalizedReviewIntake> {
-  if (intake.label.mimeType === 'application/pdf') {
+  const labels = intake.labels.length > 0 ? intake.labels : [intake.label];
+  if (labels.every((label) => label.mimeType === 'application/pdf')) {
     return intake;
   }
   const raw = process.env.GEMINI_PRESCALE_EDGE?.trim();
-  const configured = raw === undefined || raw === '' ? DEFAULT_GEMINI_PRESCALE_EDGE : Number.parseInt(raw, 10);
+  const configured =
+    raw === undefined || raw === ''
+      ? DEFAULT_GEMINI_PRESCALE_EDGE
+      : Number.parseInt(raw, 10);
   if (!Number.isFinite(configured) || configured <= 0) {
     return intake;
   }
-  try {
-    const pipeline = sharp(intake.label.buffer, { failOn: 'none' });
-    const metadata = await pipeline.metadata();
-    const width = metadata.width ?? 0;
-    const height = metadata.height ?? 0;
-    const longestEdge = Math.max(width, height);
-    if (longestEdge === 0 || longestEdge <= configured) {
-      return intake;
-    }
-    const resizedBuffer = await pipeline
-      .resize({
-        width: width >= height ? configured : undefined,
-        height: height > width ? configured : undefined,
-        withoutEnlargement: true,
-        fit: 'inside'
-      })
-      .toBuffer();
-    return {
-      ...intake,
-      label: {
-        ...intake.label,
-        buffer: resizedBuffer
+  const prescaledLabels = await Promise.all(
+    labels.map(async (label) => {
+      if (label.mimeType === 'application/pdf') {
+        return label;
       }
-    };
-  } catch {
-    return intake;
-  }
+
+      try {
+        const pipeline = sharp(label.buffer, { failOn: 'none' });
+        const metadata = await pipeline.metadata();
+        const width = metadata.width ?? 0;
+        const height = metadata.height ?? 0;
+        const longestEdge = Math.max(width, height);
+        if (longestEdge === 0 || longestEdge <= configured) {
+          return label;
+        }
+        const resizedBuffer = await pipeline
+          .resize({
+            width: width >= height ? configured : undefined,
+            height: height > width ? configured : undefined,
+            withoutEnlargement: true,
+            fit: 'inside'
+          })
+          .toBuffer();
+        return {
+          ...label,
+          buffer: resizedBuffer
+        };
+      } catch {
+        return label;
+      }
+    })
+  );
+
+  return {
+    ...intake,
+    label: prescaledLabels[0]!,
+    labels: prescaledLabels
+  };
 }
 
-/**
- * Collect an AsyncGenerator of streamed response chunks into a single
- * flat response that matches the shape of `generateContent`. The Zod
- * schema + guardrails downstream still operate on the full accumulated
- * JSON; streaming here is purely a wire-level transport optimization
- * (and scaffolding for a future progressive-UI surface).
- */
+// Collect streamed Gemini chunks into a flat response that matches
+// `generateContent`. Validation still runs on the full accumulated JSON.
 async function collectStreamedResponse(
   streamPromise: Promise<AsyncGenerator<GenerateContentResult>>,
   onFieldProgress?: (field: { name: string; value: unknown }) => void
@@ -297,20 +285,22 @@ export function buildGeminiReviewExtractionRequest(input: {
       })
     : null;
 
-  const imagePart = {
+  const imageParts = (input.intake.labels.length > 0
+    ? input.intake.labels
+    : [input.intake.label]).map((label) => ({
     inlineData: {
-      mimeType: input.intake.label.mimeType,
-      data: input.intake.label.buffer.toString('base64')
+      mimeType: label.mimeType,
+      data: label.buffer.toString('base64')
     }
-  };
+  }));
 
   // Verification-mode uses a [preImage text, image, postImage text]
   // structure so the numeric re-anchor is the LAST thing the model
   // reads. Standard path sends a single text block before the image.
   const contents = verificationPrompt
-    ? [
+      ? [
         { text: verificationPrompt.preImage },
-        imagePart,
+        ...imageParts,
         { text: verificationPrompt.postImage }
       ]
     : [
@@ -319,7 +309,7 @@ export function buildGeminiReviewExtractionRequest(input: {
             ? buildOcrAugmentedExtractionPrompt({ surface, extractionMode, ocrText })
             : buildReviewExtractionPrompt({ surface, extractionMode })
         },
-        imagePart
+        ...imageParts
       ];
 
   return {
@@ -331,7 +321,7 @@ export function buildGeminiReviewExtractionRequest(input: {
       mediaResolution: toGeminiMediaResolution(
         resolveGeminiMediaResolution({
           configuredMediaResolution: input.config.mediaResolution,
-          mimeType: input.intake.label.mimeType
+          mimeType: (input.intake.labels[0] ?? input.intake.label).mimeType
         })
       ),
       serviceTier: input.config.serviceTier

@@ -10,9 +10,11 @@ import { BatchSessionStore } from './batch-session';
 import { registerBatchRoutes } from './register-batch-routes';
 import { registerEvalRoutes } from './register-eval-routes';
 import {
-  registerReviewRoutes,
   type ExtractorResolver,
   type ResolvedExtractor
+} from './review-route-support';
+import {
+  registerReviewRoutes
 } from './register-review-routes';
 import { type ReviewLatencyObserver } from './review-latency';
 

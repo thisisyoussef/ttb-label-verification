@@ -11,7 +11,7 @@ import {
   readProviderOverrideHeader,
   type ExtractorResolver,
   type ResolvedExtractor
-} from './register-review-routes';
+} from './review-route-support';
 import { logServerEvent } from './server-events';
 
 function setNoStore(response: express.Response) {

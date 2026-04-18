@@ -21,7 +21,7 @@ import { registerAppRoutes } from './register-app-routes';
 import {
   type ExtractorResolver,
   type ResolvedExtractor
-} from './register-review-routes';
+} from './review-route-support';
 import {
   createConsoleReviewLatencyObserver,
   mergeReviewLatencyObservers,

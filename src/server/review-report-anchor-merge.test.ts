@@ -16,13 +16,16 @@ import type { NormalizedReviewIntake } from './review-intake';
 import type { AnchorTrackResult } from './anchor-field-track';
 
 function intake(): NormalizedReviewIntake {
+  const label = {
+    originalName: 'label.png',
+    mimeType: 'image/png',
+    bytes: 8,
+    buffer: Buffer.from([1, 2, 3, 4])
+  };
+
   return {
-    label: {
-      originalName: 'label.png',
-      mimeType: 'image/png',
-      bytes: 8,
-      buffer: Buffer.from([1, 2, 3, 4])
-    },
+    label,
+    labels: [label],
     fields: {
       beverageTypeHint: 'auto',
       origin: 'domestic',

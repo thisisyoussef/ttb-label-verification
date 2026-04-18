@@ -67,6 +67,7 @@ const SEVERITY_RANK: Record<CheckReview['severity'], number> = {
 
 interface ResultsProps {
   image: LabelImage;
+  secondaryImage?: LabelImage | null;
   beverage: BeverageSelection;
   report: UIVerificationReport;
   tourExpandedCheckId?: string | null;
@@ -89,6 +90,7 @@ const TOUR_ROW_EXPAND_DELAY_MS = 220;
 
 export function Results({
   image,
+  secondaryImage = null,
   beverage,
   report,
   tourExpandedCheckId = null,
@@ -242,6 +244,7 @@ export function Results({
     <div className="grid grid-cols-1 md:grid-cols-12 h-[calc(100dvh-var(--header-h))] animate-fade-in motion-reduce:animate-none">
       <ResultsPinnedColumn
         image={image}
+        secondaryImage={secondaryImage}
         beverage={beverage}
         detectedBeverage={
           report.beverageType === 'unknown' ? undefined : report.beverageType

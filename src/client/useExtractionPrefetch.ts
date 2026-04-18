@@ -22,7 +22,11 @@ export interface ExtractionPrefetchHandle {
   /** Cache key returned by the server; pass this to submitReview. */
   cacheKey: string | null;
   /** Fire a prefetch for the given image. Aborts any in-flight call. */
-  start: (image: LabelImage, beverage: BeverageSelection) => void;
+  start: (
+    image: LabelImage,
+    secondaryImage: LabelImage | null,
+    beverage: BeverageSelection
+  ) => void;
   /** Abort and clear the cached key. Called on image change / reset. */
   reset: () => void;
 }
@@ -47,7 +51,7 @@ export function useExtractionPrefetch(options: {
   }, []);
 
   const start = useCallback<ExtractionPrefetchHandle['start']>(
-    (image, beverage) => {
+    (image, secondaryImage, beverage) => {
       if (!enabled) return;
       abortRef.current?.abort();
       const controller = new AbortController();
@@ -56,6 +60,7 @@ export function useExtractionPrefetch(options: {
 
       prefetchExtraction({
         image,
+        secondaryImage,
         beverage,
         signal: controller.signal
       })

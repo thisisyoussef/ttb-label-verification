@@ -46,6 +46,7 @@ export function buildBatchCsvModel(
       id: row.id,
       rowIndex: row.rowIndex,
       filenameHint: row.filenameHint,
+      secondaryFilenameHint: row.secondaryFilenameHint,
       brandName: row.brandName,
       classType: row.classType
     }))
@@ -58,6 +59,14 @@ export function buildBatchMatchingState(input: {
 }): BatchMatchingState {
   const imagesById = new Map(input.images.map((image) => [image.id, image]));
   const rowsById = new Map(input.preflight.csvRows.map((row) => [row.id, row]));
+  const toClientRow = (row: (typeof input.preflight.csvRows)[number]) => ({
+    id: row.id,
+    rowIndex: row.rowIndex,
+    filenameHint: row.filenameHint,
+    secondaryFilenameHint: row.secondaryFilenameHint,
+    brandName: row.brandName,
+    classType: row.classType
+  });
 
   return {
     matched: input.preflight.matching.matched
@@ -69,13 +78,10 @@ export function buildBatchMatchingState(input: {
 
         return {
           image,
-          row: {
-            id: entry.row.id,
-            rowIndex: entry.row.rowIndex,
-            filenameHint: entry.row.filenameHint,
-            brandName: entry.row.brandName,
-            classType: entry.row.classType
-          },
+          secondaryImage: entry.secondaryImageId
+            ? imagesById.get(entry.secondaryImageId) ?? null
+            : null,
+          row: toClientRow(entry.row),
           source: entry.source
         };
       })
@@ -89,13 +95,7 @@ export function buildBatchMatchingState(input: {
 
         return {
           image,
-          candidates: entry.candidates.map((row) => ({
-            id: row.id,
-            rowIndex: row.rowIndex,
-            filenameHint: row.filenameHint,
-            brandName: row.brandName,
-            classType: row.classType
-          })),
+          candidates: entry.candidates.map(toClientRow),
           chosenRowId: null,
           dropped: false
         };
@@ -115,13 +115,7 @@ export function buildBatchMatchingState(input: {
         (row): row is NonNullable<(typeof input.preflight.csvRows)[number]> => row !== undefined
       )
       .map((row) => ({
-        row: {
-          id: row.id,
-          rowIndex: row.rowIndex,
-          filenameHint: row.filenameHint,
-          brandName: row.brandName,
-          classType: row.classType
-        },
+        row: toClientRow(row),
         pairedImageId: null,
         dropped: false
       }))
@@ -172,12 +166,21 @@ export function buildStreamItem(input: {
   images: BatchLabelImage[];
 }): BatchStreamItem {
   const image = input.images.find((candidate) => candidate.id === input.frame.imageId);
+  const secondaryImage =
+    input.frame.secondaryImageId
+      ? input.images.find((candidate) => candidate.id === input.frame.secondaryImageId)
+      : undefined;
   return {
     id: input.frame.imageId,
     filename: input.frame.filename,
     identity: input.frame.identity,
     previewUrl: image?.previewUrl ?? null,
     isPdf: image?.isPdf ?? input.frame.filename.toLowerCase().endsWith('.pdf'),
+    secondaryImageId: input.frame.secondaryImageId ?? null,
+    secondaryFilename: secondaryImage?.filename ?? null,
+    secondaryPreviewUrl: secondaryImage?.previewUrl ?? null,
+    secondaryIsPdf: secondaryImage?.isPdf ?? null,
+    secondarySizeLabel: secondaryImage?.sizeLabel ?? null,
     status: input.frame.status,
     errorMessage: input.frame.errorMessage,
     retryKey: 0
@@ -189,11 +192,16 @@ function overlayDashboardRow(
   imagesById: Map<string, BatchLabelImage>
 ): BatchDashboardRow {
   const image = imagesById.get(row.imageId);
+  const secondaryImage =
+    row.secondaryImageId ? imagesById.get(row.secondaryImageId) : undefined;
   return {
     ...row,
     previewUrl: image?.previewUrl ?? row.previewUrl,
     isPdf: image?.isPdf ?? row.isPdf,
     sizeLabel: image?.sizeLabel ?? row.sizeLabel,
+    secondaryPreviewUrl: secondaryImage?.previewUrl ?? row.secondaryPreviewUrl,
+    secondaryIsPdf: secondaryImage?.isPdf ?? row.secondaryIsPdf,
+    secondarySizeLabel: secondaryImage?.sizeLabel ?? row.secondarySizeLabel,
     scenarioId: undefined
   };
 }

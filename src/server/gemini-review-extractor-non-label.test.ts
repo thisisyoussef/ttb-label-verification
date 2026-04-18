@@ -6,15 +6,18 @@ import type { NormalizedReviewIntake } from './review-intake';
 function buildIntake(
   overrides: Partial<NormalizedReviewIntake> = {}
 ): NormalizedReviewIntake {
-  const label = {
+  const defaultLabel = {
     originalName: 'artwork.png',
     mimeType: 'image/png',
     bytes: 4,
     buffer: Buffer.from([1, 2, 3, 4])
   };
+  const label = overrides.label ?? defaultLabel;
+  const labels = overrides.labels ?? [label];
 
   return {
     label,
+    labels,
     fields: {
       beverageTypeHint: 'auto',
       origin: 'domestic',

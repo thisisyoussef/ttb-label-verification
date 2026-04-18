@@ -32,3 +32,4 @@
 - Explicit local-mode selection stays local-only; no silent cloud escape hatch once the user picks `local`
 - Latency instrumentation stays privacy-safe: no raw prompt or input logging, no raw filenames, and no durable timing artifacts that contain user content
 - Low-confidence visual judgments downgrade to `review`
+- `TTB-304` extends the review intake contract from a single uploaded label to an ordered primary-plus-optional-secondary label set while preserving the legacy `label` field as the primary alias for downstream callers.

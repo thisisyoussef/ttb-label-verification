@@ -66,7 +66,10 @@ export function cloneSeed(seed: SeedBatch): SeedBatch {
       : null,
     fileErrors: seed.fileErrors.map((entry) => ({ ...entry })),
     matching: {
-      matched: seed.matching.matched.map((entry) => ({ ...entry })),
+      matched: seed.matching.matched.map((entry) => ({
+        ...entry,
+        secondaryImage: entry.secondaryImage ? { ...entry.secondaryImage } : null
+      })),
       ambiguous: seed.matching.ambiguous.map((entry) => ({
         ...entry,
         candidates: entry.candidates.map((candidate) => ({ ...candidate }))

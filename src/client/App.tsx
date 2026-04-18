@@ -4,9 +4,6 @@ import { AssessorToolbench } from './toolbench/AssessorToolbench';
 import { EvalDemo } from './EvalDemo';
 // (scenarioImageLoader import removed — scenario panel retired; the
 // toolbench now loads real COLA Cloud samples via /api/eval/sample.)
-import type { LabelImage, OriginChoice } from './types';
-import type { SampleFields } from './toolbench/ToolbenchSamples';
-import { formatFileSize } from '../shared/batch-file-meta';
 import { AuthScreen } from './AuthScreen';
 import {
   advanceAuthPhase,
@@ -29,9 +26,9 @@ import type { HelpShowMe, TourStep } from './helpManifest';
 import { seedScenarios } from './scenarios';
 import { useBatchWorkflow } from './useBatchWorkflow';
 import { useHelpTourState } from './useHelpTourState';
+import { useAppToolbench } from './useAppToolbench';
 import { useSingleReviewFlow } from './useSingleReviewFlow';
 import { fixturesEnabled } from './review-runtime';
-import { resolveToolbenchAssetRoute } from './toolbenchRouteState';
 
 function readInitialPathname(): string {
   if (typeof window === 'undefined') return '/';
@@ -86,6 +83,20 @@ export function App() {
     setView
   });
   const help = useHelpTourState();
+  const {
+    handleToolbenchLoadBatch,
+    handleToolbenchLoadCsv,
+    handleToolbenchLoadImage,
+    handleToolbenchLoadSample,
+    handleToolbenchReset,
+    handleToolbenchSwitchMode
+  } = useAppToolbench({
+    mode,
+    setMode,
+    setView,
+    single,
+    batch
+  });
 
   const resolveScenario = useCallback(
     (scenarioId?: string) => {
@@ -270,113 +281,6 @@ export function App() {
     setView('intake');
     help.onFinishTour();
   }, [batch, help, single]);
-
-  const handleToolbenchLoadImage = useCallback(
-    (file: File) => {
-      const route = resolveToolbenchAssetRoute({ mode, kind: 'image' });
-
-      if (route === 'batch-image') {
-        batch.onSelectLiveImages([file]);
-        return;
-      }
-
-      const labelImage: LabelImage = {
-        file,
-        previewUrl: URL.createObjectURL(file),
-        sizeLabel: formatFileSize(file.size)
-      };
-      single.onImageChange(labelImage);
-      if (mode !== 'single') {
-        batch.onSelectMode('single', mode);
-      }
-    },
-    [batch, mode, single]
-  );
-
-  const handleToolbenchLoadCsv = useCallback(
-    (file: File) => {
-      const route = resolveToolbenchAssetRoute({ mode, kind: 'csv' });
-
-      if (route === 'batch-csv') {
-        batch.onSelectLiveCsv(file);
-        if (mode !== 'batch') {
-          batch.onSelectMode('batch', mode);
-        }
-      }
-    },
-    [batch, mode]
-  );
-
-  const handleToolbenchReset = useCallback(() => {
-    single.reset();
-    batch.reset();
-    setMode('single');
-    setView('intake');
-  }, [batch, single]);
-
-  const handleToolbenchSwitchMode = useCallback((next: Mode) => {
-    setMode(next);
-    setView(next === 'batch' ? 'batch-intake' : 'intake');
-  }, []);
-
-  // Load a 10-label batch pack from the toolbench — images go into the
-  // batch image intake, CSV into the batch CSV intake, and we route the
-  // user to the batch view so they can see the preflight/matching
-  // screen populated out of the box.
-  const handleToolbenchLoadBatch = useCallback(
-    (images: File[], csv: File) => {
-      // Atomic load: images + csv staged together with a single reset.
-      // Separate onSelectLiveImages + onSelectLiveCsv calls each reset
-      // the seed independently when fixture mode is active, so the
-      // second call wipes the first — which is why the old flow took
-      // two clicks before the preflight fired.
-      batch.onLoadLiveBatch(images, csv);
-      if (mode !== 'batch') {
-        batch.onSelectMode('batch', mode);
-      }
-      setView('batch-intake');
-    },
-    [batch, mode, setView]
-  );
-
-  // One-click COLA sample loader: populates both image and application
-  // fields from a real TTB-approved COLA record. The image fetch +
-  // field payload are handled by ToolbenchSamples and handed to us here.
-  const handleToolbenchLoadSample = useCallback(
-    (file: File, fields: SampleFields, _imageId: string) => {
-      const labelImage: LabelImage = {
-        file,
-        previewUrl: URL.createObjectURL(file),
-        sizeLabel: formatFileSize(file.size)
-      };
-      single.onImageChange(labelImage);
-      // Pack the SampleFields into the IntakeFields shape. SampleFields
-      // strings map 1:1 onto the typed form, except 'origin' needs to
-      // narrow to the OriginChoice union — default to 'domestic' if the
-      // CSV value is blank or unrecognized.
-      const origin: OriginChoice = fields.origin === 'imported' ? 'imported' : 'domestic';
-      single.setFields({
-        brandName: fields.brandName,
-        fancifulName: fields.fancifulName,
-        classType: fields.classType,
-        alcoholContent: fields.alcoholContent,
-        netContents: fields.netContents,
-        applicantAddress: fields.applicantAddress,
-        origin,
-        country: fields.country,
-        formulaId: fields.formulaId,
-        appellation: fields.appellation,
-        vintage: fields.vintage,
-        varietals: []
-      });
-      // Force single-label mode on sample load.
-      if (mode !== 'single') {
-        batch.onSelectMode('single', mode);
-      }
-      setView('intake');
-    },
-    [batch, mode, setView, single]
-  );
 
   const performSignOut = useCallback(() => {
     setExtractionMode('local');

@@ -95,7 +95,35 @@ describe('review intake normalization', () => {
     expect(request.label.bytes).toBe(MAX_LABEL_UPLOAD_BYTES);
     expect(request.label.mimeType).toBe('image/png');
     expect(request.label).not.toHaveProperty('path');
+    expect(request.labels).toHaveLength(1);
+    expect(request.labels[0]?.originalName).toBe('label.png');
     expect(request.standalone).toBe(true);
+  });
+
+  it('keeps an optional second uploaded image while preserving the primary label alias', () => {
+    const parsed = parseOptionalReviewFields(undefined);
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) {
+      throw new Error('Expected fields parsing to succeed.');
+    }
+
+    const request = createNormalizedReviewIntake({
+      files: [
+        buildUploadedLabel({
+          originalname: 'front.png',
+          buffer: Buffer.from([1, 2, 3, 4])
+        }),
+        buildUploadedLabel({
+          originalname: 'back.png',
+          buffer: Buffer.from([5, 6, 7, 8])
+        })
+      ],
+      fields: parsed.value
+    });
+
+    expect(request.label.originalName).toBe('front.png');
+    expect(request.labels).toHaveLength(2);
+    expect(request.labels[1]?.originalName).toBe('back.png');
   });
 
   it('rejects malformed JSON before normalization', () => {

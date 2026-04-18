@@ -36,6 +36,7 @@ export interface OcrPreviewHandle {
   /** Start the preview call. Cancels any in-flight call. */
   start: (input: {
     image: LabelImage;
+    secondaryImage?: LabelImage | null;
     beverage: BeverageSelection;
     fields: IntakeFields;
   }) => void;
@@ -72,6 +73,7 @@ export function useOcrPreview(options: { enabled?: boolean } = {}): OcrPreviewHa
 
       streamReview({
         image: input.image,
+        secondaryImage: input.secondaryImage,
         beverage: input.beverage,
         fields: input.fields,
         signal: controller.signal,

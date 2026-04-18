@@ -154,9 +154,9 @@ export function buildReviewExtractionRequest(input: {
   // numeric re-anchor is the last thing the model reads. Standard
   // path: [text, image].
   const content = verificationPrompt
-    ? [
+      ? [
         { type: 'input_text' as const, text: verificationPrompt.preImage },
-        imageContent,
+        ...imageContent,
         { type: 'input_text' as const, text: verificationPrompt.postImage }
       ]
     : [
@@ -166,7 +166,7 @@ export function buildReviewExtractionRequest(input: {
             ? buildOcrAugmentedExtractionPrompt({ surface, extractionMode, ocrText })
             : buildReviewExtractionPrompt({ surface, extractionMode })
         },
-        imageContent
+        ...imageContent
       ];
 
   return {
@@ -320,20 +320,26 @@ function buildLabelInputContent(input: {
   intake: NormalizedReviewIntake;
   config: ReviewExtractionConfig;
 }) {
-  const base64Data = input.intake.label.buffer.toString('base64');
+  const labels = input.intake.labels.length > 0
+    ? input.intake.labels
+    : [input.intake.label];
 
-  if (input.intake.label.mimeType === 'application/pdf') {
+  return labels.map((label) => {
+    const base64Data = label.buffer.toString('base64');
+
+    if (label.mimeType === 'application/pdf') {
+      return {
+        type: 'input_file' as const,
+        filename: label.originalName,
+        file_data: `data:${label.mimeType};base64,${base64Data}`
+      };
+    }
     return {
-      type: 'input_file' as const,
-      filename: input.intake.label.originalName,
-      file_data: `data:${input.intake.label.mimeType};base64,${base64Data}`
+      type: 'input_image' as const,
+      detail: input.config.imageDetail ?? 'auto',
+      image_url: `data:${label.mimeType};base64,${base64Data}`
     };
-  }
-  return {
-    type: 'input_image' as const,
-    detail: input.config.imageDetail ?? 'auto',
-    image_url: `data:${input.intake.label.mimeType};base64,${base64Data}`
-  };
+  });
 }
 
 function readOpenAiImageDetail(

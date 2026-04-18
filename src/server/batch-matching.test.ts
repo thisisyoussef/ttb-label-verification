@@ -8,12 +8,14 @@ function csvRow(
   rowIndex: number,
   filenameHint: string,
   brandName: string,
-  classType: string
+  classType: string,
+  secondaryFilenameHint = ''
 ): ParsedBatchCsvRow {
   return {
     id,
     rowIndex,
     filenameHint,
+    secondaryFilenameHint,
     brandName,
     classType,
     beverageType: 'distilled-spirits',
@@ -51,11 +53,13 @@ describe('batch matching', () => {
     expect(matching.matched).toEqual([
       {
         imageId: 'image-1',
+        secondaryImageId: null,
         row: expect.objectContaining({ id: 'row-1' }),
         source: 'filename'
       },
       {
         imageId: 'image-2',
+        secondaryImageId: null,
         row: expect.objectContaining({ id: 'row-2' }),
         source: 'order'
       }
@@ -97,6 +101,7 @@ describe('batch matching', () => {
     expect(matching.matched).toEqual([
       {
         imageId: 'image-1',
+        secondaryImageId: null,
         row: expect.objectContaining({ id: 'row-1' }),
         source: 'order'
       }
@@ -118,6 +123,7 @@ describe('batch matching', () => {
     expect(matching.matched).toEqual([
       {
         imageId: 'image-1',
+        secondaryImageId: null,
         row: expect.objectContaining({ id: 'row-1' }),
         source: 'order'
       }
@@ -142,11 +148,13 @@ describe('batch matching', () => {
     expect(matching.matched).toEqual([
       {
         imageId: 'image-1',
+        secondaryImageId: null,
         row: expect.objectContaining({ id: 'row-1' }),
         source: 'order'
       },
       {
         imageId: 'image-2',
+        secondaryImageId: null,
         row: expect.objectContaining({ id: 'row-2' }),
         source: 'order'
       }
@@ -191,11 +199,45 @@ describe('batch matching', () => {
     expect(matching.matched).toEqual([
       {
         imageId: 'image-1',
+        secondaryImageId: null,
         row: expect.objectContaining({ id: 'row-1' }),
         source: 'order'
       }
     ]);
     expect(matching.ambiguous).toEqual([]);
+    expect(matching.unmatchedImageIds).toEqual([]);
+    expect(matching.unmatchedRowIds).toEqual([]);
+  });
+
+  it('auto-matches an optional secondary image and excludes it from unmatched images', () => {
+    const matching = buildBatchMatching({
+      images: [
+        { id: 'image-front', filename: 'old-oak-front.jpg' },
+        { id: 'image-back', filename: 'old-oak-back.jpg' }
+      ],
+      rows: [
+        csvRow(
+          'row-1',
+          1,
+          'old-oak-front.jpg',
+          'Old Oak Bourbon',
+          'Kentucky Straight Bourbon',
+          'old-oak-back.jpg'
+        )
+      ]
+    });
+
+    expect(matching.matched).toEqual([
+      {
+        imageId: 'image-front',
+        secondaryImageId: 'image-back',
+        row: expect.objectContaining({
+          id: 'row-1',
+          secondaryFilenameHint: 'old-oak-back.jpg'
+        }),
+        source: 'filename'
+      }
+    ]);
     expect(matching.unmatchedImageIds).toEqual([]);
     expect(matching.unmatchedRowIds).toEqual([]);
   });

@@ -119,6 +119,11 @@ function TriageRow({
           className="text-left min-w-0 hover:underline"
         >
           <p className="font-mono text-sm text-on-surface truncate">{row.filename}</p>
+          {row.secondaryFilename ? (
+            <p className="font-mono text-xs text-on-surface-variant truncate">
+              + {row.secondaryFilename}
+            </p>
+          ) : null}
           <p className="text-xs text-on-surface-variant truncate">
             {row.brandName} · {row.classType}
           </p>
@@ -158,13 +163,44 @@ function TriageRow({
 
 function RowThumb({ row }: { row: BatchDashboardRow }) {
   return (
-    <div className="w-16 h-[84px] rounded border border-outline-variant/20 bg-surface-container-highest flex items-center justify-center overflow-hidden">
-      {row.isPdf ? (
+    <div className="relative w-16 h-[84px]">
+      <ThumbFace
+        filename={row.filename}
+        previewUrl={row.previewUrl}
+        isPdf={row.isPdf}
+        className="absolute inset-0 rounded border border-outline-variant/20 bg-surface-container-highest flex items-center justify-center overflow-hidden"
+      />
+      {row.secondaryImageId ? (
+        <ThumbFace
+          filename={row.secondaryFilename ?? 'secondary label'}
+          previewUrl={row.secondaryPreviewUrl ?? null}
+          isPdf={row.secondaryIsPdf ?? false}
+          className="absolute -bottom-1 -right-1 w-8 h-10 rounded border border-outline-variant/20 bg-surface-container-lowest flex items-center justify-center overflow-hidden shadow-ambient"
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function ThumbFace({
+  filename,
+  previewUrl,
+  isPdf,
+  className
+}: {
+  filename: string;
+  previewUrl: string | null;
+  isPdf: boolean;
+  className: string;
+}) {
+  return (
+    <div className={className}>
+      {isPdf ? (
         <span aria-hidden="true" className="material-symbols-outlined text-[22px] text-on-surface-variant">
           picture_as_pdf
         </span>
-      ) : row.previewUrl ? (
-        <img src={row.previewUrl} alt={`Preview of ${row.filename}`} className="w-full h-full object-cover" />
+      ) : previewUrl ? (
+        <img src={previewUrl} alt={`Preview of ${filename}`} className="w-full h-full object-cover" />
       ) : (
         <span aria-hidden="true" className="material-symbols-outlined text-[22px] text-on-surface-variant">
           image

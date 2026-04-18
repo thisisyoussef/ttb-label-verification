@@ -40,3 +40,4 @@
 - `.ai/workflows/story-lookup.md` and `docs/process/CODEX_CHECKLIST.md` require an explicit blast-radius map before implementation.
 - `docs/process/DEPLOYMENT_FLOW.md` is the canonical post-story deploy procedure.
 - `evals/` stores the required label corpus and run records.
+- For additive upload surfaces, keep the existing primary field stable and thread any new ordered collection (`labels`) through server normalization, client flow state, batch helpers, and extractor adapters together so prefetch keys and result galleries stay aligned.

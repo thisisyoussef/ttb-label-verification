@@ -29,7 +29,7 @@ const TOUR_STEPS: TourStep[] = [
     totalSteps: 8,
     title: 'Drop a label image',
     body:
-      "Reviewers drop a label image (JPEG, PNG, WEBP, or PDF) into this area. For the tour, we've loaded a sample spirits label.",
+      "Reviewers drop one or two label images (JPEG, PNG, WEBP, or PDF) into this area. For the tour, we've loaded a sample spirits label.",
     target: 'tour-drop-zone',
     requires: { mode: 'single', view: 'intake' },
     showMe: {
@@ -118,7 +118,7 @@ const INFO_POPOVERS: InfoPopover[] = [
     anchorKey: 'batch-matching-logic',
     title: 'How matching works',
     body:
-      'We try to match each image to a CSV row using the filename column first. If a row has no filename, we fall back to row order. Ambiguous matches and unmatched items appear below so you can fix them before starting.'
+      'We try to match each image to a CSV row using the filename column first. Add `secondary_filename` when a row has an optional second label. If a row has no filename, we fall back to row order. Ambiguous matches and unmatched items appear below so you can fix them before starting.'
   },
   {
     anchorKey: 'no-persistence',

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   buildLowQualityCautionReport,
@@ -11,90 +11,44 @@ import { DEFAULT_FAILURE_MESSAGE } from './reviewFailureMessage';
 import { logReviewClientEvent } from './review-observability';
 import { resolveResultReport } from './review-runtime';
 import type { SeedScenario } from './scenarios';
+import {
+  cloneScenarioFields,
+  REVIEW_VARIANT_OPTIONS,
+  type SingleReviewFlow
+} from './singleReviewFlowSupport';
 import { exportReviewResults } from './single-review-export';
 import type {
   BeverageSelection,
   IntakeFields,
   LabelImage,
-  ProcessingPhase,
-  ProcessingStep,
   ResultVariantOverride,
-  UIVerificationReport
 } from './types';
-import {
-  type ReviewPipelineEvent,
-  useSingleReviewPipeline
-} from './useSingleReviewPipeline';
+import type { ReviewPipelineEvent } from './reviewPipelineEvents';
+import { useSingleReviewPipeline } from './useSingleReviewPipeline';
 import { useSpeculativePrefetch } from './useSpeculativePrefetch';
-import { useOcrPreview, type OcrPreviewFields } from './useOcrPreview';
+import { useOcrPreview } from './useOcrPreview';
 import { useExtractionPrefetch } from './useExtractionPrefetch';
 import {
   hasRefinableRows,
   mergeRefinedReport,
-  useRefineReview,
-  type RefineStatus
+  useRefineReview
 } from './useRefineReview';
 
-export interface SingleReviewFlow {
-  image: LabelImage | null;
-  beverage: BeverageSelection;
-  fields: IntakeFields;
-  scenarioId: string;
-  forceFailure: boolean;
-  variantOverride: ResultVariantOverride;
-  steps: ProcessingStep[];
-  phase: ProcessingPhase;
-  failureMessage: string;
-  report: UIVerificationReport | null;
-  /**
-   * OCR-only preview (ABV, net contents, class, country, warning-present)
-   * populated ~500ms into the Processing phase by a parallel low-cost
-   * server call. `null` until the preview frame lands or when running
-   * fixture/tour scenarios that bypass the live pipeline.
-   */
-  ocrPreview: OcrPreviewFields | null;
-  /**
-   * Refine-pass status (Option C). Fires after Results render when
-   * any identifier field is in 'review' status. UI uses this to show
-   * a subtle row-level "refining…" indicator.
-   */
-  refineStatus: RefineStatus;
-  variantOptions: Array<{ value: ResultVariantOverride; label: string }>;
-  setBeverage: (value: BeverageSelection) => void;
-  setFields: (value: IntakeFields) => void;
-  setForceFailure: (value: boolean) => void;
-  setVariantOverride: (value: ResultVariantOverride) => void;
-  onVerify: () => void;
-  onCancel: () => void;
-  onBackToIntake: () => void;
-  onRetry: () => void;
-  onImageChange: (next: LabelImage | null) => void;
-  onClear: () => void;
-  onSelectScenario: (scenario: SeedScenario) => void;
-  onLoadTourScenario: (scenario: SeedScenario) => void;
-  onShowTourResults: (
-    scenario: SeedScenario,
-    variant?: ResultVariantOverride
-  ) => void;
-  onNewReview: () => void;
-  onRunFullComparison: () => void;
-  onTryAnotherImage: () => void;
-  onContinueWithCaution: () => void;
-  onExportResults: () => void;
-  reset: () => void;
-}
+export type { SingleReviewFlow } from './singleReviewFlowSupport';
 
 export function useSingleReviewFlow(options: {
   fixtureControlsEnabled: boolean;
   setView: (view: View) => void;
 }): SingleReviewFlow {
   const [image, setImage] = useState<LabelImage | null>(null);
+  const [secondaryImage, setSecondaryImage] = useState<LabelImage | null>(null);
   const [beverage, setBeverage] = useState<BeverageSelection>('auto');
   const [fieldsState, setFieldsState] = useState<IntakeFields>(emptyIntake);
   const [scenarioId, setScenarioId] = useState<string>('blank');
   const [forceFailure, setForceFailure] = useState<boolean>(false);
   const [variantOverride, setVariantOverride] = useState<ResultVariantOverride>('auto');
   const imageRef = useRef<LabelImage | null>(null);
+  const secondaryImageRef = useRef<LabelImage | null>(null);
   const reviewTraceIdRef = useRef<string | null>(null);
 
   const useFixtureReport = options.fixtureControlsEnabled && scenarioId !== 'blank';
@@ -105,21 +59,18 @@ export function useSingleReviewFlow(options: {
     }
   }, []);
 
-  const cloneScenarioFields = useCallback(
-    (scenario: SeedScenario): IntakeFields => ({
-      ...scenario.fields,
-      varietals: scenario.fields.varietals.map((row) => ({ ...row }))
-    }),
-    []
-  );
-
   useEffect(() => {
     imageRef.current = image;
   }, [image]);
 
   useEffect(() => {
+    secondaryImageRef.current = secondaryImage;
+  }, [secondaryImage]);
+
+  useEffect(() => {
     return () => {
       revokeImage(imageRef.current);
+      revokeImage(secondaryImageRef.current);
     };
   }, [revokeImage]);
 
@@ -153,6 +104,7 @@ export function useSingleReviewFlow(options: {
     resetPipelineState
   } = useSingleReviewPipeline({
     image,
+    secondaryImage,
     beverage,
     fields: fieldsState,
     scenarioId,
@@ -174,6 +126,7 @@ export function useSingleReviewFlow(options: {
   const prefetch = useSpeculativePrefetch({
     enabled: speculativePrefetchEnabled,
     image,
+    secondaryImage,
     beverage,
     fields: fieldsState,
     forceFailure
@@ -202,6 +155,19 @@ export function useSingleReviewFlow(options: {
     extractionPrefetchRef.current = extractionPrefetch.cacheKey;
   }, [extractionPrefetch.cacheKey]);
 
+  const refreshImagePrefetch = useCallback(
+    (primary: LabelImage | null, secondary: LabelImage | null) => {
+      prefetch.clearPrefetch();
+      if (!primary) {
+        extractionPrefetch.reset();
+        return;
+      }
+
+      extractionPrefetch.start(primary, secondary, beverage);
+    },
+    [beverage, extractionPrefetch, prefetch]
+  );
+
   // Row-level refine (Option C). Fires after Results render when any
   // identifier row is in 'review' status on a LIVE review (not a tour
   // demo, not a fixture). Runs the pipeline again with
@@ -223,7 +189,7 @@ export function useSingleReviewFlow(options: {
       !image.demoScenarioId &&
       hasRefinableRows(report)
     ) {
-      refine.start({ image, beverage, fields: fieldsState });
+      refine.start({ image, secondaryImage, beverage, fields: fieldsState });
     }
     // Fire once per (report, image) pair. refine identity is stable via useRefineReview.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -245,7 +211,9 @@ export function useSingleReviewFlow(options: {
     refine.reset();
     reviewTraceIdRef.current = null;
     revokeImage(imageRef.current);
+    revokeImage(secondaryImageRef.current);
     setImage(null);
+    setSecondaryImage(null);
     setFieldsState(emptyIntake());
     setBeverage('auto');
     setScenarioId('blank');
@@ -255,23 +223,13 @@ export function useSingleReviewFlow(options: {
     resetPipelineState();
   }, [abandonInFlightReview, extractionPrefetch, ocrPreview, prefetch, refine, resetPipelineState, revokeImage, setReport]);
 
-  const variantOptions = useMemo(
-    () =>
-      [
-        { value: 'auto', label: 'Auto (by scenario)' },
-        { value: 'standalone', label: 'Standalone (no app data)' },
-        { value: 'no-text-extracted', label: 'No-text-extracted' }
-      ] as Array<{ value: ResultVariantOverride; label: string }>,
-    []
-  );
-
   const applyScenario = useCallback(
     (scenario: SeedScenario) => {
       setScenarioId(scenario.id);
       setBeverage(scenario.beverageType);
       setFieldsState(cloneScenarioFields(scenario));
     },
-    [cloneScenarioFields]
+    []
   );
 
   const loadTourScenario = useCallback(
@@ -286,6 +244,7 @@ export function useSingleReviewFlow(options: {
       // it resolves. The intake renders fields + a loading state for
       // the image between.
       setImage(null);
+      setSecondaryImage(null);
       setReport(null);
       setVariantOverride('auto');
       setForceFailure(false);
@@ -328,6 +287,7 @@ export function useSingleReviewFlow(options: {
       });
 
       setImage(demoImage);
+      setSecondaryImage(null);
       setVariantOverride(variant);
       setForceFailure(false);
       setFailureMessage(DEFAULT_FAILURE_MESSAGE);
@@ -348,7 +308,6 @@ export function useSingleReviewFlow(options: {
     [
       abandonInFlightReview,
       applyScenario,
-      cloneScenarioFields,
       options,
       resetPipelineState,
       revokeImage,
@@ -360,6 +319,7 @@ export function useSingleReviewFlow(options: {
 
   return {
     image,
+    secondaryImage,
     beverage,
     fields: fieldsState,
     scenarioId,
@@ -371,14 +331,19 @@ export function useSingleReviewFlow(options: {
     report,
     ocrPreview: ocrPreview.preview,
     refineStatus: refine.status,
-    variantOptions,
+    variantOptions: REVIEW_VARIANT_OPTIONS,
     setBeverage,
     setFields: setFieldsState,
     setForceFailure,
     setVariantOverride,
     onVerify: () => {
       if (speculativePrefetchEnabled && image && !forceFailure) {
-        const hit = prefetch.consumeCacheHit(image, beverage, fieldsState);
+        const hit = prefetch.consumeCacheHit(
+          image,
+          secondaryImage,
+          beverage,
+          fieldsState
+        );
         if (hit) {
           startReviewFromPrefetch(hit.report);
           return;
@@ -388,7 +353,12 @@ export function useSingleReviewFlow(options: {
       // so Processing screen gets partial fields in ~500ms. Preview
       // failures are silent — the canonical pipeline still runs.
       if (ocrPreviewEnabled && image && !forceFailure) {
-        ocrPreview.start({ image, beverage, fields: fieldsState });
+        ocrPreview.start({
+          image,
+          secondaryImage,
+          beverage,
+          fields: fieldsState
+        });
       }
       void startReview(forceFailure);
     },
@@ -414,14 +384,11 @@ export function useSingleReviewFlow(options: {
     onImageChange: (next) => {
       revokeImage(image);
       if (!next) {
-        prefetch.clearPrefetch();
-        extractionPrefetch.reset();
+        revokeImage(secondaryImage);
+        setSecondaryImage(null);
+        refreshImagePrefetch(null, null);
       } else {
-        // Image-first prefetch: fire the server extract-only as soon
-        // as the user picks a file. The ~5s VLM call runs during the
-        // form-filling window; Verify then hits the cache and returns
-        // sub-second.
-        extractionPrefetch.start(next, beverage);
+        refreshImagePrefetch(next, secondaryImage);
       }
       logReviewClientEvent('review.intake.image-selected', {
         scenarioId,
@@ -432,14 +399,49 @@ export function useSingleReviewFlow(options: {
       });
       setImage(next);
     },
+    onSecondaryImageChange: (next) => {
+      revokeImage(secondaryImage);
+      const nextSecondary = image ? next : null;
+      refreshImagePrefetch(image, nextSecondary);
+      logReviewClientEvent('review.intake.secondary-image-selected', {
+        scenarioId,
+        filename: nextSecondary?.file.name ?? null,
+        labelBytes: nextSecondary?.file.size ?? null,
+        labelMimeType: nextSecondary?.file.type ?? null,
+        demoScenarioId: nextSecondary?.demoScenarioId ?? null
+      });
+      setSecondaryImage(nextSecondary);
+    },
+    onImagesChange: (primary, secondary = null) => {
+      const nextSecondary = primary ? secondary : null;
+      if (image && image !== primary && image !== nextSecondary) {
+        revokeImage(image);
+      }
+      if (
+        secondaryImage &&
+        secondaryImage !== primary &&
+        secondaryImage !== nextSecondary
+      ) {
+        revokeImage(secondaryImage);
+      }
+      refreshImagePrefetch(primary, nextSecondary);
+      setImage(primary);
+      setSecondaryImage(nextSecondary);
+      logReviewClientEvent('review.intake.images-selected', {
+        scenarioId,
+        primaryFilename: primary?.file.name ?? null,
+        secondaryFilename: nextSecondary?.file.name ?? null
+      });
+    },
     onClear: () => {
       revokeImage(image);
-      prefetch.clearPrefetch();
-      extractionPrefetch.reset();
+      revokeImage(secondaryImage);
+      refreshImagePrefetch(null, null);
       logReviewClientEvent('review.intake.cleared', {
         scenarioId
       });
       setImage(null);
+      setSecondaryImage(null);
       setFieldsState(emptyIntake());
       setBeverage('auto');
       setScenarioId('blank');
@@ -461,7 +463,9 @@ export function useSingleReviewFlow(options: {
     },
     onTryAnotherImage: () => {
       revokeImage(image);
+      revokeImage(secondaryImage);
       setImage(null);
+      setSecondaryImage(null);
       setVariantOverride('auto');
       setReport(null);
       options.setView('intake');

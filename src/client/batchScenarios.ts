@@ -43,9 +43,17 @@ function csvRow(
   rowIndex: number,
   filenameHint: string,
   brandName: string,
-  classType: string
+  classType: string,
+  secondaryFilenameHint = ''
 ): BatchCsvRow {
-  return { id, rowIndex, filenameHint, brandName, classType };
+  return {
+    id,
+    rowIndex,
+    filenameHint,
+    secondaryFilenameHint,
+    brandName,
+    classType
+  };
 }
 
 export interface SeedBatch {
@@ -96,6 +104,7 @@ const ROWS_SIX: BatchCsvRow[] = [
 function seedCleanSix(): SeedBatch {
   const matched: BatchMatchedPair[] = IMAGES_SIX.map((image, index) => ({
     image,
+    secondaryImage: null,
     row: ROWS_SIX[index]!,
     source: 'filename'
   }));
@@ -156,9 +165,9 @@ function seedMixedWithBlockers(): SeedBatch {
     csvRow('row-m-6', 6, 'mountain-ridge-whiskey.jpg', 'Mountain Ridge Whiskey', 'Tennessee Whiskey')
   ];
   const matched: BatchMatchedPair[] = [
-    { image: images[0]!, row: rows[0]!, source: 'filename' },
-    { image: images[3]!, row: rows[3]!, source: 'filename' },
-    { image: images[4]!, row: rows[4]!, source: 'filename' }
+    { image: images[0]!, secondaryImage: null, row: rows[0]!, source: 'filename' },
+    { image: images[3]!, secondaryImage: null, row: rows[3]!, source: 'filename' },
+    { image: images[4]!, secondaryImage: null, row: rows[4]!, source: 'filename' }
   ];
   const ambiguous: BatchAmbiguousItem[] = [
     {

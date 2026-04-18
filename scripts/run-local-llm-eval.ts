@@ -262,13 +262,15 @@ async function main() {
       continue;
     }
 
+    const label = {
+      originalName: filename,
+      mimeType: mimeFor(filename),
+      bytes: buffer.byteLength,
+      buffer
+    };
     const intake: NormalizedReviewIntake = {
-      label: {
-        originalName: filename,
-        mimeType: mimeFor(filename),
-        bytes: buffer.byteLength,
-        buffer
-      },
+      label,
+      labels: [label],
       fields,
       hasApplicationData,
       standalone: !hasApplicationData
