@@ -56,7 +56,7 @@ const TOUR_STEPS: TourStep[] = [
     totalSteps: 8,
     title: 'One verdict, backed by evidence',
     body:
-      'The results page shows one verdict — Looks good, or Needs review — with a field-by-field checklist. Every row is explainable.',
+      'The results page summarizes the overall state, then shows a field-by-field checklist. Every row is explainable.',
     target: 'tour-verdict-banner'
   },
   {

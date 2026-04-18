@@ -6,8 +6,8 @@
  * That surface is correct for eval, export, and internal consumers — but
  * the reviewer-facing UI deliberately hides it. Assessors see only:
  *
- *   - "Approved" (all checks match, we have nothing to show you)
- *   - "Needs your review" (everything else, with plain-language reasons)
+ *   - a neutral approval state when nothing still needs review
+ *   - a review state that scales with the amount of remaining work
  *
  * No confidence percentages. No "fail" status (it becomes "needs review").
  * No tier jargon. No internal rule ids in copy. The compliance substance
@@ -18,24 +18,17 @@
  * UI components pull their copy + status from here.
  */
 
-import type { CheckReview, Verdict, VerificationCounts } from './types';
+import type {
+  CheckReview,
+  ExtractionQualityState,
+  VerificationCounts
+} from './types';
 
 /** UI-only verdict. The engine's `reject` collapses to `review` here. */
 export type DisplayVerdict = 'approve' | 'review';
 
 /** UI-only check status. The engine's `fail` collapses to `review` here. */
 export type DisplayCheckStatus = 'pass' | 'review' | 'info';
-
-/**
- * Collapse the engine verdict into the two-state UI verdict. `reject`
- * becomes `review` so reviewers see a "needs your look" prompt rather
- * than a machine-generated rejection. The underlying check-level reasons
- * (warning wording off, ABV mismatch, etc.) still surface as individual
- * review items — reviewers see *why*, just not labeled as a rejection.
- */
-export function toDisplayVerdict(verdict: Verdict): DisplayVerdict {
-  return verdict === 'approve' ? 'approve' : 'review';
-}
 
 /** Collapse check-level `fail` to `review`. Pass-through for pass/info. */
 export function toDisplayStatus(status: CheckReview['status']): DisplayCheckStatus {
@@ -58,6 +51,13 @@ export function toDisplayCounts(counts: VerificationCounts): DisplayCounts {
     matched: counts.pass,
     needsReview: counts.review + counts.fail
   };
+}
+
+export interface DisplayVerdictCopy {
+  verdict: DisplayVerdict;
+  headline: string;
+  explanation: string;
+  icon: string;
 }
 
 /**
@@ -84,6 +84,75 @@ export const DISPLAY_VERDICT_COPY: Record<
     icon: 'visibility'
   }
 };
+
+export function resolveDisplayVerdict(input: {
+  counts: VerificationCounts;
+  standalone: boolean;
+  extractionQualityState: ExtractionQualityState;
+}): DisplayVerdict {
+  const displayCounts = toDisplayCounts(input.counts);
+  if (
+    input.standalone ||
+    input.extractionQualityState !== 'ok' ||
+    displayCounts.needsReview > 0
+  ) {
+    return 'review';
+  }
+
+  return 'approve';
+}
+
+export function resolveDisplayVerdictCopy(input: {
+  counts: VerificationCounts;
+  standalone: boolean;
+  extractionQualityState: ExtractionQualityState;
+}): DisplayVerdictCopy {
+  const displayVerdict = resolveDisplayVerdict(input);
+  const displayCounts = toDisplayCounts(input.counts);
+
+  if (input.standalone) {
+    return {
+      verdict: 'review',
+      headline: 'Check extracted details',
+      explanation:
+        'This run extracted the label details without application data. Confirm the fields below before approving.',
+      icon: 'visibility'
+    };
+  }
+
+  if (input.extractionQualityState !== 'ok') {
+    return {
+      verdict: 'review',
+      headline: 'Image needs review',
+      explanation:
+        'The image was hard to read, so the extracted fields below still need a human check.',
+      icon: 'visibility'
+    };
+  }
+
+  if (displayVerdict === 'approve') {
+    return {
+      verdict: 'approve',
+      ...DISPLAY_VERDICT_COPY.approve
+    };
+  }
+
+  const rowLabel = displayCounts.needsReview === 1 ? 'row' : 'rows';
+  const issueLabel = displayCounts.needsReview === 1 ? 'issue' : 'issues';
+
+  return {
+    verdict: 'review',
+    headline:
+      displayCounts.needsReview === 1
+        ? '1 field needs review'
+        : `${displayCounts.needsReview} fields need review`,
+    explanation:
+      displayCounts.matched > 0
+        ? `${displayCounts.matched} fields matched. Open the flagged ${rowLabel} below to review the remaining ${issueLabel}.`
+        : `Open the flagged ${rowLabel} below to review the remaining ${issueLabel}.`,
+    icon: 'visibility'
+  };
+}
 
 /**
  * Plain-language status labels for individual field checks. Used by the

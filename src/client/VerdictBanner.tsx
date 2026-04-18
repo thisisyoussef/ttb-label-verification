@@ -1,25 +1,26 @@
 import { HelpTooltip } from './HelpTooltip';
 import {
-  DISPLAY_VERDICT_COPY,
+  resolveDisplayVerdictCopy,
   toDisplayCounts,
-  toDisplayVerdict,
   type DisplayVerdict
 } from './reviewDisplayAdapter';
-import type { VerificationCounts, Verdict } from './types';
+import type {
+  ExtractionQualityState,
+  VerificationCounts
+} from './types';
 
 interface VerdictBannerProps {
-  verdict: Verdict;
   counts: VerificationCounts;
+  standalone: boolean;
+  extractionQualityState: ExtractionQualityState;
   secondary?: string;
   extractedFieldCount?: number;
   rulesAppliedCount?: number;
 }
 
-// Display-only skins. The third state (engine's `reject`) is collapsed
-// into `review` by toDisplayVerdict — users only see "Looks good" or
-// "Needs your review". Engine rejects still surface as review rows with
-// their own plain-language reasons; they just don't label the whole
-// label as "rejected" in the banner.
+// Display-only skins. The banner keeps the same two visual states, but the
+// review headline now adapts to the actual reviewer workload instead of
+// always using one generic label.
 const VERDICT_SKIN: Record<DisplayVerdict, { bg: string; border: string; icon: string; text: string }> = {
   approve: {
     bg: 'bg-tertiary-container/30',
@@ -36,21 +37,22 @@ const VERDICT_SKIN: Record<DisplayVerdict, { bg: string; border: string; icon: s
 };
 
 export function VerdictBanner({
-  verdict,
   counts,
+  standalone,
+  extractionQualityState,
   secondary,
   extractedFieldCount,
   rulesAppliedCount
 }: VerdictBannerProps) {
-  // Collapse to the two-state UI verdict. Engine rejects become review
-  // so the banner reads as guidance, not a machine verdict. Per-row
-  // reasons still surface individually.
-  const displayVerdict = toDisplayVerdict(verdict);
-  const copy = DISPLAY_VERDICT_COPY[displayVerdict];
-  const skin = VERDICT_SKIN[displayVerdict];
+  const copy = resolveDisplayVerdictCopy({
+    counts,
+    standalone,
+    extractionQualityState
+  });
+  const skin = VERDICT_SKIN[copy.verdict];
   const displayCounts = toDisplayCounts(counts);
   const attribution = buildAttribution(
-    displayVerdict,
+    copy.verdict,
     extractedFieldCount,
     rulesAppliedCount
   );

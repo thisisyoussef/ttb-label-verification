@@ -57,12 +57,10 @@ describe('mergeRefinedReport — verdictSecondary recompute', () => {
     const merged = mergeRefinedReport(base, refined);
 
     expect(merged.counts).toEqual({ pass: 2, review: 2, fail: 0 });
-    expect(merged.verdictSecondary).toBe(
-      'A couple of fields need a closer look.'
-    );
+    expect(merged.verdictSecondary).toBe('2 fields need a closer look.');
   });
 
-  it('drops to "One field needs a closer look." when refine resolves 3 of 4', () => {
+  it('drops to "1 field needs a closer look." when refine resolves 3 of 4', () => {
     const base = makeReport([
       check({ id: 'brand-name', status: 'review', severity: 'major' }),
       check({ id: 'class-type', status: 'review', severity: 'major' }),
@@ -77,7 +75,7 @@ describe('mergeRefinedReport — verdictSecondary recompute', () => {
 
     const merged = mergeRefinedReport(base, refined);
     expect(merged.counts.review).toBe(1);
-    expect(merged.verdictSecondary).toBe('One field needs a closer look.');
+    expect(merged.verdictSecondary).toBe('1 field needs a closer look.');
   });
 
   it('falls back to base.verdictSecondary when all reviews refine away', () => {

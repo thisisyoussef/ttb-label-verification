@@ -22,21 +22,22 @@ This file is the checked-in branch registry for normal story work.
 ## Active branches
 
 <!-- ACTIVE_BRANCHES:START -->
-| Branch | Story | Prefix | Status | Description | PR | Opened | Updated | Base | Notes |
+| Branch | Story | Lane | Status | Description | PR | Opened | Updated | Base | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `chore/TTB-WF-003-lean-agent-workspace` | `TTB-WF-003` | `chore` | `draft-local` | simplify agent docs, make direct branch work the default, and keep optional sibling worktrees | - | `2026-04-18` | `2026-04-18` | `origin/main` | linked worktree: /Users/youss/Development/gauntlet/ttb-label-verification-wf-003-lean |
+| `codex/TTB-000-dynamic-verdict-banner` | `TTB-000` | `codex` | `draft-local` | make the verdict banner follow the live matched/review state and remove overly optimistic review copy | - | `2026-04-18` | `2026-04-18` | `origin/main` | isolated merge worktree for verdict banner fix |
 <!-- ACTIVE_BRANCHES:END -->
 
 ## Closed branches
 
 <!-- CLOSED_BRANCHES:START -->
-| Branch | Story | Prefix | Final status | Description | Closed | Notes |
+| Branch | Story | Lane | Final status | Description | Closed | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| `chore/TTB-WF-003-branch-tracker` | `TTB-WF-003` | `chore` | `merged` | add the branch tracker workflow and enforce branch metadata updates | `2026-04-18` | merged via PR #44 |
 | `claude/TTB-000-autodetect-and-cleanup` | `TTB-000` | `claude` | `merged` | wire OCR-inferred beverage through SSE so Auto-detect badge updates; remove file size from single-label UI | `2026-04-18` | landed across PRs #76, #77, and #78 |
+| `claude/TTB-000-fix-toolbench-scroll` | `TTB-000` | `claude` | `merged` | fix toolbench scroll - move overflow to tabpanel | `2026-04-18` | merged via PR #45 |
 | `claude/TTB-000-local-fullarch` | `TTB-000` | `claude` | `merged` | full-stack local pipeline (Ollama VLM + judgment), RunPod deploy, UX polish pass | `2026-04-18` | merged via PR #49; later local history contains reverted perf experiments |
 | `claude/TTB-000-ux-compact-verdict-strip` | `TTB-000` | `claude` | `abandoned` | compact verdict strip and severity-sorted field checklist | `2026-04-18` | stale draft PR #48; patch-equivalent UI landed elsewhere |
 | `codex/TTB-000-branch-completion` | `TTB-000` | `codex` | `merged` | close stale merged branches and land stranded branch-only fixes | `2026-04-18` | merged via PR #102; landed the ABV mismatch display fix from `claude/TTB-000-abv-diff-decimals` and cleaned stale tracker rows |
 | `codex/TTB-EVAL-001-corpus-accuracy-merge` | `TTB-EVAL-001` | `codex` | `merged` | expand the real eval corpus and add report-level plus raw extraction benchmark harnesses | `2026-04-18` | merged via PR #47 |
-| `claude/TTB-000-fix-toolbench-scroll` | `TTB-000` | `claude` | `merged` | fix toolbench scroll - move overflow to tabpanel | `2026-04-18` | merged via PR #45 |
-| `chore/TTB-WF-003-branch-tracker` | `TTB-WF-003` | `chore` | `merged` | add the branch tracker workflow and enforce branch metadata updates | `2026-04-18` | merged via PR #44 |
 <!-- CLOSED_BRANCHES:END -->
