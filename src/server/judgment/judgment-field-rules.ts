@@ -25,10 +25,10 @@ import {
 import {
   addressTokenOverlap,
   normalizeAddress
-} from './taxonomy/address-abbreviations';
+} from '../taxonomy/address-abbreviations';
 import {
   resolvesToSameStandardBottle
-} from './taxonomy/net-contents-units';
+} from '../taxonomy/net-contents-units';
 
 export type FieldJudgment = {
   disposition: 'approve' | 'review' | 'reject';

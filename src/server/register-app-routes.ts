@@ -6,7 +6,7 @@ import {
   healthResponseSchema
 } from '../shared/contracts/review';
 import { LOCAL_HELP_MANIFEST } from '../shared/help-fixture';
-import { BatchSessionStore } from './batch-session';
+import { BatchSessionStore } from './batch/batch-session';
 import { registerBatchRoutes } from './register-batch-routes';
 import { registerEvalRoutes } from './register-eval-routes';
 import {

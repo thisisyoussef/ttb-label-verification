@@ -31,7 +31,7 @@ import {
   judgeVarietal,
   judgeVintage,
   type FieldJudgment
-} from '../../src/server/judgment-field-rules';
+} from '../../src/server/judgment/judgment-field-rules';
 import { CANONICAL_GOVERNMENT_WARNING } from '../../src/shared/contracts/review-base';
 
 type GoldenRow = {

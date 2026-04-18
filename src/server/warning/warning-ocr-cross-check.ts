@@ -2,7 +2,7 @@ import { exec } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 
-import type { NormalizedUploadedLabel } from './review-intake';
+import type { NormalizedUploadedLabel } from '../review-intake';
 
 const execAsync = promisify(exec);
 

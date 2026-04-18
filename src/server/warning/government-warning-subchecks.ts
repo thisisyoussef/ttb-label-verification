@@ -13,7 +13,7 @@ import type {
   ReviewExtraction,
   ReviewVisualSignal,
   WarningSubCheck
-} from '../shared/contracts/review';
+} from '../../shared/contracts/review';
 
 const WARNING_TEXT_CONFIDENCE_THRESHOLD = 0.8;
 const WARNING_VISUAL_CONFIDENCE_THRESHOLD = 0.75;

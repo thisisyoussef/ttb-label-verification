@@ -6,7 +6,7 @@ import {
 } from '../shared/contracts/review';
 import { extractionCache, type CachedExtraction } from './extraction-cache';
 import { buildVerificationReport } from './review-report';
-import { buildGovernmentWarningCheck } from './government-warning-validator';
+import { buildGovernmentWarningCheck } from './warning/government-warning-validator';
 import { type ExtractionMode } from './ai-provider-policy';
 import {
   runTracedExtractionSurface,

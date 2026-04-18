@@ -8,27 +8,27 @@ import {
   type BatchStartRequest,
   type ReviewExtraction,
   type VerificationReport
-} from '../shared/contracts/review';
-import { createJudgmentLlmClient } from './judgment-llm-client-factory';
+} from '../../shared/contracts/review';
+import { createJudgmentLlmClient } from '../judgment/judgment-llm-client-factory';
 import {
   readResolverConfig,
   resolveAmbiguousFieldChecksBatch
-} from './llm-resolver';
-import { rebuildReportWithPatchedChecks } from './review-report';
-import { type AiProvider, type ExtractionMode } from './ai-provider-policy';
-import type { LlmEndpointSurface } from './llm-policy';
-import { runTracedReviewSurface } from './llm-trace';
+} from '../llm-resolver';
+import { rebuildReportWithPatchedChecks } from '../review-report';
+import { type AiProvider, type ExtractionMode } from '../ai-provider-policy';
+import type { LlmEndpointSurface } from '../llm-policy';
+import { runTracedReviewSurface } from '../llm-trace';
 import {
   createReviewLatencyCapture,
   emitReviewLatencySummary,
   type ReviewLatencyObserver
-} from './review-latency';
+} from '../review-latency';
 import {
   createReviewExtractionFailure,
   type ReviewExtractor
-} from './review-extraction';
-import { convertPdfLabelToImage } from './pdf-label-converter';
-import { createNormalizedReviewIntake } from './review-intake';
+} from '../review-extraction';
+import { convertPdfLabelToImage } from '../pdf-label-converter';
+import { createNormalizedReviewIntake } from '../review-intake';
 import {
   buildDashboardRow,
   buildErroredRow,

@@ -10,10 +10,10 @@ import {
   reviewExtractionSchema,
   type ReviewExtraction
 } from '../shared/contracts/review';
-import { buildGovernmentWarningCheck } from './government-warning-validator';
+import { buildGovernmentWarningCheck } from './warning/government-warning-validator';
 import { buildVerificationReport } from './review-report';
 import type { NormalizedReviewIntake } from './review-intake';
-import type { AnchorTrackResult } from './anchor-field-track';
+import type { AnchorTrackResult } from './anchor/anchor-field-track';
 
 function intake(): NormalizedReviewIntake {
   const label = {

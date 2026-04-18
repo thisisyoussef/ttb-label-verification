@@ -19,15 +19,15 @@ import type {
   ReviewExtraction,
   VerificationReport
 } from '../shared/contracts/review';
-import { buildGovernmentWarningCheck } from './government-warning-validator';
+import { buildGovernmentWarningCheck } from './warning/government-warning-validator';
 import { buildVerificationReport } from './review-report';
 import type { NormalizedReviewIntake } from './review-intake';
 import type { ReviewExtractor } from './review-extraction';
 import type { LlmEndpointSurface } from './llm-policy';
-import type { WarningOcvResult } from './warning-region-ocv';
-import type { OcrCrossCheckResult } from './warning-ocr-cross-check';
+import type { WarningOcvResult } from './warning/warning-region-ocv';
+import type { OcrCrossCheckResult } from './warning/warning-ocr-cross-check';
 import type { ReviewLatencyCapture } from './review-latency';
-import type { AnchorTrackResult } from './anchor-field-track';
+import type { AnchorTrackResult } from './anchor/anchor-field-track';
 import {
   annotateCurrentRun,
   inferProviderFromModel,

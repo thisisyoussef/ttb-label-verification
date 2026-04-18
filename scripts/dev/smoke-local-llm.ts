@@ -15,7 +15,7 @@ import {
   disposeLocalLlmCache
 } from '../../src/server/local-llm-inference';
 import type { NormalizedReviewIntake } from '../../src/server/review-intake';
-import { buildGovernmentWarningCheck } from '../../src/server/government-warning-validator';
+import { buildGovernmentWarningCheck } from '../../src/server/warning/government-warning-validator';
 import { buildVerificationReport } from '../../src/server/review-report';
 
 async function main() {

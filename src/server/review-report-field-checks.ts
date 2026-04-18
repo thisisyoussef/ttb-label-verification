@@ -22,9 +22,9 @@ import {
   judgeCountryOfOrigin,
   judgeNetContents,
   type FieldJudgment
-} from './judgment-field-rules';
+} from './judgment/judgment-field-rules';
 import { extractFieldsFromOcrText } from './ocr-field-extractor';
-import type { AnchorTrackResult, FieldAnchor } from './anchor-field-track';
+import type { AnchorTrackResult, FieldAnchor } from './anchor/anchor-field-track';
 
 /**
  * Map a check spec `id` → anchor-track `field` id. The anchor track

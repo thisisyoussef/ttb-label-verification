@@ -6,7 +6,7 @@ import {
   type VerificationReport
 } from '../shared/contracts/review';
 import type { NormalizedReviewIntake } from './review-intake';
-import type { AnchorTrackResult } from './anchor-field-track';
+import type { AnchorTrackResult } from './anchor/anchor-field-track';
 import { buildCrossFieldChecks } from './review-report-cross-field';
 import { buildFieldChecks } from './review-report-field-checks';
 import {
@@ -15,8 +15,8 @@ import {
   deriveSummary,
   deriveVerdictSecondary
 } from './review-report-helpers';
-import { deriveWeightedVerdict } from './judgment-scoring';
-import { createJudgmentLlmClient } from './judgment-llm-client-factory';
+import { deriveWeightedVerdict } from './judgment/judgment-scoring';
+import { createJudgmentLlmClient } from './judgment/judgment-llm-client-factory';
 import {
   readResolverConfig,
   resolveAmbiguousFieldChecks

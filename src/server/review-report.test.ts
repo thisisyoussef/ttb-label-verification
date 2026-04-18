@@ -7,7 +7,7 @@ import {
   type ReviewExtractionImageQuality,
   type WarningVisualSignals
 } from '../shared/contracts/review';
-import { buildGovernmentWarningCheck } from './government-warning-validator';
+import { buildGovernmentWarningCheck } from './warning/government-warning-validator';
 import { buildVerificationReport } from './review-report';
 import type { NormalizedReviewIntake } from './review-intake';
 

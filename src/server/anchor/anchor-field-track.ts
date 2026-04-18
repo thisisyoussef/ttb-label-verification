@@ -36,8 +36,8 @@ import { tmpdir } from 'node:os';
 
 import sharp from 'sharp';
 
-import type { NormalizedUploadedLabel } from './review-intake';
-import type { NormalizedReviewFields } from './review-intake';
+import type { NormalizedUploadedLabel } from '../review-intake';
+import type { NormalizedReviewFields } from '../review-intake';
 import {
   expandEquivalentPhrases,
   type AnchorFieldId

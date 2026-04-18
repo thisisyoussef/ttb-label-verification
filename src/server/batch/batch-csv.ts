@@ -5,7 +5,7 @@ import {
   type BatchCsvRow,
   type OriginChoice,
   type ReviewIntakeBeverage
-} from '../shared/contracts/review';
+} from '../../shared/contracts/review';
 
 export interface ParsedBatchCsvRow {
   id: string;

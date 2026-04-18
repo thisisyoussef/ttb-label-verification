@@ -5,13 +5,13 @@ import {
   MAX_LABEL_UPLOAD_BYTES,
   batchPreflightRequestSchema,
   batchPreflightResponseSchema
-} from '../shared/contracts/review';
+} from '../../shared/contracts/review';
 import {
   buildBatchFileError,
   formatFileSize,
   hasSupportedLabelFileType,
   normalizeFilenameForComparison
-} from '../shared/batch-file-meta';
+} from '../../shared/batch-file-meta';
 import { buildBatchMatching } from './batch-matching';
 import { parseBatchCsv } from './batch-csv';
 import { emptySummary } from './batch-session-helpers';

@@ -1,4 +1,4 @@
-import type { DiffSegment, DiffSegmentKind } from '../shared/contracts/review';
+import type { DiffSegment, DiffSegmentKind } from '../../shared/contracts/review';
 
 type WarningDiffStep = {
   kind: DiffSegmentKind | 'extra';

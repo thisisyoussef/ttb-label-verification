@@ -17,8 +17,8 @@ import { exec } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 
-import { CANONICAL_GOVERNMENT_WARNING } from '../shared/contracts/review';
-import type { NormalizedUploadedLabel } from './review-intake';
+import { CANONICAL_GOVERNMENT_WARNING } from '../../shared/contracts/review';
+import type { NormalizedUploadedLabel } from '../review-intake';
 
 const execAsync = promisify(exec);
 const TESSERACT_TIMEOUT_MS = 5000;

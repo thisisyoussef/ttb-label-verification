@@ -5,7 +5,7 @@ import {
   reviewExtractionSchema,
   type DiffSegment,
   type ReviewExtraction
-} from '../shared/contracts/review';
+} from '../../shared/contracts/review';
 import {
   buildGovernmentWarningCheck,
   diffGovernmentWarningText,

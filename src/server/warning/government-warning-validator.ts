@@ -6,7 +6,7 @@ import {
   type CheckStatus,
   type ReviewExtraction,
   type WarningSubCheck
-} from '../shared/contracts/review';
+} from '../../shared/contracts/review';
 import {
   diffGovernmentWarningText,
   normalizeGovernmentWarningText

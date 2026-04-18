@@ -35,7 +35,7 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { runAnchorTrack } from './anchor-field-track';
-import type { NormalizedUploadedLabel, NormalizedReviewFields } from './review-intake';
+import type { NormalizedUploadedLabel, NormalizedReviewFields } from '../review-intake';
 
 const LABELS_ROOT = path.join(process.cwd(), 'evals/labels/assets/cola-cloud');
 

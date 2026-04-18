@@ -16,28 +16,28 @@ import {
   canonicalGrapeName,
   GRAPE_VARIETY_SYNONYMS,
   isApprovedVarietal
-} from './taxonomy/grape-varietals';
+} from '../taxonomy/grape-varietals';
 import {
   ALL_FOREIGN_NONGENERIC_NAMES,
   isInvalidPradikatOnAmericanWine,
   isWineClassEquivalent,
   WINE_CLASS_ALIASES
-} from './taxonomy/wine-classes';
+} from '../taxonomy/wine-classes';
 import {
   isSpiritsClassEquivalent,
   isWhiskySpellingVariant,
   SPIRITS_CLASS_ALIASES
-} from './taxonomy/distilled-spirits';
+} from '../taxonomy/distilled-spirits';
 import {
   isMaltClassEquivalent,
   MALT_CLASS_ALIASES
-} from './taxonomy/malt-beverages';
+} from '../taxonomy/malt-beverages';
 import {
   COUNTRY_ALIASES,
   COUNTRY_SUBDIVISIONS,
   isCountryOrSubdivisionEquivalent,
   resolveSovereign
-} from './taxonomy/geography';
+} from '../taxonomy/geography';
 
 // Re-export the taxonomy helpers so downstream modules can keep
 // importing from `./judgment-equivalence` if they were already.

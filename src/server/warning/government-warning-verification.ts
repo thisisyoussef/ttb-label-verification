@@ -36,7 +36,7 @@ import { tmpdir } from 'node:os';
 
 import sharp from 'sharp';
 
-import type { NormalizedUploadedLabel } from './review-intake';
+import type { NormalizedUploadedLabel } from '../review-intake';
 
 const execAsync = promisify(exec);
 

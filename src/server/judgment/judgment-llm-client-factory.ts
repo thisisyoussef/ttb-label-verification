@@ -17,7 +17,7 @@
  */
 
 import { createGeminiJudgmentClient } from './judgment-llm-client';
-import { createOllamaJudgmentClient } from './ollama-judgment-llm-client';
+import { createOllamaJudgmentClient } from '../ollama-judgment-llm-client';
 
 type JudgmentLlmClient = {
   complete: (system: string, user: string) => Promise<string>;

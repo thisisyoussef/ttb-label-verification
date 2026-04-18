@@ -27,12 +27,12 @@
  *    anchors via equivalent flips from `partial`/`missing` → `found`.
  */
 
-import { GRAPE_VARIETY_SYNONYMS } from './taxonomy/grape-varietals';
-import { SPIRITS_CLASS_ALIASES } from './taxonomy/distilled-spirits';
-import { WINE_CLASS_ALIASES } from './taxonomy/wine-classes';
-import { MALT_CLASS_ALIASES } from './taxonomy/malt-beverages';
-import { COUNTRY_ALIASES, COUNTRY_SUBDIVISIONS } from './taxonomy/geography';
-import { ALL_ADDRESS_ABBREVIATIONS } from './taxonomy/address-abbreviations';
+import { GRAPE_VARIETY_SYNONYMS } from '../taxonomy/grape-varietals';
+import { SPIRITS_CLASS_ALIASES } from '../taxonomy/distilled-spirits';
+import { WINE_CLASS_ALIASES } from '../taxonomy/wine-classes';
+import { MALT_CLASS_ALIASES } from '../taxonomy/malt-beverages';
+import { COUNTRY_ALIASES, COUNTRY_SUBDIVISIONS } from '../taxonomy/geography';
+import { ALL_ADDRESS_ABBREVIATIONS } from '../taxonomy/address-abbreviations';
 
 /**
  * Field ids the anchor track knows how to expand. Must mirror the

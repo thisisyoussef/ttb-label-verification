@@ -9,7 +9,7 @@
  * ambiguous cases — most comparisons should be resolved in code.
  */
 
-import type { CheckReview } from '../shared/contracts/review';
+import type { CheckReview } from '../../shared/contracts/review';
 import { buildFieldJudgmentPrompt, type JudgmentInput, type JudgmentOutput } from './judgment-llm-prompt';
 
 type JudgmentLlmClient = {

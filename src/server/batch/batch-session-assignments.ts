@@ -1,5 +1,5 @@
-import type { BatchResolution } from '../shared/contracts/review';
-import { createReviewExtractionFailure } from './review-extraction';
+import type { BatchResolution } from '../../shared/contracts/review';
+import { createReviewExtractionFailure } from '../review-extraction';
 import type {
   BatchSession,
   StoredBatchAssignment

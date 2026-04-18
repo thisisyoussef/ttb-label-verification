@@ -5,18 +5,18 @@ import type {
   ReviewExtraction,
   VerificationReport
 } from '../shared/contracts/review';
-import { runWarningOcrCrossCheck } from './warning-ocr-cross-check';
+import { runWarningOcrCrossCheck } from './warning/warning-ocr-cross-check';
 import { runOcrPrepass, isOcrPrepassEnabled } from './ocr-prepass';
-import { runWarningOcv, type WarningOcvResult } from './warning-region-ocv';
+import { runWarningOcv, type WarningOcvResult } from './warning/warning-region-ocv';
 import {
   runAnchorTrack,
   resolveAnchorMergeMode,
   type AnchorTrackResult
-} from './anchor-field-track';
+} from './anchor/anchor-field-track';
 import { reconcileExtractionWithOcr } from './extraction-ocr-reconciler';
 import { extractFieldsFromOcrText } from './ocr-field-extractor';
 import { runVlmRegionDetection, isRegionDetectionEnabled } from './vlm-region-detector';
-import { createJudgmentLlmClient } from './judgment-llm-client-factory';
+import { createJudgmentLlmClient } from './judgment/judgment-llm-client-factory';
 import { mergeOcrAndVlm, applyRegionOverrides } from './extraction-merge';
 import { resolveReviewJudgment } from './review-surface-judgment';
 import {
@@ -263,7 +263,7 @@ const tracedReviewSurface = traceable(
     );
 
     const vlmWarning = reconciledExtraction.fields.governmentWarning.value ?? '';
-    let ocrCrossCheck: import('./warning-ocr-cross-check').OcrCrossCheckResult =
+    let ocrCrossCheck: import('./warning/warning-ocr-cross-check').OcrCrossCheckResult =
       { status: 'abstain', reason: 'no-vlm-warning-text' };
     if (vlmWarning.length > 0) {
       try {

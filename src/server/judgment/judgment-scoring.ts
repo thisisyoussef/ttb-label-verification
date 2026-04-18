@@ -5,8 +5,8 @@
  * Implements criticality-weighted scoring from the judgment guidance doc.
  */
 
-import type { CheckReview, VerificationReport } from '../shared/contracts/review';
-import type { ReviewExtraction } from '../shared/contracts/review';
+import type { CheckReview, VerificationReport } from '../../shared/contracts/review';
+import type { ReviewExtraction } from '../../shared/contracts/review';
 
 type CriticalityTier = 'critical' | 'high' | 'medium' | 'low';
 

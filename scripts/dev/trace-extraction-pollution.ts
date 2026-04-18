@@ -18,7 +18,7 @@ async function main() {
   loadLocalEnv(repoRoot);
 
   const { runOcrPrepass } = await import('../../src/server/ocr-prepass');
-  const { runWarningOcv } = await import('../../src/server/warning-region-ocv');
+  const { runWarningOcv } = await import('../../src/server/warning/warning-region-ocv');
   const { createApp } = await import('../../src/server/index');
 
   const labels = [

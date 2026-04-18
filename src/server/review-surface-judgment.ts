@@ -23,8 +23,8 @@ import type {
   ReviewExtraction,
   VerificationReport
 } from '../shared/contracts/review';
-import { resolveAmbiguousChecks } from './judgment-llm-executor';
-import { deriveWeightedVerdict } from './judgment-scoring';
+import { resolveAmbiguousChecks } from './judgment/judgment-llm-executor';
+import { deriveWeightedVerdict } from './judgment/judgment-scoring';
 
 // Intentionally local shape — the client type is declared as a private
 // alias in several files (judgment-llm-client, judgment-llm-executor,

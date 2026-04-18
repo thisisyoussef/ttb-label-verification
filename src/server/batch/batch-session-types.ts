@@ -3,7 +3,7 @@ import type {
   BatchDashboardSummary,
   BatchPreflightResponse,
   VerificationReport
-} from '../shared/contracts/review';
+} from '../../shared/contracts/review';
 import type { ParsedBatchCsvRow } from './batch-csv';
 
 export type UploadedBatchFile = Express.Multer.File;

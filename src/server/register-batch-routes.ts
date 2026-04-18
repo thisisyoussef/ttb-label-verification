@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { batchStartRequestSchema } from '../shared/contracts/review';
-import { BatchSessionStore } from './batch-session';
+import { BatchSessionStore } from './batch/batch-session';
 import {
   handleBatchUpload,
   sendBatchError,

@@ -11,7 +11,7 @@
  * consumed by the `exact-text` subCheck.
  */
 
-import { CANONICAL_GOVERNMENT_WARNING } from '../shared/contracts/review';
+import { CANONICAL_GOVERNMENT_WARNING } from '../../shared/contracts/review';
 import type { OcrCrossCheckResult } from './warning-ocr-cross-check';
 import type { WarningOcvResult } from './warning-region-ocv';
 

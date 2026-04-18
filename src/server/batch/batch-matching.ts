@@ -1,5 +1,5 @@
-import { batchAmbiguousSchema, batchMatchedPairSchema, type BatchCsvRow } from '../shared/contracts/review';
-import { normalizeFilenameForComparison } from '../shared/batch-file-meta';
+import { batchAmbiguousSchema, batchMatchedPairSchema, type BatchCsvRow } from '../../shared/contracts/review';
+import { normalizeFilenameForComparison } from '../../shared/batch-file-meta';
 import type { ParsedBatchCsvRow } from './batch-csv';
 
 type MatchImage = {

@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 import express from 'express';
 
-import { BatchSessionStore } from './batch-session';
+import { BatchSessionStore } from './batch/batch-session';
 import {
   DEFAULT_EXTRACTION_MODE,
   type ExtractionMode

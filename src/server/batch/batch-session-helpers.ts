@@ -6,12 +6,12 @@ import type {
   BatchItemStatus,
   ReviewError,
   VerificationReport
-} from '../shared/contracts/review';
+} from '../../shared/contracts/review';
 import {
   isReviewExtractionFailure
-} from './review-extraction';
+} from '../review-extraction';
 import type { ParsedBatchCsvRow } from './batch-csv';
-import type { MemoryUploadedLabel, ParsedReviewFields } from './review-intake';
+import type { MemoryUploadedLabel, ParsedReviewFields } from '../review-intake';
 import type { StoredBatchAssignment, StoredBatchImage } from './batch-session-types';
 
 export function toMemoryUploadedLabel(image: StoredBatchImage): MemoryUploadedLabel {

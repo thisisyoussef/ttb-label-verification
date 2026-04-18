@@ -13,12 +13,12 @@ import {
   type ReviewExtractionFields,
   type ReviewExtractionImageQuality,
   type WarningVisualSignals
-} from '../shared/contracts/review';
+} from '../../shared/contracts/review';
 import {
   createReviewExtractionFailure,
   type ReviewExtractor
-} from './review-extraction';
-import { createApp } from './index';
+} from '../review-extraction';
+import { createApp } from '../index';
 
 const serversToClose: Array<{
   close: (callback: (error?: Error | undefined) => void) => void;
