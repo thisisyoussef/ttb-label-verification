@@ -81,6 +81,7 @@ Despite the filename, this checklist is agent-agnostic. Use it for engineering o
 - [ ] For visible runtime changes that depend on submitted input, run at least one manual or route-level spot-check with non-default values and confirm the returned payload reflects those exact values.
 - [ ] For multi-step or async runtime changes, execute at least one non-happy-path branch from `user-flow-map.md` and confirm the observability plan makes the branch transition and failure point obvious.
 - [ ] If the story changed visible or repeatable runtime behavior, start the local app or server and prepare a user-facing manual test handoff with the exact local URL, steps, and expected results.
+- [ ] If the story changed visible, repeatable, or API-backed behavior, run an end-to-end verification pass before handoff: hit the real API path with non-default inputs, then click through the real user flow in Comet and confirm the rendered UI matches the live response.
 - [ ] Do not rely on Playwright or other browser automation as the final acceptance gate for visible stories; use the user handoff instead.
 - [ ] If the story changed deployable runtime behavior, check the CI plus Railway deploy status per `docs/process/DEPLOYMENT_FLOW.md`, and use the local `railway` CLI for spot checks when needed.
 
@@ -102,5 +103,6 @@ Despite the filename, this checklist is agent-agnostic. Use it for engineering o
 - [ ] Before a reviewable push, run `npm run gate:push` and re-run the required local validation for the changed surface.
 - [ ] Before any QA-style handoff, final acceptance handoff, or claim that the branch is on GitHub, run `npm run gate:publish`.
 - [ ] If implementation happened in an isolated side worktree or branch, merge, rebase, or cherry-pick the finished diff back into the active delivery branch before final handoff.
-- [ ] Before any final "done" response on mergeable story work, confirm the story branch is already merged to `main` and that `origin/main` contains the change. If not, merge first or report the exact blocker.
+- [ ] Before any final "done" response on mergeable story work, push the branch, open or update the PR, and merge it unless the user explicitly asked to hold it or a concrete blocker exists.
+- [ ] Confirm the story branch is already merged to `main` and that `origin/main` contains the change. If not, merge first or report the exact blocker.
 - [ ] If a PR exists or is being prepared, update the PR description with `.github/pull_request_template.md` and make sure tests added or updated, validation results, risks, screenshots or manual QA, and follow-ups match the real diff.

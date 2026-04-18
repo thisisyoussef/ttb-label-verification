@@ -10,9 +10,11 @@
 - `docs/process/SINGLE_SOURCE_OF_TRUTH.md` is the single checked-in tracker for active story, queue order, blockers, and next-step resolution.
 - `docs/specs/<story-id>/` is the universal story packet. Specs are optional for small clear changes and expand when the work is large, risky, ambiguous, or cross-cutting.
 - Behavior changes use RED -> GREEN -> REFACTOR through `.ai/workflows/tdd-pipeline.md`.
+- Feature completion for visible or API-backed work includes an end-to-end verification pass against the real API path plus a real-browser click-through in Comet.
 - Prompt, model, tool-call, and agentic LLM stories use trace-driven development through `docs/process/TRACE_DRIVEN_DEVELOPMENT.md` and `.ai/workflows/trace-driven-development.md`, with LangSmith tracing kept off outside explicit local trace runs.
 - Direct UI work is the default. Stitch remains optional through `STITCH_FLOW_MODE=direct|automated|manual`; the legacy `claude-direct` value is accepted only as a compatibility alias.
 - Story work uses checked-in git gates: story-scoped branches, `npm run gate:commit` before reviewable commits, `npm run gate:push` before reviewable pushes, and PR-only merges to `main`.
+- Done means published and merged when the branch is mergeable; agents should push and merge by default unless the user asks to hold or a concrete blocker exists.
 
 ## Product pattern
 

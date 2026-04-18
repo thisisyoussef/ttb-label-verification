@@ -11,3 +11,5 @@
 - Keep `TTB-WF-003` active until the repo stops teaching lane-gated behavior.
 - Keep `TTB-210` as the next blocking story after `TTB-WF-003`; the remaining blocker there is LangSmith auth, not local implementation quality.
 - Keep user-facing progress updates brief and action-oriented; do not surface minor tracker mismatches as speculative analysis.
+- Treat visible or API-backed feature completion as incomplete until the real API path and the real browser flow have both been verified, with Comet as the browser path.
+- Treat mergeable story work as incomplete until it has been pushed and merged, not just committed locally.

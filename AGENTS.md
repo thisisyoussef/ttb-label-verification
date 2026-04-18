@@ -71,11 +71,16 @@ This file is the canonical operating contract for this repo. Keep it lean.
 - Run `npm run gate:push` before reviewable pushes.
 - Run `npm run gate:publish` before claiming a branch is on GitHub.
 - Do not push directly to `main` or `production` for story work.
+- When a story is done and mergeable, do not stop at a local commit. Push the branch, open or update the GitHub PR, and merge it unless the user explicitly asks to hold it or a concrete blocker exists.
 
 ## Verification
 
 - Start with focused RED tests for non-trivial behavior or tooling changes.
 - Run the smallest useful focused tests while iterating.
+- When a feature changes visible, repeatable, or API-backed behavior, finish with an end-to-end verification pass before handoff:
+  - exercise the real API path with non-default inputs
+  - click through the real user flow in a real browser using Comet
+  - confirm the UI reflects the live response rather than fixture-only behavior
 - Before handoff, run:
   - `npm run test`
   - `npm run typecheck`
@@ -96,4 +101,4 @@ Refresh the smallest set needed:
 
 ## Delivery
 
-Final handoff should say what changed, how the new flow works, what remains risky, and how to verify it.
+Final handoff should say what changed, how the new flow works, what remains risky, how to verify it, and whether the branch is already pushed and merged. Do not call mergeable story work complete while it is still only local.
