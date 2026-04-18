@@ -2,6 +2,6 @@
 
 The canonical tracker moved to `docs/process/SINGLE_SOURCE_OF_TRUTH.md`.
 
-Use that file for current status, lane ownership, queue order, and handoff gates.
+Use that file for current status, queue order, blockers, and next-step resolution.
 
 This `.ai` file remains only as a compatibility mirror so older workflow references fail closed instead of drifting.

@@ -7,13 +7,14 @@ import {
 } from "./stitch-flow-mode";
 
 describe("stitch flow mode", () => {
-  it("defaults to the Claude-direct flow when unset", () => {
+  it("defaults to the direct flow when unset", () => {
     expect(getStitchFlowMode(undefined)).toBe(DEFAULT_STITCH_FLOW_MODE);
   });
 
   it("normalizes supported values", () => {
     expect(getStitchFlowMode("  AUTOMATED  ")).toBe("automated");
     expect(getStitchFlowMode("manual")).toBe("manual");
+    expect(getStitchFlowMode("claude-direct")).toBe("direct");
   });
 
   it("rejects unsupported values", () => {
@@ -26,9 +27,9 @@ describe("stitch flow mode", () => {
     expect(() => requireAutomatedStitchFlow("automated")).not.toThrow();
   });
 
-  it("explains the Claude-direct mode when Stitch generation is blocked", () => {
-    expect(() => requireAutomatedStitchFlow("claude-direct")).toThrow(
-      "develop the UI directly"
+  it("explains the direct mode when Stitch generation is blocked", () => {
+    expect(() => requireAutomatedStitchFlow("direct")).toThrow(
+      "direct UI work"
     );
   });
 

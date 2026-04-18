@@ -6,7 +6,7 @@ This file defines how GitHub and Railway fit into the story-completion workflow 
 
 - every completed implementation story can reach staging automatically after merge
 - production is promoted deliberately, not implicitly
-- the deploy flow stays compatible with the Claude/Codex lane split
+- the deploy flow stays compatible with direct story-branch work by either agent
 - the workflow works from checked-in state instead of one-off chat instructions
 
 ## Deployment model
@@ -157,17 +157,10 @@ Promotion path:
 4. `railway-deploy` runs `railway up` against `production`
 5. verify `/api/health` and the agreed smoke path
 
-## Lane ownership
+## Agent responsibility
 
-### Claude
-
-- may mention deployment needs in a Codex handoff
-- does not own Railway, GitHub Actions, or production pipeline changes
-
-### Codex
-
-- owns deployment scaffolding, server deployability, CI, Railway CLI wiring, and flow docs
-- records staging/prod rollout notes in the final handoff when relevant
+- Either agent may update deployment scaffolding, CI wiring, or flow docs when the story requires it.
+- The agent finishing the story records staging or production rollout notes when relevant.
 
 ## Blocking rules
 

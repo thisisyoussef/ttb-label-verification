@@ -32,3 +32,4 @@ This file mirrors the repo's lean execution contract for Codex.
 - Optional worktrees for true parallelism or dirty checkout isolation
 - No nested worktrees inside the repo
 - GitHub PR path for publish and merge
+- No standing Claude-vs-Codex lane split
