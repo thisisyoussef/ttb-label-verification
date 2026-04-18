@@ -3,7 +3,63 @@
  *
  * These encode regulatory knowledge that cannot be derived algorithmically:
  * TTB class taxonomy, grape synonyms, country translations, etc.
+ *
+ * The large data tables now live under `./taxonomy/` broken down by
+ * subdomain (wine classes, grape varietals, distilled spirits, malt
+ * beverages, geography) so each regulatory source is a separately
+ * auditable file. Re-exports at the bottom keep the public API stable.
  */
+
+import {
+  APPROVED_GRAPE_VARIETIES,
+  areVarietalsEquivalent,
+  canonicalGrapeName,
+  GRAPE_VARIETY_SYNONYMS,
+  isApprovedVarietal
+} from './taxonomy/grape-varietals';
+import {
+  ALL_FOREIGN_NONGENERIC_NAMES,
+  isInvalidPradikatOnAmericanWine,
+  isWineClassEquivalent,
+  WINE_CLASS_ALIASES
+} from './taxonomy/wine-classes';
+import {
+  isSpiritsClassEquivalent,
+  isWhiskySpellingVariant,
+  SPIRITS_CLASS_ALIASES
+} from './taxonomy/distilled-spirits';
+import {
+  isMaltClassEquivalent,
+  MALT_CLASS_ALIASES
+} from './taxonomy/malt-beverages';
+import {
+  COUNTRY_ALIASES,
+  COUNTRY_SUBDIVISIONS,
+  isCountryOrSubdivisionEquivalent,
+  resolveSovereign
+} from './taxonomy/geography';
+
+// Re-export the taxonomy helpers so downstream modules can keep
+// importing from `./judgment-equivalence` if they were already.
+export {
+  APPROVED_GRAPE_VARIETIES,
+  areVarietalsEquivalent,
+  canonicalGrapeName,
+  GRAPE_VARIETY_SYNONYMS,
+  isApprovedVarietal,
+  ALL_FOREIGN_NONGENERIC_NAMES,
+  isInvalidPradikatOnAmericanWine,
+  isWineClassEquivalent,
+  WINE_CLASS_ALIASES,
+  isSpiritsClassEquivalent,
+  isWhiskySpellingVariant,
+  SPIRITS_CLASS_ALIASES,
+  isMaltClassEquivalent,
+  MALT_CLASS_ALIASES,
+  COUNTRY_ALIASES,
+  COUNTRY_SUBDIVISIONS,
+  resolveSovereign
+};
 
 /**
  * TTB regulatory class → acceptable label text variations.
@@ -43,7 +99,9 @@ export const CLASS_TYPE_TAXONOMY: Record<string, string[]> = {
 
 /**
  * Check if an extracted class/type label text is an acceptable match
- * for a TTB regulatory class.
+ * for a TTB regulatory class. Delegates to the subdomain taxonomy
+ * modules in order: wine → spirits → malt, then the legacy flat
+ * table + grape-variety / style-descriptor heuristics.
  */
 export function isClassTypeEquivalent(
   ttbClass: string,
@@ -52,10 +110,18 @@ export function isClassTypeEquivalent(
   const normalizedTtb = ttbClass.toLowerCase().trim();
   const normalizedLabel = labelText.toLowerCase().trim();
 
-  // Direct match
   if (normalizedTtb === normalizedLabel) return true;
 
-  // Check taxonomy
+  // Subdomain taxonomy modules. Each returns true when the domain-
+  // specific tables recognize the pair; they ignore everything outside
+  // their domain, so the three calls are additive not exclusive.
+  if (isWineClassEquivalent(normalizedTtb, normalizedLabel)) return true;
+  if (isSpiritsClassEquivalent(normalizedTtb, normalizedLabel)) return true;
+  if (isMaltClassEquivalent(normalizedTtb, normalizedLabel)) return true;
+
+  // Legacy flat table. Kept as a fallback so any one-off entries added
+  // historically still resolve. New entries should land in the
+  // subdomain taxonomy files instead.
   const acceptable = CLASS_TYPE_TAXONOMY[normalizedTtb];
   if (acceptable) {
     if (acceptable.some(term => normalizedLabel.includes(term) || term.includes(normalizedLabel))) {
@@ -63,18 +129,22 @@ export function isClassTypeEquivalent(
     }
   }
 
-  // Check if the label text contains the base type from the TTB class
-  // E.g., TTB "table white wine" — label "SEMILLON" won't match here,
-  // but we handle grape varietals as acceptable class qualifiers below
+  // Broad "does the label mention the base type word?" heuristic.
   const baseTypes = extractBaseTypes(normalizedTtb);
   if (baseTypes.some(bt => normalizedLabel.includes(bt))) return true;
 
-  // Check if the label text is a known grape varietal (for wine classes)
+  // Grape variety → wine class: a label that reads "Riesling" is a
+  // complete type designation for "table white wine" per 27 CFR 4.23.
+  if (isWineClass(normalizedTtb) && isApprovedVarietal(normalizedLabel)) {
+    return true;
+  }
+  // Fallback to the older narrow set for compat.
   if (isWineClass(normalizedTtb) && isKnownGrapeVarietal(normalizedLabel)) {
     return true;
   }
 
-  // Check if label text is a recognized sub-type or style descriptor
+  // Generic style/qualifier descriptors (Reserva, Brut, Cask Strength,
+  // etc.) — these don't change the class.
   if (isRecognizedSubType(normalizedLabel, normalizedTtb)) return true;
 
   return false;
@@ -182,17 +252,31 @@ export const COUNTRY_EQUIVALENCES: Record<string, string[]> = {
   'south africa': ['south african']
 };
 
+/**
+ * Country-of-origin equivalence. Now handles three layers:
+ *
+ *   1. Exact alias match (USA ↔ United States ↔ America)
+ *   2. Geographic containment (California → USA, Burgundy → France)
+ *   3. Substring tolerance for phrasing ("Made in the USA", etc.)
+ *
+ * Delegates to the geography taxonomy (src/server/taxonomy/geography.ts)
+ * which has the full state/region table. Legacy inline table retained
+ * below as a third-tier fallback.
+ */
 export function isCountryEquivalent(appCountry: string, extCountry: string): boolean {
   const normApp = appCountry.toLowerCase().trim();
   const normExt = extCountry.toLowerCase().trim();
 
   if (normApp === normExt) return true;
-  if (normApp.includes(normExt) || normExt.includes(normApp)) return true;
 
+  // Primary path: the geography taxonomy handles aliases + containment.
+  if (isCountryOrSubdivisionEquivalent(normApp, normExt)) return true;
+
+  // Third-tier legacy fallback — kept so a one-off entry added
+  // historically still resolves.
+  if (normApp.includes(normExt) || normExt.includes(normApp)) return true;
   const appEquivs = COUNTRY_EQUIVALENCES[normApp];
   if (appEquivs?.some(e => normExt.includes(e) || e.includes(normExt))) return true;
-
-  // Reverse lookup
   for (const [canonical, variants] of Object.entries(COUNTRY_EQUIVALENCES)) {
     if (variants.some(v => normApp.includes(v) || v.includes(normApp))) {
       if (canonical === normExt || variants.some(v => normExt.includes(v) || v.includes(normExt))) {
