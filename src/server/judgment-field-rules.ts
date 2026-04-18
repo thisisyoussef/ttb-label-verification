@@ -14,6 +14,7 @@ import {
   normalizeWhitespace,
   normalizeDiacriticals,
   normalizeAmpersand,
+  stripBrandDecorativePunctuation,
   stripThePrefix
 } from './judgment-normalizers';
 import {
@@ -297,6 +298,37 @@ export function judgeBrandName(
       note: 'Brand name differs only in capitalization. TTB guidance allows this.',
       tier: 'medium'
     };
+  }
+
+  // Decorative-punctuation-only difference — APPROVE.
+  // "A.C.'s" vs "Ac's", "Dr. McGillicuddy" vs "Dr McGillicuddy",
+  // "Half-Acre" vs "Half Acre" all collapse here. Apostrophes and
+  // ampersands are preserved so possessive/&-only differences
+  // continue to be reported by their own dedicated rules.
+  const appPunctStripped = stripBrandDecorativePunctuation(appNormalized);
+  const extPunctStripped = stripBrandDecorativePunctuation(extNormalized);
+  if (
+    appPunctStripped !== appNormalized ||
+    extPunctStripped !== extNormalized
+  ) {
+    if (appPunctStripped === extPunctStripped) {
+      return {
+        disposition: 'approve',
+        confidence: 0.95,
+        rule: 'brand-punctuation-only',
+        note: 'Brand name differs only in decorative punctuation (periods, hyphens). Same brand identity.',
+        tier: 'medium'
+      };
+    }
+    if (appPunctStripped.toLowerCase() === extPunctStripped.toLowerCase()) {
+      return {
+        disposition: 'approve',
+        confidence: 0.95,
+        rule: 'brand-punctuation-and-case',
+        note: 'Brand name differs only in decorative punctuation and capitalization. Same brand identity.',
+        tier: 'medium'
+      };
+    }
   }
 
   // Diacritical-stripped comparison

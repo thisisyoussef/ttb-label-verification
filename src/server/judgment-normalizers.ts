@@ -111,6 +111,36 @@ export function stripThePrefix(value: string): string {
   return value.replace(/^the\s+/i, '');
 }
 
+/**
+ * Strip decorative inner punctuation that's almost always a
+ * formatting variation, not an identity difference, in brand names.
+ *
+ *   "A.C.'s"            → "AC's"          (periods between initials)
+ *   "Dr. McGillicuddy"  → "Dr McGillicuddy" (trailing period)
+ *   "J & B"             → "J & B" (preserved — & has its own rule)
+ *   "Half-Acre"         → "HalfAcre"      (decorative hyphen)
+ *
+ * Preserved on purpose:
+ *   - apostrophe (')   — possessives are a real difference, handled
+ *                        by the separate `normalizePossessive` rule
+ *                        in the brand cascade.
+ *   - ampersand (&)    — handled by `normalizeAmpersand`.
+ *   - whitespace       — preserved so the space-collapsed rule can
+ *                        independently detect "Stone Wood" vs
+ *                        "Stonewood".
+ *
+ * The result is intentionally NOT lowercased — case is a separate
+ * normalization step downstream so the cascade can still report a
+ * case-only-difference rule.
+ */
+export function stripBrandDecorativePunctuation(value: string): string {
+  // Drop periods, commas, semicolons, colons, hyphens, en/em dashes
+  // already covered by normalizePunctuation, plain ASCII parens, and
+  // the slash. Apostrophes and ampersands are intentionally NOT in
+  // this character class.
+  return value.replace(/[.,;:\-()\/\\]/g, '');
+}
+
 export type NormalizationResult = {
   appNormalized: string;
   extNormalized: string;
