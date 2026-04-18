@@ -442,7 +442,14 @@ export function createGeminiReviewExtractor(input: {
         const normalized = normalizeGeminiRuntimeFailure(error);
         lastFailure = normalized;
         // Only retry on retryable failures; fail fast on auth/schema errors.
-        if (!normalized.error.retryable || attempt === maxAttempts) {
+        // 429 (quota / rate-limit) is treated as retryable at the chain
+        // level (so the factory falls through to the next provider) but
+        // NOT retryable on this same provider — hammering an exhausted
+        // quota with 200/400/800ms backoffs just burns the cross-mode
+        // fallback window (550ms) and forces a cloud->cloud "fallback"
+        // that can't actually succeed.
+        const rateLimited = normalized.status === 429;
+        if (!normalized.error.retryable || rateLimited || attempt === maxAttempts) {
           clearTimeout(timeout);
           recordGeminiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
           throw normalized;

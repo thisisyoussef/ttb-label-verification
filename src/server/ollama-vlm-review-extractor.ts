@@ -72,12 +72,19 @@ export type OllamaVlmReviewExtractionConfigResult =
 export function readOllamaVlmReviewExtractionConfig(
   env: Record<string, string | undefined>
 ): OllamaVlmReviewExtractionConfigResult {
-  // Gate the provider behind an explicit opt-in so it does not mask other
-  // local providers or claim support when Ollama isn't actually running.
-  // Enabled when AI_PROVIDER signals local Ollama, or when the opt-in flag
-  // is set directly.
+  // Enable when either (a) an explicit opt-in is set, or (b) the Ollama
+  // env vars are fully configured (host + vision model). Auto-enabling
+  // on full config matches what a user expects after setting those
+  // vars: "I configured Ollama, it should work." Previously the
+  // provider silently stayed gated unless AI_PROVIDER=local OR
+  // OLLAMA_VLM_ENABLED=true, which caused the provider-override=local
+  // path to rewind to the cloud fallback chain.
   const aiProvider = env.AI_PROVIDER?.trim().toLowerCase();
   const explicitEnable = env.OLLAMA_VLM_ENABLED?.trim().toLowerCase();
+  const explicitDisable = explicitEnable === '0' || explicitEnable === 'false' || explicitEnable === 'no' || explicitEnable === 'off';
+  const hostConfigured = (env.OLLAMA_HOST ?? '').trim().length > 0;
+  const visionModelConfigured = (env.OLLAMA_VISION_MODEL ?? '').trim().length > 0;
+  const autoEnabled = hostConfigured && visionModelConfigured && !explicitDisable;
   const enabled =
     aiProvider === 'local' ||
     aiProvider === 'ollama' ||
@@ -85,7 +92,8 @@ export function readOllamaVlmReviewExtractionConfig(
     explicitEnable === '1' ||
     explicitEnable === 'true' ||
     explicitEnable === 'yes' ||
-    explicitEnable === 'on';
+    explicitEnable === 'on' ||
+    autoEnabled;
 
   if (!enabled) {
     return {
@@ -94,7 +102,7 @@ export function readOllamaVlmReviewExtractionConfig(
       error: {
         kind: 'adapter',
         message:
-          'Ollama VLM is not enabled on this workstation. Set AI_PROVIDER=local or OLLAMA_VLM_ENABLED=true.',
+          'Ollama VLM is not enabled on this workstation. Set OLLAMA_HOST + OLLAMA_VISION_MODEL, or OLLAMA_VLM_ENABLED=true.',
         retryable: false
       }
     };
