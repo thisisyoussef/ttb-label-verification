@@ -24,6 +24,76 @@ import {
   type FieldJudgment
 } from './judgment-field-rules';
 import { extractFieldsFromOcrText } from './ocr-field-extractor';
+import type { AnchorTrackResult, FieldAnchor } from './anchor-field-track';
+
+/**
+ * Map a check spec `id` → anchor-track `field` id. The anchor track
+ * uses short keys ('brand', 'class', 'abv', 'net', 'country',
+ * 'address') while the report uses longer hyphenated ids. Fanciful
+ * has no analogous check spec id because cross-field judgment handles
+ * it; it's still anchored for telemetry but not merged here.
+ */
+const CHECK_TO_ANCHOR_ID: Record<string, string> = {
+  'brand-name': 'brand',
+  'class-type': 'class',
+  'alcohol-content': 'abv',
+  'net-contents': 'net',
+  'country-of-origin': 'country',
+  'applicant-address': 'address'
+};
+
+/**
+ * Look up the per-field anchor result for a given check id. Returns
+ * null when no anchor ran (feature flag off) or the field didn't
+ * anchor strongly enough to be useful.
+ *
+ * We only return 'found'-status anchors. 'partial' and 'missing' are
+ * useless for the upgrade path — they can't tell us the VLM's review
+ * was wrong. 'skipped' (blank application value) already means there's
+ * nothing to verify.
+ */
+function findStrongAnchorFor(
+  checkId: string,
+  anchorTrack: AnchorTrackResult | null | undefined
+): FieldAnchor | null {
+  if (!anchorTrack) return null;
+  const anchorFieldId = CHECK_TO_ANCHOR_ID[checkId];
+  if (!anchorFieldId) return null;
+  const anchor = anchorTrack.fields.find((f) => f.field === anchorFieldId);
+  if (!anchor || anchor.status !== 'found') return null;
+  return anchor;
+}
+
+/**
+ * Per-field merge: when the anchor confirms the application value is
+ * present on the label, upgrade a 'review' check to 'pass'. Never
+ * downgrades — anchor can only save uncertainty, not create it.
+ *
+ * Applies to review verdicts only; fail/pass are preserved. Downstream
+ * the resolver and weighted-verdict pass still run on the upgraded
+ * check set, so if a blocker fail is present in another field, the
+ * overall verdict is unaffected.
+ */
+function maybeUpgradeCheckWithAnchor(
+  check: CheckReview,
+  anchor: FieldAnchor | null
+): CheckReview {
+  if (!anchor) return check;
+  if (check.status !== 'review') return check;
+  const equivalenceNote =
+    anchor.matchKind === 'equivalent'
+      ? ' (matched via a recognized equivalent on the label).'
+      : '.';
+  return {
+    ...check,
+    status: 'pass',
+    severity: 'note',
+    summary: 'Label matches the approved record (OCR anchor confirmed).',
+    details:
+      `The label shows the approved application value${equivalenceNote} ` +
+      'Anchor-based OCR verified token presence independently of the vision model.'
+  };
+}
 
 /**
  * When the VLM reports a field as not-present but the Tesseract OCR
@@ -50,10 +120,15 @@ function tryOcrFallbackValue(
 export function buildFieldChecks(input: {
   intake: NormalizedReviewIntake;
   extraction: ReviewExtraction;
+  anchorTrack?: AnchorTrackResult | null;
 }): CheckReview[] {
-  return FIELD_SPECS.map((spec) => buildFieldCheck({ ...input, spec })).filter(
-    (check): check is CheckReview => check !== null
-  );
+  const anchorTrack = input.anchorTrack ?? null;
+  return FIELD_SPECS
+    .map((spec) => buildFieldCheck({ ...input, spec }))
+    .filter((check): check is CheckReview => check !== null)
+    .map((check) =>
+      maybeUpgradeCheckWithAnchor(check, findStrongAnchorFor(check.id, anchorTrack))
+    );
 }
 
 function buildFieldCheck(input: {

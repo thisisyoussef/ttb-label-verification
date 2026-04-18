@@ -27,6 +27,7 @@ import type { LlmEndpointSurface } from './llm-policy';
 import type { WarningOcvResult } from './warning-region-ocv';
 import type { OcrCrossCheckResult } from './warning-ocr-cross-check';
 import type { ReviewLatencyCapture } from './review-latency';
+import type { AnchorTrackResult } from './anchor-field-track';
 import {
   annotateCurrentRun,
   inferProviderFromModel,
@@ -81,6 +82,12 @@ export type TracedReviewReportInput = TraceMetadataInput & {
    * VLM call in `spirits-colocation-check.ts`.
    */
   spiritsColocation?: import('./spirits-colocation-check').SpiritsColocationResult | null;
+  /**
+   * Optional per-field anchor track result. When present, the review
+   * report layer uses anchor confirmations to upgrade review→pass on
+   * individual fields. Only runs when ANCHOR_MERGE=enabled.
+   */
+  anchorTrack?: AnchorTrackResult | null;
 };
 
 export const tracedReviewExtraction = traceable(
@@ -148,7 +155,8 @@ export const tracedReviewReport = traceable(
       warningCheck: input.warningCheck,
       id: input.reportId,
       deferResolver: input.deferResolver,
-      spiritsColocation: input.spiritsColocation
+      spiritsColocation: input.spiritsColocation,
+      anchorTrack: input.anchorTrack
     });
   },
   {

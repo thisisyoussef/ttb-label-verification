@@ -18,7 +18,9 @@ export type ReviewLatencyStage =
   | 'region-detection'
   | 'llm-judgment'
   // Spirits-only same-field-of-vision VLM check (27 CFR 5.61).
-  | 'spirits-colocation';
+  | 'spirits-colocation'
+  // Parallel anchor track — deterministic OCR verification of app values.
+  | 'anchor-track';
 
 export type ReviewLatencyStageOutcome =
   | 'success'

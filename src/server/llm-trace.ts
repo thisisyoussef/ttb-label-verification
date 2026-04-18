@@ -8,6 +8,11 @@ import type {
 import { runWarningOcrCrossCheck } from './warning-ocr-cross-check';
 import { runOcrPrepass, isOcrPrepassEnabled } from './ocr-prepass';
 import { runWarningOcv, type WarningOcvResult } from './warning-region-ocv';
+import {
+  runAnchorTrack,
+  resolveAnchorMergeMode,
+  type AnchorTrackResult
+} from './anchor-field-track';
 import { reconcileExtractionWithOcr } from './extraction-ocr-reconciler';
 import { extractFieldsFromOcrText } from './ocr-field-extractor';
 import { runVlmRegionDetection, isRegionDetectionEnabled } from './vlm-region-detector';
@@ -161,11 +166,28 @@ const tracedReviewSurface = traceable(
     // by then in the overwhelming majority of cases.
     vlmPromise.finally(() => ocvController.abort()).catch(() => {});
 
-    // Await all three in parallel.
-    const [ocrStage, ocvStage, vlmStage] = await Promise.all([
+    // Parallel anchor track — takes the application values as known
+    // targets, runs one Tesseract TSV pass on the full label, and
+    // checks per-field whether each value's tokens are present. Used
+    // downstream to upgrade review→pass on fields the VLM was
+    // uncertain about but anchor confirmed. Only runs when
+    // ANCHOR_MERGE=enabled (or shadow) — default is off during
+    // rollout. Returns null when flag is off so the report layer
+    // falls through to legacy behavior.
+    const anchorMergeMode = resolveAnchorMergeMode();
+    const anchorPromise: Promise<{ result: AnchorTrackResult | null; elapsedMs: number }> =
+      anchorMergeMode === 'disabled'
+        ? Promise.resolve({ result: null, elapsedMs: 0 })
+        : measureStage(() => runAnchorTrack(input.intake.label, input.intake.fields));
+
+    // Await all four in parallel. Anchor adds one Tesseract call but
+    // it runs alongside the existing 3 stages — no wall-clock cost
+    // on cold labels because VLM is the long pole.
+    const [ocrStage, ocvStage, vlmStage, anchorStage] = await Promise.all([
       ocrPromise,
       ocvPromise,
-      vlmPromise
+      vlmPromise,
+      anchorPromise
     ]);
 
     if (ocrStage) {
@@ -186,6 +208,18 @@ const tracedReviewSurface = traceable(
         durationMs: ocvStage.elapsedMs
       });
     }
+    // anchor stage telemetry — only meaningful when flag is on. In
+    // 'shadow' mode we still record the stage but pass null to the
+    // report layer so the merge doesn't fire (for A/B metrics).
+    if (anchorStage.result) {
+      latencyCapture.recordSpan({
+        stage: 'anchor-track',
+        outcome: anchorStage.result.canFastApprove ? 'success' : 'fast-fail',
+        durationMs: anchorStage.elapsedMs
+      });
+    }
+    const anchorTrackForReport =
+      anchorMergeMode === 'enabled' ? anchorStage.result : null;
 
     let extractionElapsedMs = vlmStage.elapsedMs;
 
@@ -277,7 +311,8 @@ const tracedReviewSurface = traceable(
         warningCheck: warningStage.result,
         spiritsColocation,
         reportId: input.reportId,
-        deferResolver: input.deferResolver
+        deferResolver: input.deferResolver,
+        anchorTrack: anchorTrackForReport
       })
     );
     latencyCapture.recordSpan({
