@@ -1,0 +1,14 @@
+{
+  "storyId": "TTB-EVAL-002",
+  "mode": "dry-run",
+  "generatedAt": "2026-04-18T13:30:01.117Z",
+  "model": "gemini-2.5-flash-lite",
+  "cases": 35,
+  "sources": {
+    "cola-cloud": 28,
+    "supplemental-generated": 7
+  },
+  "estimatedInlineBytes": 2104561,
+  "inlineByteLimit": 19922944,
+  "outputPath": "evals/results/2026-04-18-TTB-EVAL-002-gemini-batch-dry-run.json"
+}

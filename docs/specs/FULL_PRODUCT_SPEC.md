@@ -157,6 +157,7 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 ### Umbrella packets
 
 - `TTB-EVAL-001`: eval baseline
+- `TTB-EVAL-002`: Gemini Batch live eval runner
 - `TTB-001`: single-label reviewer experience
 - `TTB-002`: single-label intelligence path
 - `TTB-003`: batch workflow
@@ -164,6 +165,7 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 
 ### Executable leaf stories
 
+- `TTB-EVAL-002`: Gemini Batch golden-set live eval runner and cost discipline
 - `TTB-101`: single-label intake and processing UI
 - `TTB-102`: single-label results, warning evidence, and standalone UI
 - `TTB-201`: shared review contract expansion and seed fixture alignment
