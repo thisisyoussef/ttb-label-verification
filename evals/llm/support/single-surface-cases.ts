@@ -320,7 +320,7 @@ export const extractionEndpointCases: ExtractionEndpointCase[] = [
       }
     }),
     expected: {
-      beverageType: 'distilled-spirits',
+      beverageType: 'unknown',
       beverageTypeSource: 'strict-fallback',
       standalone: true,
       hasApplicationData: false,

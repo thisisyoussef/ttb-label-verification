@@ -126,6 +126,12 @@ export function resolveReviewBeverageType(input: {
   applicationBeverageTypeHint: ReviewIntakeBeverage;
   extractedClassType?: string;
   extractedAlcoholContent?: string;
+  extractedNetContents?: string;
+  extractedGovernmentWarning?: string;
+  extractedBrandName?: string;
+  extractedApplicantAddress?: string;
+  extractedCountryOfOrigin?: string;
+  noTextDetected?: boolean;
   modelBeverageTypeHint?: BeverageType;
 }): ReviewBeverageResolution {
   if (input.applicationBeverageTypeHint !== 'auto') {
@@ -157,7 +163,9 @@ export function resolveReviewBeverageType(input: {
   }
 
   return {
-    beverageType: 'distilled-spirits',
+    beverageType: hasTrustworthyAlcoholLabelEvidence(input)
+      ? 'distilled-spirits'
+      : 'unknown',
     source: 'strict-fallback'
   };
 }
@@ -186,6 +194,12 @@ export function finalizeReviewExtraction(input: {
     applicationBeverageTypeHint: input.intake.fields.beverageTypeHint,
     extractedClassType: input.extracted.fields.classType.value,
     extractedAlcoholContent: input.extracted.fields.alcoholContent.value,
+    extractedNetContents: input.extracted.fields.netContents.value,
+    extractedGovernmentWarning: input.extracted.fields.governmentWarning.value,
+    extractedBrandName: input.extracted.fields.brandName.value,
+    extractedApplicantAddress: input.extracted.fields.applicantAddress.value,
+    extractedCountryOfOrigin: input.extracted.fields.countryOfOrigin.value,
+    noTextDetected: input.extracted.imageQuality.noTextDetected,
     modelBeverageTypeHint: input.extracted.beverageTypeHint
   });
 
@@ -270,4 +284,42 @@ function parseAlcoholPercent(value: string | undefined) {
 
 function clampScore(value: number) {
   return Math.max(0, Math.min(1, value));
+}
+
+function hasTrustworthyAlcoholLabelEvidence(input: {
+  extractedClassType?: string;
+  extractedAlcoholContent?: string;
+  extractedNetContents?: string;
+  extractedGovernmentWarning?: string;
+  extractedBrandName?: string;
+  extractedApplicantAddress?: string;
+  extractedCountryOfOrigin?: string;
+  noTextDetected?: boolean;
+}) {
+  if (input.noTextDetected) {
+    return false;
+  }
+
+  if (
+    hasMeaningfulText(input.extractedAlcoholContent) ||
+    hasMeaningfulText(input.extractedNetContents) ||
+    hasMeaningfulText(input.extractedGovernmentWarning)
+  ) {
+    return true;
+  }
+
+  const identitySignalCount = [
+    input.extractedBrandName,
+    input.extractedClassType
+  ].filter(hasMeaningfulText).length;
+  const supportingSignalCount = [
+    input.extractedApplicantAddress,
+    input.extractedCountryOfOrigin
+  ].filter(hasMeaningfulText).length;
+
+  return identitySignalCount > 0 && supportingSignalCount > 0;
+}
+
+function hasMeaningfulText(value: string | undefined) {
+  return Boolean(value?.trim());
 }

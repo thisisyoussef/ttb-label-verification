@@ -13,13 +13,15 @@ import {
 function buildIntake(
   overrides: Partial<NormalizedReviewIntake> = {}
 ): NormalizedReviewIntake {
+  const label = overrides.label ?? {
+    originalName: 'label.png',
+    mimeType: 'image/png',
+    bytes: 4,
+    buffer: Buffer.from([1, 2, 3, 4])
+  };
+
   return {
-    label: {
-      originalName: 'label.png',
-      mimeType: 'image/png',
-      bytes: 4,
-      buffer: Buffer.from([1, 2, 3, 4])
-    },
+    label,
     fields: {
       beverageTypeHint: 'auto',
       origin: 'domestic',

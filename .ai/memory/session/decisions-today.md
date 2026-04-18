@@ -14,3 +14,4 @@
 - Treat mergeable story work as incomplete until it has been pushed and merged, not just committed locally.
 - Keep `TTB-EVAL-002` inline-only: use Gemini Batch only for approved checked-in live eval assets, fail closed before any request size that would require the Files API, and keep the path out of shipped review routes.
 - Keep `npm run eval:golden` as the canonical fixture-backed gate; the Gemini Batch runner is opt-in cost tooling for non-urgent live corpus sweeps.
+- For `TTB-210`, keep the strict distilled-spirits fallback only for ambiguous cases that still carry trustworthy alcohol-label evidence such as ABV, net contents, warning text, or identity-plus-supporting-origin/address signals; sparse non-label and no-text outputs stay `unknown`.

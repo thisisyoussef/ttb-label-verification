@@ -2,9 +2,34 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 
 import {
+  finalizeReviewExtraction,
   normalizeImageQualityAssessment,
   resolveReviewBeverageType
 } from './review-extraction';
+import type { NormalizedReviewIntake } from './review-intake';
+
+function buildIntake(
+  overrides: Partial<NormalizedReviewIntake> = {}
+): NormalizedReviewIntake {
+  const label = {
+    originalName: 'label.png',
+    mimeType: 'image/png',
+    bytes: 4,
+    buffer: Buffer.from([1, 2, 3, 4])
+  };
+
+  return {
+    label,
+    fields: {
+      beverageTypeHint: 'auto',
+      origin: 'domestic',
+      varietals: []
+    },
+    hasApplicationData: false,
+    standalone: true,
+    ...overrides
+  };
+}
 
 describe('review extraction domain helpers', () => {
   it('prefers the application beverage type when the user supplied one', () => {
@@ -40,15 +65,122 @@ describe('review extraction domain helpers', () => {
     expect(resolution.source).toBe('model-hint');
   });
 
-  it('falls back to distilled spirits when the commodity is still ambiguous', () => {
+  it('falls back to distilled spirits when the commodity is still ambiguous but label evidence is present', () => {
     const resolution = resolveReviewBeverageType({
       applicationBeverageTypeHint: 'auto',
       extractedClassType: 'Reserve',
+      extractedAlcoholContent: '45% Alc./Vol.',
+      extractedGovernmentWarning:
+        'GOVERNMENT WARNING: (1) According to the Surgeon General...',
+      noTextDetected: false,
       modelBeverageTypeHint: 'unknown'
     });
 
     expect(resolution.beverageType).toBe('distilled-spirits');
     expect(resolution.source).toBe('strict-fallback');
+  });
+
+  it('returns unknown instead of distilled spirits when auto-detect has no trustworthy label evidence', () => {
+    const resolution = resolveReviewBeverageType({
+      applicationBeverageTypeHint: 'auto',
+      extractedClassType: undefined,
+      extractedAlcoholContent: undefined,
+      extractedGovernmentWarning: undefined,
+      noTextDetected: false,
+      modelBeverageTypeHint: 'unknown'
+    });
+
+    expect(resolution.beverageType).toBe('unknown');
+    expect(resolution.source).toBe('strict-fallback');
+  });
+
+  it('returns unknown when no readable text was detected and auto-detect has no other signal', () => {
+    const extraction = finalizeReviewExtraction({
+      intake: buildIntake(),
+      model: 'gemini-2.5-flash-lite',
+      extracted: {
+        fields: {
+          brandName: {
+            present: false,
+            confidence: 0.08
+          },
+          fancifulName: {
+            present: false,
+            confidence: 0.08
+          },
+          classType: {
+            present: false,
+            confidence: 0.08
+          },
+          alcoholContent: {
+            present: false,
+            confidence: 0.08
+          },
+          netContents: {
+            present: false,
+            confidence: 0.08
+          },
+          applicantAddress: {
+            present: false,
+            confidence: 0.08
+          },
+          countryOfOrigin: {
+            present: false,
+            confidence: 0.08
+          },
+          ageStatement: {
+            present: false,
+            confidence: 0.08
+          },
+          sulfiteDeclaration: {
+            present: false,
+            confidence: 0.08
+          },
+          appellation: {
+            present: false,
+            confidence: 0.08
+          },
+          vintage: {
+            present: false,
+            confidence: 0.08
+          },
+          governmentWarning: {
+            present: false,
+            confidence: 0.08
+          },
+          varietals: []
+        },
+        beverageTypeHint: undefined,
+        warningSignals: {
+          prefixAllCaps: {
+            status: 'uncertain',
+            confidence: 0.2
+          },
+          prefixBold: {
+            status: 'uncertain',
+            confidence: 0.2
+          },
+          continuousParagraph: {
+            status: 'uncertain',
+            confidence: 0.2
+          },
+          separateFromOtherContent: {
+            status: 'uncertain',
+            confidence: 0.2
+          }
+        },
+        imageQuality: {
+          score: 0.05,
+          issues: ['No readable text detected in the uploaded image.'],
+          noTextDetected: true
+        },
+        summary: 'No readable label text detected.'
+      }
+    });
+
+    expect(extraction.beverageType).toBe('unknown');
+    expect(extraction.beverageTypeSource).toBe('strict-fallback');
+    expect(extraction.imageQuality.state).toBe('no-text-extracted');
   });
 
   it('marks no-text extractions explicitly instead of hiding them as low confidence', () => {

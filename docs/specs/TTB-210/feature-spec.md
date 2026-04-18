@@ -62,6 +62,7 @@ Without a shared prompt policy and endpoint-aware plus mode-aware guardrails, pr
 
 - A high-quality label appears to omit the government warning entirely. The route must preserve that as valid extraction evidence, not auto-upgrade it into an adapter error.
 - A low-quality label produces sparse output. The route should expose reversible uncertainty instead of manufacturing a strong result.
+- A decorative art upload or other non-label image produces sparse extraction. Auto-detect must keep the beverage type `unknown` unless there is trustworthy alcohol-label evidence.
 - The same label is processed through the review route and warning-only route. Prompt overlays may differ, but the extraction contract and user-facing trust posture must stay consistent.
 - The same label is processed in cloud mode and local mode. Mode overlays may differ, but the contract and trust posture must remain consistent.
 - Batch items from the same importer drift across repeated runs. The route should surface item-local instability clearly rather than polluting the full session.
