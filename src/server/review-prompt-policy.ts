@@ -48,7 +48,13 @@ const BASELINE_INSTRUCTIONS = [
   'Assess image quality, and set noTextDetected=true only when no readable label text can be extracted.',
   'Estimate warning visual signals for all-caps prefix, bold prefix, continuous paragraph, and visual separation.',
   'Provide a beverageTypeHint only when the label content supports it; otherwise use unknown.',
-  'Populate the structured fields exactly as named, including governmentWarning when warning text is visible.'
+  'Populate the structured fields exactly as named, including governmentWarning when warning text is visible.',
+  // applicantAddress disambiguation: the VLM sometimes maps a
+  // marketing website or social handle into this field because a
+  // web URL is semantically an "address" too. 27 CFR §§ 4.35, 5.63,
+  // 7.24 require the bottler/importer POSTAL address. URLs must be
+  // ignored for this field.
+  'The applicantAddress field is STRICTLY the bottler, packer, or importer POSTAL address (street, city, state/country). NEVER populate applicantAddress with a web URL (http://..., www...., example.com), an email address, or a social-media handle. If the label shows only a URL/website and no postal address, set applicantAddress.present=false.'
 ] as const;
 
 const OCR_AUGMENTED_INSTRUCTIONS = [
@@ -66,7 +72,10 @@ const OCR_AUGMENTED_INSTRUCTIONS = [
   'Assess image quality from the image itself, and set noTextDetected=true only when the OCR text is empty.',
   'For warning visual signals: report what you see but mark "uncertain" if unclear.',
   'Provide a beverageTypeHint only when the OCR text or image supports it; otherwise use unknown.',
-  'Populate the structured fields exactly as named, including governmentWarning when warning text appears in the OCR output.'
+  'Populate the structured fields exactly as named, including governmentWarning when warning text appears in the OCR output.',
+  // Same disambiguation as BASELINE_INSTRUCTIONS — keep prompts in
+  // sync so the OCR-augmented path doesn't leak URLs either.
+  'The applicantAddress field is STRICTLY the bottler, packer, or importer POSTAL address (street, city, state/country). NEVER populate applicantAddress with a web URL (http://..., www...., example.com), an email address, or a social-media handle. If the OCR text shows only a URL/website and no postal address, set applicantAddress.present=false.'
 ] as const;
 
 const ENDPOINT_OVERLAYS: Record<ReviewPromptSurface, readonly string[]> = {

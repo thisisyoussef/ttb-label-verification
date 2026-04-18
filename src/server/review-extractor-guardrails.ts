@@ -35,6 +35,7 @@ export function applyReviewExtractorGuardrails(input: {
   }
 
   guarded = downgradeWarningSignalsWithoutWarningText(guarded);
+  guarded = scrubUrlFromApplicantAddress(guarded);
 
   if (input.extractionMode === 'local') {
     guarded = downgradeLocalOnlyVisualClaims(guarded);
@@ -163,6 +164,83 @@ function downgradeSignal(signal: GuardrailOutput['warningSignals']['prefixBold']
       'Downgraded in local mode because formatting or spatial judgments are not trusted strongly enough.'
     )
   };
+}
+
+/**
+ * Guardrail: the applicant-address field is strictly the bottler /
+ * importer POSTAL address (27 CFR §§ 4.35, 5.63, 7.24 — "name and
+ * address of the bottler / packer"). In practice the VLM sometimes
+ * returns a web URL or social handle instead, because a marketing
+ * URL on the label is semantically an "address" too. Downstream
+ * judgment then flags it as a mismatch against the actual applicant
+ * street address — a noisy false-negative.
+ *
+ * Catch URL-shaped values before they leave the extractor and
+ * downgrade the field to `present=false`. A human-readable note
+ * explains the reason in the evidence panel.
+ *
+ * Conservative matcher: only reject values that are OVERWHELMINGLY
+ * URL-ish (scheme, mandatory slash sequence, or an www/domain-only
+ * pattern). Don't reject strings that happen to contain a .com — a
+ * legitimate postal address like "100 Main St., Anytown, VA 22314,
+ * www.example.com" has real value we want to preserve; the addr-
+ * comparison layer tokenizes such strings and matches against the
+ * actual postal fields.
+ */
+function scrubUrlFromApplicantAddress(output: GuardrailOutput): GuardrailOutput {
+  const addr = output.fields.applicantAddress;
+  if (!addr.present || !addr.value) return output;
+  if (!isUrlOnlyAddress(addr.value)) return output;
+
+  return {
+    ...output,
+    fields: {
+      ...output.fields,
+      applicantAddress: {
+        present: false,
+        value: null,
+        confidence: Math.min(addr.confidence, 0.2),
+        note: appendNote(
+          addr.note,
+          'Rejected: extracted value was a URL / web address, not a postal address.'
+        )
+      }
+    }
+  };
+}
+
+/**
+ * True when the input is recognizably a URL / web address with no
+ * co-located postal information. Intentionally strict so we don't
+ * discard real addresses that happen to end with a marketing URL.
+ */
+export function isUrlOnlyAddress(raw: string): boolean {
+  const trimmed = raw.trim();
+  if (trimmed.length === 0) return false;
+
+  // Obvious URL schemes.
+  if (/^https?:\/\//i.test(trimmed)) return true;
+  if (/^ftp:\/\//i.test(trimmed)) return true;
+
+  // www.* followed by a domain and no spaces (www.example.com, etc.).
+  if (/^www\.[a-z0-9-]+\.[a-z]{2,}(\/\S*)?$/i.test(trimmed)) return true;
+
+  // Bare domain only (example.com, my-brewery.beer, example.co.uk).
+  // No spaces means there's no room for a postal address, and the
+  // trailing TLD distinguishes it from plain words. Matches one or
+  // more dot-separated segments ending in a 2+ char alpha TLD.
+  if (
+    !trimmed.includes(' ') &&
+    /^[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}(\/\S*)?$/i.test(trimmed)
+  ) {
+    return true;
+  }
+
+  // Social handles / emails where the @ is the whole value.
+  if (/^[@#][a-z0-9._-]+$/i.test(trimmed)) return true;
+  if (/^[a-z0-9._-]+@[a-z0-9-]+(\.[a-z]{2,})+$/i.test(trimmed)) return true;
+
+  return false;
 }
 
 function appendNote(note: string | null, suffix: string) {
