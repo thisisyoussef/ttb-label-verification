@@ -98,6 +98,12 @@ export function AssessorToolbench({
                   onLoadBatch(images, csv);
                   close();
                 }}
+                // Synthetic-label flow keeps the toolbench open so the
+                // expected-verdict chip stays visible — devs read it
+                // before clicking Verify to compare actual vs expected.
+                onLoadSyntheticSample={(file, fields, imageId) => {
+                  onLoadSample(file, fields, imageId);
+                }}
               />
             )}
             {tab === 'assets' && (
