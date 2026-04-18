@@ -53,25 +53,17 @@ export function resolveDynamicReviewPhrase(
   const heavy =
     profile.maxSeverity === 'major' || profile.maxSeverity === 'blocker';
 
-  if (profile.count === 1) {
-    return heavy
-      ? 'One field needs a closer look.'
-      : 'Almost good — one quick check left.';
+  if (heavy) {
+    if (profile.count >= 5) {
+      return `${profile.count} fields need a closer look — start with the major flags.`;
+    }
+
+    return profile.count === 1
+      ? '1 field needs a closer look.'
+      : `${profile.count} fields need a closer look.`;
   }
 
-  if (profile.count === 2) {
-    return heavy
-      ? 'A couple of fields need a closer look.'
-      : 'A couple of quick checks left.';
-  }
-
-  if (profile.count <= 4) {
-    return heavy
-      ? `${profile.count} fields need a closer look.`
-      : `${profile.count} quick checks left.`;
-  }
-
-  return heavy
-    ? `${profile.count} fields need a closer look — start with the major flags.`
-    : `${profile.count} quick checks left.`;
+  return profile.count === 1
+    ? '1 field still needs review.'
+    : `${profile.count} fields still need review.`;
 }

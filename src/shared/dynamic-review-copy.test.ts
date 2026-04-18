@@ -64,19 +64,19 @@ describe('resolveDynamicReviewPhrase (shared)', () => {
   it('renders an "almost good" phrase for a single low-severity review', () => {
     expect(
       resolveDynamicReviewPhrase({ count: 1, maxSeverity: 'note' })
-    ).toBe('Almost good — one quick check left.');
+    ).toBe('1 field still needs review.');
   });
 
   it('escalates the single-row phrase when severity is major', () => {
     expect(
       resolveDynamicReviewPhrase({ count: 1, maxSeverity: 'major' })
-    ).toBe('One field needs a closer look.');
+    ).toBe('1 field needs a closer look.');
   });
 
   it('uses count-based phrasing for 2-4 reviews', () => {
     expect(
       resolveDynamicReviewPhrase({ count: 3, maxSeverity: 'minor' })
-    ).toBe('3 quick checks left.');
+    ).toBe('3 fields still need review.');
     expect(
       resolveDynamicReviewPhrase({ count: 4, maxSeverity: 'major' })
     ).toBe('4 fields need a closer look.');
@@ -94,7 +94,7 @@ describe('phrase recomputes correctly when reviews drop to zero', () => {
     const phrase = resolveDynamicReviewPhrase(
       summarizeReviewSeverity([review('major'), pass(), pass()])
     );
-    expect(phrase).toBe('One field needs a closer look.');
+    expect(phrase).toBe('1 field needs a closer look.');
   });
 
   it('reviews refined away → undefined (caller falls back to verdict copy)', () => {
@@ -104,7 +104,7 @@ describe('phrase recomputes correctly when reviews drop to zero', () => {
     expect(phrase).toBeUndefined();
   });
 
-  it('four heavy reviews → "4 fields need a closer look."; refined to one → "One field needs a closer look."', () => {
+  it('four heavy reviews → "4 fields need a closer look."; refined to one → "1 field needs a closer look."', () => {
     const before = resolveDynamicReviewPhrase(
       summarizeReviewSeverity([
         review('major'),
@@ -118,6 +118,6 @@ describe('phrase recomputes correctly when reviews drop to zero', () => {
     const after = resolveDynamicReviewPhrase(
       summarizeReviewSeverity([review('major'), pass(), pass(), pass()])
     );
-    expect(after).toBe('One field needs a closer look.');
+    expect(after).toBe('1 field needs a closer look.');
   });
 });

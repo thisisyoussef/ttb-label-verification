@@ -66,31 +66,31 @@ describe('resolveDynamicReviewPhrase', () => {
   it('renders an "almost good" phrase for a single low-severity review', () => {
     expect(
       resolveDynamicReviewPhrase({ count: 1, maxSeverity: 'note' })
-    ).toBe('Almost good — one quick check left.');
+    ).toBe('1 field still needs review.');
     expect(
       resolveDynamicReviewPhrase({ count: 1, maxSeverity: 'minor' })
-    ).toBe('Almost good — one quick check left.');
+    ).toBe('1 field still needs review.');
   });
 
   it('escalates the single-row phrase when severity is major or blocker', () => {
     expect(
       resolveDynamicReviewPhrase({ count: 1, maxSeverity: 'major' })
-    ).toBe('One field needs a closer look.');
+    ).toBe('1 field needs a closer look.');
     expect(
       resolveDynamicReviewPhrase({ count: 1, maxSeverity: 'blocker' })
-    ).toBe('One field needs a closer look.');
+    ).toBe('1 field needs a closer look.');
   });
 
   it('uses count-based phrasing for 2-4 reviews', () => {
     expect(
       resolveDynamicReviewPhrase({ count: 2, maxSeverity: 'minor' })
-    ).toBe('A couple of quick checks left.');
+    ).toBe('2 fields still need review.');
     expect(
       resolveDynamicReviewPhrase({ count: 2, maxSeverity: 'major' })
-    ).toBe('A couple of fields need a closer look.');
+    ).toBe('2 fields need a closer look.');
     expect(
       resolveDynamicReviewPhrase({ count: 3, maxSeverity: 'minor' })
-    ).toBe('3 quick checks left.');
+    ).toBe('3 fields still need review.');
     expect(
       resolveDynamicReviewPhrase({ count: 4, maxSeverity: 'major' })
     ).toBe('4 fields need a closer look.');
@@ -105,6 +105,6 @@ describe('resolveDynamicReviewPhrase', () => {
   it('keeps the simple count phrase for 5+ light reviews', () => {
     expect(
       resolveDynamicReviewPhrase({ count: 7, maxSeverity: 'minor' })
-    ).toBe('7 quick checks left.');
+    ).toBe('7 fields still need review.');
   });
 });

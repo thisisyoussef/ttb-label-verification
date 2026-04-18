@@ -261,8 +261,9 @@ export function Results({
         ) : (
           <>
             <VerdictBanner
-              verdict={report.verdict}
               counts={report.counts}
+              standalone={report.standalone}
+              extractionQualityState={report.extractionQuality.state}
               secondary={secondary}
               extractedFieldCount={report.checks.length}
               rulesAppliedCount={report.checks.length + report.crossFieldChecks.length}
