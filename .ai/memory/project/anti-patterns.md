@@ -20,3 +20,7 @@
 - Changing extraction or validator behavior without updating eval artifacts
 - Shipping compliance logic without an updated rule-source trail
 - Treating no-persistence as a policy statement without negative verification
+- Claiming the active single-label latency target without measured timings
+- Adding Gemini through the Files API or any other provider-managed durable upload surface inside a no-persistence product
+- Treating the Gemini Batch runner as a replacement for `npm run eval:golden`, or widening it from the approved checked-in live corpus to reviewer submissions or arbitrary local files
+- Declaring the Gemini default production-ready without recorded live or sanitized trace evidence, timeout behavior, and a manual verification note for AI Studio logging and dataset-sharing settings

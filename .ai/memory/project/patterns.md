@@ -11,7 +11,6 @@
 - `docs/process/SINGLE_SOURCE_OF_TRUTH.md` is the single checked-in tracker for active story, queue order, blockers, and next-step resolution.
 - `docs/specs/<story-id>/` is the universal story packet. Specs are optional for small clear changes and expand when the work is large, risky, ambiguous, or cross-cutting.
 - Behavior changes use RED -> GREEN -> REFACTOR through `.ai/workflows/tdd-pipeline.md`.
-- Feature completion for visible or API-backed work includes an end-to-end verification pass against the real API path plus a real-browser click-through in Comet.
 - Prompt, model, tool-call, and agentic LLM stories use trace-driven development through `docs/process/TRACE_DRIVEN_DEVELOPMENT.md` and `.ai/workflows/trace-driven-development.md`, with LangSmith tracing kept off outside explicit local trace runs.
 - Direct UI work is the default. Stitch remains optional through `STITCH_FLOW_MODE=direct|automated|manual`; the legacy `claude-direct` value is accepted only as a compatibility alias.
 - Story work uses checked-in git gates: story-scoped branches, `npm run gate:commit` before reviewable commits, `npm run gate:push` before reviewable pushes, and PR-only merges to `main`.
@@ -23,11 +22,12 @@
 - The UI consumes typed review payloads and should not contain compliance logic.
 - The server owns model orchestration, deterministic validators, and report building.
 - Final compliance outcomes come from deterministic checks over structured extraction, not from a single model verdict.
-- Low-confidence visual judgments downgrade to `review`.
-- No uploaded labels, application data, or review results are persisted.
 - Shared contracts are the handshake across the app; keep client fixtures and helpers aligned to those shared types.
 - Direct review uses the integrated `POST /api/review` path; staging routes such as `POST /api/review/extraction` and `POST /api/review/warning` remain focused seams for extractor and validator work.
 - Batch mode stays in-memory and session-scoped; no DB, queue, or background restore path.
+- Cost-sensitive Gemini live eval sweeps reuse the existing extraction request builder and schema normalizer, then send the approved checked-in corpus through Gemini Batch inline requests only. Keep this path separate from `npm run eval:golden` and from any runtime submission surface.
+- Low-confidence visual judgments downgrade to `review`.
+- No uploaded labels, application data, or review results are persisted.
 
 ## Documentation pattern
 

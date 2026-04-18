@@ -14,6 +14,7 @@ This file is the checked-in leaf-story queue for completing the TTB Label Verifi
 | Packet | Role |
 | --- | --- |
 | `TTB-EVAL-001` | golden eval set foundation and run discipline |
+| `TTB-EVAL-002` | Gemini Batch golden-set live eval runner and cost discipline |
 | `TTB-001` | single-label reviewer experience umbrella |
 | `TTB-002` | single-label intelligence and API umbrella |
 | `TTB-003` | batch workflow umbrella |
@@ -32,6 +33,7 @@ This file is the checked-in leaf-story queue for completing the TTB Label Verifi
 | Order | Story ID | Parent | Title | Lane shape | Depends On | Completes When |
 | --- | --- | --- | --- | --- | --- | --- |
 | 0 | `TTB-EVAL-001` | eval foundation | golden eval set foundation and run discipline | Codex-only | none | the golden set, live core-six subset, and run log format are locked |
+| 0.1 | `TTB-EVAL-002` | eval foundation | Gemini Batch golden-set live eval runner and cost discipline | Codex-only | `TTB-EVAL-001`, `TTB-207` | approved live Gemini extraction corpus can run through inline Batch without weakening the canonical golden gate |
 | 1 | `TTB-101` | `TTB-001` | single-label intake and processing UI | Claude-first, then Codex integration | `TTB-EVAL-001` | the intake and processing screens are approved and frozen |
 | 2 | `TTB-102` | `TTB-001` | single-label results, warning evidence, and standalone UI | Claude-first, then Codex integration | `TTB-101` approved | the single-label results experience is approved and frozen |
 | 3 | `TTB-201` | `TTB-002` | shared review contract expansion and seed fixture alignment | Codex-only | `TTB-102` ready-for-codex | the contract supports the approved single-label results UI |
