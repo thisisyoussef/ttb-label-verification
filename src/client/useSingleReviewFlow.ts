@@ -28,6 +28,12 @@ import {
 import { useSpeculativePrefetch } from './useSpeculativePrefetch';
 import { useOcrPreview, type OcrPreviewFields } from './useOcrPreview';
 import { useExtractionPrefetch } from './useExtractionPrefetch';
+import {
+  hasRefinableRows,
+  mergeRefinedReport,
+  useRefineReview,
+  type RefineStatus
+} from './useRefineReview';
 
 export interface SingleReviewFlow {
   image: LabelImage | null;
@@ -47,6 +53,12 @@ export interface SingleReviewFlow {
    * fixture/tour scenarios that bypass the live pipeline.
    */
   ocrPreview: OcrPreviewFields | null;
+  /**
+   * Refine-pass status (Option C). Fires after Results render when
+   * any identifier field is in 'review' status. UI uses this to show
+   * a subtle row-level "refining…" indicator.
+   */
+  refineStatus: RefineStatus;
   variantOptions: Array<{ value: ResultVariantOverride; label: string }>;
   setBeverage: (value: BeverageSelection) => void;
   setFields: (value: IntakeFields) => void;
@@ -190,11 +202,39 @@ export function useSingleReviewFlow(options: {
     extractionPrefetchRef.current = extractionPrefetch.cacheKey;
   }, [extractionPrefetch.cacheKey]);
 
+  // Row-level refine (Option C). Fires after Results render when any
+  // identifier row is in 'review' status. Runs the pipeline again
+  // with VERIFICATION_MODE=on and merges refined identifier checks
+  // back into the displayed report.
+  const refine = useRefineReview();
+  useEffect(() => {
+    if (
+      phase === 'terminal' &&
+      report &&
+      !useFixtureReport &&
+      image &&
+      hasRefinableRows(report)
+    ) {
+      refine.start({ image, beverage, fields: fieldsState });
+    }
+    // Fire once per (report, image) pair. refine identity is stable via useRefineReview.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, report?.id]);
+  // When refine completes, merge identifier rows back into the report.
+  useEffect(() => {
+    if (refine.refinedReport && report) {
+      const merged = mergeRefinedReport(report, refine.refinedReport);
+      if (merged !== report) setReport(merged);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refine.refinedReport]);
+
   const reset = useCallback(() => {
     abandonInFlightReview();
     prefetch.clearPrefetch();
     ocrPreview.reset();
     extractionPrefetch.reset();
+    refine.reset();
     reviewTraceIdRef.current = null;
     revokeImage(imageRef.current);
     setImage(null);
@@ -205,7 +245,7 @@ export function useSingleReviewFlow(options: {
     setVariantOverride('auto');
     setReport(null);
     resetPipelineState();
-  }, [abandonInFlightReview, extractionPrefetch, ocrPreview, prefetch, resetPipelineState, revokeImage, setReport]);
+  }, [abandonInFlightReview, extractionPrefetch, ocrPreview, prefetch, refine, resetPipelineState, revokeImage, setReport]);
 
   const variantOptions = useMemo(
     () =>
@@ -309,6 +349,7 @@ export function useSingleReviewFlow(options: {
     failureMessage,
     report,
     ocrPreview: ocrPreview.preview,
+    refineStatus: refine.status,
     variantOptions,
     setBeverage,
     setFields: setFieldsState,

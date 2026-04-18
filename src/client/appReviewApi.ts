@@ -244,6 +244,51 @@ export async function streamReview(options: {
   }
 }
 
+/**
+ * Option C row-level refine. After Results renders, if any identifier
+ * row is in 'review' status, we can ask the server to re-run the
+ * pipeline with VERIFICATION_MODE forced on — the VLM then sees the
+ * applicant's brand/class/country values and verifies visibility on
+ * the label instead of bottom-up guessing. Returns the full refined
+ * report so the client can merge specific rows.
+ *
+ * Silent failure — refine is always a "nice to have" second pass; the
+ * original report stays displayed if the refine request errors.
+ */
+export async function refineReview(options: {
+  image: LabelImage;
+  beverage: BeverageSelection;
+  fields: IntakeFields;
+  signal: AbortSignal;
+  clientRequestId?: string;
+}) {
+  const formData = new FormData();
+  formData.append('label', options.image.file);
+  formData.append(
+    'fields',
+    JSON.stringify(buildReviewFields(options.beverage, options.fields))
+  );
+
+  const response = await fetch('/api/review/refine', {
+    method: 'POST',
+    headers: withProviderOverrideHeader(
+      options.clientRequestId
+        ? { 'x-review-client-id': options.clientRequestId }
+        : undefined
+    ),
+    body: formData,
+    signal: options.signal
+  });
+
+  if (!response.ok) return { ok: false as const };
+  try {
+    const report = verificationReportSchema.parse(await response.json());
+    return { ok: true as const, report };
+  } catch {
+    return { ok: false as const };
+  }
+}
+
 export async function parseApiError(response: Response, fallback: string) {
   try {
     const payload = reviewErrorSchema.parse(await response.json());

@@ -338,6 +338,43 @@ export function registerReviewRoutes(input: {
     });
   });
 
+  // Option C — row-level refine. Fires AFTER the initial /api/review
+  // lands with any identifier field in 'review' status. Re-runs the
+  // pipeline with VERIFICATION_MODE forced on, so the VLM gets the
+  // applicant-declared identifiers and can decide whether they're
+  // actually visible on the label (instead of bottom-up guessing).
+  // Returns the full refined report so the client can merge the
+  // specific rows it wanted to re-check.
+  app.post('/api/review/refine', (request, response) => {
+    void handleSingleLabelRoute('/api/review', request, response, async ({
+      intake,
+      clientTraceId,
+      latencyCapture,
+      resolution
+    }) => {
+      const previous = process.env.VERIFICATION_MODE;
+      process.env.VERIFICATION_MODE = 'on';
+      try {
+        return await runTracedReviewSurface({
+          surface: '/api/review',
+          extractionMode: resolution.extractionMode,
+          provider: resolution.providers.join(',') || undefined,
+          clientTraceId,
+          intake,
+          extractor: resolution.extractor as ReviewExtractor,
+          latencyCapture,
+          latencyObserver
+        });
+      } finally {
+        if (previous === undefined) {
+          delete process.env.VERIFICATION_MODE;
+        } else {
+          process.env.VERIFICATION_MODE = previous;
+        }
+      }
+    });
+  });
+
   app.post('/api/review/stream', (request, response) => {
     void handleReviewStream(request, response, {
       extractorResolution,

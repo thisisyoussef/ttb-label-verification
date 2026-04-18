@@ -28,6 +28,13 @@ interface ResultsProps {
   beverage: BeverageSelection;
   report: UIVerificationReport;
   tourExpandedCheckId?: string | null;
+  /**
+   * Row-level refine (Option C). When 'refining', identifier rows in
+   * 'review' status animate a subtle "refining…" indicator so the
+   * reviewer knows we're taking a second look before acting. When
+   * 'done', the refined rows are already merged into `report`.
+   */
+  refineStatus?: 'idle' | 'refining' | 'done' | 'error';
   onNewReview: () => void;
   onRunFullComparison: () => void;
   onTryAnotherImage: () => void;
@@ -43,6 +50,7 @@ export function Results({
   beverage,
   report,
   tourExpandedCheckId = null,
+  refineStatus = 'idle',
   onNewReview,
   onRunFullComparison,
   onTryAnotherImage,
@@ -212,7 +220,23 @@ export function Results({
                 that a first-time user won't recognize. One help pill
                 here covers all of them without cluttering every row.
               */}
-              <div className="flex items-center justify-end px-1 -mb-1">
+              <div className="flex items-center justify-between px-1 -mb-1 gap-3">
+                {refineStatus === 'refining' ? (
+                  <span
+                    role="status"
+                    aria-live="polite"
+                    className="flex items-center gap-2 font-label text-[11px] font-bold uppercase tracking-widest text-primary"
+                    title="Taking a closer look at the flagged rows."
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="inline-block w-2 h-2 rounded-full bg-primary animate-pulse"
+                    />
+                    Taking a closer look…
+                  </span>
+                ) : (
+                  <span />
+                )}
                 <HelpTooltip
                   label="What do these statuses mean?"
                   term="Matches, Needs review, Info"

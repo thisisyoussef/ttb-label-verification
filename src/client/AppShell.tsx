@@ -199,6 +199,7 @@ export function AppShell({
               beverage={single.beverage}
               report={single.report}
               tourExpandedCheckId={tourExpandedCheckId}
+              refineStatus={single.refineStatus}
               onNewReview={single.onNewReview}
               onRunFullComparison={single.onRunFullComparison}
               onTryAnotherImage={single.onTryAnotherImage}
