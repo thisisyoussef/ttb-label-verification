@@ -1,6 +1,6 @@
 # Branch Tracker
 
-Last updated: 2026-04-15
+Last updated: 2026-04-18
 
 This file is the checked-in branch registry for normal story work.
 
@@ -23,12 +23,7 @@ This file is the checked-in branch registry for normal story work.
 <!-- ACTIVE_BRANCHES:START -->
 | Branch | Story | Lane | Status | Description | PR | Opened | Updated | Base | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `chore/TTB-WF-003-branch-tracker` | `TTB-WF-003` | `chore` | `draft-local` | add the branch tracker workflow and enforce branch metadata updates | - | `2026-04-15` | `2026-04-15` | `main` | isolated workflow worktree |
-| `claude/TTB-000-fix-toolbench-scroll` | `TTB-000` | `claude` | `open` | fix toolbench scroll — move overflow to tabpanel | #45 | `2026-04-15` | `2026-04-15` | `main` | - |
-| `codex/TTB-EVAL-001-corpus-accuracy-merge` | `TTB-EVAL-001` | `codex` | `ready-pr` | expand the real eval corpus and add report-level plus raw extraction benchmark harnesses | #47 | `2026-04-15` | `2026-04-15` | `main` | published via isolated clean worktree; ready to merge |
-| `claude/TTB-000-ux-compact-verdict-strip` | `TTB-000` | `claude` | `draft-local` | compact verdict strip and severity-sorted field checklist | - | `2026-04-15` | `2026-04-15` | `main` | - |
-| `claude/TTB-000-local-fullarch` | `TTB-000` | `claude` | `published` | full-stack local pipeline (Ollama VLM + judgment), RunPod deploy, UX polish pass | #49 | `2026-04-15` | `2026-04-16` | `main` | RunPod Path B deploy + Tier 1-3 UX improvements |
-| `claude/TTB-000-autodetect-and-cleanup` | `TTB-000` | `claude` | `draft-local` | wire OCR-inferred beverage through SSE so Auto-detect badge updates; remove file size from single-label UI | - | `2026-04-18` | `2026-04-18` | `main` | - |
+| `codex/TTB-000-branch-completion` | `TTB-000` | `codex` | `draft-local` | close stale merged branches and land stranded branch-only fixes | - | `2026-04-18` | `2026-04-18` | `origin/main` | branch cleanup plus ABV mismatch display fix |
 <!-- ACTIVE_BRANCHES:END -->
 
 ## Closed branches
@@ -36,4 +31,10 @@ This file is the checked-in branch registry for normal story work.
 <!-- CLOSED_BRANCHES:START -->
 | Branch | Story | Lane | Final status | Description | Closed | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| `claude/TTB-000-autodetect-and-cleanup` | `TTB-000` | `claude` | `merged` | wire OCR-inferred beverage through SSE so Auto-detect badge updates; remove file size from single-label UI | `2026-04-18` | landed across PRs #76, #77, and #78 |
+| `claude/TTB-000-local-fullarch` | `TTB-000` | `claude` | `merged` | full-stack local pipeline (Ollama VLM + judgment), RunPod deploy, UX polish pass | `2026-04-18` | merged via PR #49; later local history contains reverted perf experiments |
+| `claude/TTB-000-ux-compact-verdict-strip` | `TTB-000` | `claude` | `abandoned` | compact verdict strip and severity-sorted field checklist | `2026-04-18` | stale draft PR #48; patch-equivalent UI landed elsewhere |
+| `codex/TTB-EVAL-001-corpus-accuracy-merge` | `TTB-EVAL-001` | `codex` | `merged` | expand the real eval corpus and add report-level plus raw extraction benchmark harnesses | `2026-04-18` | merged via PR #47 |
+| `claude/TTB-000-fix-toolbench-scroll` | `TTB-000` | `claude` | `merged` | fix toolbench scroll - move overflow to tabpanel | `2026-04-18` | merged via PR #45 |
+| `chore/TTB-WF-003-branch-tracker` | `TTB-WF-003` | `chore` | `merged` | add the branch tracker workflow and enforce branch metadata updates | `2026-04-18` | merged via PR #44 |
 <!-- CLOSED_BRANCHES:END -->
