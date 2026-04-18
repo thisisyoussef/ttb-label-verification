@@ -337,11 +337,27 @@ export function registerEvalRoutes(app: express.Express) {
         return;
       }
 
-      // Pick the "Front" label if present, else first image.
-      const frontImage =
-        detail.images.find(
-          (img) => img.container_position?.toLowerCase() === 'front'
-        ) ?? detail.images[0]!;
+      // Prefer front first, then back; fall back to the raw order if
+      // container_position is unset. COLA records often include both a
+      // front and back label — return both so the reviewer sees the
+      // full label content (warning + ingredients frequently live on
+      // the back). Cap at two: review flow only accepts front + back.
+      const positioned = (pos: string) =>
+        detail.images.filter(
+          (img) => img.container_position?.toLowerCase() === pos
+        );
+      const ordered = [
+        ...positioned('front'),
+        ...positioned('back'),
+        ...detail.images.filter((img) => {
+          const p = img.container_position?.toLowerCase();
+          return p !== 'front' && p !== 'back';
+        })
+      ];
+      const selectedImages = (ordered.length > 0 ? ordered : detail.images).slice(
+        0,
+        2
+      );
 
       const fields = mapColaCloudToFields(detail);
       const beverageType = normalizeBeverageType(detail.product_type);
@@ -350,17 +366,21 @@ export function registerEvalRoutes(app: express.Express) {
       // and tied to our API key's session. Proxy it via
       // /api/eval/cola-cloud/proxy-image so the client can fetch with
       // a normal cookie-less GET.
-      const proxyUrl = `/api/eval/cola-cloud/proxy-image?url=${encodeURIComponent(frontImage.image_url)}&ttb=${encodeURIComponent(detail.ttb_id)}`;
+      const imagePayloads = selectedImages.map((img, idx) => {
+        const position = img.container_position?.toLowerCase() || `img${idx + 1}`;
+        return {
+          id: `colacloud-${detail.ttb_id}-${position}`,
+          source: 'cola-cloud-live',
+          filename: `${detail.ttb_id}-${position}.${img.extension_type || 'jpg'}`,
+          url: `/api/eval/cola-cloud/proxy-image?url=${encodeURIComponent(img.image_url)}&ttb=${encodeURIComponent(detail.ttb_id)}`,
+          beverageType
+        };
+      });
 
       response.setHeader('cache-control', 'no-store');
       response.json({
-        image: {
-          id: `colacloud-${detail.ttb_id}`,
-          source: 'cola-cloud-live',
-          filename: `${detail.ttb_id}.${frontImage.extension_type || 'jpg'}`,
-          url: proxyUrl,
-          beverageType
-        },
+        image: imagePayloads[0],
+        images: imagePayloads,
         fields,
         meta: {
           ttbId: detail.ttb_id,
