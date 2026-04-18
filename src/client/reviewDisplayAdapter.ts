@@ -99,6 +99,29 @@ export const DISPLAY_STATUS_COPY: Record<
 };
 
 /**
+ * Pick the badge copy for a single check row. Almost always returns
+ * the static `DISPLAY_STATUS_COPY` entry, but pass-status rows whose
+ * comparison is `not-applicable` (the application didn't fill that
+ * field, so there's nothing to compare against — we just confirmed
+ * the value is on the label) get a distinct label so the reviewer
+ * doesn't read "Matches" and assume the application data was
+ * checked. The status itself stays `pass` so the green skin and
+ * counts work unchanged.
+ */
+export function resolveCheckBadge(check: CheckReview): {
+  label: string;
+  icon: string;
+} {
+  const display = toDisplayStatus(check.status);
+  const isFoundOnly =
+    display === 'pass' && check.comparison?.status === 'not-applicable';
+  if (isFoundOnly) {
+    return { label: 'Found on label', icon: 'visibility' };
+  }
+  return DISPLAY_STATUS_COPY[display];
+}
+
+/**
  * User-facing reason rewrite. The engine's check summaries sometimes
  * contain internal rule ids or regulation numbers; this strips those so
  * the reviewer sees plain language only. The stripped content is

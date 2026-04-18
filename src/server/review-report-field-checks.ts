@@ -345,17 +345,17 @@ function buildStandaloneFieldCheck(input: {
     status: confident ? 'pass' : 'review',
     severity: confident ? 'note' : 'minor',
     summary: confident
-      ? `Label shows ${input.extractedValue}.`
+      ? `Found on the label: ${input.extractedValue}.`
       : 'The label image is hard to read.',
     details: confident
-      ? 'No application data was provided to compare against. Confirm the label reads correctly.'
-      : 'No application data was provided, and the label image is too unclear to be confident.',
+      ? 'This field was not filled in the application data, so there was nothing to compare against. The value above is what we read from the label image — confirm it reads correctly.'
+      : 'This field was not filled in the application data, and the label image is too unclear to be confident in what we read.',
     confidence: input.extractedField.confidence,
     citations: citationsFor(input.extraction.beverageType),
     extractedValue: input.extractedValue,
     comparison: {
       status: 'not-applicable',
-      note: 'No application data was provided.'
+      note: 'No matching value was provided in the application data.'
     }
   };
 }

@@ -1,12 +1,21 @@
 import {
   DISPLAY_STATUS_COPY,
+  resolveCheckBadge,
   toDisplayStatus,
   type DisplayCheckStatus
 } from './reviewDisplayAdapter';
-import type { CheckStatus } from './types';
+import type { CheckReview, CheckStatus } from './types';
 
 interface StatusBadgeProps {
-  status: CheckStatus;
+  /**
+   * Either a raw status (legacy callers — renders the static
+   * DISPLAY_STATUS_COPY entry) or a full CheckReview (preferred —
+   * lets the badge show "Found on label" for pass-status rows whose
+   * application field was left blank, instead of the misleading
+   * "Matches").
+   */
+  status?: CheckStatus;
+  check?: CheckReview;
   size?: 'sm' | 'md';
 }
 
@@ -19,9 +28,12 @@ const STATUS_CLASS: Record<DisplayCheckStatus, string> = {
   info: 'bg-secondary-container text-on-secondary-container'
 };
 
-export function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
-  const displayStatus = toDisplayStatus(status);
-  const { label, icon } = DISPLAY_STATUS_COPY[displayStatus];
+export function StatusBadge({ status, check, size = 'md' }: StatusBadgeProps) {
+  const effectiveStatus: CheckStatus = check ? check.status : (status ?? 'info');
+  const displayStatus = toDisplayStatus(effectiveStatus);
+  const { label, icon } = check
+    ? resolveCheckBadge(check)
+    : DISPLAY_STATUS_COPY[displayStatus];
   const sizing =
     size === 'sm'
       ? 'px-2.5 py-0.5 text-xs gap-1'
