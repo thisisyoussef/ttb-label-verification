@@ -8,7 +8,7 @@
 - Use `docs/process/CODEX_CHECKLIST.md` as the generic implementation checklist even though the filename is historical.
 - Make `STITCH_FLOW_MODE=direct` the workspace default for UI work, and keep `claude-direct` only as a backward-compatible alias.
 - Keep automated Stitch behind self-review and explicit user review instead of auto-implementing from unreviewed generated refs.
-- Keep `TTB-WF-003` active until the repo stops teaching lane-gated behavior.
+- Keep `TTB-WF-003` active until the linked-worktree env bootstrap and quiet env-sync workflow cleanup are merged.
 - Keep `TTB-210` as the next blocking story after `TTB-WF-003`; the remaining blocker there is LangSmith auth, not local implementation quality.
 - Keep user-facing progress updates brief and action-oriented; do not surface minor tracker mismatches as speculative analysis.
 - Treat visible or API-backed feature completion as incomplete until the real API path and the real browser flow have both been verified, with Comet as the browser path.
