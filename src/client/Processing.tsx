@@ -25,12 +25,11 @@ interface ProcessingProps {
   failureMessage: string;
   localUnavailable: boolean;
   /**
-   * OCR-only preview populated by the /api/review/stream only-ocr call
-   * that fires alongside the canonical review. `null` before the
-   * preview lands (~500ms into the Processing phase); populated
-   * thereafter even when the full review is still running. Individual
-   * fields inside the preview may still be `undefined` when OCR
-   * couldn't read them.
+   * OCR-only preview landed by the parallel /api/review/stream?only=ocr
+   * call. Populates ~500ms in and animates the skeleton rows with
+   * provisional values while the canonical review is still running.
+   * Individual fields may still be undefined when OCR couldn't read
+   * them (we keep those rows on skeleton until report lands).
    */
   ocrPreview?: OcrPreviewFields | null;
   onCancel: () => void;
@@ -38,6 +37,23 @@ interface ProcessingProps {
   onBackToIntake: () => void;
   onSwitchToCloud: () => void;
 }
+
+/**
+ * The fields that the Processing screen renders as skeleton rows while
+ * the pipeline runs. Ordered to match Results row order so the flip at
+ * report-ready is a value-swap, not a reshuffle.
+ */
+const SKELETON_ROWS: Array<{
+  id: 'brandName' | 'classType' | 'alcoholContent' | 'netContents' | 'countryOfOrigin';
+  label: string;
+  previewKey?: keyof OcrPreviewFields;
+}> = [
+  { id: 'brandName', label: 'Brand name' },
+  { id: 'classType', label: 'Class / Type', previewKey: 'classType' },
+  { id: 'alcoholContent', label: 'Alcohol content', previewKey: 'alcoholContent' },
+  { id: 'netContents', label: 'Net contents', previewKey: 'netContents' },
+  { id: 'countryOfOrigin', label: 'Country of origin', previewKey: 'countryOfOrigin' }
+];
 
 export function Processing({
   image,
@@ -182,27 +198,65 @@ export function Processing({
         </div>
       </aside>
 
-      <section className="md:col-span-8 lg:col-span-9 bg-background px-6 md:px-8 xl:px-16 py-6 xl:py-12 flex flex-col gap-6 xl:gap-10 overflow-y-auto">
-        <header>
-          <h1 className="font-headline text-2xl xl:text-4xl font-extrabold text-on-surface tracking-tight">
-            Reviewing this label
-          </h1>
-          <p className="mt-2 text-on-surface-variant font-body">
-            Reading the label, checking every required field, and preparing the report.
-          </p>
+      <section className="md:col-span-8 lg:col-span-9 bg-background px-6 md:px-8 xl:px-16 py-6 xl:py-12 flex flex-col gap-6 xl:gap-8 overflow-y-auto">
+        <header className="flex flex-col gap-4">
+          <div>
+            <h1 className="font-headline text-2xl xl:text-4xl font-extrabold text-on-surface tracking-tight">
+              Reviewing this label
+            </h1>
+            <p className="mt-2 text-on-surface-variant font-body">
+              Reading the label, checking every required field, preparing your
+              report.
+            </p>
+          </div>
+
+          {phase === 'running' ? (
+            <ProgressStrip
+              steps={visibleSteps}
+              reducedMotion={reducedMotion}
+            />
+          ) : null}
         </header>
 
-        {phase === 'running' && ocrPreview && hasAnyPreview(ocrPreview) ? (
-          <OcrPreviewPanel preview={ocrPreview} />
-        ) : null}
-
-        <ol role="list" aria-live="polite" className="flex flex-col gap-1 max-w-3xl">
-          {visibleSteps.map((step, index) => (
-            <li key={step.id}>
-              <StepRow step={step} index={index + 1} reducedMotion={reducedMotion} />
-            </li>
-          ))}
-        </ol>
+        {phase === 'running' ? (
+          <div className="flex flex-col gap-3 max-w-3xl" aria-live="polite">
+            <h2 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+              Fields detected so far
+            </h2>
+            <ol role="list" className="flex flex-col gap-2">
+              {SKELETON_ROWS.map((row) => {
+                const previewValue = row.previewKey
+                  ? ocrPreview?.[row.previewKey]
+                  : undefined;
+                const value =
+                  typeof previewValue === 'string' ? previewValue : undefined;
+                return (
+                  <li key={row.id}>
+                    <SkeletonFieldRow
+                      label={row.label}
+                      value={value}
+                      reducedMotion={reducedMotion}
+                    />
+                  </li>
+                );
+              })}
+              <li>
+                <WarningSkeletonRow
+                  detected={ocrPreview?.governmentWarningPresent}
+                  reducedMotion={reducedMotion}
+                />
+              </li>
+            </ol>
+          </div>
+        ) : (
+          <ol role="list" aria-live="polite" className="flex flex-col gap-1 max-w-3xl">
+            {visibleSteps.map((step, index) => (
+              <li key={step.id}>
+                <StepRow step={step} index={index + 1} reducedMotion={reducedMotion} />
+              </li>
+            ))}
+          </ol>
+        )}
 
         {localUnavailable ? (
           <div
@@ -394,76 +448,191 @@ function StepIcon({
   );
 }
 
-// Any non-empty field (or warning-present=true) means we have something
-// worth rendering. Keeps the panel from flashing open with "Nothing
-// found yet" when OCR regex missed everything.
-function hasAnyPreview(preview: OcrPreviewFields): boolean {
-  return Boolean(
-    preview.alcoholContent ||
-      preview.netContents ||
-      preview.classType ||
-      preview.countryOfOrigin ||
-      preview.governmentWarningPresent
-  );
-}
-
-function OcrPreviewPanel({ preview }: { preview: OcrPreviewFields }) {
-  // Entries rendered in reading order. "Warning on label" is a boolean
-  // flag shown as a check/absent badge — different visual treatment
-  // than the other value-bearing fields.
-  const rows: Array<{ label: string; value: string }> = [];
-  if (preview.alcoholContent) rows.push({ label: 'Alcohol content', value: preview.alcoholContent });
-  if (preview.netContents) rows.push({ label: 'Net contents', value: preview.netContents });
-  if (preview.classType) rows.push({ label: 'Class / Type', value: preview.classType });
-  if (preview.countryOfOrigin) rows.push({ label: 'Country of origin', value: preview.countryOfOrigin });
+/**
+ * Compact horizontal progress strip that replaces the full step list
+ * while the pipeline runs. Each step is a small dot; the active one
+ * pulses (unless reducedMotion), completed ones stay solid. Sits
+ * under the page header so the reviewer sees "where we are" without
+ * the full ladder taking over the viewport.
+ */
+function ProgressStrip({
+  steps,
+  reducedMotion
+}: {
+  steps: ProcessingStep[];
+  reducedMotion: boolean;
+}) {
+  const activeStep = steps.find((step) => step.status === 'active');
+  const activeLabel = activeStep?.label ?? 'Finishing up';
 
   return (
-    <aside
-      aria-label="Early readings from the label"
-      className="max-w-3xl bg-surface-container-low border border-outline-variant/20 rounded-lg p-5 flex flex-col gap-3"
-    >
+    <div className="flex flex-col gap-2 max-w-3xl" aria-label="Pipeline progress">
       <div className="flex items-center gap-2">
-        <span
-          aria-hidden="true"
-          className="material-symbols-outlined text-[18px] text-primary"
-        >
-          visibility
-        </span>
-        <h2 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
-          Early readings from the label
-        </h2>
-        <span className="font-body text-xs text-on-surface-variant italic ml-auto">
-          provisional — still checking
-        </span>
+        {steps.map((step, index) => (
+          <StepDot
+            key={step.id}
+            step={step}
+            reducedMotion={reducedMotion}
+            isLast={index === steps.length - 1}
+          />
+        ))}
       </div>
-
-      {rows.length > 0 ? (
-        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
-          {rows.map((row) => (
-            <div key={row.label} className="flex flex-col gap-0.5">
-              <dt className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
-                {row.label}
-              </dt>
-              <dd className="font-mono text-sm font-semibold text-on-surface">
-                {row.value}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      ) : null}
-
-      {preview.governmentWarningPresent ? (
-        <p className="flex items-center gap-2 font-body text-sm text-on-surface">
-          <span
-            aria-hidden="true"
-            className="material-symbols-outlined text-[16px] text-success"
-          >
-            check_circle
-          </span>
-          Government warning text detected on the label.
-        </p>
-      ) : null}
-    </aside>
+      <p className="font-body text-sm text-on-surface-variant">{activeLabel}</p>
+    </div>
   );
 }
+
+function StepDot({
+  step,
+  reducedMotion,
+  isLast
+}: {
+  step: ProcessingStep;
+  reducedMotion: boolean;
+  isLast: boolean;
+}) {
+  const base = 'h-1.5 flex-1 rounded-full transition-colors duration-500';
+  let toneClass = 'bg-outline-variant/30';
+  if (step.status === 'done') toneClass = 'bg-primary';
+  if (step.status === 'active') {
+    toneClass = reducedMotion
+      ? 'bg-primary/60'
+      : 'bg-primary/60 animate-pulse';
+  }
+  if (step.status === 'failed') toneClass = 'bg-error';
+  return (
+    <>
+      <span className={`${base} ${toneClass}`} aria-hidden="true" />
+      {isLast ? null : <span className="sr-only">, </span>}
+    </>
+  );
+}
+
+/**
+ * Skeleton row that matches the Results FieldRow visual footprint so
+ * the flip from Processing to Results is a value-swap, not a
+ * re-layout. Three visual states:
+ *   - skeleton (no OCR value yet): shimmering placeholder bar
+ *   - provisional (OCR value present): monospaced value with "likely"
+ *     eyebrow in a subdued tone
+ *   - final (handled by Results — never rendered here)
+ */
+function SkeletonFieldRow({
+  label,
+  value,
+  reducedMotion
+}: {
+  label: string;
+  value: string | undefined;
+  reducedMotion: boolean;
+}) {
+  const hasValue = typeof value === 'string' && value.length > 0;
+  return (
+    <div
+      className={[
+        'flex items-center gap-4 px-5 py-3 rounded-lg',
+        'bg-surface-container-low/60 border border-outline-variant/15',
+        'transition-all duration-500',
+        hasValue ? 'ring-1 ring-primary/20' : ''
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      <div className="w-[30%] shrink-0">
+        <span className="font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+          {label}
+        </span>
+      </div>
+      <div className="flex-1 min-w-0">
+        {hasValue ? (
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-sm font-semibold text-on-surface truncate">
+              {value}
+            </span>
+            <span className="font-label text-[10px] font-bold uppercase tracking-widest text-primary/70">
+              likely
+            </span>
+          </div>
+        ) : (
+          <span
+            className={[
+              'block h-4 w-full max-w-[280px] rounded bg-outline-variant/20',
+              reducedMotion ? '' : 'animate-pulse'
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            aria-hidden="true"
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Warning-present skeleton row. OCR tells us YES/NO on whether the
+ * warning paragraph is detectable on the label; the exact text quality
+ * is verified by the full pipeline downstream.
+ */
+function WarningSkeletonRow({
+  detected,
+  reducedMotion
+}: {
+  detected: boolean | undefined;
+  reducedMotion: boolean;
+}) {
+  const known = typeof detected === 'boolean';
+  return (
+    <div
+      className={[
+        'flex items-center gap-4 px-5 py-3 rounded-lg',
+        'bg-surface-container-low/60 border border-outline-variant/15',
+        'transition-all duration-500',
+        known ? 'ring-1 ring-primary/20' : ''
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      <div className="w-[30%] shrink-0">
+        <span className="font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+          Government warning
+        </span>
+      </div>
+      <div className="flex-1 min-w-0">
+        {known ? (
+          <div className="flex items-center gap-2">
+            <span
+              aria-hidden="true"
+              className={[
+                'material-symbols-outlined text-[18px]',
+                detected ? 'text-success' : 'text-caution'
+              ].join(' ')}
+            >
+              {detected ? 'check_circle' : 'help'}
+            </span>
+            <span className="font-body text-sm font-semibold text-on-surface">
+              {detected
+                ? 'Warning text detected on the label.'
+                : 'Warning text not detected yet.'}
+            </span>
+            <span className="font-label text-[10px] font-bold uppercase tracking-widest text-primary/70 ml-auto">
+              likely
+            </span>
+          </div>
+        ) : (
+          <span
+            className={[
+              'block h-4 w-full max-w-[320px] rounded bg-outline-variant/20',
+              reducedMotion ? '' : 'animate-pulse'
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            aria-hidden="true"
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
 
