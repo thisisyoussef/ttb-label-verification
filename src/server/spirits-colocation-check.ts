@@ -30,20 +30,35 @@ const COLOCATION_TIMEOUT_MS = Number(
   process.env.SPIRITS_COLOCATION_TIMEOUT_MS ?? 8000
 );
 
-const PROMPT = `You are checking a US TTB distilled-spirits label image for a single
-regulatory rule (27 CFR 5.61): the brand name, the class/type
-designation (e.g. "Kentucky Straight Bourbon Whiskey", "Vodka",
-"Gin"), and the alcohol content statement (e.g. "40% Alc./Vol.")
-MUST all appear together on the SAME primary panel of the label.
+const PROMPT = `You are checking a US TTB distilled-spirits label image
+against one regulatory rule (27 CFR 5.61): the brand name, the
+class/type designation (e.g. "Kentucky Straight Bourbon Whiskey",
+"Vodka", "Gin"), and the alcohol content statement (e.g.
+"40% Alc./Vol.", "80 Proof", "60% by vol.") must all appear
+together on the same field of vision — i.e. the same primary
+panel of the label.
 
-Look at the label image and answer:
+DEFINITION OF "SAME PANEL"
+A panel is one continuous face of the label that a consumer sees
+together when the bottle is turned to that side. Everything on
+that face counts as the same panel, including:
+  - text in the brand-logo area at the top
+  - text in banners, strips, or borders at the bottom
+  - text in footers, side ribbons, or corner badges
+  - any text printed across the same flat surface, anywhere from
+    edge to edge
 
-1. Identify the primary panel (the front-facing panel a consumer
-   sees first, typically dominated by the brand mark).
-2. Decide which of the three required pieces appear on that primary
-   panel and which (if any) only appear on a different panel.
+TYPICAL INPUT
+You will almost always be given a single flat scan or photograph
+showing ONE face of the label — the consumer's primary view. In
+that case, anything visible in this image is on the primary panel
+by construction. Only call something "missing from the primary
+panel" if you can SEE that it is on a clearly different physical
+face (e.g. the image shows a wraparound flat that includes a back
+panel, or a side-strip is visibly separated by a fold/edge).
 
-Respond ONLY with strict JSON in this exact shape:
+ANSWER FORMAT
+Respond with strict JSON only:
 {
   "colocated": true | false,
   "primaryPanelDescription": "short phrase describing the primary panel",
@@ -52,15 +67,26 @@ Respond ONLY with strict JSON in this exact shape:
   "reason": "one short sentence explaining the decision"
 }
 
-Rules:
-- "colocated" is true ONLY when ALL three pieces appear on the
-  primary panel.
-- "missingFromPrimary" lists ONLY pieces that appear elsewhere on
-  the label or are not visible at all. Empty array when colocated.
-- Use lowercase identifiers exactly as listed.
+RULES
+- "colocated" is true when all three pieces are visible on the
+  primary panel. The default assumption for a single-face image is
+  TRUE.
+- A piece in a banner, strip, or footer at the bottom of the same
+  flat scan IS on the primary panel. Do NOT mark it missing just
+  because it's far from the brand mark.
+- A piece that is "also present on a secondary panel" is still
+  present on the primary panel — do NOT mark it missing.
+- Only mark a piece as "missing-from-primary" if you can see in
+  the image that it appears on a physically different face of the
+  label (separated by a fold, bottle edge, or printed in a
+  back-panel column distinct from the front).
+- If a required piece is not visible anywhere in the image, mark
+  it as "missing-from-primary" — we treat "absent from the front"
+  the same as "on a different panel" for the purpose of this rule.
+- Use the lowercase identifiers exactly as listed.
 - Confidence reflects how sure you are about each piece's panel
-  assignment, not how certain you are about the underlying text.
-- Do not output any text outside the JSON object.`;
+  assignment.
+- Do not output anything outside the JSON object.`;
 
 export type SpiritsColocationMissing =
   | 'brand-name'
