@@ -389,6 +389,40 @@ describe('help tour runtime', () => {
     expect(action).toEqual({ kind: 'advance' });
   });
 
+  it('keeps the pending advance alive when the verify step has been rewritten to the processing-status target', () => {
+    // resolveTourStep swaps step 4's target to `tour-processing-status`
+    // while the pipeline runs so the spotlight has something to anchor
+    // to. Without this case, resolvePendingVerifyAdvanceAction would
+    // see the rewritten target and clear the pending flag, breaking
+    // the auto-advance to the verdict step when results land.
+    const rewrittenStep = {
+      ...step('processing'),
+      target: 'tour-processing-status' as const,
+      interaction: undefined
+    };
+    const waitAction = resolvePendingVerifyAdvanceAction(rewrittenStep, {
+      mode: 'single',
+      view: 'processing',
+      scenarioId: 'perfect-spirit-label',
+      hasImage: true,
+      hasReport: false,
+      processingPhase: 'running'
+    });
+
+    expect(waitAction).toEqual({ kind: 'wait' });
+
+    const advanceAction = resolvePendingVerifyAdvanceAction(rewrittenStep, {
+      mode: 'single',
+      view: 'results',
+      scenarioId: 'perfect-spirit-label',
+      hasImage: true,
+      hasReport: true,
+      processingPhase: 'terminal'
+    });
+
+    expect(advanceAction).toEqual({ kind: 'advance' });
+  });
+
   it('requests expansion of the government warning row on the warning-evidence step', () => {
     const expandedCheckId = resolveTourExpandedCheckId(step('warning-evidence'), {
       mode: 'single',

@@ -18,6 +18,13 @@ export const TOUR_TARGET_KEYS = [
   'tour-mode-toggle',
   'tour-drop-zone',
   'tour-verify-button',
+  // Used during the verify-the-label step (step 4) while the pipeline
+  // is in the Processing phase: after the user clicks Verify, the
+  // step's effective target is rewritten to this key so the callout
+  // re-anchors to the in-flight processing strip instead of the
+  // now-unmounted Verify button. Without an attachment, the callout
+  // would fall through to the dead-center fallback.
+  'tour-processing-status',
   'tour-verdict-banner',
   'tour-warning-row',
   'tour-batch-tab',
