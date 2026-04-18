@@ -123,10 +123,15 @@ describe('buildVerificationReport anchor-merge', () => {
     });
     const classCheck = report.checks.find((c) => c.id === 'class-type');
     expect(classCheck?.status).toBe('pass');
-    expect(classCheck?.summary).toContain('anchor confirmed');
+    // Plain user-facing copy. No engine jargon ("anchor", "OCR",
+    // "token", "vision model") should ever reach the reviewer.
+    expect(classCheck?.summary).toBe('Label matches the approved record.');
+    expect(classCheck?.summary?.toLowerCase()).not.toContain('anchor');
+    expect(classCheck?.details?.toLowerCase()).not.toContain('anchor');
+    expect(classCheck?.details?.toLowerCase()).not.toContain('ocr');
   });
 
-  it('equivalent-match upgrade includes the equivalence note', async () => {
+  it('equivalent-match upgrade surfaces a human hint without engine jargon', async () => {
     const ext = extraction();
     const report = await buildVerificationReport({
       intake: intake(),
@@ -136,7 +141,11 @@ describe('buildVerificationReport anchor-merge', () => {
     });
     const classCheck = report.checks.find((c) => c.id === 'class-type');
     expect(classCheck?.status).toBe('pass');
-    expect(classCheck?.details?.toLowerCase()).toContain('equivalent');
+    // Human-readable hint: tells the reviewer why it matched
+    // (recognized equivalent) without naming any internal system.
+    expect(classCheck?.details?.toLowerCase()).toContain('recognized equivalent');
+    expect(classCheck?.details?.toLowerCase()).not.toContain('anchor');
+    expect(classCheck?.details?.toLowerCase()).not.toContain('token');
   });
 
   it('anchor never downgrades a pass', async () => {
