@@ -47,6 +47,8 @@ git worktree prune
 
 - Use sibling directories such as `../ttb-label-verification-<suffix>`.
 - `npm run story:branch -- open ... --worktree <path>` writes the branch tracker row in the new worktree instead of dirtying the current one.
+- `npm run story:branch -- open ... --worktree <path>` also bootstraps the new worktree's repo-local `.env` from the local gauntlet env inventory when credentials are available.
+- If you reopen an older isolated worktree or its repo-local env has drifted, run `npm run env:bootstrap` before live model, API, batch, or browser verification work.
 - If you need to resume existing work, reopen that worktree and keep its branch attached there.
 - Nested paths like `.claude/worktrees/**` are not allowed for linked worktrees.
 

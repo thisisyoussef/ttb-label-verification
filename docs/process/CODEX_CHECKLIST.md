@@ -10,7 +10,7 @@ Despite the filename, this checklist is agent-agnostic. Use it for engineering o
 - [ ] Before packet or code edits, confirm the current branch is story-scoped. If the worktree is on `main` or `production`, switch immediately to a fresh story branch.
 - [ ] Record the branch in `docs/process/BRANCH_TRACKER.md` with a non-placeholder description as soon as it is opened, preferably via `npm run story:branch -- open ...`.
 - [ ] If the story only has `story-packet.md`, expand it into the standard working docs before implementation begins.
-- [ ] Before declaring missing local model credentials, run `npm run env:bootstrap`.
+- [ ] Before declaring missing local model credentials, make sure the current checkout has repo-local env bootstrap. New linked worktrees opened through `npm run story:branch -- open ... --worktree ...` should already have it; otherwise run `npm run env:bootstrap`.
 - [ ] If the story changes prompt, model, tool-call, or agentic LLM behavior, run `npm run langsmith:smoke` before starting the trace loop.
 - [ ] For material UI work, review any existing `ui-component-spec.md`, `docs/design/MASTER_DESIGN.md`, and historical handoff docs if they exist, but do not treat their absence as a blocker unless the story explicitly waits on user approval or returned assets.
 - [ ] If implementation genuinely depends on missing user review, missing assets, or an unavailable manual flow, stop and ask for that exact prerequisite.

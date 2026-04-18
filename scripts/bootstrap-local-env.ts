@@ -45,6 +45,7 @@ const DEFAULT_ENV_VALUES = {
 } as const;
 
 const OPENAI_ENV_KEY = 'OPENAI_API_KEY';
+const GEMINI_ENV_KEY = 'GEMINI_API_KEY';
 const LANGSMITH_ENV_KEY = 'LANGSMITH_API_KEY';
 const orderedKeys = [
   OPENAI_ENV_KEY,
@@ -186,8 +187,7 @@ export function renderEnvFile(values: Record<string, string>) {
   );
 }
 
-function main() {
-  const repoDir = process.cwd();
+export function bootstrapLocalEnv(repoDir = process.cwd()) {
   const envPath = path.join(repoDir, '.env');
   const existingEnv = parseDotEnvFile(envPath);
   const openAiSource = getKeySource({
@@ -197,13 +197,16 @@ function main() {
   });
 
   if (!openAiSource) {
-    console.error(
+    throw new Error(
       'env:bootstrap could not find OPENAI_API_KEY in this repo or the local gauntlet env inventory.'
     );
-    process.exitCode = 1;
-    return;
   }
 
+  const geminiSource = getKeySource({
+    existingEnv,
+    repoDir,
+    targetKey: GEMINI_ENV_KEY
+  });
   const langSmithSource = getKeySource({
     existingEnv,
     fallbackSourceKeys: ['LANGCHAIN_API_KEY'],
@@ -217,29 +220,57 @@ function main() {
     [OPENAI_ENV_KEY]: openAiSource.value
   };
 
+  if (geminiSource) {
+    mergedEnv[GEMINI_ENV_KEY] = geminiSource.value;
+  }
+
   if (langSmithSource) {
     mergedEnv[LANGSMITH_ENV_KEY] = langSmithSource.value;
   }
 
   writeFileSync(envPath, renderEnvFile(mergedEnv), 'utf8');
 
-  const sourceTypes = [openAiSource, langSmithSource]
-    .filter((source): source is KeySource => Boolean(source))
-    .map((source) => source.sourceType);
-  const actionLabel = sourceTypes.every((sourceType) => sourceType === 'existing')
+  const sources = [openAiSource, geminiSource, langSmithSource].filter(
+    (source): source is KeySource => Boolean(source)
+  );
+  const actionLabel = sources.every(
+    ({ sourceType }) => sourceType === 'existing'
+  )
     ? 'validated'
     : 'created';
   const sourceDescriptions = [
     describeKeySource(OPENAI_ENV_KEY, openAiSource)
   ];
 
-  if (langSmithSource) {
-    sourceDescriptions.push(describeKeySource(LANGSMITH_ENV_KEY, langSmithSource));
+  if (geminiSource) {
+    sourceDescriptions.push(describeKeySource(GEMINI_ENV_KEY, geminiSource));
   }
 
-  console.log(`${actionLabel} ${envPath}`);
-  for (const sourceDescription of sourceDescriptions) {
-    console.log(`- ${sourceDescription}`);
+  if (langSmithSource) {
+    sourceDescriptions.push(
+      describeKeySource(LANGSMITH_ENV_KEY, langSmithSource)
+    );
+  }
+
+  return {
+    actionLabel,
+    envPath,
+    sourceDescriptions,
+    values: mergedEnv
+  };
+}
+
+function main() {
+  try {
+    const result = bootstrapLocalEnv();
+
+    console.log(`${result.actionLabel} ${result.envPath}`);
+    for (const sourceDescription of result.sourceDescriptions) {
+      console.log(`- ${sourceDescription}`);
+    }
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
   }
 }
 

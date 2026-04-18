@@ -48,6 +48,7 @@ This file is the canonical operating contract for this repo. Keep it lean.
 
 - Keep in-progress updates short and action-oriented.
 - Do not narrate internal reasoning, speculative continuity clues, or tracker inconsistencies unless they materially block the work.
+- Treat routine env-sync recovery in a linked worktree as operational detail. Run it or let the branch helper run it, and mention it only when live work is still blocked afterward.
 - If checked-in docs disagree and the correction is obvious, fix the docs and report the correction plainly instead of talking through the intermediate analysis.
 - Avoid lane-resolution chatter, agent-role chatter, and status noise in user-facing updates unless the user explicitly asks for workflow debugging.
 
@@ -59,6 +60,7 @@ This file is the canonical operating contract for this repo. Keep it lean.
 - Use a linked worktree only when you need true parallel branches or the current checkout is dirty and you do not want to disturb it.
 - Do not create linked worktrees inside the repo root. Use sibling directories, not nested paths like `.claude/worktrees/**`.
 - Every active worktree must still be attached to a real Git branch that can be pushed and merged through GitHub.
+- A new linked worktree should leave branch creation with a repo-local `.env` bootstrapped already. If you reopen an older isolated worktree or the env drifts, run `npm run env:bootstrap` before live model, API, batch, or browser verification work.
 - When returning to an in-progress task, go back to that branch; reopen its worktree only if you isolated it that way.
 - Record every story branch in `docs/process/BRANCH_TRACKER.md`.
 - Merge reviewable story branches to `main` through GitHub PRs when done unless the user explicitly asks to hold them or a concrete blocker exists.

@@ -6,6 +6,7 @@
 - Claude and Codex are both full agents in this repo. Historical lane-marked packets and handoff docs are context for older stories, not default blockers for new work.
 - Default new work to a fresh story branch in the current checkout; use sibling linked worktrees only when parallel isolation is actually needed.
 - Prefer `origin/main` as the base for fresh story work unless a different base is intentional.
+- Creating a sibling worktree through `npm run story:branch -- open ... --worktree ...` should also bootstrap repo-local `.env` there; use `npm run env:bootstrap` when reopening an older isolated worktree or after env drift.
 - Earlier workflow and eval foundation stories are completed before later feature stories.
 - `docs/process/SINGLE_SOURCE_OF_TRUTH.md` is the single checked-in tracker for active story, queue order, blockers, and next-step resolution.
 - `docs/specs/<story-id>/` is the universal story packet. Specs are optional for small clear changes and expand when the work is large, risky, ambiguous, or cross-cutting.

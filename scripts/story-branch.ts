@@ -12,6 +12,7 @@ import {
   type BranchLane,
   type ClosedBranchStatus,
 } from "./branch-tracker.js";
+import { bootstrapLocalEnv } from "./bootstrap-local-env.js";
 import {
   buildOpenNotes,
   resolveDefaultBase,
@@ -117,6 +118,7 @@ function openBranch(flags: Record<string, string>): void {
   });
   const requestedWorktree = flags.worktree?.trim();
   let worktreePath: string | undefined;
+  let bootstrapWarning = "";
   const status = (flags.status as ActiveBranchStatus | undefined) || "draft-local";
 
   if (lane !== "claude" && lane !== "codex" && lane !== "chore") {
@@ -148,6 +150,14 @@ function openBranch(flags: Record<string, string>): void {
     }
 
     runGit(["worktree", "add", "-b", branch, worktreePath, base]);
+
+    try {
+      bootstrapLocalEnv(worktreePath);
+    } catch (error) {
+      bootstrapWarning = `\n[story-branch] Repo-local env bootstrap did not complete in the new worktree: ${
+        error instanceof Error ? error.message : String(error)
+      }`;
+    }
   } else {
     assertCleanWorktree();
     runGit(["switch", "-c", branch, base]);
@@ -180,7 +190,7 @@ function openBranch(flags: Record<string, string>): void {
     `\n[story-branch] Created '${branch}' from '${base}' and updated ${path.relative(
       trackerRoot,
       trackerPath,
-    )}.${worktreePath ? `\n[story-branch] New linked worktree: ${worktreePath}` : ""}`,
+    )}.${worktreePath ? `\n[story-branch] New linked worktree: ${worktreePath}` : ""}${bootstrapWarning}`,
   );
 }
 

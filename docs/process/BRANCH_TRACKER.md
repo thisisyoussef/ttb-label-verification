@@ -24,8 +24,8 @@ This file is the checked-in branch registry for normal story work.
 <!-- ACTIVE_BRANCHES:START -->
 | Branch | Story | Lane | Status | Description | PR | Opened | Updated | Base | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `chore/TTB-WF-003-lean-agent-workspace` | `TTB-WF-003` | `chore` | `draft-local` | simplify agent docs, make direct branch work the default, and keep optional sibling worktrees | - | `2026-04-18` | `2026-04-18` | `origin/main` | linked worktree: /Users/youss/Development/gauntlet/ttb-label-verification-wf-003-lean |
 | `codex/TTB-000-dynamic-verdict-banner` | `TTB-000` | `codex` | `draft-local` | make the verdict banner follow the live matched/review state and remove overly optimistic review copy | - | `2026-04-18` | `2026-04-18` | `origin/main` | isolated merge worktree for verdict banner fix |
+| `chore/TTB-WF-003-worktree-env-bootstrap` | `TTB-WF-003` | `chore` | `draft-local` | bootstrap repo-local env for isolated worktrees and keep routine env sync silent | - | `2026-04-18` | `2026-04-18` | `origin/main` | opened from origin/main |
 <!-- ACTIVE_BRANCHES:END -->
 
 ## Closed branches
@@ -34,6 +34,7 @@ This file is the checked-in branch registry for normal story work.
 | Branch | Story | Lane | Final status | Description | Closed | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | `chore/TTB-WF-003-branch-tracker` | `TTB-WF-003` | `chore` | `merged` | add the branch tracker workflow and enforce branch metadata updates | `2026-04-18` | merged via PR #44 |
+| `chore/TTB-WF-003-lean-agent-workspace` | `TTB-WF-003` | `chore` | `merged` | simplify agent docs, make direct branch work the default, and keep optional sibling worktrees | `2026-04-18` | merged via PR #103 |
 | `claude/TTB-000-autodetect-and-cleanup` | `TTB-000` | `claude` | `merged` | wire OCR-inferred beverage through SSE so Auto-detect badge updates; remove file size from single-label UI | `2026-04-18` | landed across PRs #76, #77, and #78 |
 | `claude/TTB-000-fix-toolbench-scroll` | `TTB-000` | `claude` | `merged` | fix toolbench scroll - move overflow to tabpanel | `2026-04-18` | merged via PR #45 |
 | `claude/TTB-000-local-fullarch` | `TTB-000` | `claude` | `merged` | full-stack local pipeline (Ollama VLM + judgment), RunPod deploy, UX polish pass | `2026-04-18` | merged via PR #49; later local history contains reverted perf experiments |

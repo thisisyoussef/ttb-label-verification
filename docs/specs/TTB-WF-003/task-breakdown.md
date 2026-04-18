@@ -7,7 +7,7 @@
    - Validation: the primary `.ai` workflow files are `continue-next-story.md`, `story-lookup.md`, `story-sizing.md`, and `tdd-pipeline.md`; the rest are compatibility stubs.
 
 3. Keep worktree-aware branch helper behavior as an option, not the default.
-   - Validation: `scripts/story-branch.ts` supports `--worktree`, prefers `origin/main`, and rejects nested worktree paths; focused tests pass.
+   - Validation: `scripts/story-branch.ts` supports `--worktree`, prefers `origin/main`, rejects nested worktree paths, and bootstraps repo-local env in new linked worktrees; focused tests pass.
 
 4. Stop tracking nested `.claude/worktrees`.
    - Validation: `.gitignore` ignores `.claude/worktrees/`, and the git index no longer tracks those nested worktree entries.

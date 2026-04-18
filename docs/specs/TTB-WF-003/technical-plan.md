@@ -24,6 +24,8 @@ Keep the repo workflow disciplined but smaller, restore direct branch work as th
 - `scripts/story-branch.ts`
 - `scripts/story-branch-lib.ts`
 - `scripts/story-branch-lib.test.ts`
+- `scripts/bootstrap-local-env.ts`
+- `scripts/bootstrap-local-env.test.ts`
 - `scripts/check-source-size.ts`
 - `scripts/check-source-size-lib.ts`
 - `scripts/check-source-size-lib.test.ts`
@@ -41,7 +43,7 @@ Keep the repo workflow disciplined but smaller, restore direct branch work as th
 
 - `story:branch open` should prefer `origin/main` as the base for new story work when available.
 - Default branch flow uses the current clean checkout.
-- If `--worktree <path>` is passed, the helper creates a linked worktree at that sibling path, creates the new story branch there, and writes the branch tracker row in that new checkout.
+- If `--worktree <path>` is passed, the helper creates a linked worktree at that sibling path, creates the new story branch there, writes the branch tracker row in that new checkout, and bootstraps repo-local `.env` in that new checkout from the local gauntlet env inventory when credentials are available.
 - The helper rejects worktree paths inside the repo root so nested `.claude/worktrees/**` cannot become the default again.
 - The branch tracker keeps worktree path detail in the `Notes` column instead of expanding the table shape.
 
@@ -54,6 +56,7 @@ Keep the repo workflow disciplined but smaller, restore direct branch work as th
 ## Testing strategy
 
 - Add focused unit tests for the new worktree-path and base-resolution helpers.
+- Add focused unit tests for repo-local env bootstrap, including sibling inventory recovery for Gemini and OpenAI keys.
 - Add focused unit tests for the source-size baseline classification logic.
 - Run the script-focused tests while iterating.
 - Before handoff, run `npm run test`, `npm run typecheck`, and `npm run build`.
