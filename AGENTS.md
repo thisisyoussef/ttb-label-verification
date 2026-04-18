@@ -44,6 +44,13 @@ This file is the canonical operating contract for this repo. Keep it lean.
 - Before implementation, map the blast radius for touched routes, contracts, fixtures, evals, and adjacent flows instead of assuming the change is local.
 - Old UI-first packets and handoff files may still explain earlier design decisions, but they do not block direct execution unless the story explicitly says it is waiting on user approval or missing assets.
 
+## Communication
+
+- Keep in-progress updates short and action-oriented.
+- Do not narrate internal reasoning, speculative continuity clues, or tracker inconsistencies unless they materially block the work.
+- If checked-in docs disagree and the correction is obvious, fix the docs and report the correction plainly instead of talking through the intermediate analysis.
+- Avoid lane-resolution chatter, agent-role chatter, and status noise in user-facing updates unless the user explicitly asks for workflow debugging.
+
 ## Branch and worktree rules
 
 - Before a new task, check the current branch.
