@@ -1,6 +1,6 @@
 # Blockers
 
-- No current blocker on `TTB-WF-003`; work is active on `chore/TTB-WF-003-worktree-env-bootstrap` and awaiting PR #106 merge
+- `TTB-WF-003` no longer blocks the workflow queue; the remaining active blocker is `TTB-210`
 - Current broader-queue blocker: `TTB-210` traced evidence still cannot publish because the current LangSmith credentials fail with `401 Unauthorized` on `/datasets` in the tracked eval flow and `403 Forbidden` on direct trace upload
 - Authoritative live core-six extraction verification is still blocked by the absence of curated internal label files; `evals/labels/assets/` contains synthetic smoke PNGs, but they are not the final source-of-truth corpus
 - AI Studio logging and dataset-sharing settings for the Gemini project cannot be verified from repo code or the API key alone; that remains a manual release gate before any production-ready Gemini-default claim
