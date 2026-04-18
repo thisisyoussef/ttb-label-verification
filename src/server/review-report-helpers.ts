@@ -197,11 +197,12 @@ export function deriveVerdictSecondary(input: {
     return 'The label image is hard to read. Please review carefully.';
   }
 
-  if ([...input.checks, ...input.crossFieldChecks].some((check) => check.status === 'review')) {
-    return 'One or more fields need a human look.';
-  }
+  const profile = summarizeReviewSeverity([
+    ...input.checks,
+    ...input.crossFieldChecks
+  ]);
 
-  return undefined;
+  return resolveDynamicReviewPhrase(profile);
 }
 
 export function deriveSummary(input: {
@@ -222,10 +223,88 @@ export function deriveSummary(input: {
   }
 
   if (input.verdict === 'review') {
+    // Reviews returned with no checks attached (e.g. when the
+    // pipeline short-circuits on imageQuality) keep a generic
+    // line. With checks present, fall through to the dynamic
+    // phrase below for granularity.
     return 'One or more fields need a human look.';
   }
 
   return 'All fields match the approved record.';
+}
+
+// ─── Dynamic verdict copy ─────────────────────────────────────────
+// The static "One or more fields need a human look." rendered the
+// same way for one cosmetic flag and ten substantive ones, which
+// hid useful triage signal. The helpers below classify the review-
+// status checks by severity + count so the verdict subtitle can
+// distinguish "almost good — one quick check" from "several checks
+// need a closer look".
+
+const SEVERITY_RANK: Record<CheckReview['severity'], number> = {
+  note: 0,
+  minor: 1,
+  major: 2,
+  blocker: 3
+};
+
+export interface ReviewSeverityProfile {
+  /** Number of review-status rows across primary + cross-field checks. */
+  count: number;
+  /** Highest severity among those review rows. 'note' when none. */
+  maxSeverity: CheckReview['severity'];
+}
+
+export function summarizeReviewSeverity(
+  allChecks: CheckReview[]
+): ReviewSeverityProfile {
+  let count = 0;
+  let maxSeverity: CheckReview['severity'] = 'note';
+  for (const check of allChecks) {
+    if (check.status !== 'review') continue;
+    count += 1;
+    if (SEVERITY_RANK[check.severity] > SEVERITY_RANK[maxSeverity]) {
+      maxSeverity = check.severity;
+    }
+  }
+  return { count, maxSeverity };
+}
+
+/**
+ * Maps the review severity profile to a short, human phrase that
+ * tells the reviewer how much work to expect. Falls back to the
+ * generic "human look" line when there are no review rows (other
+ * branches of `deriveVerdictSecondary` should have caught that
+ * case already, but keep the function total for safety).
+ */
+export function resolveDynamicReviewPhrase(
+  profile: ReviewSeverityProfile
+): string | undefined {
+  if (profile.count === 0) return undefined;
+  const heavy =
+    profile.maxSeverity === 'major' || profile.maxSeverity === 'blocker';
+
+  if (profile.count === 1) {
+    return heavy
+      ? 'One field needs a closer look.'
+      : 'Almost good — one quick check left.';
+  }
+
+  if (profile.count === 2) {
+    return heavy
+      ? 'A couple of fields need a closer look.'
+      : 'A couple of quick checks left.';
+  }
+
+  if (profile.count <= 4) {
+    return heavy
+      ? `${profile.count} fields need a closer look.`
+      : `${profile.count} quick checks left.`;
+  }
+
+  return heavy
+    ? `${profile.count} fields need a closer look — start with the major flags.`
+    : `${profile.count} quick checks left.`;
 }
 
 export function buildExtractionQualityNote(extraction: ReviewExtraction) {
