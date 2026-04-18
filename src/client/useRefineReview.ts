@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import {
+  resolveDynamicReviewPhrase,
+  summarizeReviewSeverity
+} from '../shared/dynamic-review-copy';
 import { refineReview } from './appReviewApi';
 import type {
   BeverageSelection,
@@ -153,5 +157,24 @@ export function mergeRefinedReport(
     else if (check.status === 'fail') counts.fail += 1;
     else if (check.status === 'review') counts.review += 1;
   }
-  return { ...base, checks: nextChecks, counts };
+  // Recompute the verdict subtitle from the merged checks. The
+  // server-supplied `verdictSecondary` was correct at the moment the
+  // initial report was built, but a refine pass can drop review rows
+  // to pass — leaving the original "4 fields need a closer look."
+  // text stuck on the banner after the count pill has already
+  // dropped to 2. Results.tsx ALSO recomputes on every render for
+  // the live case; this mirror inside the merge keeps the report
+  // object itself consistent so any other consumer (export, batch
+  // drill-in) reads the right phrase.
+  const dynamicPhrase = resolveDynamicReviewPhrase(
+    summarizeReviewSeverity([...nextChecks, ...base.crossFieldChecks])
+  );
+  const verdictSecondary =
+    dynamicPhrase ?? base.verdictSecondary;
+  return {
+    ...base,
+    checks: nextChecks,
+    counts,
+    verdictSecondary
+  };
 }
