@@ -11,6 +11,9 @@ import {
 } from '../shared/contracts/review';
 import { extractFieldsFromOcrText } from './ocr-field-extractor';
 import { runOcrPrepass, isOcrPrepassEnabled } from './ocr-prepass';
+import { extractionCache, type CachedExtraction } from './extraction-cache';
+import { buildVerificationReport } from './review-report';
+import { buildGovernmentWarningCheck } from './government-warning-validator';
 import { type AiProvider, type ExtractionMode } from './ai-provider-policy';
 import {
   runTracedExtractionSurface,
@@ -224,8 +227,38 @@ export function registerReviewRoutes(input: {
       clientTraceId,
       latencyCapture,
       resolution
-    }) =>
-      await runTracedReviewSurface({
+    }) => {
+      // Image-first prefetch hit: client supplies the cache key returned
+      // by an earlier /api/review/extract-only call. We skip extraction
+      // entirely and run just judgment + report against the cached
+      // extraction. buildVerificationReport is a pure function — takes
+      // sub-second on a typical label, vs 5-7s for a cold extraction.
+      const cacheKey = request.header('x-extraction-cache-key')?.trim();
+      if (cacheKey) {
+        const hit = extractionCache.get(cacheKey);
+        if (hit) {
+          logServerEvent('review.extraction-cache.hit', {
+            cacheKey: cacheKey.slice(0, 12),
+            clientTraceId
+          });
+          // Merge cached OCR text into intake so downstream judgment /
+          // OCR-fallback paths still see it.
+          const cachedIntake = hit.ocrText
+            ? { ...intake, ocrText: hit.ocrText }
+            : intake;
+          const report = await buildVerificationReport({
+            intake: cachedIntake,
+            extraction: hit.extraction,
+            warningCheck: hit.warningCheck
+          });
+          return report;
+        }
+        logServerEvent('review.extraction-cache.miss', {
+          cacheKey: cacheKey.slice(0, 12),
+          clientTraceId
+        });
+      }
+      return runTracedReviewSurface({
         surface: '/api/review',
         extractionMode: resolution.extractionMode,
         provider: resolution.providers.join(',') || undefined,
@@ -234,8 +267,75 @@ export function registerReviewRoutes(input: {
         extractor: resolution.extractor as ReviewExtractor,
         latencyCapture,
         latencyObserver
-      })
-    );
+      });
+    });
+  });
+
+  // Image-first prefetch: runs the full extraction + warning-check
+  // pipeline on the uploaded image without requiring application data
+  // or computing a verdict. The result is stashed in an in-memory cache
+  // keyed by image-bytes hash; the client passes that key back on the
+  // eventual /api/review call to skip re-extraction.
+  //
+  // Cost: same as a full /api/review extraction (~5-7s of VLM). Win:
+  // amortized against form-filling time — if the user spends >5s
+  // typing, Verify returns in <100ms because judgment+report is cheap.
+  app.post('/api/review/extract-only', (request, response) => {
+    void handleSingleLabelRoute('/api/review', request, response, async ({
+      intake,
+      clientTraceId,
+      latencyCapture,
+      resolution
+    }) => {
+      const cacheKey = cacheKeyFromBytes(intake.label.buffer);
+      const existing = extractionCache.get(cacheKey);
+      if (existing) {
+        logServerEvent('review.extraction-cache.prefetch-dedup', {
+          cacheKey: cacheKey.slice(0, 12),
+          clientTraceId
+        });
+        return {
+          cacheKey,
+          ocrText: existing.ocrText ?? '',
+          ocrPreview: partialFromOcr(existing.ocrText)
+        };
+      }
+      const reportWithExtraction = (await runTracedReviewSurface({
+        surface: '/api/review',
+        extractionMode: resolution.extractionMode,
+        provider: resolution.providers.join(',') || undefined,
+        clientTraceId,
+        intake,
+        extractor: resolution.extractor as ReviewExtractor,
+        latencyCapture,
+        latencyObserver
+      })) as unknown as { __extraction?: unknown };
+
+      // Pull the extraction + warning off the report. The extraction is
+      // attached as a non-enumerable __extraction property by
+      // runTracedReviewSurface; we reconstruct a warning CheckReview
+      // from the extraction itself so we don't re-run warning OCV.
+      const extraction = (reportWithExtraction as { __extraction: unknown })
+        .__extraction as CachedExtraction['extraction'];
+      if (extraction) {
+        const warningCheck = buildGovernmentWarningCheck(extraction);
+        extractionCache.set(cacheKey, {
+          extraction,
+          warningCheck,
+          ocrText: intake.ocrText,
+          createdAt: Date.now()
+        });
+        logServerEvent('review.extraction-cache.stored', {
+          cacheKey: cacheKey.slice(0, 12),
+          clientTraceId
+        });
+      }
+      return {
+        cacheKey,
+        ocrText: intake.ocrText ?? '',
+        ocrPreview: partialFromOcr(intake.ocrText)
+      };
+    });
   });
 
   app.post('/api/review/stream', (request, response) => {
@@ -287,6 +387,25 @@ export function registerReviewRoutes(input: {
       }
     );
   });
+}
+
+// --- Image-first prefetch helpers -----------------------------------------
+
+function cacheKeyFromBytes(bytes: Buffer): string {
+  return crypto.createHash('sha256').update(bytes).digest('hex');
+}
+
+function partialFromOcr(ocrText: string | undefined): Record<string, unknown> {
+  if (!ocrText || ocrText.length < 20) return {};
+  const parsed = extractFieldsFromOcrText(ocrText);
+  if (!parsed) return {};
+  return {
+    alcoholContent: parsed.fields.alcoholContent,
+    netContents: parsed.fields.netContents,
+    classType: parsed.fields.classType,
+    countryOfOrigin: parsed.fields.countryOfOrigin,
+    governmentWarning: parsed.fields.governmentWarning
+  };
 }
 
 /**

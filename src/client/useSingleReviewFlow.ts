@@ -27,6 +27,7 @@ import {
 } from './useSingleReviewPipeline';
 import { useSpeculativePrefetch } from './useSpeculativePrefetch';
 import { useOcrPreview, type OcrPreviewFields } from './useOcrPreview';
+import { useExtractionPrefetch } from './useExtractionPrefetch';
 
 export interface SingleReviewFlow {
   image: LabelImage | null;
@@ -152,6 +153,9 @@ export function useSingleReviewFlow(options: {
         useFixtureReport,
         variantOverride
       }),
+    // Ref reads the latest cacheKey at submit time without recomputing
+    // the pipeline deps on every prefetch state change.
+    getExtractionCacheKey: () => extractionPrefetchRef.current,
     onEvent: handlePipelineEvent
   });
 
@@ -171,10 +175,26 @@ export function useSingleReviewFlow(options: {
   const ocrPreviewEnabled = speculativePrefetchEnabled;
   const ocrPreview = useOcrPreview({ enabled: ocrPreviewEnabled });
 
+  // Image-first prefetch: on image select, fire the server-side
+  // extract-only call so VLM extraction completes during form-filling
+  // time. The cache key is passed on Verify so /api/review skips
+  // re-extraction and runs only judgment + report.
+  const extractionPrefetch = useExtractionPrefetch({
+    enabled: speculativePrefetchEnabled
+  });
+  // Ref pattern: useSingleReviewPipeline is initialized BEFORE
+  // extractionPrefetch state lands, so the pipeline receives a getter
+  // that reads the current cacheKey at submit time.
+  const extractionPrefetchRef = useRef<string | null>(null);
+  useEffect(() => {
+    extractionPrefetchRef.current = extractionPrefetch.cacheKey;
+  }, [extractionPrefetch.cacheKey]);
+
   const reset = useCallback(() => {
     abandonInFlightReview();
     prefetch.clearPrefetch();
     ocrPreview.reset();
+    extractionPrefetch.reset();
     reviewTraceIdRef.current = null;
     revokeImage(imageRef.current);
     setImage(null);
@@ -185,7 +205,7 @@ export function useSingleReviewFlow(options: {
     setVariantOverride('auto');
     setReport(null);
     resetPipelineState();
-  }, [abandonInFlightReview, ocrPreview, prefetch, resetPipelineState, revokeImage, setReport]);
+  }, [abandonInFlightReview, extractionPrefetch, ocrPreview, prefetch, resetPipelineState, revokeImage, setReport]);
 
   const variantOptions = useMemo(
     () =>
@@ -331,7 +351,16 @@ export function useSingleReviewFlow(options: {
     },
     onImageChange: (next) => {
       revokeImage(image);
-      if (!next) prefetch.clearPrefetch();
+      if (!next) {
+        prefetch.clearPrefetch();
+        extractionPrefetch.reset();
+      } else {
+        // Image-first prefetch: fire the server extract-only as soon
+        // as the user picks a file. The ~5s VLM call runs during the
+        // form-filling window; Verify then hits the cache and returns
+        // sub-second.
+        extractionPrefetch.start(next, beverage);
+      }
       logReviewClientEvent('review.intake.image-selected', {
         scenarioId,
         filename: next?.file.name ?? null,
@@ -344,6 +373,7 @@ export function useSingleReviewFlow(options: {
     onClear: () => {
       revokeImage(image);
       prefetch.clearPrefetch();
+      extractionPrefetch.reset();
       logReviewClientEvent('review.intake.cleared', {
         scenarioId
       });

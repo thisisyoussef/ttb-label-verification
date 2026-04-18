@@ -54,6 +54,13 @@ export async function submitReview(options: {
   fields: IntakeFields;
   signal: AbortSignal;
   clientRequestId?: string;
+  /**
+   * Cache key returned by a prior /api/review/extract-only call. When
+   * provided, the server skips re-extraction and runs only judgment +
+   * report against the cached extraction. Sub-second vs 5-7s on a
+   * cold Verify.
+   */
+  extractionCacheKey?: string;
 }) {
   const formData = new FormData();
   formData.append('label', options.image.file);
@@ -62,13 +69,13 @@ export async function submitReview(options: {
     JSON.stringify(buildReviewFields(options.beverage, options.fields))
   );
 
+  const headers: Record<string, string> = {};
+  if (options.clientRequestId) headers['x-review-client-id'] = options.clientRequestId;
+  if (options.extractionCacheKey) headers['x-extraction-cache-key'] = options.extractionCacheKey;
+
   const response = await fetch('/api/review', {
     method: 'POST',
-    headers: withProviderOverrideHeader(
-      options.clientRequestId
-        ? { 'x-review-client-id': options.clientRequestId }
-        : undefined
-    ),
+    headers: withProviderOverrideHeader(headers),
     body: formData,
     signal: options.signal
   });
@@ -84,6 +91,62 @@ export async function submitReview(options: {
 
   const report = verificationReportSchema.parse(await response.json());
   return { ok: true as const, report };
+}
+
+/**
+ * Fire the image-first prefetch. Server runs the full VLM extraction +
+ * warning OCV on the uploaded image and stashes it in an in-memory
+ * cache keyed by image-bytes hash. Returns the cache key + a
+ * lightweight OCR preview. Client stores the key and passes it on the
+ * eventual /api/review Verify call so extraction is skipped there.
+ *
+ * Silent failure — callers should ignore rejection; the canonical
+ * /api/review path still runs cold extraction when the prefetch is
+ * missing.
+ */
+export async function prefetchExtraction(options: {
+  image: LabelImage;
+  beverage: BeverageSelection;
+  signal: AbortSignal;
+  clientRequestId?: string;
+}): Promise<{ cacheKey: string; ocrText: string } | null> {
+  const formData = new FormData();
+  formData.append('label', options.image.file);
+  formData.append(
+    'fields',
+    JSON.stringify(
+      buildReviewFields(options.beverage, {
+        brandName: '',
+        fancifulName: '',
+        classType: '',
+        alcoholContent: '',
+        netContents: '',
+        applicantAddress: '',
+        origin: 'domestic',
+        country: '',
+        formulaId: '',
+        appellation: '',
+        vintage: '',
+        varietals: []
+      })
+    )
+  );
+
+  const response = await fetch('/api/review/extract-only', {
+    method: 'POST',
+    headers: withProviderOverrideHeader(
+      options.clientRequestId
+        ? { 'x-review-client-id': options.clientRequestId }
+        : undefined
+    ),
+    body: formData,
+    signal: options.signal
+  });
+
+  if (!response.ok) return null;
+  const payload = (await response.json()) as { cacheKey?: string; ocrText?: string };
+  if (!payload.cacheKey) return null;
+  return { cacheKey: payload.cacheKey, ocrText: payload.ocrText ?? '' };
 }
 
 /**
