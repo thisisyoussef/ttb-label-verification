@@ -24,8 +24,21 @@ import type {
   VerificationCounts
 } from './types';
 
-/** UI-only verdict. The engine's `reject` collapses to `review` here. */
-export type DisplayVerdict = 'approve' | 'review';
+/**
+ * UI-only verdict.
+ *
+ * The engine's `reject` collapses to `review` here for normal compliance
+ * mismatches — the tool is guiding, not gating, and a mismatched ABV or
+ * brand name should still get a human look.
+ *
+ * The one exception is `recommend-reject`: when the submitted image
+ * clearly isn't a label at all (none of the critical identifying fields
+ * read through and the extractor flagged the photo as unreadable or
+ * low-confidence), there's nothing useful for a reviewer to confirm.
+ * Surfacing a soft rejection recommendation saves the reviewer from
+ * clicking through empty rows.
+ */
+export type DisplayVerdict = 'approve' | 'review' | 'recommend-reject';
 
 /** UI-only check status. The engine's `fail` collapses to `review` here. */
 export type DisplayCheckStatus = 'pass' | 'review' | 'info';
@@ -82,14 +95,89 @@ export const DISPLAY_VERDICT_COPY: Record<
     explanation:
       "Some fields need a human eye — either the label and application don't match, or the label image is hard for us to read. Open the flagged rows below to see the details.",
     icon: 'visibility'
+  },
+  'recommend-reject': {
+    headline: "Doesn't look like a label",
+    explanation:
+      "We couldn't find the fields a compliance label normally has. You'll probably want to reject this submission — or ask for a clearer photo if the wrong image was uploaded.",
+    icon: 'report'
   }
 };
+
+/**
+ * Critical-tier check ids. If none of these came through with an
+ * extracted value, there's nothing label-shaped in the image to review.
+ * Kept aligned with the server-side CHECK_TIER_MAP in judgment-scoring.
+ */
+const CRITICAL_CHECK_IDS: ReadonlySet<string> = new Set([
+  'brand-name',
+  'class-type',
+  'alcohol-content',
+  'government-warning'
+]);
+
+function hasExtractedValue(check: CheckReview): boolean {
+  const raw =
+    check.extractedValue ??
+    check.comparison?.extractedValue ??
+    '';
+  const trimmed = raw.trim();
+  return trimmed.length > 0 && trimmed !== '?';
+}
+
+/**
+ * Lower-boundary detector: is this submission clearly not a label?
+ *
+ * We only recommend rejection when the evidence is overwhelming — the
+ * photo wasn't readable AND none of the critical identifying fields
+ * (brand, class/type, alcohol content, government warning) came
+ * through. Compliance mismatches on a real label never trip this; they
+ * stay in the normal "Needs review" path.
+ *
+ * Excluded on purpose:
+ *   - Standalone mode — the reviewer is already hand-confirming fields.
+ *   - `extractionQualityState === 'ok'` — image read fine, so whatever
+ *     the mismatches are they belong in review, not a soft reject.
+ *   - Empty checks array (the `no-text-extracted` server short-circuit
+ *     already has its own NoTextState surface with softer recovery
+ *     actions; we don't pre-empt it here).
+ */
+export function shouldRecommendRejection(input: {
+  counts: VerificationCounts;
+  standalone: boolean;
+  extractionQualityState: ExtractionQualityState;
+  checks: CheckReview[];
+}): boolean {
+  if (input.standalone) return false;
+  if (input.extractionQualityState === 'ok') return false;
+  if (input.counts.pass > 0) return false;
+
+  const criticalChecks = input.checks.filter((c) =>
+    CRITICAL_CHECK_IDS.has(c.id)
+  );
+  if (criticalChecks.length === 0) return false;
+
+  return !criticalChecks.some(hasExtractedValue);
+}
 
 export function resolveDisplayVerdict(input: {
   counts: VerificationCounts;
   standalone: boolean;
   extractionQualityState: ExtractionQualityState;
+  checks?: CheckReview[];
 }): DisplayVerdict {
+  if (
+    input.checks &&
+    shouldRecommendRejection({
+      counts: input.counts,
+      standalone: input.standalone,
+      extractionQualityState: input.extractionQualityState,
+      checks: input.checks
+    })
+  ) {
+    return 'recommend-reject';
+  }
+
   const displayCounts = toDisplayCounts(input.counts);
   if (
     input.standalone ||
@@ -106,9 +194,17 @@ export function resolveDisplayVerdictCopy(input: {
   counts: VerificationCounts;
   standalone: boolean;
   extractionQualityState: ExtractionQualityState;
+  checks?: CheckReview[];
 }): DisplayVerdictCopy {
   const displayVerdict = resolveDisplayVerdict(input);
   const displayCounts = toDisplayCounts(input.counts);
+
+  if (displayVerdict === 'recommend-reject') {
+    return {
+      verdict: 'recommend-reject',
+      ...DISPLAY_VERDICT_COPY['recommend-reject']
+    };
+  }
 
   if (input.standalone) {
     return {
