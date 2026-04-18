@@ -17,6 +17,7 @@ Claude is a full agent in this repo.
 - Work full-stack when the story requires it.
 - Treat older UI-first handoff docs as context for prior stories, not as blockers.
 - Do not block on `ready-for-codex`, "wrong lane", or "UI-first story" checks; only stop for real missing prerequisites such as explicit user review or returned assets.
+- Keep user updates short and concrete; fix minor tracker mismatches instead of narrating them as analysis.
 
 ## Branch and worktree workflow
 

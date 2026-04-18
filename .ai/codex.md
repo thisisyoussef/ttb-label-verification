@@ -33,3 +33,4 @@ This file mirrors the repo's lean execution contract for Codex.
 - No nested worktrees inside the repo
 - GitHub PR path for publish and merge
 - No standing Claude-vs-Codex lane split
+- Short, action-oriented user updates with no speculative tracker commentary

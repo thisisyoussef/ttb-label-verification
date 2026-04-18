@@ -9,6 +9,7 @@
 - Starting new story work on `main`, `production`, or an unrelated story branch
 - Choosing the next story from chat memory instead of SSOT
 - Treating Stitch as mandatory, or continuing to teach `claude-direct` as the current mode name instead of `direct`
+- Narrating minor tracker inconsistencies or speculative continuity clues to the user instead of just fixing the checked-in docs
 - Disabling the source-size guard entirely just because `main` already drifted past the cap
 - Treating `.ai/` as runtime code instead of harness scaffolding
 - Asking the model for a holistic compliance pass or fail verdict

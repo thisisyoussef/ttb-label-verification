@@ -10,3 +10,4 @@
 - Keep automated Stitch behind self-review and explicit user review instead of auto-implementing from unreviewed generated refs.
 - Keep `TTB-WF-003` active until the repo stops teaching lane-gated behavior.
 - Keep `TTB-210` as the next blocking story after `TTB-WF-003`; the remaining blocker there is LangSmith auth, not local implementation quality.
+- Keep user-facing progress updates brief and action-oriented; do not surface minor tracker mismatches as speculative analysis.
