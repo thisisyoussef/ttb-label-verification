@@ -48,8 +48,20 @@ function buildReviewFields(
   };
 }
 
+function appendReviewImages(
+  formData: FormData,
+  image: LabelImage,
+  secondaryImage?: LabelImage | null
+) {
+  formData.append('label', image.file);
+  if (secondaryImage) {
+    formData.append('label', secondaryImage.file);
+  }
+}
+
 export async function submitReview(options: {
   image: LabelImage;
+  secondaryImage?: LabelImage | null;
   beverage: BeverageSelection;
   fields: IntakeFields;
   signal: AbortSignal;
@@ -63,7 +75,7 @@ export async function submitReview(options: {
   extractionCacheKey?: string;
 }) {
   const formData = new FormData();
-  formData.append('label', options.image.file);
+  appendReviewImages(formData, options.image, options.secondaryImage);
   formData.append(
     'fields',
     JSON.stringify(buildReviewFields(options.beverage, options.fields))
@@ -106,12 +118,13 @@ export async function submitReview(options: {
  */
 export async function prefetchExtraction(options: {
   image: LabelImage;
+  secondaryImage?: LabelImage | null;
   beverage: BeverageSelection;
   signal: AbortSignal;
   clientRequestId?: string;
 }): Promise<{ cacheKey: string; ocrText: string } | null> {
   const formData = new FormData();
-  formData.append('label', options.image.file);
+  appendReviewImages(formData, options.image, options.secondaryImage);
   formData.append(
     'fields',
     JSON.stringify(
@@ -160,6 +173,7 @@ export async function prefetchExtraction(options: {
  */
 export async function streamReview(options: {
   image: LabelImage;
+  secondaryImage?: LabelImage | null;
   beverage: BeverageSelection;
   fields: IntakeFields;
   signal: AbortSignal;
@@ -173,7 +187,7 @@ export async function streamReview(options: {
   onFrame: (frame: ReviewStreamFrame) => void;
 }): Promise<void> {
   const formData = new FormData();
-  formData.append('label', options.image.file);
+  appendReviewImages(formData, options.image, options.secondaryImage);
   formData.append(
     'fields',
     JSON.stringify(buildReviewFields(options.beverage, options.fields))
@@ -257,13 +271,14 @@ export async function streamReview(options: {
  */
 export async function refineReview(options: {
   image: LabelImage;
+  secondaryImage?: LabelImage | null;
   beverage: BeverageSelection;
   fields: IntakeFields;
   signal: AbortSignal;
   clientRequestId?: string;
 }) {
   const formData = new FormData();
-  formData.append('label', options.image.file);
+  appendReviewImages(formData, options.image, options.secondaryImage);
   formData.append(
     'fields',
     JSON.stringify(buildReviewFields(options.beverage, options.fields))

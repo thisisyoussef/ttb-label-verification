@@ -74,4 +74,22 @@ describe('batch csv parsing', () => {
     expect(result.rows[1]?.beverageType).toBe('wine');
     expect(result.rows[1]?.origin).toBe('imported');
   });
+
+  it('parses an optional secondary image filename per row', () => {
+    const result = parseBatchCsv({
+      filename: 'applications.csv',
+      text:
+        'filename,secondary_filename,beverage_type,brand_name,fanciful_name,class_type,alcohol_content,net_contents,applicant_address,origin,country,formula_id,appellation,vintage\n' +
+        'front.jpg,back.jpg,distilled-spirits,Front Label,,Straight Rye,45% Alc./Vol.,750 mL,,domestic,,,,\n'
+    });
+
+    expect(result.success).toBe(true);
+    if (!result.success) {
+      throw new Error('Expected CSV parsing to succeed.');
+    }
+
+    expect(result.headers).toContain('secondary_filename');
+    expect(result.rows[0]?.secondaryFilenameHint).toBe('back.jpg');
+    expect(result.preview.rows[0]?.secondaryFilenameHint).toBe('back.jpg');
+  });
 });

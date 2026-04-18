@@ -37,7 +37,7 @@ import {
   incrementSummary,
   normalizeProcessingError,
   summarizeRows,
-  toMemoryUploadedLabel
+  toMemoryUploadedLabels
 } from './batch-session-helpers';
 import { resolveBatchAssignments } from './batch-session-assignments';
 import { createBatchSessionPreflight } from './batch-session-preflight';
@@ -66,12 +66,7 @@ export class BatchSessionStore {
     extractionMode: ExtractionMode;
     providers: AiProvider[];
     latencyObserver?: ReviewLatencyObserver;
-    /**
-     * Accepted for API symmetry with the review route plumbing. Batch
-     * overrides come in as per-call `run`/`retry` arguments, so this is
-     * unused at the store level but kept on the constructor input so
-     * `createApp` can pass a single shape to both.
-     */
+    // Accepted for API symmetry with the review route plumbing.
     extractorResolver?: unknown;
   }) {
     this.extractor = input.extractor;
@@ -100,7 +95,7 @@ export class BatchSessionStore {
     const assignments = resolveBatchAssignments(session, payload.resolutions);
 
     session.assignments = new Map(
-      assignments.map((assignment) => [assignment.image.id, assignment])
+      assignments.map((assignment) => [assignment.primaryImage.id, assignment])
     );
     session.results.clear();
     session.reports.clear();
@@ -156,16 +151,8 @@ export class BatchSessionStore {
     };
     const deferredLabels: DeferredLabel[] = [];
 
-    // Opt D — cross-label resolver aggregation. When enabled, each label's
-    // processAssignment skips the per-label LLM resolver; after all labels
-    // land, we run a single aggregated Gemini call over every non-sealed
-    // label's ambiguous fields. This drops N Gemini calls to 1 on a batch
-    // of N labels with ambiguous fields.
-    //
-    // Off by default: at BATCH_CONCURRENCY=5 the per-label calls already
-    // parallelize naturally, so the payoff is rate-limit budget (1 call
-    // vs N) rather than wall-clock. Enable with BATCH_RESOLVER_AGGREGATION
-    // =enabled if you're close to the provider's rate-limit ceiling.
+    // When enabled, skip per-label ambiguity resolution and run one
+    // aggregated Gemini call after all labels land.
     const useAggregatedResolver =
       process.env.BATCH_RESOLVER_AGGREGATION?.trim().toLowerCase() === 'enabled';
 
@@ -199,7 +186,7 @@ export class BatchSessionStore {
       const assignment = assignments[index]!;
       totalDurationMs += durationMs;
 
-      session.results.set(assignment.image.id, {
+      session.results.set(assignment.primaryImage.id, {
         row: result.row,
         assignment
       });
@@ -207,7 +194,7 @@ export class BatchSessionStore {
         session.reports.set(result.report.id, result.report);
         if (useAggregatedResolver && result.intake && result.extraction) {
           deferredLabels.push({
-            imageId: assignment.image.id,
+            imageId: assignment.primaryImage.id,
             intake: result.intake,
             extraction: result.extraction,
             report: result.report
@@ -220,9 +207,10 @@ export class BatchSessionStore {
       await onFrame(
         batchStreamFrameSchema.parse({
           type: 'item',
-          itemId: `item-${assignment.image.id}-${index + 1}`,
-          imageId: assignment.image.id,
-          filename: assignment.image.filename,
+          itemId: `item-${assignment.primaryImage.id}-${index + 1}`,
+          imageId: assignment.primaryImage.id,
+          secondaryImageId: assignment.secondaryImage?.id ?? null,
+          filename: assignment.primaryImage.filename,
           identity: `${assignment.row.brandName} — ${assignment.row.classType}`,
           status: result.row.status,
           reportId: result.row.reportId ?? undefined,
@@ -330,7 +318,8 @@ export class BatchSessionStore {
                       type: 'item',
                       itemId: `item-${deferred.imageId}-${existing.row.completedOrder}`,
                       imageId: deferred.imageId,
-                      filename: existing.assignment.image.filename,
+                      secondaryImageId: existing.assignment.secondaryImage?.id ?? null,
+                      filename: existing.assignment.primaryImage.filename,
                       identity: `${existing.assignment.row.brandName} — ${existing.assignment.row.classType}`,
                       status: row.status,
                       reportId: row.reportId ?? undefined,
@@ -453,8 +442,8 @@ export class BatchSessionStore {
   }) {
     const latencyCapture = createReviewLatencyCapture({
       surface: input.surface,
-      clientTraceId: [input.surface, input.assignment.image.id].join(':'),
-      fixtureId: input.assignment.image.id
+      clientTraceId: [input.surface, input.assignment.primaryImage.id].join(':'),
+      fixtureId: input.assignment.primaryImage.id
     });
     latencyCapture.recordSpan({
       stage: 'intake-parse',
@@ -471,12 +460,16 @@ export class BatchSessionStore {
       const normalizationStartedAt = performance.now();
       const parsedFields = buildParsedReviewFields(input.assignment.row);
       const rawIntake = createNormalizedReviewIntake({
-        file: toMemoryUploadedLabel(input.assignment.image),
+        files: toMemoryUploadedLabels(input.assignment),
         fields: parsedFields
       });
+      const labels = await Promise.all(
+        rawIntake.labels.map((label) => convertPdfLabelToImage(label))
+      );
       const intake = {
         ...rawIntake,
-        label: await convertPdfLabelToImage(rawIntake.label)
+        label: labels[0]!,
+        labels
       };
       latencyCapture.recordSpan({
         stage: 'intake-normalization',
@@ -488,10 +481,10 @@ export class BatchSessionStore {
         surface: input.surface,
         extractionMode: activeExtractionMode,
         provider: activeProviders.join(',') || undefined,
-        clientTraceId: [input.surface, input.assignment.image.id].join(':'),
+        clientTraceId: [input.surface, input.assignment.primaryImage.id].join(':'),
         intake,
         extractor: activeExtractor,
-        fixtureId: input.assignment.image.id,
+        fixtureId: input.assignment.primaryImage.id,
         reportId: randomUUID(),
         latencyCapture,
         latencyObserver: this.latencyObserver,

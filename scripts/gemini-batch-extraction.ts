@@ -291,6 +291,7 @@ export function summarizeGeminiBatchExtractionResults(
 function createIntake(caseItem: LoadedGeminiBatchCase): NormalizedReviewIntake {
   return {
     label: caseItem.label,
+    labels: [caseItem.label],
     fields: caseItem.fields,
     hasApplicationData: caseItem.hasApplicationData,
     standalone: caseItem.standalone

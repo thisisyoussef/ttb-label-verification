@@ -238,12 +238,21 @@ export function MatchedGroup({
               className="py-3 grid grid-cols-1 md:grid-cols-12 gap-3 items-center"
             >
               <div className="md:col-span-5 flex items-center gap-3 min-w-0">
-                <LabelThumb
-                  image={pair.image}
-                  size="sm"
-                  onPreview={() => onPreviewImage(pair.image)}
-                />
-                <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <LabelThumb
+                    image={pair.image}
+                    size="sm"
+                    onPreview={() => onPreviewImage(pair.image)}
+                  />
+                  {pair.secondaryImage ? (
+                    <LabelThumb
+                      image={pair.secondaryImage}
+                      size="sm"
+                      onPreview={() => onPreviewImage(pair.secondaryImage!)}
+                    />
+                  ) : null}
+                </div>
+                <div className="min-w-0 flex flex-col gap-0.5">
                   <button
                     type="button"
                     onClick={() => onPreviewImage(pair.image)}
@@ -254,6 +263,15 @@ export function MatchedGroup({
                   <p className="text-[10px] font-label uppercase tracking-widest text-on-surface-variant">
                     {pair.image.sizeLabel}
                   </p>
+                  {pair.secondaryImage ? (
+                    <button
+                      type="button"
+                      onClick={() => onPreviewImage(pair.secondaryImage!)}
+                      className="font-mono text-xs text-on-surface-variant truncate hover:underline text-left"
+                    >
+                      {pair.secondaryImage.filename}
+                    </button>
+                  ) : null}
                 </div>
               </div>
               <div className="md:col-span-6 min-w-0 flex items-center gap-3">

@@ -3,27 +3,18 @@ import {
   syntheticLabelGenerateResponseSchema,
   type SyntheticLabelExpected
 } from '../../shared/contracts/review';
+import { BUILTIN_SAMPLES } from './builtin-sample-packs';
 import {
-  BUILTIN_SAMPLES,
-  BUILTIN_SAMPLE_BY_ID
-} from './builtin-sample-packs';
+  deriveImageMime,
+  fetchSampleFiles,
+  guessMimeFromFilename,
+  prettifyLabel,
+  resolveBuiltinSample,
+  type SampleFields,
+  type SamplePreview
+} from './toolbenchSampleSupport';
 
-/**
- * Vite's toolbenchLabelsPlugin serves everything with Content-Type
- * `image/png`. That trips our server-side Multer check when the file
- * is actually a .webp — it rejects non-matching MIMEs. Override the
- * blob MIME from the filename extension so the File handed to
- * onLoadSample carries the truthful type.
- */
-function guessMimeFromFilename(filename: string): string | undefined {
-  const ext = filename.toLowerCase().split('.').pop();
-  if (!ext) return undefined;
-  if (ext === 'webp') return 'image/webp';
-  if (ext === 'png') return 'image/png';
-  if (ext === 'jpg' || ext === 'jpeg') return 'image/jpeg';
-  if (ext === 'pdf') return 'application/pdf';
-  return undefined;
-}
+export type { SampleFields } from './toolbenchSampleSupport';
 
 /**
  * Loads one real COLA Cloud label — image + matching application fields —
@@ -38,7 +29,7 @@ function guessMimeFromFilename(filename: string): string | undefined {
  * through the normal selection paths — no parallel codepath.
  */
 interface ToolbenchSamplesProps {
-  onLoadSample: (file: File, fields: SampleFields, imageId: string) => void;
+  onLoadSample: (files: File[], fields: SampleFields, imageId: string) => void;
   /**
    * Load a batch of sample labels + their CSV into the batch intake.
    * Used by the "Load test batch" button so assessors can evaluate the
@@ -53,31 +44,11 @@ interface ToolbenchSamplesProps {
    * supplied.
    */
   onLoadSyntheticSample?: (
-    file: File,
+    files: File[],
     fields: SampleFields,
     imageId: string
   ) => void;
 }
-
-export type SampleFields = {
-  brandName: string;
-  fancifulName: string;
-  classType: string;
-  alcoholContent: string;
-  netContents: string;
-  applicantAddress: string;
-  origin: string;
-  country: string;
-  formulaId: string;
-  appellation: string;
-  vintage: string;
-};
-
-type SamplePreview = {
-  id: string;
-  beverageType: string;
-  filename: string;
-};
 
 export function ToolbenchSamples({
   onLoadSample,
@@ -194,22 +165,18 @@ export function ToolbenchSamples({
         if (!res.ok) throw new Error(`sample HTTP ${res.status}`);
         const body = (await res.json()) as {
           image: { id: string; url: string; filename: string };
+          images?: Array<{ id: string; url: string; filename: string }>;
           fields: SampleFields;
         };
-        const imgRes = await fetch(body.image.url);
-        if (!imgRes.ok) throw new Error(`image HTTP ${imgRes.status}`);
-        const blob = await imgRes.blob();
-        const file = new File([blob], body.image.filename, { type: blob.type });
-        onLoadSample(file, body.fields, body.image.id);
+        const files = await fetchSampleFiles(body.images ?? [body.image]);
+        onLoadSample(files, body.fields, body.image.id);
       } catch {
         // Built-in fallback: server not available (or returned
         // non-2xx). Use the bundled sample metadata + `/toolbench/
         // labels/` image served by the Vite dev plugin. Images are
         // served blob-style so we hand the onLoadSample callback a
         // real File just like the server path.
-        const builtin = opts.id
-          ? BUILTIN_SAMPLE_BY_ID.get(opts.id)
-          : BUILTIN_SAMPLES[Math.floor(Math.random() * BUILTIN_SAMPLES.length)];
+        const builtin = resolveBuiltinSample(opts.id);
         if (!builtin) {
           setLastError(
             opts.id
@@ -228,7 +195,7 @@ export function ToolbenchSamples({
           // Multer correctly when the file lands on the server.
           const mime = guessMimeFromFilename(builtin.filename) ?? blob.type;
           const file = new File([blob], builtin.filename, { type: mime });
-          onLoadSample(file, builtin.fields, builtin.id);
+          onLoadSample([file], builtin.fields, builtin.id);
         } catch (err) {
           setLastError((err as Error).message);
         }
@@ -249,17 +216,11 @@ export function ToolbenchSamples({
       if (!res.ok) throw new Error(`live HTTP ${res.status}`);
       const body = (await res.json()) as {
         image: { id: string; url: string; filename: string };
+        images?: Array<{ id: string; url: string; filename: string }>;
         fields: SampleFields;
       };
-      const imgRes = await fetch(body.image.url);
-      if (!imgRes.ok) throw new Error(`image HTTP ${imgRes.status}`);
-      const blob = await imgRes.blob();
-      // COLA Cloud's CDN sometimes returns generic octet-stream; fall
-      // back to the filename extension so multer accepts the upload.
-      const file = new File([blob], body.image.filename, {
-        type: deriveImageMime(blob.type, body.image.filename)
-      });
-      onLoadSample(file, body.fields, body.image.id);
+      const files = await fetchSampleFiles(body.images ?? [body.image]);
+      onLoadSample(files, body.fields, body.image.id);
     } catch (err) {
       setLastError((err as Error).message);
     } finally {
@@ -297,7 +258,7 @@ export function ToolbenchSamples({
       // visible. Falls back to the regular onLoadSample (which closes
       // the drawer) if a parent didn't wire the synthetic variant.
       const fill = onLoadSyntheticSample ?? onLoadSample;
-      fill(file, parsed.fields, parsed.image.id);
+      fill([file], parsed.fields, parsed.image.id);
       setLastSynthExpected(parsed.expected);
     } catch (err) {
       setLastError((err as Error).message);
@@ -369,7 +330,7 @@ export function ToolbenchSamples({
         </button>
         <p className="text-[11px] text-on-surface-variant leading-snug">
           Populates both the label image and the application form fields from a real
-          TTB-approved COLA record.
+          TTB-approved COLA record. Some live samples include both front and back labels.
         </p>
       </section>
 
@@ -495,35 +456,4 @@ export function ToolbenchSamples({
       ) : null}
     </div>
   );
-}
-
-/**
- * Some upstream CDNs (notably COLA Cloud's CloudFront) return a generic
- * `binary/octet-stream` content-type for images. Multer on our server
- * rejects uploads without a recognized image MIME, so fall back to the
- * filename extension when the blob's own type isn't useful.
- */
-function deriveImageMime(blobType: string, filename: string): string {
-  if (blobType && blobType.startsWith('image/')) return blobType;
-  if (blobType === 'application/pdf') return blobType;
-  const lower = filename.toLowerCase();
-  if (lower.endsWith('.webp')) return 'image/webp';
-  if (lower.endsWith('.png')) return 'image/png';
-  if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
-  if (lower.endsWith('.pdf')) return 'application/pdf';
-  return 'image/jpeg';
-}
-
-// Turn "persian-empire-arak-distilled-spirits" into "Persian Empire — Arak"
-// for the pick-list. Best-effort; falls back to the raw id.
-function prettifyLabel(id: string): string {
-  const stripped = id
-    .replace(/-distilled-spirits$/i, '')
-    .replace(/-malt-beverage$/i, '')
-    .replace(/-wine$/i, '');
-  return stripped
-    .split('-')
-    .filter(Boolean)
-    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-    .join(' ');
 }

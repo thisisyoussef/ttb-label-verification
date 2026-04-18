@@ -16,6 +16,7 @@ export const MAX_LABEL_UPLOAD_BYTES = 10 * 1024 * 1024;
 export const BATCH_LABEL_CAP = 50;
 export const BATCH_CSV_EXPECTED_HEADERS = [
   'filename',
+  'secondary_filename',
   'beverage_type',
   'brand_name',
   'fanciful_name',
@@ -63,12 +64,14 @@ export const batchCsvRowSchema = z.object({
   id: z.string(),
   rowIndex: z.number().int().positive(),
   filenameHint: z.string(),
+  secondaryFilenameHint: z.string().default(''),
   brandName: z.string(),
   classType: z.string()
 });
 
 export const batchMatchedPairSchema = z.object({
   imageId: z.string(),
+  secondaryImageId: z.string().nullable().default(null),
   row: batchCsvRowSchema,
   source: z.enum(['filename', 'order'])
 });
@@ -133,6 +136,7 @@ export const batchStreamItemSchema = z.object({
   type: z.literal('item'),
   itemId: z.string(),
   imageId: z.string(),
+  secondaryImageId: z.string().nullable().default(null),
   filename: z.string(),
   identity: z.string(),
   status: batchItemStatusSchema,
@@ -169,14 +173,19 @@ export const batchDashboardRowSchema = z.object({
   rowId: z.string(),
   reportId: z.string().nullable(),
   imageId: z.string(),
+  secondaryImageId: z.string().nullable().default(null),
   filename: z.string(),
+  secondaryFilename: z.string().nullable().default(null),
   brandName: z.string(),
   classType: z.string(),
   beverageType: beverageTypeSchema,
   status: batchItemStatusSchema,
   previewUrl: z.string().nullable(),
+  secondaryPreviewUrl: z.string().nullable().default(null),
   isPdf: z.boolean(),
+  secondaryIsPdf: z.boolean().nullable().default(null),
   sizeLabel: z.string(),
+  secondarySizeLabel: z.string().nullable().default(null),
   issues: batchDashboardIssuesSchema,
   confidenceState: extractionQualityStateSchema,
   errorMessage: z.string().nullable(),

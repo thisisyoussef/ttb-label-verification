@@ -1,4 +1,8 @@
-import { CSV_REQUIRED_HEADERS, type BatchLabelImage } from './batchTypes';
+import {
+  CSV_EXPECTED_HEADERS,
+  CSV_REQUIRED_HEADERS,
+  type BatchLabelImage
+} from './batchTypes';
 import { useFileDropInput } from './useFileDropInput';
 
 export function ImagesDropZone({
@@ -173,6 +177,7 @@ export function CsvDropZone({
       id: string;
       rowIndex: number;
       filenameHint: string;
+      secondaryFilenameHint: string;
       brandName: string;
       classType: string;
     }>;
@@ -310,6 +315,21 @@ function ExpectedHeadersPanel() {
           </span>
         ))}
       </div>
+      <p className="text-[11px] font-label uppercase tracking-widest text-on-surface-variant">
+        Optional CSV headers
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {CSV_EXPECTED_HEADERS.filter((header) => !CSV_REQUIRED_HEADERS.includes(header)).map(
+          (header) => (
+            <span
+              key={header}
+              className="rounded-full bg-surface-container-high px-3 py-1 text-[11px] font-label uppercase tracking-widest text-on-surface-variant"
+            >
+              {header}
+            </span>
+          )
+        )}
+      </div>
     </div>
   );
 }
@@ -355,6 +375,7 @@ function CsvRowsPreview({
     id: string;
     rowIndex: number;
     filenameHint: string;
+    secondaryFilenameHint: string;
     brandName: string;
     classType: string;
   }>;
@@ -365,16 +386,18 @@ function CsvRowsPreview({
 
   return (
     <div className="rounded-lg border border-outline-variant/20 overflow-hidden">
-      <div className="grid grid-cols-[72px_1fr_1fr] gap-3 bg-surface-container-high px-4 py-2 text-[11px] font-label uppercase tracking-widest text-on-surface-variant">
+      <div className="grid grid-cols-[72px_1fr_1fr_1fr] gap-3 bg-surface-container-high px-4 py-2 text-[11px] font-label uppercase tracking-widest text-on-surface-variant">
         <span>Row</span>
-        <span>Filename hint</span>
+        <span>Primary hint</span>
+        <span>Secondary hint</span>
         <span>Brand / class</span>
       </div>
       <ul className="divide-y divide-outline-variant/15">
         {rows.slice(0, 6).map((row) => (
-          <li key={row.id} className="grid grid-cols-[72px_1fr_1fr] gap-3 px-4 py-3 text-sm">
+          <li key={row.id} className="grid grid-cols-[72px_1fr_1fr_1fr] gap-3 px-4 py-3 text-sm">
             <span className="font-mono text-on-surface-variant">#{row.rowIndex}</span>
             <span className="text-on-surface truncate">{row.filenameHint}</span>
+            <span className="text-on-surface truncate">{row.secondaryFilenameHint || '—'}</span>
             <span className="text-on-surface truncate">
               {row.brandName} · {row.classType}
             </span>

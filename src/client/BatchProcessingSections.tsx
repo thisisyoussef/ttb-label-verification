@@ -328,6 +328,11 @@ function StreamRow({
           >
             {item.filename}
           </button>
+          {item.secondaryFilename ? (
+            <p className="font-mono text-xs text-on-surface-variant truncate">
+              + {item.secondaryFilename}
+            </p>
+          ) : null}
           {item.status === 'error' ? (
             <p className="text-xs text-error font-body mt-0.5">
               {item.errorMessage || 'Could not process this label \u2014 retry or skip.'}
@@ -368,32 +373,60 @@ function StreamThumb({
   item: BatchStreamItem;
   onPreview: () => void;
 }) {
-  const boxClass =
-    'w-10 h-[52px] rounded border border-outline-variant/20 bg-surface-container-highest flex items-center justify-center flex-shrink-0 cursor-zoom-in transition-transform hover:scale-[1.05] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary overflow-hidden';
-  const body = item.isPdf ? (
-    <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-on-surface-variant">
-      picture_as_pdf
-    </span>
-  ) : item.previewUrl ? (
-    <img
-      alt={`Preview of ${item.filename}`}
-      src={item.previewUrl}
-      className="w-10 h-[52px] object-cover"
-    />
-  ) : (
-    <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-on-surface-variant">
-      image
-    </span>
-  );
   return (
     <button
       type="button"
       onClick={onPreview}
       aria-label={`View larger preview of ${item.filename}`}
-      className={boxClass}
+      className="relative w-10 h-[52px] flex-shrink-0 cursor-zoom-in transition-transform hover:scale-[1.05] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
     >
-      {body}
+      <StreamThumbFace
+        filename={item.filename}
+        previewUrl={item.previewUrl}
+        isPdf={item.isPdf}
+        className="absolute inset-0 rounded border border-outline-variant/20 bg-surface-container-highest flex items-center justify-center overflow-hidden"
+      />
+      {item.secondaryImageId ? (
+        <StreamThumbFace
+          filename={item.secondaryFilename ?? 'secondary label'}
+          previewUrl={item.secondaryPreviewUrl ?? null}
+          isPdf={item.secondaryIsPdf ?? false}
+          className="absolute -bottom-1 -right-1 w-5 h-6 rounded border border-outline-variant/20 bg-surface-container-lowest flex items-center justify-center overflow-hidden shadow-ambient"
+        />
+      ) : null}
     </button>
+  );
+}
+
+function StreamThumbFace({
+  filename,
+  previewUrl,
+  isPdf,
+  className
+}: {
+  filename: string;
+  previewUrl: string | null;
+  isPdf: boolean;
+  className: string;
+}) {
+  return (
+    <div className={className}>
+      {isPdf ? (
+        <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-on-surface-variant">
+          picture_as_pdf
+        </span>
+      ) : previewUrl ? (
+        <img
+          alt={`Preview of ${filename}`}
+          src={previewUrl}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-on-surface-variant">
+          image
+        </span>
+      )}
+    </div>
   );
 }
 

@@ -13,6 +13,7 @@ export function buildBatchMatching(input: {
 }) {
   const matched: Array<{
     imageId: string;
+    secondaryImageId: string | null;
     row: BatchCsvRow;
     source: 'filename' | 'order';
   }> = [];
@@ -49,11 +50,14 @@ export function buildBatchMatching(input: {
       const row = candidates[0]!;
       usedImageIds.add(image.id);
       usedRowIds.add(row.id);
-      matched.push({
-        imageId: image.id,
-        row: toBatchCsvRow(row),
-        source: 'filename'
-      });
+      matched.push(
+        batchMatchedPairSchema.parse({
+          imageId: image.id,
+          secondaryImageId: null,
+          row: toBatchCsvRow(row),
+          source: 'filename'
+        })
+      );
       continue;
     }
 
@@ -81,10 +85,49 @@ export function buildBatchMatching(input: {
     matched.push(
       batchMatchedPairSchema.parse({
         imageId: image.id,
+        secondaryImageId: null,
         row: toBatchCsvRow(row),
         source: 'order'
       })
     );
+  }
+
+  const matchedByRowId = new Map(matched.map((entry) => [entry.row.id, entry]));
+  const rowsBySecondaryFilename = new Map<string, string[]>();
+
+  for (const row of input.rows) {
+    if (!matchedByRowId.has(row.id)) {
+      continue;
+    }
+
+    const normalized = normalizeFilenameForComparison(row.secondaryFilenameHint);
+    if (normalized.length === 0) {
+      continue;
+    }
+
+    const existing = rowsBySecondaryFilename.get(normalized) ?? [];
+    existing.push(row.id);
+    rowsBySecondaryFilename.set(normalized, existing);
+  }
+
+  for (const image of input.images) {
+    if (usedImageIds.has(image.id)) {
+      continue;
+    }
+
+    const normalized = normalizeFilenameForComparison(image.filename);
+    const candidateRowIds = rowsBySecondaryFilename.get(normalized) ?? [];
+    if (candidateRowIds.length !== 1) {
+      continue;
+    }
+
+    const matchedEntry = matchedByRowId.get(candidateRowIds[0]!);
+    if (!matchedEntry || matchedEntry.secondaryImageId) {
+      continue;
+    }
+
+    matchedEntry.secondaryImageId = image.id;
+    usedImageIds.add(image.id);
   }
 
   return {
@@ -104,6 +147,7 @@ function toBatchCsvRow(row: ParsedBatchCsvRow): BatchCsvRow {
     id: row.id,
     rowIndex: row.rowIndex,
     filenameHint: row.filenameHint,
+    secondaryFilenameHint: row.secondaryFilenameHint,
     brandName: row.brandName,
     classType: row.classType
   };

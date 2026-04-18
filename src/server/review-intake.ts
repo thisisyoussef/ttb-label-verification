@@ -43,6 +43,7 @@ export interface NormalizedUploadedLabel {
 
 export interface NormalizedReviewIntake {
   label: NormalizedUploadedLabel;
+  labels: NormalizedUploadedLabel[];
   fields: NormalizedReviewFields;
   hasApplicationData: boolean;
   standalone: boolean;
@@ -112,19 +113,35 @@ export function parseOptionalReviewFields(rawFields: unknown): ReviewFieldsParse
 }
 
 export function createNormalizedReviewIntake(input: {
-  file: MemoryUploadedLabel;
+  file?: MemoryUploadedLabel;
+  files?: MemoryUploadedLabel[];
   fields: ParsedReviewFields;
 }): NormalizedReviewIntake {
+  const files =
+    input.files ??
+    (input.file ? [input.file] : []);
+
+  if (files.length === 0) {
+    throw new Error('At least one uploaded label is required.');
+  }
+
+  const labels = files.map(toNormalizedUploadedLabel);
+
   return {
-    label: {
-      originalName: input.file.originalname,
-      mimeType: input.file.mimetype,
-      bytes: input.file.size,
-      buffer: input.file.buffer
-    },
+    label: labels[0]!,
+    labels,
     fields: input.fields.fields,
     hasApplicationData: input.fields.hasApplicationData,
     standalone: !input.fields.hasApplicationData
+  };
+}
+
+function toNormalizedUploadedLabel(file: MemoryUploadedLabel): NormalizedUploadedLabel {
+  return {
+    originalName: file.originalname,
+    mimeType: file.mimetype,
+    bytes: file.size,
+    buffer: file.buffer
   };
 }
 

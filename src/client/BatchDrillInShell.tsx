@@ -47,6 +47,10 @@ export function BatchDrillInShell(props: BatchDrillInShellProps) {
   } = props;
 
   const image = useMemo<LabelImage>(() => buildDrillInImage(row), [row]);
+  const secondaryImage = useMemo<LabelImage | null>(
+    () => buildDrillInSecondaryImage(row),
+    [row]
+  );
   const beverage = row.beverageType as BeverageSelection;
 
   if (!row.reportId) {
@@ -86,6 +90,7 @@ export function BatchDrillInShell(props: BatchDrillInShellProps) {
     >
       <Results
         image={image}
+        secondaryImage={secondaryImage}
         beverage={beverage}
         report={report}
         onNewReview={props.onBack}
@@ -264,25 +269,58 @@ function UnavailablePanel({ onBack }: { onBack: () => void }) {
 }
 
 function buildDrillInImage(row: BatchDashboardRow): LabelImage {
-  const mimeType = row.isPdf
+  return buildDrillInImageVariant({
+    filename: row.filename,
+    previewUrl: row.previewUrl,
+    isPdf: row.isPdf,
+    sizeLabel: row.sizeLabel,
+    brandName: row.brandName,
+    classType: row.classType
+  });
+}
+
+function buildDrillInSecondaryImage(row: BatchDashboardRow): LabelImage | null {
+  if (!row.secondaryImageId || !row.secondaryFilename) {
+    return null;
+  }
+
+  return buildDrillInImageVariant({
+    filename: row.secondaryFilename,
+    previewUrl: row.secondaryPreviewUrl ?? null,
+    isPdf: row.secondaryIsPdf ?? false,
+    sizeLabel: row.secondarySizeLabel ?? row.sizeLabel,
+    brandName: row.brandName,
+    classType: row.classType
+  });
+}
+
+function buildDrillInImageVariant(input: {
+  filename: string;
+  previewUrl: string | null;
+  isPdf: boolean;
+  sizeLabel: string;
+  brandName: string;
+  classType: string;
+}): LabelImage {
+  const mimeType = input.isPdf
     ? 'application/pdf'
-    : row.filename.toLowerCase().endsWith('.png')
+    : input.filename.toLowerCase().endsWith('.png')
       ? 'image/png'
-      : row.filename.toLowerCase().endsWith('.webp')
+      : input.filename.toLowerCase().endsWith('.webp')
         ? 'image/webp'
         : 'image/jpeg';
-  const file = new File([new Uint8Array()], row.filename, { type: mimeType });
+  const file = new File([new Uint8Array()], input.filename, { type: mimeType });
   const previewUrl =
-    row.previewUrl ??
-    (row.isPdf
+    input.previewUrl ??
+    (input.isPdf
       ? ''
       : buildLabelThumbnail({
-          brandName: row.brandName,
-          classType: row.classType
+          brandName: input.brandName,
+          classType: input.classType
         }));
   return {
     file,
     previewUrl,
-    sizeLabel: row.sizeLabel
+    sizeLabel: input.sizeLabel
   };
 }

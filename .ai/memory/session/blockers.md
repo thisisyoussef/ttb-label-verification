@@ -7,3 +7,4 @@
 - AI Studio logging and dataset-sharing settings for the Gemini project cannot be verified from repo code or the API key alone; that remains a manual release gate before any production-ready Gemini-default claim.
 - Known future dependency: rule-ingestion work will need authoritative TTB source normalization before production-grade validators can be completed.
 - Known future dependency: `TTB-401` remains blocked on `TTB-210`.
+- `TTB-304`: no functional blocker in the clean publish worktree; remaining work is publish flow only.

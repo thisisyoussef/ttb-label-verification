@@ -11,13 +11,16 @@ import {
 function buildIntake(
   overrides: Partial<NormalizedReviewIntake> = {}
 ): NormalizedReviewIntake {
+  const label = {
+    originalName: 'label.png',
+    mimeType: 'image/png',
+    bytes: 4,
+    buffer: Buffer.from([1, 2, 3, 4])
+  };
+
   return {
-    label: {
-      originalName: 'label.png',
-      mimeType: 'image/png',
-      bytes: 4,
-      buffer: Buffer.from([1, 2, 3, 4])
-    },
+    label,
+    labels: [label],
     fields: {
       beverageTypeHint: 'auto',
       origin: 'domestic',
@@ -153,7 +156,7 @@ function requestContent(request: ReturnType<typeof buildReviewExtractionRequest>
     throw new Error('Expected the request to include a user content block.');
   }
 
-  if (!firstInput.content) {
+  if (!firstInput.content || !Array.isArray(firstInput.content)) {
     throw new Error('Expected the request to include content parts.');
   }
 
@@ -228,6 +231,46 @@ describe('OpenAI review extractor', () => {
       detail: 'auto'
     });
     expect((content[1] as { image_url: string }).image_url).toContain('data:image/png;base64,');
+  });
+
+  it('includes both uploaded label images in order when a second image is present', () => {
+    const request = buildReviewExtractionRequest({
+      intake: buildIntake({
+        labels: [
+          {
+            originalName: 'front.png',
+            mimeType: 'image/png',
+            bytes: 4,
+            buffer: Buffer.from([1, 2, 3, 4])
+          },
+          {
+            originalName: 'back.png',
+            mimeType: 'image/png',
+            bytes: 4,
+            buffer: Buffer.from([5, 6, 7, 8])
+          }
+        ]
+      }),
+      config: {
+        apiKey: 'test-key',
+        visionModel: 'gpt-5.4',
+        store: false,
+        imageDetail: 'auto'
+      }
+    });
+
+    const content = requestContent(request);
+    const images = content.filter(
+      (entry) =>
+        typeof entry === 'object' &&
+        entry !== null &&
+        'type' in entry &&
+        entry.type === 'input_image'
+    ) as Array<{ type: 'input_image'; image_url: string }>;
+
+    expect(images).toHaveLength(2);
+    expect(images[0].image_url).toContain('data:image/png;base64,');
+    expect(images[1].image_url).toContain('data:image/png;base64,');
   });
 
   it('builds an image extraction request even when the original was a PDF (converted upstream)', () => {

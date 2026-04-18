@@ -37,6 +37,7 @@ export interface RefineHandle {
   /** Fire the refine call. Silently drops if no review rows to refine. */
   start: (input: {
     image: LabelImage;
+    secondaryImage?: LabelImage | null;
     beverage: BeverageSelection;
     fields: IntakeFields;
   }) => void;
@@ -104,6 +105,7 @@ export function useRefineReview(): RefineHandle {
 
       refineReview({
         image: input.image,
+        secondaryImage: input.secondaryImage,
         beverage: input.beverage,
         fields: input.fields,
         signal: controller.signal

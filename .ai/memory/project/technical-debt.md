@@ -15,3 +15,4 @@
 
 - Mirrors and memory files need occasional cleanup so older lane-split language does not drift back into the active contract.
 - Future feature work should keep the expanded working packets and memory bank aligned with SSOT as soon as status changes land.
+- The client bundle still warns at roughly 620 kB minified on build. `TTB-304` did not change that baseline, but the results/gallery path remains a likely place to split code later.

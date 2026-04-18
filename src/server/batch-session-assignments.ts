@@ -10,18 +10,31 @@ export function resolveBatchAssignments(
   resolutions: BatchResolution[]
 ): StoredBatchAssignment[] {
   const rowsById = new Map(session.rows.map((row) => [row.id, row]));
-  const assignedRowIds = new Set<string>();
+  const assignmentsByRowId = new Map<string, StoredBatchAssignment>();
   const assignments: StoredBatchAssignment[] = [];
+  const assignedImageIds = new Set<string>();
 
   for (const matched of session.preflight.matching.matched) {
-    const image = session.images.get(matched.imageId);
+    const primaryImage = session.images.get(matched.imageId);
     const row = rowsById.get(matched.row.id);
-    if (!image || !row) {
+    if (!primaryImage || !row) {
       continue;
     }
 
-    assignedRowIds.add(row.id);
-    assignments.push({ image, row });
+    const secondaryImage = matched.secondaryImageId
+      ? session.images.get(matched.secondaryImageId) ?? null
+      : null;
+
+    assignments.push({
+      primaryImage,
+      secondaryImage,
+      row
+    });
+    assignmentsByRowId.set(row.id, assignments[assignments.length - 1]!);
+    assignedImageIds.add(primaryImage.id);
+    if (secondaryImage) {
+      assignedImageIds.add(secondaryImage.id);
+    }
   }
 
   const resolutionByImageId = new Map(
@@ -33,6 +46,10 @@ export function resolveBatchAssignments(
   ]);
 
   for (const imageId of unresolvedImageIds) {
+    if (assignedImageIds.has(imageId)) {
+      continue;
+    }
+
     const resolution = resolutionByImageId.get(imageId);
     if (!resolution) {
       throw createReviewExtractionFailure({
@@ -59,17 +76,30 @@ export function resolveBatchAssignments(
       });
     }
 
-    if (assignedRowIds.has(row.id)) {
+    const existingAssignment = assignmentsByRowId.get(row.id);
+    if (!existingAssignment) {
+      const assignment: StoredBatchAssignment = {
+        primaryImage: image,
+        secondaryImage: null,
+        row
+      };
+      assignments.push(assignment);
+      assignmentsByRowId.set(row.id, assignment);
+      assignedImageIds.add(image.id);
+      continue;
+    }
+
+    if (existingAssignment.secondaryImage) {
       throw createReviewExtractionFailure({
         status: 400,
         kind: 'validation',
-        message: 'A CSV row was assigned to more than one image.',
+        message: 'A CSV row was assigned to more than two images.',
         retryable: false
       });
     }
 
-    assignedRowIds.add(row.id);
-    assignments.push({ image, row });
+    existingAssignment.secondaryImage = image;
+    assignedImageIds.add(image.id);
   }
 
   return assignments;

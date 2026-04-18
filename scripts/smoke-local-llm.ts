@@ -36,13 +36,15 @@ async function main() {
     inferenceFn
   });
 
+  const label = {
+    originalName: path.basename(target),
+    mimeType: 'image/webp',
+    bytes: buf.byteLength,
+    buffer: buf
+  };
   const intake: NormalizedReviewIntake = {
-    label: {
-      originalName: path.basename(target),
-      mimeType: 'image/webp',
-      bytes: buf.byteLength,
-      buffer: buf
-    },
+    label,
+    labels: [label],
     fields: {
       beverageTypeHint: 'malt-beverage',
       origin: 'domestic',

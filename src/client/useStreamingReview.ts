@@ -58,6 +58,7 @@ export interface StreamingReviewHandle {
   /** Kicks off a streaming review. Rejects any in-flight request. */
   start: (input: {
     image: LabelImage;
+    secondaryImage?: LabelImage | null;
     beverage: BeverageSelection;
     fields: IntakeFields;
   }) => void;
@@ -94,6 +95,7 @@ export function useStreamingReview(
       // Fire-and-forget — we update React state via frame callback.
       streamReview({
         image: input.image,
+        secondaryImage: input.secondaryImage,
         beverage: input.beverage,
         fields: input.fields,
         signal: controller.signal,

@@ -22,9 +22,9 @@ const reviewUpload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: MAX_LABEL_UPLOAD_BYTES,
-    files: 1,
+    files: 2,
     fields: 4,
-    parts: 6,
+    parts: 8,
     fieldSize: 256 * 1024
   },
   fileFilter: (_request, file, callback) => {
@@ -43,7 +43,11 @@ const reviewUpload = multer({
   }
 });
 
-const uploadReviewLabel = reviewUpload.single('label');
+const uploadReviewLabel = reviewUpload.fields([
+  { name: 'label', maxCount: 2 },
+  { name: 'labels', maxCount: 2 },
+  { name: 'labels[]', maxCount: 2 }
+]);
 
 const batchUpload = multer({
   storage: multer.memoryStorage(),
@@ -108,10 +112,11 @@ export async function prepareReviewUpload(
   }
 
   const parseDurationMs = performance.now() - parseStartedAt;
-  if (!request.file) {
+  const labelFiles = collectReviewLabelFiles(request);
+  if (labelFiles.length === 0) {
     sendReviewError(response, 400, {
       kind: 'validation',
-      message: 'Add one label image before starting the review.',
+      message: 'Add at least one label image before starting the review.',
       retryable: false
     });
     return {
@@ -147,7 +152,7 @@ export async function prepareReviewUpload(
   return {
     success: true,
     intake: createNormalizedReviewIntake({
-      file: request.file,
+      files: labelFiles,
       fields: parsedFields.value
     }),
     parse: {
@@ -172,9 +177,13 @@ export function handleReviewUpload(
         return;
       }
 
+      const labels = await Promise.all(
+        prepared.intake.labels.map((label) => convertPdfLabelToImage(label))
+      );
       const intake: NormalizedReviewIntake = {
         ...prepared.intake,
-        label: await convertPdfLabelToImage(prepared.intake.label)
+        label: labels[0]!,
+        labels
       };
 
       return onReady(intake);
@@ -264,7 +273,7 @@ function respondToReviewUploadError(error: unknown, response: express.Response) 
       case 'LIMIT_UNEXPECTED_FILE':
         sendReviewError(response, 400, {
           kind: 'validation',
-          message: 'Upload one label image at a time.',
+          message: 'Upload no more than two label images at a time.',
           retryable: false
         });
         return;
@@ -384,4 +393,13 @@ function runReviewUpload(
       resolve();
     });
   });
+}
+
+function collectReviewLabelFiles(request: express.Request): Express.Multer.File[] {
+  const files = request.files as Record<string, Express.Multer.File[]> | undefined;
+  return [
+    ...(files?.label ?? []),
+    ...(files?.labels ?? []),
+    ...(files?.['labels[]'] ?? [])
+  ].slice(0, 2);
 }

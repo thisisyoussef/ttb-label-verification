@@ -160,9 +160,10 @@ export function AppShell({
         {view === 'intake' ? (
           <Intake
             image={single.image}
+            secondaryImage={single.secondaryImage}
             beverage={single.beverage}
             fields={single.fields}
-            onImageChange={single.onImageChange}
+            onImagesChange={single.onImagesChange}
             onBeverageChange={single.setBeverage}
             onFieldsChange={single.setFields}
             onVerify={single.onVerify}
@@ -172,6 +173,7 @@ export function AppShell({
         ) : view === 'processing' && single.image ? (
           <Processing
             image={single.image}
+            secondaryImage={single.secondaryImage}
             beverage={single.beverage}
             steps={single.steps}
             phase={single.phase}
@@ -195,6 +197,7 @@ export function AppShell({
             />
             <Results
               image={single.image}
+              secondaryImage={single.secondaryImage}
               beverage={single.beverage}
               report={single.report}
               tourExpandedCheckId={tourExpandedCheckId}

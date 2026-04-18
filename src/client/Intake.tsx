@@ -39,9 +39,13 @@ function isFieldsEmpty(fields: IntakeFields): boolean {
 
 interface IntakeProps {
   image: LabelImage | null;
+  secondaryImage: LabelImage | null;
   beverage: BeverageSelection;
   fields: IntakeFields;
-  onImageChange: (image: LabelImage | null) => void;
+  onImagesChange: (
+    primaryImage: LabelImage | null,
+    secondaryImage: LabelImage | null
+  ) => void;
   onBeverageChange: (value: BeverageSelection) => void;
   onFieldsChange: (fields: IntakeFields) => void;
   onVerify: () => void;
@@ -51,9 +55,10 @@ interface IntakeProps {
 
 export function Intake({
   image,
+  secondaryImage,
   beverage,
   fields,
-  onImageChange,
+  onImagesChange,
   onBeverageChange,
   onFieldsChange,
   onVerify,
@@ -98,8 +103,12 @@ export function Intake({
         <div className="flex-1 overflow-y-auto px-6 py-4 xl:py-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <section className="lg:col-span-5 flex flex-col">
-              <FieldGroupHeading>Label image</FieldGroupHeading>
-              <DropZone image={image} onAccept={onImageChange} onRemove={() => onImageChange(null)} />
+              <FieldGroupHeading>Label images</FieldGroupHeading>
+              <DropZone
+                primaryImage={image}
+                secondaryImage={secondaryImage}
+                onChange={onImagesChange}
+              />
               {jsonPasteHint.visible && !image ? (
                 <p className="text-xs text-on-surface-variant/70 font-label flex items-center gap-1.5 mt-2">
                   <span className="material-symbols-outlined text-[14px]" aria-hidden="true">lightbulb</span>
@@ -249,7 +258,7 @@ export function Intake({
 
               <p className="text-xs text-on-surface-variant/60 font-label mt-3 flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-[14px]" aria-hidden="true">info</span>
-                Or upload just the image to check it without application data.
+                Select one label image to verify, or add a second one in the same picker for the back label.
               </p>
             </section>
           </div>

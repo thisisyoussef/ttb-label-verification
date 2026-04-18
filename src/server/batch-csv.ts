@@ -11,6 +11,7 @@ export interface ParsedBatchCsvRow {
   id: string;
   rowIndex: number;
   filenameHint: string;
+  secondaryFilenameHint: string;
   brandName: string;
   classType: string;
   beverageType: ReviewIntakeBeverage;
@@ -91,11 +92,16 @@ export function parseBatchCsv(input: {
 
       const valueFor = (header: (typeof BATCH_CSV_EXPECTED_HEADERS)[number]) =>
         row[headerIndex.get(header) ?? -1]?.trim() ?? '';
+      const valueForAny = (...headers: string[]) =>
+        headers
+          .map((header) => row[headerIndex.get(header) ?? -1]?.trim() ?? '')
+          .find((value) => value.length > 0) ?? '';
 
       return {
         id: `row-${index + 1}`,
         rowIndex: index + 1,
         filenameHint: valueFor('filename'),
+        secondaryFilenameHint: valueForAny('secondary_filename', 'filename_2'),
         beverageType: normalizeBeverageType(valueFor('beverage_type')),
         brandName: valueFor('brand_name'),
         fancifulName: valueFor('fanciful_name'),
@@ -116,6 +122,7 @@ export function parseBatchCsv(input: {
         id: row.id,
         rowIndex: row.rowIndex,
         filenameHint: row.filenameHint,
+        secondaryFilenameHint: row.secondaryFilenameHint,
         brandName: row.brandName,
         classType: row.classType
       })

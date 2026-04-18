@@ -6,7 +6,7 @@ import { ToolbenchSamples, type SampleFields } from './ToolbenchSamples';
 import { type ToolbenchTab, useToolbenchState } from './useToolbenchState';
 
 interface AssessorToolbenchProps {
-  onLoadSample: (file: File, fields: SampleFields, imageId: string) => void;
+  onLoadSample: (files: File[], fields: SampleFields, imageId: string) => void;
   onLoadBatch: (images: File[], csv: File) => void;
   onLoadImage: (file: File) => void;
   onLoadCsv: (file: File) => void;
@@ -90,8 +90,8 @@ export function AssessorToolbench({
           <div role="tabpanel" className="flex-1 min-h-0 overflow-y-auto">
             {tab === 'samples' && (
               <ToolbenchSamples
-                onLoadSample={(file, fields, imageId) => {
-                  onLoadSample(file, fields, imageId);
+                onLoadSample={(files, fields, imageId) => {
+                  onLoadSample(files, fields, imageId);
                   close();
                 }}
                 onLoadBatch={(images, csv) => {
@@ -101,8 +101,8 @@ export function AssessorToolbench({
                 // Synthetic-label flow keeps the toolbench open so the
                 // expected-verdict chip stays visible — devs read it
                 // before clicking Verify to compare actual vs expected.
-                onLoadSyntheticSample={(file, fields, imageId) => {
-                  onLoadSample(file, fields, imageId);
+                onLoadSyntheticSample={(files, fields, imageId) => {
+                  onLoadSample(files, fields, imageId);
                 }}
               />
             )}

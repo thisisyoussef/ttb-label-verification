@@ -17,6 +17,7 @@ export interface BatchCsvRow {
   id: string;
   rowIndex: number;
   filenameHint: string;
+  secondaryFilenameHint: string;
   brandName: string;
   classType: string;
 }
@@ -43,6 +44,7 @@ export type BatchItemStatus = 'pass' | 'review' | 'fail' | 'error';
 
 export interface BatchMatchedPair {
   image: BatchLabelImage;
+  secondaryImage: BatchLabelImage | null;
   row: BatchCsvRow;
   source: 'filename' | 'order';
 }
@@ -79,6 +81,11 @@ export interface BatchStreamItem {
   identity: string;
   previewUrl: string | null;
   isPdf: boolean;
+  secondaryImageId?: string | null;
+  secondaryFilename?: string | null;
+  secondaryPreviewUrl?: string | null;
+  secondaryIsPdf?: boolean | null;
+  secondarySizeLabel?: string | null;
   status: BatchItemStatus;
   errorMessage?: string;
   retryKey: number;
@@ -121,14 +128,19 @@ export interface BatchDashboardRow {
   rowId: string;
   reportId: string | null;
   imageId: string;
+  secondaryImageId?: string | null;
   filename: string;
+  secondaryFilename?: string | null;
   brandName: string;
   classType: string;
   beverageType: 'distilled-spirits' | 'wine' | 'malt-beverage' | 'unknown';
   status: BatchItemStatus;
   previewUrl: string | null;
+  secondaryPreviewUrl?: string | null;
   isPdf: boolean;
+  secondaryIsPdf?: boolean | null;
   sizeLabel: string;
+  secondarySizeLabel?: string | null;
   issues: BatchDashboardIssues;
   confidenceState: 'ok' | 'low-confidence' | 'no-text-extracted';
   errorMessage: string | null;

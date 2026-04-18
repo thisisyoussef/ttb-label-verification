@@ -29,6 +29,17 @@ export function toMemoryUploadedLabel(image: StoredBatchImage): MemoryUploadedLa
   };
 }
 
+export function toMemoryUploadedLabels(
+  assignment: StoredBatchAssignment
+): MemoryUploadedLabel[] {
+  return [
+    toMemoryUploadedLabel(assignment.primaryImage),
+    ...(assignment.secondaryImage
+      ? [toMemoryUploadedLabel(assignment.secondaryImage)]
+      : [])
+  ];
+}
+
 export function buildParsedReviewFields(row: ParsedBatchCsvRow): ParsedReviewFields {
   const fields = {
     beverageTypeHint: row.beverageType,
@@ -71,15 +82,20 @@ export function buildDashboardRow(input: {
   return {
     rowId: input.assignment.row.id,
     reportId: input.report.id,
-    imageId: input.assignment.image.id,
-    filename: input.assignment.image.filename,
+    imageId: input.assignment.primaryImage.id,
+    secondaryImageId: input.assignment.secondaryImage?.id ?? null,
+    filename: input.assignment.primaryImage.filename,
+    secondaryFilename: input.assignment.secondaryImage?.filename ?? null,
     brandName: input.assignment.row.brandName,
     classType: input.assignment.row.classType,
     beverageType: input.report.beverageType,
     status: verdictToBatchStatus(input.report.verdict),
     previewUrl: null,
-    isPdf: input.assignment.image.isPdf,
-    sizeLabel: input.assignment.image.sizeLabel,
+    secondaryPreviewUrl: null,
+    isPdf: input.assignment.primaryImage.isPdf,
+    secondaryIsPdf: input.assignment.secondaryImage?.isPdf ?? null,
+    sizeLabel: input.assignment.primaryImage.sizeLabel,
+    secondarySizeLabel: input.assignment.secondaryImage?.sizeLabel ?? null,
     issues: summarizeIssues(input.report),
     confidenceState: input.report.extractionQuality.state,
     errorMessage: null,
@@ -95,15 +111,20 @@ export function buildErroredRow(input: {
   return {
     rowId: input.assignment.row.id,
     reportId: null,
-    imageId: input.assignment.image.id,
-    filename: input.assignment.image.filename,
+    imageId: input.assignment.primaryImage.id,
+    secondaryImageId: input.assignment.secondaryImage?.id ?? null,
+    filename: input.assignment.primaryImage.filename,
+    secondaryFilename: input.assignment.secondaryImage?.filename ?? null,
     brandName: input.assignment.row.brandName,
     classType: input.assignment.row.classType,
     beverageType: normalizeBatchBeverageType(input.assignment.row.beverageType),
     status: 'error',
     previewUrl: null,
-    isPdf: input.assignment.image.isPdf,
-    sizeLabel: input.assignment.image.sizeLabel,
+    secondaryPreviewUrl: null,
+    isPdf: input.assignment.primaryImage.isPdf,
+    secondaryIsPdf: input.assignment.secondaryImage?.isPdf ?? null,
+    sizeLabel: input.assignment.primaryImage.sizeLabel,
+    secondarySizeLabel: input.assignment.secondaryImage?.sizeLabel ?? null,
     issues: {
       blocker: 0,
       major: 0,

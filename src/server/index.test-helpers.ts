@@ -211,19 +211,23 @@ export async function postReview(
   server: { address: () => AddressInfo | string | null },
   {
     file = buildLabelFile(),
+    files,
     fields = JSON.stringify(validReviewFields()),
     clientTraceId
   }: {
     file?: File | null;
+    files?: File[] | null;
     fields?: string | null;
     clientTraceId?: string;
   } = {}
 ) {
   const form = new FormData();
 
-  if (file) {
-    form.append('label', file);
-  }
+  const reviewFiles = files ?? (file ? [file] : []);
+
+  reviewFiles.forEach((reviewFile) => {
+    form.append('label', reviewFile);
+  });
 
   if (fields !== null) {
     form.append('fields', fields);
@@ -240,19 +244,23 @@ export async function postReviewExtraction(
   server: { address: () => AddressInfo | string | null },
   {
     file = buildLabelFile(),
+    files,
     fields = JSON.stringify(validReviewFields()),
     clientTraceId
   }: {
     file?: File | null;
+    files?: File[] | null;
     fields?: string | null;
     clientTraceId?: string;
   } = {}
 ) {
   const form = new FormData();
 
-  if (file) {
-    form.append('label', file);
-  }
+  const reviewFiles = files ?? (file ? [file] : []);
+
+  reviewFiles.forEach((reviewFile) => {
+    form.append('label', reviewFile);
+  });
 
   if (fields !== null) {
     form.append('fields', fields);
@@ -269,19 +277,23 @@ export async function postReviewWarning(
   server: { address: () => AddressInfo | string | null },
   {
     file = buildLabelFile(),
+    files,
     fields = JSON.stringify(validReviewFields()),
     clientTraceId
   }: {
     file?: File | null;
+    files?: File[] | null;
     fields?: string | null;
     clientTraceId?: string;
   } = {}
 ) {
   const form = new FormData();
 
-  if (file) {
-    form.append('label', file);
-  }
+  const reviewFiles = files ?? (file ? [file] : []);
+
+  reviewFiles.forEach((reviewFile) => {
+    form.append('label', reviewFile);
+  });
 
   if (fields !== null) {
     form.append('fields', fields);
