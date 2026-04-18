@@ -318,43 +318,52 @@ function buildStandaloneFieldCheck(input: {
   label: string;
   ocrFallback: { value: string; confidence: number } | null;
 }): CheckReview | null {
+  // The application form was left blank for this field. There's no
+  // approved value to compare against, so the row is informational
+  // only — whatever we find on the label is "found, not matched".
+  // It always gets status='pass' (which renders as the green
+  // "Found on label" badge in the UI), regardless of how confident
+  // the extractor was, so the reviewer doesn't see a "Needs review"
+  // pill on a row that isn't actually a comparison failure.
+  // Government warning is checked elsewhere by buildGovernmentWarningCheck
+  // and never routes through here.
   if (!input.extractedField.present || !input.extractedValue) {
     if (input.ocrFallback) {
       return {
         id: input.id,
         label: input.label,
-        status: 'review',
-        severity: 'minor',
-        summary: `Label ${OCR_FALLBACK_SENTINEL}: ${input.ocrFallback.value}.`,
+        status: 'pass',
+        severity: 'note',
+        summary: `Found on the label: ${input.ocrFallback.value}.`,
         details:
-          'No application data was provided. Our vision model did not read this field cleanly, so we fell back to the label text directly. Confirm the value.',
+          'This field was not filled in the application data, so there was nothing to compare against. The vision model did not read this field cleanly, so we read the value above directly off the label image — confirm it reads correctly.',
         confidence: input.ocrFallback.confidence,
         citations: citationsFor(input.extraction.beverageType),
         extractedValue: input.ocrFallback.value,
         comparison: {
           status: 'not-applicable',
           extractedValue: input.ocrFallback.value,
-          note: `This value is ${OCR_FALLBACK_SENTINEL} — the vision model did not read it cleanly, so we read the label text directly.`
+          note: 'No matching value was provided in the application data.'
         }
       };
     }
     return null;
   }
 
-  const confident =
-    input.extraction.imageQuality.state === 'ok' && input.extractedField.confidence >= 0.9;
+  const lowConfidence =
+    input.extraction.imageQuality.state !== 'ok' || input.extractedField.confidence < 0.9;
 
   return {
     id: input.id,
     label: input.label,
-    status: confident ? 'pass' : 'review',
-    severity: confident ? 'note' : 'minor',
-    summary: confident
-      ? `Found on the label: ${input.extractedValue}.`
-      : 'The label image is hard to read.',
-    details: confident
-      ? 'This field was not filled in the application data, so there was nothing to compare against. The value above is what we read from the label image — confirm it reads correctly.'
-      : 'This field was not filled in the application data, and the label image is too unclear to be confident in what we read.',
+    status: 'pass',
+    severity: 'note',
+    summary: lowConfidence
+      ? `Found on the label (image was a bit unclear): ${input.extractedValue}.`
+      : `Found on the label: ${input.extractedValue}.`,
+    details: lowConfidence
+      ? 'This field was not filled in the application data, so there was nothing to compare against. The value above is what we read from the label image — the image is a bit unclear, so double-check the reading.'
+      : 'This field was not filled in the application data, so there was nothing to compare against. The value above is what we read from the label image — confirm it reads correctly.',
     confidence: input.extractedField.confidence,
     citations: citationsFor(input.extraction.beverageType),
     extractedValue: input.extractedValue,
