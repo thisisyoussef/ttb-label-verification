@@ -53,6 +53,35 @@ export function registerAppRoutes({
     response.json(helpManifestSchema.parse(LOCAL_HELP_MANIFEST));
   });
 
+  /**
+   * Capability probe for the client. Tells the Toolbench whether the
+   * Local track (Ollama / in-process) is actually available so the
+   * provider toggle can gate that option. Derived from the same env
+   * vars the extractor factory reads — kept here (not hard-coded) so
+   * Railway staging/production naturally report `allowLocal: false`
+   * while local dev reports `true`.
+   */
+  app.get('/api/capabilities', (_request, response) => {
+    const env = process.env;
+    const allowLocalRaw = (env.AI_EXTRACTION_MODE_ALLOW_LOCAL ?? '')
+      .trim()
+      .toLowerCase();
+    const allowLocal =
+      allowLocalRaw === 'true' ||
+      allowLocalRaw === '1' ||
+      allowLocalRaw === 'yes' ||
+      allowLocalRaw === 'on';
+    const defaultMode =
+      (env.AI_EXTRACTION_MODE_DEFAULT ?? '').trim().toLowerCase() === 'local'
+        ? 'local'
+        : 'cloud';
+    response.setHeader('cache-control', 'no-store');
+    response.json({
+      allowLocal,
+      defaultMode: allowLocal ? defaultMode : 'cloud'
+    });
+  });
+
   registerReviewRoutes({
     app,
     extractorResolution,

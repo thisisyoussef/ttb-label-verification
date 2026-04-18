@@ -15,6 +15,8 @@ import type { NormalizedReviewIntake } from './review-intake';
 import {
   buildReviewExtractionPrompt,
   buildOcrAugmentedExtractionPrompt,
+  buildVerificationExtractionPrompt,
+  isVerificationModeEnabled,
   normalizeReviewExtractionModelOutput,
   reviewExtractionModelOutputJsonSchema,
   reviewExtractionModelOutputSchema
@@ -205,16 +207,33 @@ async function maybePrescaleIntakeForGemini(
  * (and scaffolding for a future progressive-UI surface).
  */
 async function collectStreamedResponse(
-  streamPromise: Promise<AsyncGenerator<GenerateContentResult>>
+  streamPromise: Promise<AsyncGenerator<GenerateContentResult>>,
+  onFieldProgress?: (field: { name: string; value: unknown }) => void
 ): Promise<GenerateContentResult> {
   const stream = await streamPromise;
   let combinedText = '';
   let modelVersion: string | undefined;
   let sdkHttpResponse: GenerateContentResult['sdkHttpResponse'];
   let usageMetadata: GenerateContentResult['usageMetadata'];
+  // Field scanner only spun up when a progress callback is wired.
+  // Pulls completed `fields.XXX: {...}` subobjects out of the
+  // streaming buffer and surfaces them for progressive UI work.
+  const scanner = onFieldProgress
+    ? (await import('./partial-json-field-scanner')).createFieldScanner()
+    : null;
   for await (const chunk of stream) {
     if (typeof chunk.text === 'string' && chunk.text.length > 0) {
       combinedText += chunk.text;
+      if (scanner && onFieldProgress) {
+        for (const field of scanner.feed(chunk.text)) {
+          try {
+            onFieldProgress(field);
+          } catch {
+            // Progress callback errors must never break collection —
+            // the caller's SSE emit can fail, we keep accumulating.
+          }
+        }
+      }
     }
     if (chunk.modelVersion && !modelVersion) {
       modelVersion = chunk.modelVersion;
@@ -264,23 +283,48 @@ export function buildGeminiReviewExtractionRequest(input: {
   const surface = input.context?.surface ?? '/api/review';
   const extractionMode = input.context?.extractionMode ?? 'cloud';
   const ocrText = input.intake.ocrText;
-  const promptText = ocrText
-    ? buildOcrAugmentedExtractionPrompt({ surface, extractionMode, ocrText })
-    : buildReviewExtractionPrompt({ surface, extractionMode });
+
+  // When verification-mode is enabled and the applicant declared
+  // identifier fields, send a prompt that asks the model to verify
+  // them against the label. Falls back to the standard extraction
+  // prompt when the flag is off or no identifiers were declared.
+  const verificationPrompt = isVerificationModeEnabled()
+    ? buildVerificationExtractionPrompt({
+        surface,
+        extractionMode,
+        fields: input.intake.fields,
+        ocrText
+      })
+    : null;
+
+  const imagePart = {
+    inlineData: {
+      mimeType: input.intake.label.mimeType,
+      data: input.intake.label.buffer.toString('base64')
+    }
+  };
+
+  // Verification-mode uses a [preImage text, image, postImage text]
+  // structure so the numeric re-anchor is the LAST thing the model
+  // reads. Standard path sends a single text block before the image.
+  const contents = verificationPrompt
+    ? [
+        { text: verificationPrompt.preImage },
+        imagePart,
+        { text: verificationPrompt.postImage }
+      ]
+    : [
+        {
+          text: ocrText
+            ? buildOcrAugmentedExtractionPrompt({ surface, extractionMode, ocrText })
+            : buildReviewExtractionPrompt({ surface, extractionMode })
+        },
+        imagePart
+      ];
 
   return {
     model: input.config.visionModel,
-    contents: [
-      {
-        text: promptText
-      },
-      {
-        inlineData: {
-          mimeType: input.intake.label.mimeType,
-          data: input.intake.label.buffer.toString('base64')
-        }
-      }
-    ],
+    contents,
     config: {
       responseMimeType: 'application/json',
       responseJsonSchema: reviewExtractionModelOutputJsonSchema,
@@ -398,7 +442,8 @@ export function createGeminiReviewExtractor(input: {
                 ...request.config,
                 abortSignal: controller.signal
               }
-            })
+            }),
+            context?.onVlmFieldProgress
           );
         } else {
           response = await client.generateContent({
@@ -415,7 +460,14 @@ export function createGeminiReviewExtractor(input: {
         const normalized = normalizeGeminiRuntimeFailure(error);
         lastFailure = normalized;
         // Only retry on retryable failures; fail fast on auth/schema errors.
-        if (!normalized.error.retryable || attempt === maxAttempts) {
+        // 429 (quota / rate-limit) is treated as retryable at the chain
+        // level (so the factory falls through to the next provider) but
+        // NOT retryable on this same provider — hammering an exhausted
+        // quota with 200/400/800ms backoffs just burns the cross-mode
+        // fallback window (550ms) and forces a cloud->cloud "fallback"
+        // that can't actually succeed.
+        const rateLimited = normalized.status === 429;
+        if (!normalized.error.retryable || rateLimited || attempt === maxAttempts) {
           clearTimeout(timeout);
           recordGeminiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
           throw normalized;

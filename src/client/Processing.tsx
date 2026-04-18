@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
+import type { BeverageType } from '../shared/contracts/review';
 import type { ExtractionMode } from './appTypes';
+import {
+  ProgressStrip,
+  SkeletonFieldRow,
+  StepRow,
+  WarningSkeletonRow
+} from './ProcessingViews';
 import type { BeverageSelection, LabelImage, ProcessingPhase, ProcessingStep } from './types';
 import { classifyCause } from './reviewFailureMessage';
+import type { OcrPreviewFields } from './useOcrPreview';
 import { useReducedMotion } from './useReducedMotion';
 
 const LATE_STAGE_DELAY_MS = 4000;
@@ -23,11 +31,36 @@ interface ProcessingProps {
   phase: ProcessingPhase;
   failureMessage: string;
   localUnavailable: boolean;
+  /**
+   * OCR-only preview landed by the parallel /api/review/stream?only=ocr
+   * call. Populates ~500ms in and animates the skeleton rows with
+   * provisional values while the canonical review is still running.
+   * Individual fields may still be undefined when OCR couldn't read
+   * them (we keep those rows on skeleton until report lands).
+   */
+  ocrPreview?: OcrPreviewFields | null;
   onCancel: () => void;
   onRetry: () => void;
   onBackToIntake: () => void;
   onSwitchToCloud: () => void;
 }
+
+/**
+ * The fields that the Processing screen renders as skeleton rows while
+ * the pipeline runs. Ordered to match Results row order so the flip at
+ * report-ready is a value-swap, not a reshuffle.
+ */
+const SKELETON_ROWS: Array<{
+  id: 'brandName' | 'classType' | 'alcoholContent' | 'netContents' | 'countryOfOrigin';
+  label: string;
+  previewKey?: keyof OcrPreviewFields;
+}> = [
+  { id: 'brandName', label: 'Brand name' },
+  { id: 'classType', label: 'Class / Type', previewKey: 'classType' },
+  { id: 'alcoholContent', label: 'Alcohol content', previewKey: 'alcoholContent' },
+  { id: 'netContents', label: 'Net contents', previewKey: 'netContents' },
+  { id: 'countryOfOrigin', label: 'Country of origin', previewKey: 'countryOfOrigin' }
+];
 
 export function Processing({
   image,
@@ -37,6 +70,7 @@ export function Processing({
   phase,
   failureMessage,
   localUnavailable,
+  ocrPreview,
   onCancel,
   onRetry,
   onBackToIntake,
@@ -44,6 +78,17 @@ export function Processing({
 }: ProcessingProps) {
   const lastStep = steps[steps.length - 1];
   const lastStepActive = lastStep?.status === 'active';
+
+  // When the user picked "Auto-detect", swap the badge to the
+  // server-inferred beverage as soon as the OCR preview frame lands.
+  // 'unknown' is filtered out server-side — the OCR frame only carries
+  // a concrete type — so any value here is an upgrade over "Auto-detect".
+  const resolvedDetectedBeverage: BeverageType | undefined =
+    ocrPreview?.detectedBeverage;
+  const displayBeverage: BeverageSelection =
+    beverage === 'auto' && resolvedDetectedBeverage
+      ? resolvedDetectedBeverage
+      : beverage;
 
   const reducedMotion = useReducedMotion();
 
@@ -124,17 +169,16 @@ export function Processing({
           </div>
           <div className="flex flex-col gap-1">
             <dt className="font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
-              Size
-            </dt>
-            <dd className="font-body text-sm text-on-surface">{image.sizeLabel}</dd>
-          </div>
-          <div className="flex flex-col gap-1">
-            <dt className="font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
               Beverage type
             </dt>
             <dd>
               <span className="inline-flex items-center gap-2 px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full font-label text-sm font-bold">
-                {BEVERAGE_LABELS[beverage]}
+                {BEVERAGE_LABELS[displayBeverage]}
+                {beverage === 'auto' && resolvedDetectedBeverage ? (
+                  <span className="font-label text-[10px] font-bold uppercase tracking-widest text-on-secondary-container/70">
+                    detected
+                  </span>
+                ) : null}
               </span>
             </dd>
           </div>
@@ -171,23 +215,65 @@ export function Processing({
         </div>
       </aside>
 
-      <section className="md:col-span-8 lg:col-span-9 bg-background px-6 md:px-8 xl:px-16 py-6 xl:py-12 flex flex-col gap-6 xl:gap-10 overflow-y-auto">
-        <header>
-          <h1 className="font-headline text-2xl xl:text-4xl font-extrabold text-on-surface tracking-tight">
-            Reviewing this label
-          </h1>
-          <p className="mt-2 text-on-surface-variant font-body">
-            Reading the label, checking every required field, and preparing the report.
-          </p>
+      <section className="md:col-span-8 lg:col-span-9 bg-background px-6 md:px-8 xl:px-16 py-6 xl:py-12 flex flex-col gap-6 xl:gap-8 overflow-y-auto">
+        <header className="flex flex-col gap-4">
+          <div>
+            <h1 className="font-headline text-2xl xl:text-4xl font-extrabold text-on-surface tracking-tight">
+              Reviewing this label
+            </h1>
+            <p className="mt-2 text-on-surface-variant font-body">
+              Reading the label, checking every required field, preparing your
+              report.
+            </p>
+          </div>
+
+          {phase === 'running' ? (
+            <ProgressStrip
+              steps={visibleSteps}
+              reducedMotion={reducedMotion}
+            />
+          ) : null}
         </header>
 
-        <ol role="list" aria-live="polite" className="flex flex-col gap-1 max-w-3xl">
-          {visibleSteps.map((step, index) => (
-            <li key={step.id}>
-              <StepRow step={step} index={index + 1} reducedMotion={reducedMotion} />
-            </li>
-          ))}
-        </ol>
+        {phase === 'running' ? (
+          <div className="flex flex-col gap-3 max-w-3xl" aria-live="polite">
+            <h2 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+              Fields detected so far
+            </h2>
+            <ol role="list" className="flex flex-col gap-2">
+              {SKELETON_ROWS.map((row) => {
+                const previewValue = row.previewKey
+                  ? ocrPreview?.[row.previewKey]
+                  : undefined;
+                const value =
+                  typeof previewValue === 'string' ? previewValue : undefined;
+                return (
+                  <li key={row.id}>
+                    <SkeletonFieldRow
+                      label={row.label}
+                      value={value}
+                      reducedMotion={reducedMotion}
+                    />
+                  </li>
+                );
+              })}
+              <li>
+                <WarningSkeletonRow
+                  detected={ocrPreview?.governmentWarningPresent}
+                  reducedMotion={reducedMotion}
+                />
+              </li>
+            </ol>
+          </div>
+        ) : (
+          <ol role="list" aria-live="polite" className="flex flex-col gap-1 max-w-3xl">
+            {visibleSteps.map((step, index) => (
+              <li key={step.id}>
+                <StepRow step={step} index={index + 1} reducedMotion={reducedMotion} />
+              </li>
+            ))}
+          </ol>
+        )}
 
         {localUnavailable ? (
           <div
@@ -266,115 +352,6 @@ export function Processing({
           </div>
         ) : null}
       </section>
-    </div>
-  );
-}
-
-function StepRow({
-  step,
-  index,
-  reducedMotion
-}: {
-  step: ProcessingStep;
-  index: number;
-  reducedMotion: boolean;
-}) {
-  const baseRow = 'flex items-center gap-5 p-4 rounded-lg transition-colors';
-  const variantClass =
-    step.status === 'active'
-      ? 'bg-surface-container-low'
-      : step.status === 'failed'
-        ? 'bg-error-container/15 border-l-4 border-error'
-        : step.status === 'done'
-          ? 'hover:bg-surface-container-low/70'
-          : 'opacity-50';
-
-  const statusTag =
-    step.status === 'done'
-      ? 'Done'
-      : step.status === 'active'
-        ? 'Active'
-        : step.status === 'failed'
-          ? 'Failed'
-          : 'Pending';
-
-  const statusToneClass =
-    step.status === 'done'
-      ? 'text-tertiary'
-      : step.status === 'active'
-        ? 'text-primary'
-        : step.status === 'failed'
-          ? 'text-error'
-          : 'text-on-surface-variant';
-
-  return (
-    <div className={[baseRow, variantClass].join(' ')}>
-      <StepIcon step={step} index={index} reducedMotion={reducedMotion} />
-      <div className="flex-1 flex flex-col">
-        <span className="font-body font-semibold text-on-surface">
-          {index}. {step.label}
-        </span>
-        <span
-          className={[
-            'font-label text-xs font-bold uppercase tracking-wider',
-            statusToneClass
-          ].join(' ')}
-        >
-          {statusTag}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function StepIcon({
-  step,
-  index,
-  reducedMotion
-}: {
-  step: ProcessingStep;
-  index: number;
-  reducedMotion: boolean;
-}) {
-  if (step.status === 'done') {
-    return (
-      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-tertiary-container text-on-tertiary-container flex-shrink-0">
-        <span
-          className="material-symbols-outlined text-[20px]"
-          style={{ fontVariationSettings: "'FILL' 1" }}
-          aria-hidden="true"
-        >
-          check
-        </span>
-      </div>
-    );
-  }
-  if (step.status === 'active') {
-    return (
-      <div className="flex items-center justify-center w-8 h-8 flex-shrink-0">
-        {reducedMotion ? (
-          <span className="material-symbols-outlined text-[20px] text-primary" aria-hidden="true">
-            pending
-          </span>
-        ) : (
-          <div className="step-ring animate-spin" aria-hidden="true" />
-        )}
-        <span className="sr-only">In progress</span>
-      </div>
-    );
-  }
-  if (step.status === 'failed') {
-    return (
-      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-error text-on-error flex-shrink-0">
-        <span className="material-symbols-outlined text-[20px]" aria-hidden="true">
-          close
-        </span>
-      </div>
-    );
-  }
-  return (
-    <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-outline-variant/60 text-outline-variant flex-shrink-0">
-      <span className="text-xs font-bold">{index}</span>
     </div>
   );
 }

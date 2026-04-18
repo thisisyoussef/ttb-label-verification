@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { InfoAnchor } from './InfoAnchor';
+import type { BeverageType } from '../shared/contracts/review';
 import type { BeverageSelection, LabelImage } from './types';
 
 const BEVERAGE_LABELS: Record<BeverageSelection, string> = {
@@ -13,9 +14,22 @@ const BEVERAGE_LABELS: Record<BeverageSelection, string> = {
 interface ResultsPinnedColumnProps {
   image: LabelImage;
   beverage: BeverageSelection;
+  /**
+   * Beverage type the server resolved while running the pipeline. When
+   * the user picked "Auto-detect", the badge swaps to this value so the
+   * Results pinned column reflects what was actually verified instead
+   * of the placeholder.
+   */
+  detectedBeverage?: BeverageType;
 }
 
-export function ResultsPinnedColumn({ image, beverage }: ResultsPinnedColumnProps) {
+export function ResultsPinnedColumn({
+  image,
+  beverage,
+  detectedBeverage
+}: ResultsPinnedColumnProps) {
+  const displayBeverage: BeverageSelection =
+    beverage === 'auto' && detectedBeverage ? detectedBeverage : beverage;
   const [overlayOpen, setOverlayOpen] = useState(false);
   const isPdf = image.file.type === 'application/pdf';
 
@@ -66,19 +80,18 @@ export function ResultsPinnedColumn({ image, beverage }: ResultsPinnedColumnProp
             {image.file.name}
           </dd>
         </div>
-        <div className="flex items-baseline gap-3">
-          <dt className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant shrink-0 w-16">
-            Size
-          </dt>
-          <dd className="font-body text-xs text-on-surface">{image.sizeLabel}</dd>
-        </div>
         <div className="flex items-center gap-3">
           <dt className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant shrink-0 w-16">
             Type
           </dt>
           <dd>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-secondary-container text-on-secondary-container rounded-full font-label text-xs font-bold">
-              {BEVERAGE_LABELS[beverage]}
+              {BEVERAGE_LABELS[displayBeverage]}
+              {beverage === 'auto' && detectedBeverage ? (
+                <span className="font-label text-[9px] font-bold uppercase tracking-widest text-on-secondary-container/70">
+                  detected
+                </span>
+              ) : null}
             </span>
           </dd>
         </div>
@@ -150,9 +163,6 @@ function LabelImageOverlay({
             <h2 className="font-mono text-sm text-on-surface truncate font-semibold">
               {image.file.name}
             </h2>
-            <p className="text-[11px] font-label uppercase tracking-widest text-on-surface-variant">
-              {image.sizeLabel}
-            </p>
           </div>
           <button
             ref={closeRef}

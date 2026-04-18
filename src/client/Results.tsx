@@ -7,6 +7,7 @@ import { NoTextState } from './NoTextState';
 import { ResultsPinnedColumn } from './ResultsPinnedColumn';
 import { StandaloneBanner } from './StandaloneBanner';
 import { VerdictBanner } from './VerdictBanner';
+import { IDENTIFIER_FIELD_IDS } from './useRefineReview';
 import type {
   BeverageSelection,
   CheckReview,
@@ -28,6 +29,13 @@ interface ResultsProps {
   beverage: BeverageSelection;
   report: UIVerificationReport;
   tourExpandedCheckId?: string | null;
+  /**
+   * Row-level refine (Option C). When 'refining', identifier rows in
+   * 'review' status animate a subtle "refining…" indicator so the
+   * reviewer knows we're taking a second look before acting. When
+   * 'done', the refined rows are already merged into `report`.
+   */
+  refineStatus?: 'idle' | 'refining' | 'done' | 'error';
   onNewReview: () => void;
   onRunFullComparison: () => void;
   onTryAnotherImage: () => void;
@@ -43,6 +51,7 @@ export function Results({
   beverage,
   report,
   tourExpandedCheckId = null,
+  refineStatus = 'idle',
   onNewReview,
   onRunFullComparison,
   onTryAnotherImage,
@@ -179,7 +188,13 @@ export function Results({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 h-[calc(100dvh-var(--header-h))] animate-fade-in motion-reduce:animate-none">
-      <ResultsPinnedColumn image={image} beverage={beverage} />
+      <ResultsPinnedColumn
+        image={image}
+        beverage={beverage}
+        detectedBeverage={
+          report.beverageType === 'unknown' ? undefined : report.beverageType
+        }
+      />
       <section
         ref={workingAreaRef}
         className="md:col-span-7 lg:col-span-8 bg-background px-6 md:px-8 xl:px-14 py-6 xl:py-12 flex flex-col gap-6 xl:gap-8 overflow-y-auto"
@@ -212,11 +227,27 @@ export function Results({
                 that a first-time user won't recognize. One help pill
                 here covers all of them without cluttering every row.
               */}
-              <div className="flex items-center justify-end px-1 -mb-1">
+              <div className="flex items-center justify-between px-1 -mb-1 gap-3">
+                {refineStatus === 'refining' ? (
+                  <span
+                    role="status"
+                    aria-live="polite"
+                    className="flex items-center gap-2 font-label text-[11px] font-bold uppercase tracking-widest text-primary"
+                    title="Taking a closer look at the flagged rows."
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="inline-block w-2 h-2 rounded-full bg-primary animate-pulse"
+                    />
+                    Taking a closer look…
+                  </span>
+                ) : (
+                  <span />
+                )}
                 <HelpTooltip
                   label="What do these statuses mean?"
-                  term="Pass, Review, Fail, Info"
-                  explanation="Pass — we checked this and it's fine. Review — we're not sure; a person should look. Fail — we found a clear mismatch; this needs to be fixed. Info — a note for the reviewer, not a problem."
+                  term="Matches, Needs review, Info"
+                  explanation="Matches — we checked this and it's fine. Needs review — either we couldn't confirm the match or the label differs from the application; a person should take a look. Info — a note for the reviewer, not a problem."
                 />
               </div>
               {!report.standalone ? (
@@ -256,6 +287,11 @@ export function Results({
                     expanded={expandedId === check.id}
                     onToggle={() => toggleRow(check.id)}
                     standalone={report.standalone}
+                    refining={
+                      refineStatus === 'refining' &&
+                      check.status === 'review' &&
+                      IDENTIFIER_FIELD_IDS.has(check.id)
+                    }
                     rowRef={(node) => {
                       if (node) rowRefs.set(check.id, node);
                       else rowRefs.delete(check.id);

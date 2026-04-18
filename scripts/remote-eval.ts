@@ -175,6 +175,18 @@ type Row = {
    * flakiness or rate-limit retries.
    */
   attempts?: number;
+  /**
+   * Option C refine-pass fields. Populated when REFINE=on and the
+   * baseline review had any identifier row in 'review' status, so
+   * we fired a second /api/review/refine call. `refinedVerdict`
+   * carries the post-refine top-line disposition; `refinedLatencyMs`
+   * is the refine call's wall clock on its own (not stacked).
+   * `refinedMatch` compares the refined verdict against `expected`.
+   */
+  refineFired?: boolean;
+  refinedVerdict?: string;
+  refinedLatencyMs?: number;
+  refinedMatch?: boolean;
 };
 
 // RunPod's Cloudflare proxy occasionally returns 502/504 transients when the
@@ -184,6 +196,60 @@ type Row = {
 // flakiness into a DDoS on the pod.
 const RETRY_STATUS_CODES = new Set([502, 503, 504, 521, 522, 524]);
 const RETRY_DELAY_MS = 2000;
+
+/**
+ * REFINE=on enables the Option C second pass. After the baseline
+ * /api/review lands, any row with status='review' that matches an
+ * identifier field triggers a /api/review/refine call so the eval
+ * can A/B "baseline alone" vs "baseline + refine".
+ */
+const REFINE_ENABLED = (process.env.REFINE ?? '')
+  .trim()
+  .toLowerCase() === 'on';
+
+/** Identifier fields that the refine pass targets. Keep in sync with
+ *  IDENTIFIER_FIELD_IDS in src/client/useRefineReview.ts. */
+const IDENTIFIER_FIELD_IDS = new Set([
+  'brand-name',
+  'class-type',
+  'country-of-origin',
+  'applicant-address'
+]);
+
+/**
+ * Build a fresh FormData for a review/refine call. FormData can only
+ * be consumed once by fetch, so we rebuild it for each call instead
+ * of trying to reuse the original — cheaper than the alternative
+ * (stream cloning) and the image read is ~2 KB from the local disk.
+ */
+function buildReviewForm(c: Case, repoRoot: string, mime: string): FormData {
+  const form = new FormData();
+  const imgBuffer = readFileSync(path.join(repoRoot, c.path));
+  form.append(
+    'label',
+    new Blob([imgBuffer], { type: mime }),
+    path.basename(c.path)
+  );
+  form.append(
+    'fields',
+    JSON.stringify({
+      beverageType: c.beverageType,
+      brandName: c.brand,
+      fancifulName: c.fancifulName ?? '',
+      classType: c.classType,
+      alcoholContent: c.abv,
+      netContents: c.net,
+      applicantAddress: c.applicantAddress ?? '',
+      origin: c.origin ?? 'domestic',
+      country: c.country ?? '',
+      formulaId: c.formulaId ?? '',
+      appellation: c.appellation ?? '',
+      vintage: c.vintage ?? '',
+      varietals: []
+    })
+  );
+  return form;
+}
 
 async function runOne(c: Case, providerOverride?: 'cloud' | 'local'): Promise<Row> {
   const repoRoot = process.cwd();
@@ -311,6 +377,61 @@ async function runOne(c: Case, providerOverride?: 'cloud' | 'local'): Promise<Ro
       .map((ch) => `${ch.id}:${ch.status}`)
       .slice(0, 5)
       .join(', ');
+
+    // Option C second pass. Matches the client's Results flow: if any
+    // identifier row is in 'review' status after the baseline /api/
+    // review lands, fire /api/review/refine (same inputs, server
+    // flips VERIFICATION_MODE=on for just this call) to see if the
+    // verification-mode prompt resolves the ambiguity. This gives the
+    // eval a real head-to-head: "baseline" vs "baseline + refine".
+    let refineFired = false;
+    let refinedVerdict: string | undefined;
+    let refinedLatencyMs: number | undefined;
+    let refinedMatch: boolean | undefined;
+    if (REFINE_ENABLED) {
+      const hasRefinableRow = (data.checks ?? []).some(
+        (ch) =>
+          ch.status === 'review' && IDENTIFIER_FIELD_IDS.has(ch.id)
+      );
+      if (hasRefinableRow) {
+        refineFired = true;
+        const refineStarted = Date.now();
+        try {
+          const refineForm = buildReviewForm(c, repoRoot, mime);
+          const refineController = new AbortController();
+          const refineTimer = setTimeout(
+            () => refineController.abort(),
+            TIMEOUT_MS
+          );
+          const refineRes = await fetch(`${BASE_URL}/api/review/refine`, {
+            method: 'POST',
+            body: refineForm,
+            headers,
+            signal: refineController.signal
+          });
+          clearTimeout(refineTimer);
+          if (refineRes.ok) {
+            const refineText = await refineRes.text();
+            const refineData = JSON.parse(refineText) as {
+              verdict?: string;
+            };
+            refinedVerdict = refineData.verdict ?? 'error';
+            refinedMatch =
+              (c.expected === 'approve' &&
+                (refinedVerdict === 'approve' || refinedVerdict === 'review')) ||
+              (c.expected === 'reject' && refinedVerdict === 'reject');
+          }
+        } catch {
+          // Refine failures don't fail the eval row — baseline verdict
+          // is still authoritative. Mark refinedVerdict as 'error' so
+          // the summary can count unsuccessful refines.
+          refinedVerdict = 'error';
+          refinedMatch = false;
+        }
+        refinedLatencyMs = Date.now() - refineStarted;
+      }
+    }
+
     return {
       id: c.id,
       expected: c.expected,
@@ -319,7 +440,11 @@ async function runOne(c: Case, providerOverride?: 'cloud' | 'local'): Promise<Ro
       verdict,
       match,
       failSummary: fails || undefined,
-      attempts: attempt
+      attempts: attempt,
+      refineFired,
+      refinedVerdict,
+      refinedLatencyMs,
+      refinedMatch
     };
   } catch (error) {
     return {
@@ -339,6 +464,7 @@ async function main() {
   console.log(`Remote eval against: ${BASE_URL}`);
   console.log(`Slice: ${SLICE}`);
   if (providerOverride) console.log(`Provider override: ${providerOverride}`);
+  if (REFINE_ENABLED) console.log('Refine pass: enabled (REFINE=on)');
   console.log('─'.repeat(80));
 
   // Quick health probe first
@@ -362,7 +488,15 @@ async function main() {
     const row = await runOne(c, providerOverride);
     const icon = row.match ? '✓' : '✗';
     const secs = (row.latencyMs / 1000).toFixed(1);
-    console.log(`${icon} ${row.actual.padEnd(8)} ${secs.padStart(5)}s${row.failSummary ? ` [${row.failSummary}]` : ''}`);
+    // When refine ran, show baseline → refined inline so the reviewer
+    // can see what the second pass changed at a glance.
+    let refineSuffix = '';
+    if (row.refineFired && row.refinedVerdict) {
+      const refineIcon = row.refinedMatch ? '✓' : '✗';
+      const refineSecs = ((row.refinedLatencyMs ?? 0) / 1000).toFixed(1);
+      refineSuffix = ` → refine ${refineIcon} ${row.refinedVerdict} +${refineSecs}s`;
+    }
+    console.log(`${icon} ${row.actual.padEnd(8)} ${secs.padStart(5)}s${row.failSummary ? ` [${row.failSummary}]` : ''}${refineSuffix}`);
     rows.push(row);
   }
 
@@ -403,6 +537,59 @@ async function main() {
     );
   }
 
+  // Option C refine A/B summary: report what the second pass changed.
+  // `baselineCorrect` is the headline `correct` above (refined doesn't
+  // overwrite it). `refinedCorrect` replaces the baseline verdict with
+  // the refined verdict wherever refine fired, then re-scores.
+  const refineRows = rows.filter((r) => r.refineFired);
+  const refineSummary =
+    REFINE_ENABLED && refineRows.length > 0
+      ? (() => {
+          let flipsReview2Approve = 0;
+          let flipsApprove2Review = 0;
+          let flipsToReject = 0;
+          let refinedCorrect = 0;
+          let refineTotalLatencyMs = 0;
+          for (const r of rows) {
+            // Default: row's verdict is unchanged.
+            let finalVerdict = r.verdict ?? r.actual;
+            let finalMatch = r.match;
+            if (r.refineFired && r.refinedVerdict) {
+              finalVerdict = r.refinedVerdict;
+              finalMatch = r.refinedMatch ?? false;
+              refineTotalLatencyMs += r.refinedLatencyMs ?? 0;
+              if (r.verdict === 'review' && finalVerdict === 'approve') flipsReview2Approve += 1;
+              if (r.verdict === 'approve' && finalVerdict === 'review') flipsApprove2Review += 1;
+              if (r.verdict !== 'reject' && finalVerdict === 'reject') flipsToReject += 1;
+            }
+            if (finalMatch) refinedCorrect += 1;
+          }
+          return {
+            fired: refineRows.length,
+            refinedCorrect,
+            flipsReview2Approve,
+            flipsApprove2Review,
+            flipsToReject,
+            avgLatencyMs: refineRows.length
+              ? Math.round(refineTotalLatencyMs / refineRows.length)
+              : 0
+          };
+        })()
+      : null;
+  if (refineSummary) {
+    console.log('');
+    console.log('Refine pass A/B:');
+    console.log(
+      `  Baseline: ${correct}/${rows.length} · Baseline+refine: ${refineSummary.refinedCorrect}/${rows.length} (Δ ${refineSummary.refinedCorrect - correct >= 0 ? '+' : ''}${refineSummary.refinedCorrect - correct})`
+    );
+    console.log(
+      `  Refine fired on ${refineSummary.fired} label${refineSummary.fired === 1 ? '' : 's'} (avg +${(refineSummary.avgLatencyMs / 1000).toFixed(1)}s per refine)`
+    );
+    console.log(
+      `  Flips: review→approve ${refineSummary.flipsReview2Approve}, approve→review ${refineSummary.flipsApprove2Review}, →reject ${refineSummary.flipsToReject}`
+    );
+  }
+
   // Pre-summary variables reused when serializing the JSON artifact below.
   const avg = allStats.avg;
   const p50 = allStats.p50;
@@ -431,7 +618,8 @@ async function main() {
           // loop. Helps A/B optimization work that's otherwise polluted
           // by one-off proxy retries.
           latencyMsExcludingRetries: cleanStats,
-          retriedCount: retriedRows.length
+          retriedCount: retriedRows.length,
+          refine: refineSummary
         },
         rows
       },

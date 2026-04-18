@@ -2,8 +2,22 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildReviewExtractionPrompt,
+  buildVerificationExtractionPrompt,
+  isVerificationModeEnabled,
   resolveReviewPromptPolicy
 } from './review-prompt-policy';
+import type { NormalizedReviewFields } from './review-intake';
+
+function buildFields(
+  overrides: Partial<NormalizedReviewFields> = {}
+): NormalizedReviewFields {
+  return {
+    beverageTypeHint: 'auto',
+    origin: 'domestic',
+    varietals: [],
+    ...overrides
+  };
+}
 
 describe('review prompt policy', () => {
   it('keeps the shared extraction baseline guardrails in every prompt', () => {
@@ -72,5 +86,60 @@ describe('review prompt policy', () => {
         extractionMode: 'cloud'
       })
     ).toBe(policy.prompt);
+  });
+});
+
+describe('verification-mode prompt', () => {
+  it('returns null when no identifier fields are declared', () => {
+    const prompt = buildVerificationExtractionPrompt({
+      surface: '/api/review',
+      extractionMode: 'cloud',
+      fields: buildFields()
+    });
+    expect(prompt).toBeNull();
+  });
+
+  it('adds a declared-identifiers block + verification instructions when applicant data is present', () => {
+    const prompt = buildVerificationExtractionPrompt({
+      surface: '/api/review',
+      extractionMode: 'cloud',
+      fields: buildFields({
+        brandName: "Stone's Throw",
+        classType: 'Vodka',
+        country: 'USA'
+      })
+    });
+
+    expect(prompt).not.toBeNull();
+    // Standard baseline instructions belong to the pre-image text so
+    // the model has them before visually scanning the label.
+    expect(prompt!.preImage).toContain('You observe. You do not judge.');
+    // Identifier + re-anchor blocks go AFTER the image so they're
+    // the most recent context before the JSON output.
+    expect(prompt!.postImage).toContain('APPLICATION-DECLARED IDENTIFIERS');
+    expect(prompt!.postImage).toContain('brandName');
+    expect(prompt!.postImage).toContain("Stone's Throw");
+    expect(prompt!.postImage).toContain('classType');
+    expect(prompt!.postImage).toContain('countryOfOrigin');
+    expect(prompt!.postImage).toContain('`visibleText`');
+    expect(prompt!.postImage).toContain('`alternativeReading`');
+    expect(prompt!.postImage).toContain('do NOT echo the applicant string back');
+    // Numeric re-anchor is the most important recency signal — counters
+    // the warning-text regression seen in the first verification-mode
+    // eval run.
+    expect(prompt!.postImage).toContain('DOUBLE-CHECK');
+    expect(prompt!.postImage).toContain('governmentWarning.value');
+    expect(prompt!.postImage).toContain('alcoholContent.value');
+    expect(prompt!.postImage).toContain('netContents.value');
+  });
+
+  it('honors VERIFICATION_MODE env flag parsing', () => {
+    expect(isVerificationModeEnabled({ VERIFICATION_MODE: 'on' })).toBe(true);
+    expect(isVerificationModeEnabled({ VERIFICATION_MODE: 'enabled' })).toBe(true);
+    expect(isVerificationModeEnabled({ VERIFICATION_MODE: 'true' })).toBe(true);
+    expect(isVerificationModeEnabled({ VERIFICATION_MODE: '1' })).toBe(true);
+    expect(isVerificationModeEnabled({ VERIFICATION_MODE: 'off' })).toBe(false);
+    expect(isVerificationModeEnabled({ VERIFICATION_MODE: '' })).toBe(false);
+    expect(isVerificationModeEnabled({})).toBe(false);
   });
 });

@@ -178,6 +178,7 @@ export function AppShell({
             phase={single.phase}
             failureMessage={single.failureMessage}
             localUnavailable={extractionMode === 'local' && single.phase === 'failed'}
+            ocrPreview={single.ocrPreview}
             onCancel={single.onCancel}
             onRetry={single.onRetry}
             onBackToIntake={single.onBackToIntake}
@@ -198,6 +199,7 @@ export function AppShell({
               beverage={single.beverage}
               report={single.report}
               tourExpandedCheckId={tourExpandedCheckId}
+              refineStatus={single.refineStatus}
               onNewReview={single.onNewReview}
               onRunFullComparison={single.onRunFullComparison}
               onTryAnotherImage={single.onTryAnotherImage}

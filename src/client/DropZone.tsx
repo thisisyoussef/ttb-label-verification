@@ -157,7 +157,6 @@ export function DropZone({ image, disabled, onAccept, onRemove }: DropZoneProps)
             <p className="font-mono text-base text-on-surface font-semibold break-all">
               {image.file.name}
             </p>
-            <p className="text-sm text-on-surface-variant mt-1">{image.sizeLabel}</p>
             <button
               type="button"
               onClick={() => {
