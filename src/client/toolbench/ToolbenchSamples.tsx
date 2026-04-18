@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
+  syntheticLabelGenerateResponseSchema,
+  type SyntheticLabelExpected
+} from '../../shared/contracts/review';
+import {
   BUILTIN_SAMPLES,
   BUILTIN_SAMPLE_BY_ID
 } from './builtin-sample-packs';
@@ -41,6 +45,18 @@ interface ToolbenchSamplesProps {
    * batch review flow without having to prepare their own fixtures.
    */
   onLoadBatch: (images: File[], csv: File) => void;
+  /**
+   * Like `onLoadSample`, but does NOT close the toolbench after the
+   * intake is populated. The synthetic-label flow needs the toolbench
+   * to stay open so the dev can see the "expected verdict" chip
+   * before clicking Verify. Falls back to `onLoadSample` if not
+   * supplied.
+   */
+  onLoadSyntheticSample?: (
+    file: File,
+    fields: SampleFields,
+    imageId: string
+  ) => void;
 }
 
 export type SampleFields = {
@@ -63,7 +79,11 @@ type SamplePreview = {
   filename: string;
 };
 
-export function ToolbenchSamples({ onLoadSample, onLoadBatch }: ToolbenchSamplesProps) {
+export function ToolbenchSamples({
+  onLoadSample,
+  onLoadBatch,
+  onLoadSyntheticSample
+}: ToolbenchSamplesProps) {
   const [samples, setSamples] = useState<SamplePreview[]>([]);
   const [loadingList, setLoadingList] = useState(true);
   const [loadingSampleId, setLoadingSampleId] = useState<string | null>(null);
@@ -71,6 +91,14 @@ export function ToolbenchSamples({ onLoadSample, onLoadBatch }: ToolbenchSamples
   const [liveAvailable, setLiveAvailable] = useState(false);
   const [loadingLive, setLoadingLive] = useState(false);
   const [loadingBatch, setLoadingBatch] = useState(false);
+  // Synthetic-label generator (Imagen 4) state. `synthAvailable` is
+  // null until the status probe lands, then true/false. The chip after
+  // a successful generation tells the dev what verdict the pipeline
+  // should produce — useful for sanity-checking reject/review paths.
+  const [synthAvailable, setSynthAvailable] = useState<boolean | null>(null);
+  const [loadingSynth, setLoadingSynth] = useState(false);
+  const [lastSynthExpected, setLastSynthExpected] =
+    useState<SyntheticLabelExpected | null>(null);
 
   // Fetch the list once on mount so the panel can show what's available.
   // Falls back to the built-in sample list (bundled from the
@@ -130,6 +158,22 @@ export function ToolbenchSamples({ onLoadSample, onLoadBatch }: ToolbenchSamples
         if (!cancelled && data.available) setLiveAvailable(true);
       } catch {
         /* ignore — button just stays hidden */
+      }
+    })();
+
+    // Synthetic generator availability probe — non-blocking. The
+    // section hides entirely when the server has no GEMINI_API_KEY.
+    (async () => {
+      try {
+        const res = await fetch('/api/eval/synthetic/status');
+        if (!res.ok) {
+          if (!cancelled) setSynthAvailable(false);
+          return;
+        }
+        const data = (await res.json()) as { available: boolean };
+        if (!cancelled) setSynthAvailable(Boolean(data.available));
+      } catch {
+        if (!cancelled) setSynthAvailable(false);
       }
     })();
 
@@ -223,6 +267,45 @@ export function ToolbenchSamples({ onLoadSample, onLoadBatch }: ToolbenchSamples
     }
   }, [onLoadSample]);
 
+  // Synthetic loader — generates a fresh label end-to-end via Imagen 4
+  // (image bytes + matching declared fields). Sometimes the server
+  // bakes in a defect (ABV mismatch, missing warning, brand swap, etc.)
+  // so the verification pipeline's reject/review paths get exercised.
+  // The expected verdict is shown as an inline chip after load.
+  const loadSyntheticSample = useCallback(async () => {
+    setLoadingSynth(true);
+    setLastError(null);
+    setLastSynthExpected(null);
+    try {
+      const res = await fetch('/api/eval/synthetic/generate', {
+        method: 'POST'
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        const message =
+          (body as { message?: string })?.message ?? `synthetic HTTP ${res.status}`;
+        throw new Error(message);
+      }
+      const parsed = syntheticLabelGenerateResponseSchema.parse(await res.json());
+      const imgRes = await fetch(parsed.image.url);
+      if (!imgRes.ok) throw new Error(`synthetic image HTTP ${imgRes.status}`);
+      const blob = await imgRes.blob();
+      const mime = deriveImageMime(blob.type, parsed.image.filename);
+      const file = new File([blob], parsed.image.filename, { type: mime });
+      // Use the synthetic-specific callback if provided so the
+      // toolbench stays open and the expected-verdict chip remains
+      // visible. Falls back to the regular onLoadSample (which closes
+      // the drawer) if a parent didn't wire the synthetic variant.
+      const fill = onLoadSyntheticSample ?? onLoadSample;
+      fill(file, parsed.fields, parsed.image.id);
+      setLastSynthExpected(parsed.expected);
+    } catch (err) {
+      setLastError((err as Error).message);
+    } finally {
+      setLoadingSynth(false);
+    }
+  }, [onLoadSample, onLoadSyntheticSample]);
+
   // Batch loader — pulls 10 images + the CSV from the local pack and
   // populates batch intake. Local only for now; live batch would hit
   // the COLA Cloud rate limit hard (7s per call × 10 = 70s).
@@ -308,6 +391,49 @@ export function ToolbenchSamples({ onLoadSample, onLoadBatch }: ToolbenchSamples
             Hits the COLA Cloud REST API using our server-side key. Pulls a
             fresh random approved label each click.
           </p>
+        </section>
+      ) : null}
+
+      {synthAvailable ? (
+        <section className="flex flex-col gap-2 rounded-md border border-dashed border-outline-variant/50 bg-surface-container-lowest px-3 py-3">
+          <p className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+            Generate with Gemini
+          </p>
+          <button
+            type="button"
+            onClick={() => void loadSyntheticSample()}
+            disabled={loadingSynth}
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-primary text-on-primary px-3 py-2 text-sm font-label font-semibold transition-colors hover:bg-primary/90 disabled:bg-primary/40 disabled:cursor-not-allowed"
+          >
+            <span className="material-symbols-outlined text-[16px]">auto_awesome</span>
+            {loadingSynth ? 'Generating with Imagen… (~10s)' : 'Generate sample with Gemini'}
+          </button>
+          <p className="text-[11px] text-on-surface-variant leading-snug">
+            Imagen 4 builds a fresh label image + matching declared fields.
+            Sometimes a defect is baked in so the reject / review paths get exercised.
+          </p>
+          {lastSynthExpected ? (
+            <div
+              className={[
+                'mt-1 rounded border px-2 py-1.5 text-[11px] font-body leading-snug',
+                lastSynthExpected.verdict === 'approve'
+                  ? 'border-success/40 bg-success/10 text-on-surface'
+                  : lastSynthExpected.verdict === 'reject'
+                    ? 'border-error/40 bg-error/10 text-on-surface'
+                    : 'border-caution/40 bg-caution/10 text-on-surface'
+              ].join(' ')}
+            >
+              <span className="font-label text-[10px] font-bold uppercase tracking-widest">
+                Expected verdict: {lastSynthExpected.verdict}
+              </span>
+              <span className="block text-on-surface-variant mt-0.5">
+                {lastSynthExpected.description}
+              </span>
+              <span className="block text-on-surface-variant/70 mt-0.5 font-mono text-[10px]">
+                defect: {lastSynthExpected.defectKind}
+              </span>
+            </div>
+          ) : null}
         </section>
       ) : null}
 

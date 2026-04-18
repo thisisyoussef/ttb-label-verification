@@ -3,6 +3,13 @@ import path from 'node:path';
 
 import express from 'express';
 
+import { getSyntheticImage } from './synthetic-label-cache';
+import {
+  generateSyntheticLabel,
+  getSyntheticGenerationModel,
+  isSyntheticGenerationAvailable
+} from './synthetic-label-generator';
+
 const REPO_ROOT = path.resolve(
   path.dirname(new URL(import.meta.url).pathname),
   '..',
@@ -552,5 +559,76 @@ export function registerEvalRoutes(app: express.Express) {
     response.setHeader('cache-control', 'public, max-age=3600');
     response.setHeader('content-length', String(stats.size));
     createReadStream(resolved).pipe(response);
+  });
+
+  registerSyntheticLabelRoutes(app);
+}
+
+// ─── Synthetic-label routes ──────────────────────────────────────────
+// Toolbench "Generate sample with Gemini" button. Uses Imagen 4 to
+// produce a fresh photorealistic label + matching declared fields,
+// optionally with a baked-in defect so the verification pipeline's
+// reject/review paths get exercised from a single click.
+
+const SYNTHETIC_RATE_LIMIT_MS = 5_000;
+const syntheticLastCallByIp = new Map<string, number>();
+
+function registerSyntheticLabelRoutes(app: express.Express) {
+  app.get('/api/eval/synthetic/status', (_request, response) => {
+    response.setHeader('cache-control', 'no-store');
+    const available = isSyntheticGenerationAvailable();
+    const payload: { available: boolean; model?: string } = { available };
+    if (available) payload.model = getSyntheticGenerationModel();
+    response.json(payload);
+  });
+
+  app.post('/api/eval/synthetic/generate', async (request, response) => {
+    if (!isSyntheticGenerationAvailable()) {
+      response
+        .status(503)
+        .json({ kind: 'validation', message: 'Synthetic label generation is not configured on this server.' });
+      return;
+    }
+
+    const ip = request.ip ?? 'unknown';
+    const last = syntheticLastCallByIp.get(ip) ?? 0;
+    const elapsed = Date.now() - last;
+    if (elapsed < SYNTHETIC_RATE_LIMIT_MS) {
+      const retryInMs = SYNTHETIC_RATE_LIMIT_MS - elapsed;
+      response
+        .status(429)
+        .setHeader('retry-after', String(Math.ceil(retryInMs / 1000)))
+        .json({ kind: 'validation', message: `Slow down — try again in ${Math.ceil(retryInMs / 1000)}s.` });
+      return;
+    }
+    syntheticLastCallByIp.set(ip, Date.now());
+
+    try {
+      const result = await generateSyntheticLabel();
+      response.setHeader('cache-control', 'no-store');
+      response.json(result);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Synthetic label generation failed.';
+      response
+        .status(502)
+        .json({ kind: 'adapter', message });
+    }
+  });
+
+  app.get('/api/eval/synthetic/image/:id', (request, response) => {
+    const { id } = request.params;
+    if (!id || id.includes('..') || id.includes('/') || id.includes('\\')) {
+      response.status(400).end();
+      return;
+    }
+    const entry = getSyntheticImage(id);
+    if (!entry) {
+      response.status(404).end();
+      return;
+    }
+    response.setHeader('content-type', entry.mime);
+    response.setHeader('content-length', String(entry.bytes.length));
+    response.setHeader('cache-control', 'private, max-age=900');
+    response.send(entry.bytes);
   });
 }
