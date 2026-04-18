@@ -24,7 +24,6 @@ This file is the checked-in branch registry for normal story work.
 <!-- ACTIVE_BRANCHES:START -->
 | Branch | Story | Lane | Status | Description | PR | Opened | Updated | Base | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `chore/TTB-WF-003-branch-tracker-conflict-fix` | `TTB-WF-003` | `chore` | `draft-local` | repair BRANCH_TRACKER merge markers and finalize TTB-WF-003 history | - | `2026-04-18` | `2026-04-18` | `origin/main` | opened from origin/main |
 | `codex/TTB-000-dynamic-verdict-banner` | `TTB-000` | `codex` | `draft-local` | make the verdict banner follow the live matched/review state and remove overly optimistic review copy | - | `2026-04-18` | `2026-04-18` | `origin/main` | isolated merge worktree for verdict banner fix |
 <!-- ACTIVE_BRANCHES:END -->
 
@@ -34,6 +33,7 @@ This file is the checked-in branch registry for normal story work.
 | Branch | Story | Lane | Final status | Description | Closed | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | `chore/TTB-WF-003-branch-tracker` | `TTB-WF-003` | `chore` | `merged` | add the branch tracker workflow and enforce branch metadata updates | `2026-04-18` | merged via PR #44 |
+| `chore/TTB-WF-003-branch-tracker-conflict-fix` | `TTB-WF-003` | `chore` | `merged` | repair BRANCH_TRACKER merge markers and finalize TTB-WF-003 history | `2026-04-18` | merged via PR #109 |
 | `chore/TTB-WF-003-lean-agent-workspace` | `TTB-WF-003` | `chore` | `merged` | simplify agent docs, make direct branch work the default, and keep optional sibling worktrees | `2026-04-18` | merged via PR #103 |
 | `chore/TTB-WF-003-source-size-gate` | `TTB-WF-003` | `chore` | `merged` | let workflow branches close their own tracker rows without bypassing local gates | `2026-04-18` | merged via PR #104 |
 | `chore/TTB-WF-003-tracker-closeout` | `TTB-WF-003` | `chore` | `merged` | allow tracker closeout commits and finalize TTB-WF-003 cleanup | `2026-04-18` | merged via PR #108 |
