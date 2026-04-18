@@ -41,6 +41,11 @@ import {
   type ReviewLatencyObserver,
   type ReviewLatencySummary
 } from './review-latency';
+import {
+  checkSpiritsColocation,
+  isSpiritsColocationAvailable,
+  type SpiritsColocationResult
+} from './spirits-colocation-check';
 
 export type { TracedReviewExtractionInput };
 
@@ -242,11 +247,35 @@ const tracedReviewSurface = traceable(
       outcome: 'success',
       durationMs: warningStage.elapsedMs
     });
+
+    // Spirits same-field-of-vision check (27 CFR 5.61). Fires only
+    // for distilled-spirits extractions and only when a Gemini key
+    // is configured. Adds ~2-4s of VLM latency on a cold call but
+    // avoids cost on non-spirits reviews. The result is forwarded
+    // into buildVerificationReport so the cross-field check renders
+    // a real status instead of the placeholder.
+    let spiritsColocation: SpiritsColocationResult | null = null;
+    if (
+      reconciledExtraction.beverageType === 'distilled-spirits' &&
+      isSpiritsColocationAvailable()
+    ) {
+      const colocationStage = await measureStage(() =>
+        checkSpiritsColocation(input.intake.label)
+      );
+      spiritsColocation = colocationStage.result;
+      latencyCapture.recordSpan({
+        stage: 'spirits-colocation',
+        outcome: spiritsColocation ? 'success' : 'fast-fail',
+        durationMs: colocationStage.elapsedMs
+      });
+    }
+
     const reportStage = await measureStage(() =>
       tracedReviewReport({
         ...input,
         extraction: reconciledExtraction,
         warningCheck: warningStage.result,
+        spiritsColocation,
         reportId: input.reportId,
         deferResolver: input.deferResolver
       })
