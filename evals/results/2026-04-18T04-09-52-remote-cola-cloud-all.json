@@ -1,0 +1,334 @@
+{
+  "baseUrl": "https://ttb-label-verification-staging.up.railway.app",
+  "slice": "cola-cloud-all",
+  "providerOverride": null,
+  "summary": {
+    "correct": 25,
+    "total": 28,
+    "approved": 5,
+    "reviewed": 20,
+    "failed": 3,
+    "errored": 0,
+    "latencyMs": {
+      "avg": 6113,
+      "p50": 6574,
+      "p95": 14628,
+      "max": 15145
+    },
+    "latencyMsExcludingRetries": {
+      "avg": 6113,
+      "p50": 6574,
+      "p95": 14628,
+      "max": 15145
+    },
+    "retriedCount": 0,
+    "refine": null
+  },
+  "rows": [
+    {
+      "id": "persian-empire-black-widow-distilled-spirits",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 4985,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "brand-name:review, net-contents:review, applicant-address:review, government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "persian-empire-arak-distilled-spirits",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 4893,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "brand-name:review, net-contents:review, country-of-origin:review, government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 4688,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "alcohol-content:review, country-of-origin:review, government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "crafy-elk-cranberry-blueberry-acai-distilled-spirits",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 15145,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "net-contents:review, applicant-address:review, country-of-origin:review, government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "leitz-rottland-wine",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 3156,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "alcohol-content:review, country-of-origin:review, government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "leitz-magdalenenkreuz-wine",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 3299,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "class-type:review, alcohol-content:review, country-of-origin:review, government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "leitz-klosterlay-wine",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 3089,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "alcohol-content:review, country-of-origin:review, government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "uncorked-in-mayberry-otis-own-wine",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 3775,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "brand-name:review, applicant-address:review, government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "lake-placid-shredder-malt-beverage",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 2964,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "alcohol-content:review, net-contents:review, country-of-origin:review, government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "lake-placid-ridge-runner-malt-beverage",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 7193,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "net-contents:review, applicant-address:review, government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "recluse-brew-works-shy-guy-malt-beverage",
+      "expected": "approve",
+      "actual": "approve",
+      "latencyMs": 7360,
+      "verdict": "approve",
+      "match": true,
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "pleasant-prairie-brewing-peach-sour-ale-malt-beverage",
+      "expected": "approve",
+      "actual": "reject",
+      "latencyMs": 14628,
+      "verdict": "reject",
+      "match": false,
+      "failSummary": "government-warning:fail",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "crafty-elk-mango-honey-distilled-spirits",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 8472,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "net-contents:review, applicant-address:review, country-of-origin:review, government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "the-wine-trust-rum-distilled-spirits",
+      "expected": "approve",
+      "actual": "approve",
+      "latencyMs": 8067,
+      "verdict": "approve",
+      "match": true,
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "flaviar-columbia-creek-tennessee-whiskey-distilled-spirits",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 8618,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "brand-name:review, net-contents:review, applicant-address:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "old-station-31-orange-distilled-spirits",
+      "expected": "approve",
+      "actual": "approve",
+      "latencyMs": 4235,
+      "verdict": "approve",
+      "match": true,
+      "failSummary": "net-contents:review, government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "west-peak-tequila-paloma-distilled-spirits",
+      "expected": "approve",
+      "actual": "approve",
+      "latencyMs": 8137,
+      "verdict": "approve",
+      "match": true,
+      "failSummary": "applicant-address:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "stormwood-wines-semillon-wine",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 2891,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "alcohol-content:review, country-of-origin:review, government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "forlorn-hope-san-hercurmer-delle-frecce-wine",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 6574,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "class-type:review, alcohol-content:review, applicant-address:review, country-of-origin:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "manzone-giovanni-barolo-perno-wine",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 3892,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "net-contents:review, applicant-address:review, government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "ana-luisa-gran-reserva-parcelas-blend-wine",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 3611,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "class-type:review, alcohol-content:review, government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "carousel-winery-fairy-floss-cotton-candy-wine",
+      "expected": "approve",
+      "actual": "approve",
+      "latencyMs": 3150,
+      "verdict": "approve",
+      "match": true,
+      "failSummary": "government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "venture-studios-null-wine",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 2618,
+      "verdict": "review",
+      "match": true,
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "sapwood-cellars-albura-lager-malt-beverage",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 7412,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "brand-name:review, net-contents:review, applicant-address:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "drekker-brewing-company-piano-necktie-malt-beverage",
+      "expected": "approve",
+      "actual": "reject",
+      "latencyMs": 7169,
+      "verdict": "reject",
+      "match": false,
+      "failSummary": "government-warning:fail",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "pilok-broumy-malt-beverage",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 6910,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "brand-name:review, country-of-origin:review, government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "1840-original-lager-1840-original-lager-malt-beverage",
+      "expected": "approve",
+      "actual": "reject",
+      "latencyMs": 7439,
+      "verdict": "reject",
+      "match": false,
+      "failSummary": "brand-name:review, government-warning:fail",
+      "attempts": 1,
+      "refineFired": false
+    },
+    {
+      "id": "harpoon-ale-malt-beverage",
+      "expected": "approve",
+      "actual": "review",
+      "latencyMs": 6791,
+      "verdict": "review",
+      "match": true,
+      "failSummary": "government-warning:review",
+      "attempts": 1,
+      "refineFired": false
+    }
+  ]
+}
