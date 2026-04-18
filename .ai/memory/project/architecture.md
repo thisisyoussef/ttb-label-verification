@@ -5,7 +5,7 @@
 - Frontend: Vite + React in `src/client`
 - Backend: Express in `src/server`
 - Shared boundary: Zod contracts in `src/shared/contracts`
-- Harness: checked-in docs under `.ai/` plus canonical repo rules in `AGENTS.md` and `CLAUDE.md`
+- Harness: a lean checked-in contract centered on `AGENTS.md`, `CLAUDE.md`, SSOT, branch tracker, memory bank, and a small `.ai` workflow set, with direct branch work as the default
 - UI flow harness: `STITCH_FLOW_MODE` now supports `claude-direct`, `automated`, and `manual`, with `claude-direct` as the workspace default and Stitch remaining optional per pass
 - Intake backend: route-local multipart `POST /api/review` validates one in-memory label file, accepts omitted `fields` for standalone reviews, normalizes a bounded intake object in `src/server/review-intake.ts`, then runs the extractor, warning validator, and deterministic report builder before returning the final `VerificationReport`
 - Runtime review wiring: `src/client/App.tsx` now consumes the `VerificationReport` returned by `POST /api/review`, while `src/client/review-runtime.ts` decides when dev fixtures are allowed and falls back to a standalone seed report when application data is absent

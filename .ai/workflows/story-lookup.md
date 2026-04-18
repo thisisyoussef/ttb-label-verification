@@ -1,31 +1,11 @@
-# Story Lookup Workflow
+# Story Lookup
 
-## Purpose
+Use this before meaningful implementation.
 
-Turn a task into a grounded implementation brief before code changes begin.
-
-## When to run
-
-Run before meaningful implementation for any non-trivial task.
-
-## Steps
-
-1. Read `AGENTS.md`, `docs/process/SINGLE_SOURCE_OF_TRUTH.md`, the presearch, and the active contract files.
-2. If the task is moving into real implementation work, confirm the current branch is story-scoped for the selected story. When the worktree is on `main` or `production`, or when the current branch belongs to a different story, cut a fresh story branch before proceeding with packet or code edits.
-3. Record that branch immediately in `docs/process/BRANCH_TRACKER.md` with a real description; prefer `npm run story:branch -- open ...`.
-4. Inspect the nearest relevant code and docs in this repo.
-5. Build a blast-radius map from the files, symbols, routes, selectors, fixtures, state transitions, and docs you expect to touch. Search for direct dependents before coding.
-6. If the task touches client shell or flow surfaces, inspect dependent guided-help surfaces too: help manifest or fixture sources, help runtime, replay state, guided-tour runtime, help route tests, and affected `data-tour-target` anchors.
-7. Identify authoritative external sources when the task depends on TTB rules, OpenAI API behavior, or unfamiliar integration details.
-8. Produce a concise lookup brief with:
-   - local findings
-   - blast radius and dependent flows
-   - external findings when needed
-   - implementation implications
-   - test implications
-   - open questions
-
-## Exit criteria
-
-- Lookup brief exists in chat or in the active spec packet before coding starts.
-- Story implementation does not begin until the worktree is on a fresh branch for the selected story and that branch has an active tracker row.
+1. Read `AGENTS.md` and SSOT.
+2. Confirm the story and lane from checked-in docs.
+3. Check the current branch.
+4. If the current checkout belongs to another story, switch to a fresh story branch. If it is dirty and you need isolation, create a sibling worktree from `origin/main`.
+5. Record the branch in `docs/process/BRANCH_TRACKER.md`.
+6. Read the nearest code, docs, and tests.
+7. Write down the blast radius, implementation implications, and test plan before coding.

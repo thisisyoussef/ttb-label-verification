@@ -3,40 +3,35 @@
 ## Story
 
 - Story ID: `TTB-WF-003`
-- Title: branch tracker and story-branch workflow
+- Title: lean agent workspace and direct-branch story workflow
 
 ## Problem statement
 
-The repo requires story-scoped branches, but it does not keep a checked-in registry of which branches are active, what each branch is for, or where each branch is in its lifecycle. Branch descriptions, publication state, and closeout notes currently live in people’s heads, in ad hoc commit subjects, or in GitHub PR metadata. That makes parallel work harder to recover from checked-in state alone.
+The repo currently repeats workflow rules across too many files and still carries a spec-heavy delivery habit that slows simple tasks down. It also has linked-worktree support, but nested `.claude/worktrees` paths were tracked by git, which dirties normal checkouts and confuses parallel work.
 
-## User-facing outcomes
+## Outcomes
 
-- Opening a new story branch also records a canonical branch entry with a description and lifecycle metadata.
-- Branch lifecycle updates use one checked-in tracker instead of scattered notes.
-- Commit and push gates fail when the current branch is missing from the branch tracker.
-- The tracker distinguishes local-only, published, draft-PR, ready-PR, merged, and abandoned states.
-- The workflow keeps `docs/process/SINGLE_SOURCE_OF_TRUTH.md` focused on stories while `docs/process/BRANCH_TRACKER.md` owns branch inventory.
+- Agents read a much smaller core contract.
+- SSOT and memory bank remain the durable coordination layer.
+- Starting a new task defaults to working directly on a fresh story branch.
+- The branch helper can still create and track an optional sibling worktree when isolation is needed.
+- Nested `.claude/worktrees` stop being a tracked repo surface.
 
 ## Acceptance criteria
 
-1. The repo has a checked-in branch tracker document under `docs/process/` with explicit status vocabulary and canonical table structure.
-2. The repo exposes a helper command for branch open, update, and close actions that updates the branch tracker.
-3. Opening a branch through the helper requires a branch description and records the new branch in the active tracker.
-4. Updating branch status or PR metadata through the helper updates the same branch row instead of creating duplicates.
-5. Closing a branch through the helper moves the branch from the active table to a closed-history table with final status and notes.
-6. The commit and push gates fail when the current story branch is missing from the active branch tracker or has a placeholder description.
-7. The workflow docs explain the split between `SINGLE_SOURCE_OF_TRUTH.md` and `BRANCH_TRACKER.md` clearly enough that either agent can recover the expected source of truth.
-8. Existing story-branch protections stay intact: no new direct-work path on `main` or `production`, and no weakening of PR-only integration.
-
-## Edge cases
-
-- Existing unrelated work on other branches or worktrees must remain untouched.
-- Branch tracker rows should be stable and human-readable, not generated into unreadable JSON blobs.
-- Branch descriptions should tolerate punctuation, but the table format must remain valid.
-- The helper should refuse to open a branch from a dirty worktree so users do not accidentally drag unrelated changes into a new story branch.
+1. `AGENTS.md`, `CLAUDE.md`, `.ai/codex.md`, `.ai/agents/claude.md`, and `.ai/docs/WORKSPACE_INDEX.md` are materially simpler and focus on SSOT, memory, TDD, clean code, and branch hygiene.
+2. The active `.ai` workflow set is reduced to the core loop: continue, lookup, sizing, and TDD.
+3. Specs are no longer the default path for normal implementation work; they are optional when the task warrants them.
+4. `npm run story:branch -- open ... --worktree <path>` still creates a sibling linked worktree on a new story branch and updates the tracker in that new checkout.
+5. The helper refuses linked worktree paths inside the repo root.
+6. The default base for fresh story work prefers current `origin/main` when available.
+7. `.gitignore` blocks `.claude/worktrees/`, and tracked nested worktree entries are removed from git.
+8. Git hygiene docs explicitly recommend direct branch work by default, with sibling worktrees reserved for parallel or dirty-checkout isolation.
+9. The source-size gate uses a checked-in baseline waiver for inherited oversized files so unrelated workflow branches can still commit while blocking new oversized files and growth beyond the baseline.
+10. SSOT, branch tracker, story packet, and memory reflect the new workflow truth.
 
 ## Out of scope
 
-- Runtime application behavior
-- Validator, extraction, or API changes
-- GitHub-side bot automation that rewrites `main`
+- Runtime product behavior
+- Validators, extractors, or API contracts
+- Deployment topology changes

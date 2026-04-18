@@ -8,6 +8,7 @@ dist
 .railway
 .mcp.json
 .cursor/mcp.json
+.claude/worktrees/
 *.log
 .cache
 .models

@@ -2,6 +2,10 @@
 
 ## Avoid these failures
 
+- Letting workflow rules sprawl across many docs until the agent spends more time reading process than touching code
+- Turning simple implementation work into mandatory spec-writing before any code moves
+- Creating linked worktrees inside the repo root or tracking `.claude/worktrees/**` in git
+- Disabling the source-size guard entirely just because `main` already drifted past the cap
 - Treating `.ai/` as runtime code instead of harness scaffolding
 - Asking the model for a holistic compliance pass/fail verdict
 - Converting low-confidence visual judgments into hard `pass`
