@@ -26,6 +26,7 @@ import {
   useSingleReviewPipeline
 } from './useSingleReviewPipeline';
 import { useSpeculativePrefetch } from './useSpeculativePrefetch';
+import { useOcrPreview, type OcrPreviewFields } from './useOcrPreview';
 
 export interface SingleReviewFlow {
   image: LabelImage | null;
@@ -38,6 +39,13 @@ export interface SingleReviewFlow {
   phase: ProcessingPhase;
   failureMessage: string;
   report: UIVerificationReport | null;
+  /**
+   * OCR-only preview (ABV, net contents, class, country, warning-present)
+   * populated ~500ms into the Processing phase by a parallel low-cost
+   * server call. `null` until the preview frame lands or when running
+   * fixture/tour scenarios that bypass the live pipeline.
+   */
+  ocrPreview: OcrPreviewFields | null;
   variantOptions: Array<{ value: ResultVariantOverride; label: string }>;
   setBeverage: (value: BeverageSelection) => void;
   setFields: (value: IntakeFields) => void;
@@ -155,9 +163,18 @@ export function useSingleReviewFlow(options: {
     forceFailure
   });
 
+  // OCR-only preview runs alongside the canonical review so Processing
+  // screen can show partial field values (ABV, net contents, class,
+  // country, warning-present) in ~500ms instead of waiting the full
+  // 5-7s for the VLM. Disabled for fixture/tour scenarios since those
+  // bypass the live server.
+  const ocrPreviewEnabled = speculativePrefetchEnabled;
+  const ocrPreview = useOcrPreview({ enabled: ocrPreviewEnabled });
+
   const reset = useCallback(() => {
     abandonInFlightReview();
     prefetch.clearPrefetch();
+    ocrPreview.reset();
     reviewTraceIdRef.current = null;
     revokeImage(imageRef.current);
     setImage(null);
@@ -168,7 +185,7 @@ export function useSingleReviewFlow(options: {
     setVariantOverride('auto');
     setReport(null);
     resetPipelineState();
-  }, [abandonInFlightReview, prefetch, resetPipelineState, revokeImage, setReport]);
+  }, [abandonInFlightReview, ocrPreview, prefetch, resetPipelineState, revokeImage, setReport]);
 
   const variantOptions = useMemo(
     () =>
@@ -271,6 +288,7 @@ export function useSingleReviewFlow(options: {
     phase,
     failureMessage,
     report,
+    ocrPreview: ocrPreview.preview,
     variantOptions,
     setBeverage,
     setFields: setFieldsState,
@@ -283,6 +301,12 @@ export function useSingleReviewFlow(options: {
           startReviewFromPrefetch(hit.report);
           return;
         }
+      }
+      // Fire the OCR-only preview in parallel with the canonical review
+      // so Processing screen gets partial fields in ~500ms. Preview
+      // failures are silent — the canonical pipeline still runs.
+      if (ocrPreviewEnabled && image && !forceFailure) {
+        ocrPreview.start({ image, beverage, fields: fieldsState });
       }
       void startReview(forceFailure);
     },

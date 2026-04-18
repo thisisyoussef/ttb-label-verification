@@ -178,6 +178,7 @@ export function AppShell({
             phase={single.phase}
             failureMessage={single.failureMessage}
             localUnavailable={extractionMode === 'local' && single.phase === 'failed'}
+            ocrPreview={single.ocrPreview}
             onCancel={single.onCancel}
             onRetry={single.onRetry}
             onBackToIntake={single.onBackToIntake}

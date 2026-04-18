@@ -101,6 +101,12 @@ export async function streamReview(options: {
   fields: IntakeFields;
   signal: AbortSignal;
   clientRequestId?: string;
+  /**
+   * When true, asks the server to stop after the ocr-done frame. Used
+   * for the low-cost OCR-only preview path that Processing screen
+   * fires alongside the canonical /api/review call. No VLM cost.
+   */
+  onlyOcr?: boolean;
   onFrame: (frame: ReviewStreamFrame) => void;
 }): Promise<void> {
   const formData = new FormData();
@@ -110,7 +116,10 @@ export async function streamReview(options: {
     JSON.stringify(buildReviewFields(options.beverage, options.fields))
   );
 
-  const response = await fetch('/api/review/stream', {
+  const url = options.onlyOcr
+    ? '/api/review/stream?only=ocr'
+    : '/api/review/stream';
+  const response = await fetch(url, {
     method: 'POST',
     headers: withProviderOverrideHeader(
       options.clientRequestId

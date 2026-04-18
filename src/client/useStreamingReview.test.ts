@@ -94,16 +94,18 @@ describe('applyFrame', () => {
       requestId: 'req-1',
       report: {
         id: 'rpt-1',
+        mode: 'single-label',
         standalone: false,
         beverageType: 'distilled-spirits',
+        extractionQuality: { globalConfidence: 1, state: 'ok', note: '' },
         counts: { pass: 0, review: 0, fail: 0 },
         checks: [],
         crossFieldChecks: [],
         verdict: 'approve',
         verdictSecondary: '',
-        summary: '',
-        extractionId: 'ext-1',
-        durationMs: 100
+        latencyBudgetMs: 4000,
+        noPersistence: true,
+        summary: ''
       }
     };
 

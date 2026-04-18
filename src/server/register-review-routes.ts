@@ -449,20 +449,31 @@ async function handleReviewStream(
       }
     }
 
-    // --- Full review pipeline (emits report-ready at the end) ------------
-    const report = await runTracedReviewSurface({
-      surface: '/api/review',
-      extractionMode: resolution.extractionMode,
-      provider: resolution.providers.join(',') || undefined,
-      clientTraceId,
-      intake: augmentedIntake,
-      extractor: resolution.extractor as ReviewExtractor,
-      latencyCapture,
-      latencyObserver: deps.latencyObserver
-    });
+    // --- Full review pipeline OR early-abort after OCR -------------------
+    // Clients can pass `?only-ocr=true` to request just the OCR preview
+    // (intake + ocr-done frames) without running the VLM. Used by
+    // Processing screen to show partial fields in ~500ms while the
+    // canonical /api/review call continues in parallel.
+    const onlyOcr = String(request.query.only ?? '').toLowerCase() === 'ocr'
+      || String(request.query['only-ocr'] ?? '').toLowerCase() === 'true';
 
-    emit({ type: 'report-ready', requestId, report });
-    emit({ type: 'done', requestId });
+    if (onlyOcr) {
+      emit({ type: 'done', requestId });
+    } else {
+      const report = await runTracedReviewSurface({
+        surface: '/api/review',
+        extractionMode: resolution.extractionMode,
+        provider: resolution.providers.join(',') || undefined,
+        clientTraceId,
+        intake: augmentedIntake,
+        extractor: resolution.extractor as ReviewExtractor,
+        latencyCapture,
+        latencyObserver: deps.latencyObserver
+      });
+
+      emit({ type: 'report-ready', requestId, report });
+      emit({ type: 'done', requestId });
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Internal error';
     emit({

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { ExtractionMode } from './appTypes';
 import type { BeverageSelection, LabelImage, ProcessingPhase, ProcessingStep } from './types';
 import { classifyCause } from './reviewFailureMessage';
+import type { OcrPreviewFields } from './useOcrPreview';
 import { useReducedMotion } from './useReducedMotion';
 
 const LATE_STAGE_DELAY_MS = 4000;
@@ -23,6 +24,15 @@ interface ProcessingProps {
   phase: ProcessingPhase;
   failureMessage: string;
   localUnavailable: boolean;
+  /**
+   * OCR-only preview populated by the /api/review/stream only-ocr call
+   * that fires alongside the canonical review. `null` before the
+   * preview lands (~500ms into the Processing phase); populated
+   * thereafter even when the full review is still running. Individual
+   * fields inside the preview may still be `undefined` when OCR
+   * couldn't read them.
+   */
+  ocrPreview?: OcrPreviewFields | null;
   onCancel: () => void;
   onRetry: () => void;
   onBackToIntake: () => void;
@@ -37,6 +47,7 @@ export function Processing({
   phase,
   failureMessage,
   localUnavailable,
+  ocrPreview,
   onCancel,
   onRetry,
   onBackToIntake,
@@ -180,6 +191,10 @@ export function Processing({
             Reading the label, checking every required field, and preparing the report.
           </p>
         </header>
+
+        {phase === 'running' && ocrPreview && hasAnyPreview(ocrPreview) ? (
+          <OcrPreviewPanel preview={ocrPreview} />
+        ) : null}
 
         <ol role="list" aria-live="polite" className="flex flex-col gap-1 max-w-3xl">
           {visibleSteps.map((step, index) => (
@@ -376,6 +391,79 @@ function StepIcon({
     <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-outline-variant/60 text-outline-variant flex-shrink-0">
       <span className="text-xs font-bold">{index}</span>
     </div>
+  );
+}
+
+// Any non-empty field (or warning-present=true) means we have something
+// worth rendering. Keeps the panel from flashing open with "Nothing
+// found yet" when OCR regex missed everything.
+function hasAnyPreview(preview: OcrPreviewFields): boolean {
+  return Boolean(
+    preview.alcoholContent ||
+      preview.netContents ||
+      preview.classType ||
+      preview.countryOfOrigin ||
+      preview.governmentWarningPresent
+  );
+}
+
+function OcrPreviewPanel({ preview }: { preview: OcrPreviewFields }) {
+  // Entries rendered in reading order. "Warning on label" is a boolean
+  // flag shown as a check/absent badge — different visual treatment
+  // than the other value-bearing fields.
+  const rows: Array<{ label: string; value: string }> = [];
+  if (preview.alcoholContent) rows.push({ label: 'Alcohol content', value: preview.alcoholContent });
+  if (preview.netContents) rows.push({ label: 'Net contents', value: preview.netContents });
+  if (preview.classType) rows.push({ label: 'Class / Type', value: preview.classType });
+  if (preview.countryOfOrigin) rows.push({ label: 'Country of origin', value: preview.countryOfOrigin });
+
+  return (
+    <aside
+      aria-label="Early readings from the label"
+      className="max-w-3xl bg-surface-container-low border border-outline-variant/20 rounded-lg p-5 flex flex-col gap-3"
+    >
+      <div className="flex items-center gap-2">
+        <span
+          aria-hidden="true"
+          className="material-symbols-outlined text-[18px] text-primary"
+        >
+          visibility
+        </span>
+        <h2 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+          Early readings from the label
+        </h2>
+        <span className="font-body text-xs text-on-surface-variant italic ml-auto">
+          provisional — still checking
+        </span>
+      </div>
+
+      {rows.length > 0 ? (
+        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+          {rows.map((row) => (
+            <div key={row.label} className="flex flex-col gap-0.5">
+              <dt className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
+                {row.label}
+              </dt>
+              <dd className="font-mono text-sm font-semibold text-on-surface">
+                {row.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
+
+      {preview.governmentWarningPresent ? (
+        <p className="flex items-center gap-2 font-body text-sm text-on-surface">
+          <span
+            aria-hidden="true"
+            className="material-symbols-outlined text-[16px] text-success"
+          >
+            check_circle
+          </span>
+          Government warning text detected on the label.
+        </p>
+      ) : null}
+    </aside>
   );
 }
 
