@@ -38,8 +38,31 @@ import sharp from 'sharp';
 
 import type { NormalizedUploadedLabel } from './review-intake';
 import type { NormalizedReviewFields } from './review-intake';
+import {
+  expandEquivalentPhrases,
+  type AnchorFieldId
+} from './anchor-taxonomy-expand';
 
 const execAsync = promisify(exec);
+
+/**
+ * Feature flag: enable parallel anchor track + per-field merge.
+ *
+ *   ANCHOR_MERGE=enabled  → run anchor in parallel, use it to upgrade
+ *                           review→pass where anchor confirms the app
+ *                           value is present on the label.
+ *   ANCHOR_MERGE=shadow   → run but don't merge (for metrics)
+ *   (anything else)       → skip anchor entirely (legacy path).
+ *
+ * Default OFF during rollout. Graduates to on-by-default after eval
+ * harness confirms zero regressions on the cola-cloud-all slice.
+ */
+export function resolveAnchorMergeMode(): 'enabled' | 'shadow' | 'disabled' {
+  const raw = (process.env.ANCHOR_MERGE ?? '').trim().toLowerCase();
+  if (raw === 'enabled' || raw === 'on' || raw === 'true') return 'enabled';
+  if (raw === 'shadow') return 'shadow';
+  return 'disabled';
+}
 
 /**
  * Per-field anchoring outcome. Callers use `status` to decide whether
@@ -72,6 +95,16 @@ export interface FieldAnchor {
    *             only common words).
    */
   status: 'found' | 'partial' | 'missing' | 'skipped';
+  /**
+   * How the match was achieved:
+   *   'literal'    = exact/substring match on the original expected tokens
+   *   'equivalent' = match required taxonomy-equivalent fallback
+   *                  (e.g. app="Syrah" → label="Shiraz")
+   *   'none'       = no tokens matched (status will be missing/partial)
+   * The review-report layer can cite this in the evidence note so a
+   * reviewer knows whether to trust the auto-approval.
+   */
+  matchKind: 'literal' | 'equivalent' | 'none';
 }
 
 export interface AnchorTrackResult {
@@ -178,6 +211,12 @@ function coverageToStatus(coverage: number): FieldAnchor['status'] {
  * Anchor one field's known value against the OCR word set. Exact
  * match first, then substring-tolerance fallback (OCR may split or
  * merge tokens).
+ *
+ * When the literal anchor would fall short (<80% coverage), retry
+ * with taxonomy equivalents — grape synonyms, country aliases +
+ * subdivisions, USPS address expansions, unit variants. An
+ * equivalent-only match is reported via `matchKind: 'equivalent'`
+ * so downstream callers can cite it in the evidence note.
  */
 export function anchorOneField(
   field: string,
@@ -192,23 +231,47 @@ export function anchorOneField(
       tokens: [],
       tokensFound: 0,
       coverage: 1, // vacuously — don't gate approval on blank fields
-      status: 'skipped'
+      status: 'skipped',
+      matchKind: 'none'
     };
   }
   const ocrTextSet = new Set(words.map((w) => w.text));
-  let found = 0;
-  for (const tok of tokens) {
-    if (ocrTextSet.has(tok)) {
-      found += 1;
-      continue;
-    }
-    // Substring-tolerance: token is a substring of an OCR word, or
-    // an OCR word is a substring of the token. Handles "whisky" ↔
-    // "WHISKY" ↔ "WHISKEY" noise at the token level.
-    if (words.some((w) => w.text.includes(tok) || tok.includes(w.text))) {
-      found += 1;
+  const { found: literalFound } = matchTokensAgainstWords(tokens, ocrTextSet, words);
+  let found = literalFound;
+  let matchKind: FieldAnchor['matchKind'] = literalFound > 0 ? 'literal' : 'none';
+
+  // Taxonomy-equivalent backup: if the literal match is weak, retry
+  // against synonyms/aliases for this field. Only runs when literal is
+  // below the 'found' threshold so we don't burn cycles on already-
+  // confident matches.
+  if (found < tokens.length * 0.8) {
+    const equivalentPhrases = expandEquivalentPhrases(
+      field as AnchorFieldId,
+      expected
+    );
+    if (equivalentPhrases.length > 0) {
+      const equivalentTokens = Array.from(
+        new Set(
+          equivalentPhrases.flatMap((phrase) => tokenizeExpectedValue(phrase))
+        )
+      ).filter((t) => !tokens.includes(t));
+      if (equivalentTokens.length > 0) {
+        const { found: equivFound } = matchTokensAgainstWords(
+          equivalentTokens,
+          ocrTextSet,
+          words
+        );
+        if (equivFound > 0) {
+          // Blend equivalent matches into overall coverage so a label
+          // showing "SHIRAZ" for app "Syrah" anchors strongly. Cap at
+          // tokens.length to keep coverage in [0, 1].
+          found = Math.min(tokens.length, found + equivFound);
+          matchKind = literalFound > 0 ? 'literal' : 'equivalent';
+        }
+      }
     }
   }
+
   const coverage = found / tokens.length;
   return {
     field,
@@ -216,8 +279,32 @@ export function anchorOneField(
     tokens,
     tokensFound: found,
     coverage,
-    status: coverageToStatus(coverage)
+    status: coverageToStatus(coverage),
+    matchKind
   };
+}
+
+/**
+ * Score how many of `tokens` appear in the OCR output, via exact hit
+ * or substring tolerance. Extracted so the base-token pass and the
+ * equivalent-token fallback share the same matching logic.
+ */
+function matchTokensAgainstWords(
+  tokens: string[],
+  ocrTextSet: Set<string>,
+  words: TsvWord[]
+): { found: number } {
+  let found = 0;
+  for (const tok of tokens) {
+    if (ocrTextSet.has(tok)) {
+      found += 1;
+      continue;
+    }
+    if (words.some((w) => w.text.includes(tok) || tok.includes(w.text))) {
+      found += 1;
+    }
+  }
+  return { found };
 }
 
 /**
