@@ -3,8 +3,10 @@ import {
   batchPreflightResponseSchema,
   batchStreamFrameSchema,
   reviewErrorSchema,
+  reviewStreamFrameSchema,
   verificationReportSchema,
-  type ReviewIntakeFields
+  type ReviewIntakeFields,
+  type ReviewStreamFrame
 } from '../shared/contracts/review';
 import { buildBatchResolutions } from './batch-runtime';
 import type { BatchLabelImage, BatchMatchingState } from './batchTypes';
@@ -82,6 +84,92 @@ export async function submitReview(options: {
 
   const report = verificationReportSchema.parse(await response.json());
   return { ok: true as const, report };
+}
+
+/**
+ * Stream a review via Server-Sent Events from `/api/review/stream`.
+ * Calls `onFrame` as each SSE frame arrives. Resolves when the server
+ * emits a `done` frame or the response body ends. Rejects if the
+ * response is not ok or the body is unavailable.
+ *
+ * The server emits SSE format (`data: {json}\n\n` per frame plus
+ * periodic `: heartbeat` keep-alives). This parser handles both.
+ */
+export async function streamReview(options: {
+  image: LabelImage;
+  beverage: BeverageSelection;
+  fields: IntakeFields;
+  signal: AbortSignal;
+  clientRequestId?: string;
+  onFrame: (frame: ReviewStreamFrame) => void;
+}): Promise<void> {
+  const formData = new FormData();
+  formData.append('label', options.image.file);
+  formData.append(
+    'fields',
+    JSON.stringify(buildReviewFields(options.beverage, options.fields))
+  );
+
+  const response = await fetch('/api/review/stream', {
+    method: 'POST',
+    headers: withProviderOverrideHeader(
+      options.clientRequestId
+        ? { 'x-review-client-id': options.clientRequestId }
+        : undefined
+    ),
+    body: formData,
+    signal: options.signal
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      await parseApiError(response, DEFAULT_FAILURE_MESSAGE)
+    );
+  }
+  if (!response.body) {
+    throw new Error(DEFAULT_FAILURE_MESSAGE);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  // SSE frames are separated by `\n\n`. Each frame may span multiple
+  // `data:` lines (we always emit one line, but parse defensively).
+  const flushFrame = (raw: string) => {
+    const dataLines = raw
+      .split('\n')
+      .filter((line) => line.startsWith('data:'))
+      .map((line) => line.slice(5).trimStart());
+    if (dataLines.length === 0) return;
+    const payload = dataLines.join('\n');
+    try {
+      const parsed = reviewStreamFrameSchema.parse(JSON.parse(payload));
+      options.onFrame(parsed);
+    } catch {
+      // Skip malformed frames — the server schema-validates before
+      // writing, so this should only happen on partial / corrupt
+      // buffer edges. The next frame will still parse.
+    }
+  };
+
+  while (true) {
+    const { value, done } = await reader.read();
+    buffer += decoder.decode(value ?? new Uint8Array(), { stream: !done });
+
+    let separatorIdx = buffer.indexOf('\n\n');
+    while (separatorIdx !== -1) {
+      const rawFrame = buffer.slice(0, separatorIdx);
+      buffer = buffer.slice(separatorIdx + 2);
+      if (rawFrame.trim().length > 0) flushFrame(rawFrame);
+      separatorIdx = buffer.indexOf('\n\n');
+    }
+
+    if (done) {
+      if (buffer.trim().length > 0) flushFrame(buffer);
+      break;
+    }
+  }
 }
 
 export async function parseApiError(response: Response, fallback: string) {
