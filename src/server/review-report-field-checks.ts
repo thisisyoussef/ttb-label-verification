@@ -74,7 +74,7 @@ function findStrongAnchorFor(
  * check set, so if a blocker fail is present in another field, the
  * overall verdict is unaffected.
  */
-function maybeUpgradeCheckWithAnchor(
+export function maybeUpgradeCheckWithAnchor(
   check: CheckReview,
   anchor: FieldAnchor | null
 ): CheckReview {
@@ -91,12 +91,31 @@ function maybeUpgradeCheckWithAnchor(
     anchor.matchKind === 'equivalent'
       ? 'The label shows a recognized equivalent of the approved value.'
       : 'The approved value is clearly printed on the label.';
+  // The pre-upgrade check often has empty/missing extractedValue and
+  // a comparison block that says "Not visible on the label" (the VLM
+  // didn't read the field cleanly, which is exactly why the anchor
+  // pass is overriding to pass). We must rewrite both so the
+  // expanded evidence panel doesn't contradict the new "Matches"
+  // badge. The application value itself is the most accurate thing
+  // to render on the label side — the anchor confirmed those tokens
+  // are present.
+  const matchedLabelValue =
+    anchor.expected || check.applicationValue || check.extractedValue;
   return {
     ...check,
     status: 'pass',
     severity: 'note',
     summary: 'Label matches the approved record.',
-    details: equivalenceHint
+    details: equivalenceHint,
+    extractedValue: matchedLabelValue,
+    comparison: matchedLabelValue
+      ? {
+          status: 'match',
+          applicationValue: check.applicationValue ?? anchor.expected,
+          extractedValue: matchedLabelValue,
+          note: equivalenceHint
+        }
+      : check.comparison
   };
 }
 
