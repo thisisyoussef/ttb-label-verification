@@ -241,7 +241,7 @@ export function Processing({
         {phase === 'running' ? (
           <div className="flex flex-col gap-3 max-w-3xl" aria-live="polite">
             <h2 className="font-label text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
-              Fields detected so far
+              Fields detected
             </h2>
             <ol role="list" className="flex flex-col gap-2">
               {SKELETON_ROWS.map((row) => {

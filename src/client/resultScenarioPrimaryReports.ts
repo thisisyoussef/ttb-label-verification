@@ -78,7 +78,7 @@ export function spiritWarningErrorsReport(): UIVerificationReport {
       severity: 'blocker',
       summary: 'Warning heading and punctuation do not match required wording.',
       details:
-        'The warning heading appears in title case rather than uppercase, and a required period and space before "(2)" are missing. Exact wording and uppercase/bold heading are rejection-critical under 27 CFR part 16.',
+        'The warning heading appears in title case rather than uppercase, and a required period and space before "(2)" are missing. Exact wording and uppercase/bold heading are review-critical under 27 CFR part 16.',
       confidence: 0.94,
       citations: CITATIONS_WARNING,
       extractedValue: WARNING_DEFECT_EXTRACTED,
@@ -97,7 +97,7 @@ export function spiritWarningErrorsReport(): UIVerificationReport {
     checks,
     crossFieldChecks,
     summary:
-      'Government warning defects drive a rejection-ready distilled spirits review result.'
+      'Government warning defects drive a needs-review distilled spirits result.'
   });
 }
 

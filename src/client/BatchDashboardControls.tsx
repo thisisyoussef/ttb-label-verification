@@ -6,19 +6,27 @@ import type {
 } from './batchTypes';
 import type { ExportState } from './BatchDashboard';
 
-export const FILTER_ORDER: BatchDashboardFilter[] = ['all', 'reject', 'review', 'approve'];
+// Filter order intentionally drops 'reject'. The single-label
+// VerdictBanner already collapses the engine's `reject` verdict into
+// `review` for display ("Needs your review"); the batch dashboard
+// follows the same vocabulary so users only see two outcome buckets.
+// `BatchDashboardFilter` keeps the 'reject' value for backwards-
+// compatibility with stored sessions, but it's no longer rendered as
+// a pill — `filterRows` still honours an externally-set 'reject'
+// filter if one is somehow active.
+export const FILTER_ORDER: BatchDashboardFilter[] = ['all', 'review', 'approve'];
 
 export const FILTER_LABELS: Record<BatchDashboardFilter, string> = {
   all: 'All',
-  reject: 'Rejects only',
-  review: 'Reviews only',
+  reject: 'Needs review only',
+  review: 'Needs review only',
   approve: 'Approves only'
 };
 
 export const FILTER_EMPTY_LABEL: Record<BatchDashboardFilter, string> = {
   all: 'labels',
-  reject: 'rejects',
-  review: 'reviews',
+  reject: 'labels needing review',
+  review: 'labels needing review',
   approve: 'approves'
 };
 
@@ -45,8 +53,13 @@ export function SummaryCards({
   review: number;
   fail: number;
 }) {
+  // Engine 'fail' verdicts are collapsed into the Needs Review bucket
+  // here to match the single-label VerdictBanner's two-state display.
+  // The underlying counts stay separate on the wire — only the
+  // rendered card merges them.
+  const needsReview = review + fail;
   return (
-    <section aria-label="Outcome summary" className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <section aria-label="Outcome summary" className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <SummaryCard
         heading="Approve"
         description="Recommend approval"
@@ -55,18 +68,11 @@ export function SummaryCards({
         icon="check_circle"
       />
       <SummaryCard
-        heading="Review"
-        description="Needs your review"
-        count={review}
+        heading="Needs review"
+        description="A reviewer should take a closer look"
+        count={needsReview}
         tone="caution"
         icon="warning"
-      />
-      <SummaryCard
-        heading="Reject"
-        description="Recommend rejection"
-        count={fail}
-        tone="error"
-        icon="cancel"
       />
     </section>
   );
@@ -148,10 +154,16 @@ export function ActionBar({
 }
 
 export function countRowsByFilter(rows: BatchDashboardRow[]) {
+  // 'review' counts BOTH engine-review and engine-fail rows so the
+  // pill matches the merged "Needs review" bucket on the SummaryCards.
+  // 'reject' stays as a count of just engine-fail rows in case any
+  // legacy session reads it, but no UI surface renders that pill.
+  const fail = rows.filter((row) => row.status === 'fail').length;
+  const review = rows.filter((row) => row.status === 'review').length;
   return {
     all: rows.length,
-    reject: rows.filter((row) => row.status === 'fail').length,
-    review: rows.filter((row) => row.status === 'review').length,
+    reject: fail,
+    review: review + fail,
     approve: rows.filter((row) => row.status === 'pass').length
   };
 }
@@ -161,8 +173,12 @@ export function filterRows(
   filter: BatchDashboardFilter
 ): BatchDashboardRow[] {
   if (filter === 'all') return rows;
+  // 'review' now includes engine-fail rows so a reviewer drilling
+  // into "Needs review" sees every label that isn't a clean approve.
   if (filter === 'reject') return rows.filter((row) => row.status === 'fail');
-  if (filter === 'review') return rows.filter((row) => row.status === 'review');
+  if (filter === 'review') {
+    return rows.filter((row) => row.status === 'review' || row.status === 'fail');
+  }
   return rows.filter((row) => row.status === 'pass');
 }
 
