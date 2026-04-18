@@ -39,6 +39,6 @@ Implement the first live model-backed extraction layer for a single label and op
 - Risk: the model returns partial or refused structured output.
   - Fallback: convert that condition into a structured adapter error rather than synthesizing fake extraction data.
 - Risk: beverage-type hints conflict across application input, extracted class/type, and model hint.
-  - Fallback: prefer application input, then deterministic class/type inference, then model hint, then strict fallback.
+  - Fallback: prefer application input, then deterministic class/type inference, then model hint, then a conservative strict fallback that defaults only label-like ambiguous cases to distilled spirits while keeping no-text or non-label-like cases `unknown`.
 - Risk: local live verification still needs the real label binaries referenced by `evals/labels/manifest.json`.
   - Fallback: land the tested adapter, run `npm run env:bootstrap` for local runtime config, and document the exact missing asset paths in the story artifacts if the live slice cannot run yet.

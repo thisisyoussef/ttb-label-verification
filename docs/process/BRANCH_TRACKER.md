@@ -24,6 +24,7 @@ This file is the checked-in branch registry for normal story work.
 <!-- ACTIVE_BRANCHES:START -->
 | Branch | Story | Lane | Status | Description | PR | Opened | Updated | Base | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `codex/TTB-210-non-label-fallback` | `TTB-210` | `codex` | `draft-local` | keep non-label and no-text auto-detect uploads at `unknown` unless the extraction still carries trustworthy alcohol-label evidence | - | `2026-04-18` | `2026-04-18` | `origin/main` | linked worktree: /Users/youss/Development/gauntlet/ttb-label-verification-ttb-210-non-label |
 | `codex/TTB-000-dynamic-verdict-banner` | `TTB-000` | `codex` | `draft-local` | make the verdict banner follow the live matched/review state and remove overly optimistic review copy | - | `2026-04-18` | `2026-04-18` | `origin/main` | isolated merge worktree for verdict banner fix |
 | `codex/TTB-EVAL-002-gemini-batch-golden-set` | `TTB-EVAL-002` | `codex` | `draft-pr` | add an opt-in inline Gemini Batch runner for approved live eval corpus sweeps without touching the canonical fixture gate | `#107` | `2026-04-18` | `2026-04-18` | `origin/main` | isolated eval worktree; dry-run verified on approved 35-case corpus; live Gemini Batch job `batches/zciec1j41bshzbm1n77tufdc3a85ynp9578o` submitted and still provider-side async |
 <!-- ACTIVE_BRANCHES:END -->

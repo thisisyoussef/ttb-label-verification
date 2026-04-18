@@ -28,6 +28,7 @@
 - Batch mode stays in-memory and session-scoped; no DB, queue, or background restore path.
 - Cost-sensitive Gemini live eval sweeps reuse the existing extraction request builder and schema normalizer, then send the approved checked-in corpus through Gemini Batch inline requests only. Keep this path separate from `npm run eval:golden` and from any runtime submission surface.
 - Low-confidence visual judgments downgrade to `review`.
+- Auto-detect beverage fallback should distinguish ambiguous alcohol-label evidence from non-label noise: label-like ambiguous cases may still fall back to `distilled-spirits`, while no-text or sparse non-label outputs stay `unknown`.
 - No uploaded labels, application data, or review results are persisted.
 
 ## Documentation pattern

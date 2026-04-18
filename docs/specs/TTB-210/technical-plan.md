@@ -62,6 +62,7 @@ Targets:
 Examples:
 
 - `review`: protect against sparse but overconfident field extraction that would create noisy comparison results for Dave
+- `review`: keep non-label or no-text auto-detect cases at `unknown` instead of letting the strict distilled-spirits fallback create a fake commodity classification
 - `warning`: require explicit warning field plus warning-signal blocks, but allow genuine warning absence to flow into deterministic validation
 - `extraction`: preserve the richest bounded notes for debugging and follow-on validators
 - `batch`: keep the session moving while flagging the specific row that degraded

@@ -166,6 +166,12 @@ export function finalizeTextOnlyExtraction(input: {
     applicationBeverageTypeHint: input.intake.fields.beverageTypeHint,
     extractedClassType: extracted.fields.classType?.value,
     extractedAlcoholContent: extracted.fields.alcoholContent?.value,
+    extractedNetContents: extracted.fields.netContents?.value,
+    extractedGovernmentWarning: extracted.fields.governmentWarning?.value,
+    extractedBrandName: extracted.fields.brandName?.value,
+    extractedApplicantAddress: extracted.fields.applicantAddress?.value,
+    extractedCountryOfOrigin: extracted.fields.countryOfOrigin?.value,
+    noTextDetected: extracted.imageQuality?.noTextDetected,
     modelBeverageTypeHint: extracted.beverageTypeHint
   });
 
