@@ -24,7 +24,6 @@ This file is the checked-in branch registry for normal story work.
 <!-- ACTIVE_BRANCHES:START -->
 | Branch | Story | Lane | Status | Description | PR | Opened | Updated | Base | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `codex/TTB-210-non-label-fallback` | `TTB-210` | `codex` | `draft-local` | keep non-label and no-text auto-detect uploads at `unknown` unless the extraction still carries trustworthy alcohol-label evidence | - | `2026-04-18` | `2026-04-18` | `origin/main` | linked worktree: /Users/youss/Development/gauntlet/ttb-label-verification-ttb-210-non-label |
 | `codex/TTB-000-dynamic-verdict-banner` | `TTB-000` | `codex` | `draft-local` | make the verdict banner follow the live matched/review state and remove overly optimistic review copy | - | `2026-04-18` | `2026-04-18` | `origin/main` | isolated merge worktree for verdict banner fix |
 | `codex/TTB-EVAL-002-gemini-batch-golden-set` | `TTB-EVAL-002` | `codex` | `draft-pr` | add an opt-in inline Gemini Batch runner for approved live eval corpus sweeps without touching the canonical fixture gate | `#107` | `2026-04-18` | `2026-04-18` | `origin/main` | isolated eval worktree; dry-run verified on approved 35-case corpus; live Gemini Batch job `batches/zciec1j41bshzbm1n77tufdc3a85ynp9578o` submitted and still provider-side async |
 <!-- ACTIVE_BRANCHES:END -->
@@ -46,5 +45,6 @@ This file is the checked-in branch registry for normal story work.
 | `claude/TTB-000-local-fullarch` | `TTB-000` | `claude` | `merged` | full-stack local pipeline (Ollama VLM + judgment), RunPod deploy, UX polish pass | `2026-04-18` | merged via PR #49; later local history contains reverted perf experiments |
 | `claude/TTB-000-ux-compact-verdict-strip` | `TTB-000` | `claude` | `abandoned` | compact verdict strip and severity-sorted field checklist | `2026-04-18` | stale draft PR #48; patch-equivalent UI landed elsewhere |
 | `codex/TTB-000-branch-completion` | `TTB-000` | `codex` | `merged` | close stale merged branches and land stranded branch-only fixes | `2026-04-18` | merged via PR #102; landed the ABV mismatch display fix from `claude/TTB-000-abv-diff-decimals` and cleaned stale tracker rows |
+| `codex/TTB-210-non-label-fallback` | `TTB-210` | `codex` | `merged` | keep non-label and no-text auto-detect uploads at `unknown` unless the extraction still carries trustworthy alcohol-label evidence | `2026-04-18` | merged via PR #112 |
 | `codex/TTB-EVAL-001-corpus-accuracy-merge` | `TTB-EVAL-001` | `codex` | `merged` | expand the real eval corpus and add report-level plus raw extraction benchmark harnesses | `2026-04-18` | merged via PR #47 |
 <!-- CLOSED_BRANCHES:END -->
