@@ -51,6 +51,16 @@ export interface BatchWorkflow extends BatchDashboardFlow {
   onSelectLiveImages: (files: File[]) => void;
   onRemoveLiveImage: (imageId: string) => void;
   onSelectLiveCsv: (file: File) => void;
+  /**
+   * Atomically load both images and the CSV in one call. Needed by the
+   * toolbench "Load test batch" path, where calling onSelectLiveImages
+   * followed by onSelectLiveCsv would trigger the fixture-mode reset
+   * twice — the second reset wipes the images the first call just
+   * staged, so the user has to click twice for the preflight to fire
+   * with both inputs. This handler performs a single reset, then sets
+   * images + csv + preflights in one shot.
+   */
+  onLoadLiveBatch: (images: File[], csv: File) => void;
   onSelectMode: (next: Mode, currentMode: Mode) => void;
   onStartBatchFromIntake: () => void;
   onCancelBatchRun: () => void;
@@ -324,6 +334,49 @@ export function useBatchWorkflow(options: {
         batchPreflightRequestRef,
         setBatchSessionId,
         setBatchSeed
+      });
+    },
+    onLoadLiveBatch: (files, csv) => {
+      // Single reset (not double) — the per-handler resets in
+      // onSelectLiveImages + onSelectLiveCsv each clear the seed
+      // independently, which means calling them in sequence wipes
+      // whichever one ran first. Here we inline the reset once, then
+      // call selectLiveImages with the CSV already in hand so
+      // preflight fires with both inputs on the first click.
+      if (fixtureModeActive) {
+        setBatchSource((current) =>
+          nextBatchWorkflowSource({ current, event: 'live-input-selected' })
+        );
+        setBatchSeedId(LIVE_BATCH_SEED_ID);
+        setBatchSessionId(null);
+        setBatchSeed(emptyBatchSeedState());
+        setBatchPhase('intake');
+        setBatchItems([]);
+        setBatchProgress(emptyBatchProgressState());
+        setPreviewImage(null);
+        dashboard.reset();
+        dashboard.resetDashboardSeed();
+      } else {
+        setBatchSeedId(LIVE_BATCH_SEED_ID);
+      }
+
+      // Stage the CSV state first so selectLiveImages (which reads
+      // batchCsvFile via the closure below) can see it. We also pass
+      // `csv` explicitly into the call so the preflight doesn't
+      // depend on the React state round-trip.
+      setBatchCsvFile(csv);
+      selectLiveImages({
+        files,
+        batchSeedImages: [],
+        batchCsvFile: csv,
+        batchPreflightRequestRef,
+        setBatchSessionId,
+        setBatchSeed,
+        setBatchItems,
+        setBatchProgress,
+        setBatchPhase,
+        setPreviewImage,
+        resetDashboardSeed: dashboard.resetDashboardSeed
       });
     },
     onSelectMode: (next, currentMode) => {

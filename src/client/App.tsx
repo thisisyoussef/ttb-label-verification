@@ -325,8 +325,12 @@ export function App() {
   // screen populated out of the box.
   const handleToolbenchLoadBatch = useCallback(
     (images: File[], csv: File) => {
-      batch.onSelectLiveImages(images);
-      batch.onSelectLiveCsv(csv);
+      // Atomic load: images + csv staged together with a single reset.
+      // Separate onSelectLiveImages + onSelectLiveCsv calls each reset
+      // the seed independently when fixture mode is active, so the
+      // second call wipes the first — which is why the old flow took
+      // two clicks before the preflight fired.
+      batch.onLoadLiveBatch(images, csv);
       if (mode !== 'batch') {
         batch.onSelectMode('batch', mode);
       }

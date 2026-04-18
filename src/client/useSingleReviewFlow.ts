@@ -281,7 +281,11 @@ export function useSingleReviewFlow(options: {
       logReviewClientEvent('tour.demo.intake-loaded', {
         scenarioId: scenario.id
       });
-      setImage(buildTourDemoImage(scenario));
+      // Apply fields + view synchronously for snappy tour UX; the
+      // real image fetches asynchronously and populates the slot when
+      // it resolves. The intake renders fields + a loading state for
+      // the image between.
+      setImage(null);
       setReport(null);
       setVariantOverride('auto');
       setForceFailure(false);
@@ -289,6 +293,9 @@ export function useSingleReviewFlow(options: {
       resetPipelineState();
       applyScenario(scenario);
       options.setView('intake');
+      void buildTourDemoImage(scenario).then((image) => {
+        if (imageRef.current === null) setImage(image);
+      });
     },
     [
       abandonInFlightReview,
@@ -302,11 +309,17 @@ export function useSingleReviewFlow(options: {
   );
 
   const showTourResults = useCallback(
-    (scenario: SeedScenario, variant: ResultVariantOverride = 'auto') => {
+    async (scenario: SeedScenario, variant: ResultVariantOverride = 'auto') => {
       abandonInFlightReview();
       revokeImage(imageRef.current);
 
-      const demoImage = buildTourDemoImage(scenario);
+      // Await the real image fetch when the scenario points at a
+      // cola-cloud / supplemental-generated asset. Falls back to the
+      // synthetic stub if the asset can't be reached (see
+      // buildTourDemoImage). Canned demo report still comes from
+      // resolveTourDemoReviewReport — the tour is deterministic even
+      // when the image is real.
+      const demoImage = await buildTourDemoImage(scenario);
       const demoReport = resolveTourDemoReviewReport(demoImage);
 
       logReviewClientEvent('tour.demo.results-loaded', {

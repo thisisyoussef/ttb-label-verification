@@ -54,24 +54,53 @@ export const seedScenarios: SeedScenario[] = [
     beverageType: 'auto',
     fields: emptyFields()
   },
-  // Retained for tour + result-scenarios wiring (help-tour-runtime,
-  // result scenarios, toolbench manifest all reference this id).
+  // Default tour scenario. Fields + image both come from the real
+  // cola-cloud dataset (simply-elegant-simply-elegant-spirits-distilled-
+  // spirits) so the tour uploads real data instead of a synthetic stub.
+  // Kept under the 'perfect-spirit-label' id since help-tour-runtime,
+  // result-scenarios, and toolbench manifest all reference it.
   {
     id: 'perfect-spirit-label',
-    title: 'Perfect spirit label (demo)',
+    title: 'Perfect spirit label (real COLA)',
     description:
-      'Synthetic happy-path spirits submission used by the guided tour. Use the real-COLA scenarios below for eval-quality behavior.',
+      'Real TTB-approved bourbon from the cola-cloud golden set. Happy-path submission used by the guided tour — the same shape of data the batch eval verifies.',
     beverageType: 'distilled-spirits',
     fields: {
       ...emptyFields(),
-      brandName: "Stone's Throw",
-      fancifulName: 'Small Batch Reserve',
-      classType: 'Kentucky Straight Bourbon Whiskey',
-      alcoholContent: '45% Alc./Vol.',
-      netContents: '750 mL',
-      applicantAddress: 'Stone Throw Distilling Co., Louisville, KY',
+      brandName: 'Simply Elegant',
+      fancifulName: 'Simply Elegant Spirits',
+      classType: 'straight bourbon whisky',
+      alcoholContent: '67% Alc./Vol.',
       origin: 'domestic',
       country: ''
+    },
+    imageAsset: {
+      source: 'cola-cloud',
+      filename: 'simply-elegant-simply-elegant-spirits-distilled-spirits.webp'
+    }
+  },
+  // "See failing example" tour step target. Supplemental-generated
+  // label with a physically occluded government warning — exercises
+  // the warning OCV safety gate that's the highlight of that tour
+  // step. Fields are lifted from the underlying real label (lake-
+  // placid ridge runner) so the form looks legitimate.
+  {
+    id: 'spirit-warning-errors',
+    title: 'Warning occluded (tour: failing example)',
+    description:
+      'Real label with the mandatory government warning physically obscured. Used by the guided tour to show what a failing review looks like.',
+    beverageType: 'malt-beverage',
+    fields: {
+      ...emptyFields(),
+      brandName: 'Lake Placid',
+      fancifulName: 'Ridge Runner',
+      classType: 'india pale ale',
+      alcoholContent: '5% Alc./Vol.',
+      origin: 'domestic'
+    },
+    imageAsset: {
+      source: 'supplemental-generated',
+      filename: 'lake-placid-ridge-runner-warning-occluded.webp'
     }
   },
   // ─── APPROVED COLA labels (real data, clean approvals on the golden set) ───

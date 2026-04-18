@@ -7,7 +7,7 @@ import { NoTextState } from './NoTextState';
 import { ResultsPinnedColumn } from './ResultsPinnedColumn';
 import { StandaloneBanner } from './StandaloneBanner';
 import { VerdictBanner } from './VerdictBanner';
-import { IDENTIFIER_FIELD_IDS } from './useRefineReview';
+import { REFINABLE_FIELD_IDS } from './useRefineReview';
 import type {
   BeverageSelection,
   CheckReview,
@@ -17,6 +17,43 @@ import type {
 } from './types';
 
 const STATUS_RANK: Record<CheckStatus, number> = { fail: 0, review: 1, pass: 2, info: 3 };
+
+/**
+ * Pick a banner copy that scales with how many fields are in review
+ * status. A single needs-review row is "one quick check"; a couple is
+ * "a few fields"; a majority is more candid about the scope. Keeps
+ * the refining UI from feeling formulaic on every report.
+ */
+function refiningBannerCopy(report: UIVerificationReport): {
+  label: string;
+  title: string;
+} {
+  const reviewCount = report.checks.filter((c) => c.status === 'review').length;
+  const total = report.checks.length || 1;
+  if (reviewCount <= 1) {
+    return {
+      label: 'One quick check…',
+      title: "Taking one more pass at the single row we weren't sure about."
+    };
+  }
+  if (reviewCount <= 3) {
+    return {
+      label: `Checking ${reviewCount} fields…`,
+      title: 'Running a second pass on the flagged fields.'
+    };
+  }
+  if (reviewCount / total >= 0.6) {
+    return {
+      label: 'Going back through the whole label…',
+      title: 'Most fields needed another look — running a full second pass.'
+    };
+  }
+  return {
+    label: 'Taking a closer look…',
+    title: `Refining ${reviewCount} flagged fields.`
+  };
+}
+
 const SEVERITY_RANK: Record<CheckReview['severity'], number> = {
   blocker: 0,
   major: 1,
@@ -233,13 +270,13 @@ export function Results({
                     role="status"
                     aria-live="polite"
                     className="flex items-center gap-2 font-label text-[11px] font-bold uppercase tracking-widest text-primary"
-                    title="Taking a closer look at the flagged rows."
+                    title={refiningBannerCopy(report).title}
                   >
                     <span
                       aria-hidden="true"
                       className="inline-block w-2 h-2 rounded-full bg-primary animate-pulse"
                     />
-                    Taking a closer look…
+                    {refiningBannerCopy(report).label}
                   </span>
                 ) : (
                   <span />
@@ -290,7 +327,7 @@ export function Results({
                     refining={
                       refineStatus === 'refining' &&
                       check.status === 'review' &&
-                      IDENTIFIER_FIELD_IDS.has(check.id)
+                      REFINABLE_FIELD_IDS.has(check.id)
                     }
                     rowRef={(node) => {
                       if (node) rowRefs.set(check.id, node);
