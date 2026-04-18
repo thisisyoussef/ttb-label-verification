@@ -24,7 +24,6 @@ This file is the checked-in branch registry for normal story work.
 <!-- ACTIVE_BRANCHES:START -->
 | Branch | Story | Lane | Status | Description | PR | Opened | Updated | Base | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `chore/TTB-WF-003-slim-ci-flow` | `TTB-WF-003` | `chore` | `ready-pr` | slim CI and PR flow so local publish gates drive routine merges | #110 | `2026-04-18` | `2026-04-18` | `origin/main` | linked worktree: /Users/youss/Development/gauntlet/ttb-label-verification-wf-003-slim-ci |
 | `codex/TTB-000-dynamic-verdict-banner` | `TTB-000` | `codex` | `draft-local` | make the verdict banner follow the live matched/review state and remove overly optimistic review copy | - | `2026-04-18` | `2026-04-18` | `origin/main` | isolated merge worktree for verdict banner fix |
 | `codex/TTB-EVAL-002-gemini-batch-golden-set` | `TTB-EVAL-002` | `codex` | `draft-pr` | add an opt-in inline Gemini Batch runner for approved live eval corpus sweeps without touching the canonical fixture gate | `#107` | `2026-04-18` | `2026-04-18` | `origin/main` | isolated eval worktree; dry-run verified on approved 35-case corpus; live Gemini Batch job `batches/zciec1j41bshzbm1n77tufdc3a85ynp9578o` submitted and still provider-side async |
 <!-- ACTIVE_BRANCHES:END -->
@@ -37,6 +36,7 @@ This file is the checked-in branch registry for normal story work.
 | `chore/TTB-WF-003-branch-tracker` | `TTB-WF-003` | `chore` | `merged` | add the branch tracker workflow and enforce branch metadata updates | `2026-04-18` | merged via PR #44 |
 | `chore/TTB-WF-003-branch-tracker-conflict-fix` | `TTB-WF-003` | `chore` | `merged` | repair BRANCH_TRACKER merge markers and finalize TTB-WF-003 history | `2026-04-18` | merged via PR #109 |
 | `chore/TTB-WF-003-lean-agent-workspace` | `TTB-WF-003` | `chore` | `merged` | simplify agent docs, make direct branch work the default, and keep optional sibling worktrees | `2026-04-18` | merged via PR #103 |
+| `chore/TTB-WF-003-slim-ci-flow` | `TTB-WF-003` | `chore` | `merged` | slim CI and PR flow so local publish gates drive routine merges | `2026-04-18` | merged via PR #110 |
 | `chore/TTB-WF-003-source-size-gate` | `TTB-WF-003` | `chore` | `merged` | let workflow branches close their own tracker rows without bypassing local gates | `2026-04-18` | merged via PR #104 |
 | `chore/TTB-WF-003-tracker-closeout` | `TTB-WF-003` | `chore` | `merged` | allow tracker closeout commits and finalize TTB-WF-003 cleanup | `2026-04-18` | merged via PR #108 |
 | `chore/TTB-WF-003-worktree-env-bootstrap` | `TTB-WF-003` | `chore` | `merged` | bootstrap repo-local env for isolated worktrees and keep routine env sync silent | `2026-04-18` | merged via PR #106 |
