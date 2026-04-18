@@ -133,9 +133,13 @@ describeE2E('review pipeline — real-label end-to-end', () => {
         });
         const brandCheck = report.checks.find((c) => c.id === 'brand-name');
         // VLM stub said brand absent. Real OCR sees HARPOON.
-        // Anchor merge should upgrade brand to pass.
+        // Anchor merge should upgrade brand to pass with user-facing
+        // copy that never mentions engine internals.
         expect(brandCheck?.status).toBe('pass');
-        expect(brandCheck?.summary?.toLowerCase()).toContain('anchor');
+        expect(brandCheck?.summary?.toLowerCase()).not.toContain('anchor');
+        expect(brandCheck?.summary?.toLowerCase()).not.toContain('ocr');
+        expect(brandCheck?.details?.toLowerCase()).not.toContain('anchor');
+        expect(brandCheck?.details?.toLowerCase()).not.toContain('vision model');
       } finally {
         if (prev === undefined) delete process.env.ANCHOR_MERGE;
         else process.env.ANCHOR_MERGE = prev;
@@ -200,9 +204,11 @@ describeE2E('review pipeline — real-label end-to-end', () => {
         // taxonomy-equivalent fallback maps Rheingau → Germany via
         // COUNTRY_SUBDIVISIONS and upgrades to pass.
         expect(countryCheck?.status).toBe('pass');
-        // Evidence note should indicate the match came via an
-        // equivalent, not a literal.
-        expect(countryCheck?.details?.toLowerCase()).toContain('equivalent');
+        // User-facing hint explains in plain language that the label
+        // uses a recognized equivalent (no engine jargon).
+        expect(countryCheck?.details?.toLowerCase()).toContain('recognized equivalent');
+        expect(countryCheck?.details?.toLowerCase()).not.toContain('anchor');
+        expect(countryCheck?.details?.toLowerCase()).not.toContain('ocr');
       } finally {
         if (prev === undefined) delete process.env.ANCHOR_MERGE;
         else process.env.ANCHOR_MERGE = prev;

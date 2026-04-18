@@ -80,18 +80,23 @@ function maybeUpgradeCheckWithAnchor(
 ): CheckReview {
   if (!anchor) return check;
   if (check.status !== 'review') return check;
-  const equivalenceNote =
+  // User-facing copy is deliberately plain: no mention of "anchor",
+  // "OCR", "token", "vision model", or other engine internals. The
+  // reviewer sees "Label matches the approved record." — identical to
+  // the wording used when the primary judgment approves a field.
+  // Equivalent matches add one human-readable hint about WHY it
+  // matched (alt spelling / region name / abbreviation) so the
+  // reviewer understands why Rheingau passes a Germany check.
+  const equivalenceHint =
     anchor.matchKind === 'equivalent'
-      ? ' (matched via a recognized equivalent on the label).'
-      : '.';
+      ? 'The label shows a recognized equivalent of the approved value.'
+      : 'The approved value is clearly printed on the label.';
   return {
     ...check,
     status: 'pass',
     severity: 'note',
-    summary: 'Label matches the approved record (OCR anchor confirmed).',
-    details:
-      `The label shows the approved application value${equivalenceNote} ` +
-      'Anchor-based OCR verified token presence independently of the vision model.'
+    summary: 'Label matches the approved record.',
+    details: equivalenceHint
   };
 }
 
