@@ -53,10 +53,16 @@ Keep the repo workflow disciplined but smaller, restore direct branch work as th
 - `scripts/source-size-baseline.json` freezes those files at their current line counts.
 - The guard should pass for unchanged inherited violations, fail when a baseline file grows, and fail for any new oversized file without a baseline entry.
 
+### Branch closeout gate
+
+- `scripts/git-story-gate.ts` should accept the current branch in either the active tracker table or the closed-history table.
+- This keeps the branch-name and description checks intact while allowing the final tracker-close commit and push to run through normal hooks.
+
 ## Testing strategy
 
 - Add focused unit tests for the new worktree-path and base-resolution helpers.
 - Add focused unit tests for repo-local env bootstrap, including sibling inventory recovery for Gemini and OpenAI keys.
 - Add focused unit tests for the source-size baseline classification logic.
+- Add focused unit coverage for finding a closed branch row and accepting it in the git gate path.
 - Run the script-focused tests while iterating.
 - Before handoff, run `npm run test`, `npm run typecheck`, and `npm run build`.

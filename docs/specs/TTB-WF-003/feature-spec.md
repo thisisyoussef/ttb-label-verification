@@ -16,6 +16,7 @@ The repo currently repeats workflow rules across too many files and still carrie
 - Starting a new task defaults to working directly on a fresh story branch.
 - The branch helper can still create and track an optional sibling worktree when isolation is needed, and that isolated checkout should start with repo-local env bootstrap instead of depending on another worktree's `.env`.
 - Nested `.claude/worktrees` stop being a tracked repo surface.
+- A branch can move its own row into closed history and still pass the final local gate run.
 
 ## Acceptance criteria
 
@@ -29,6 +30,7 @@ The repo currently repeats workflow rules across too many files and still carrie
 8. Git hygiene docs explicitly recommend direct branch work by default, with sibling worktrees reserved for parallel or dirty-checkout isolation.
 9. The source-size gate uses a checked-in baseline waiver for inherited oversized files so unrelated workflow branches can still commit while blocking new oversized files and growth beyond the baseline.
 10. SSOT, branch tracker, story packet, and memory reflect the new workflow truth, including the auto-bootstrap rule for new linked worktrees and the expectation that routine env recovery stays out of normal progress chatter.
+11. A branch's own final closeout commit can pass local gates after the row has moved from active branches into closed history.
 
 ## Out of scope
 

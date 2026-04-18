@@ -3,6 +3,7 @@ import fs from "node:fs";
 
 import {
   findActiveBranchEntry,
+  findClosedBranchEntry,
   isPlaceholderDescription,
 } from "./branch-tracker.js";
 
@@ -117,7 +118,10 @@ if (!STORY_BRANCH_PATTERN.test(branch) && !EXCEPTION_BRANCH_PATTERN.test(branch)
 
 if (!EXCEPTION_BRANCH_PATTERN.test(branch)) {
   const trackerPath = "docs/process/BRANCH_TRACKER.md";
-  const trackerEntry = findActiveBranchEntry(readFile(trackerPath), branch);
+  const trackerContents = readFile(trackerPath);
+  const trackerEntry =
+    findActiveBranchEntry(trackerContents, branch) ??
+    findClosedBranchEntry(trackerContents, branch);
 
   if (!trackerEntry) {
     fail(

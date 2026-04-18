@@ -175,6 +175,13 @@ export function findActiveBranchEntry(
   return parseBranchTracker(content).active.find((entry) => entry.branch === branch);
 }
 
+export function findClosedBranchEntry(
+  content: string,
+  branch: string,
+): ClosedBranchEntry | undefined {
+  return parseBranchTracker(content).closed.find((entry) => entry.branch === branch);
+}
+
 function renderActiveTable(entries: ActiveBranchEntry[]): string {
   const rows = entries
     .slice()

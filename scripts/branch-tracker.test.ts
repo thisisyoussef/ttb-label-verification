@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   closeActiveBranchEntry,
   findActiveBranchEntry,
+  findClosedBranchEntry,
   upsertActiveBranchEntry,
 } from "./branch-tracker";
 
@@ -84,6 +85,12 @@ describe("branch tracker helpers", () => {
     });
 
     expect(findActiveBranchEntry(closed, "chore/TTB-WF-003-branch-tracker")).toBeUndefined();
+    expect(findClosedBranchEntry(closed, "chore/TTB-WF-003-branch-tracker")).toEqual(
+      expect.objectContaining({
+        finalStatus: "merged",
+        closed: "2026-04-17",
+      }),
+    );
     expect(closed).toContain("| `chore/TTB-WF-003-branch-tracker` | `TTB-WF-003` | `chore` | `merged` | add branch tracker workflow | `2026-04-17` | merged via PR #123 |");
   });
 });
