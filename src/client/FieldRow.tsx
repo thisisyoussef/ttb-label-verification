@@ -118,7 +118,7 @@ export function FieldRow({
                 Verifying
               </span>
             ) : null}
-            <StatusBadge status={check.status} size="sm" />
+            <StatusBadge check={check} size="sm" />
           </span>
         </div>
         {/*
