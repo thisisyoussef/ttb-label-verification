@@ -1,5 +1,5 @@
 {
-  "src/server/judgment-field-rules.ts": 780,
+  "src/server/judgment-field-rules.ts": 781,
   "src/server/gemini-review-extractor.ts": 764,
   "src/server/register-review-routes.ts": 691,
   "scripts/run-cola-cloud-batch-fixtures.ts": 656,
