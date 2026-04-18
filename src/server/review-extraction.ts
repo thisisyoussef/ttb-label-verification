@@ -42,6 +42,15 @@ export interface ReviewExtractorContext {
   latencyCapture?: ReviewLatencyCapture;
   surface?: LlmEndpointSurface;
   extractionMode?: ExtractionMode;
+  /**
+   * Invoked by streaming-capable extractors each time a top-level
+   * field's JSON value closes in the response stream. Consumers that
+   * feed Server-Sent Events to the client (e.g. /api/review/stream)
+   * emit a `vlm-field` frame here so the UI can render each field
+   * value as soon as it's available. Non-streaming extractors ignore
+   * this callback.
+   */
+  onVlmFieldProgress?: (field: { name: string; value: unknown }) => void;
 }
 
 export type ReviewExtractor = (

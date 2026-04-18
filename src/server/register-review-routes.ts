@@ -624,7 +624,43 @@ async function handleReviewStream(
         intake: augmentedIntake,
         extractor: resolution.extractor as ReviewExtractor,
         latencyCapture,
-        latencyObserver: deps.latencyObserver
+        latencyObserver: deps.latencyObserver,
+        // Per-field streaming (Option D full). When GEMINI_STREAM=
+        // enabled, the extractor calls this as each top-level JSON
+        // field closes. We emit a vlm-field SSE frame per completion
+        // so the client can render field values before the full
+        // response arrives. Validation against the extraction schema
+        // still runs after the full text — per-field frames are a
+        // "likely" preview that Results swaps to authoritative values
+        // when report-ready lands.
+        onVlmFieldProgress: (field) => {
+          try {
+            const value = field.value as {
+              present?: boolean;
+              value?: string;
+              confidence?: number;
+              note?: string;
+              visibleText?: string;
+              alternativeReading?: string;
+            };
+            if (typeof value.confidence !== 'number') return;
+            emit({
+              type: 'vlm-field',
+              requestId,
+              fieldName: field.name,
+              field: {
+                present: Boolean(value.present),
+                value: value.value,
+                confidence: value.confidence,
+                note: value.note,
+                visibleText: value.visibleText,
+                alternativeReading: value.alternativeReading
+              }
+            });
+          } catch {
+            // Swallow — best-effort progressive emission.
+          }
+        }
       });
 
       emit({ type: 'report-ready', requestId, report });

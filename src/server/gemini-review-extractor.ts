@@ -207,16 +207,33 @@ async function maybePrescaleIntakeForGemini(
  * (and scaffolding for a future progressive-UI surface).
  */
 async function collectStreamedResponse(
-  streamPromise: Promise<AsyncGenerator<GenerateContentResult>>
+  streamPromise: Promise<AsyncGenerator<GenerateContentResult>>,
+  onFieldProgress?: (field: { name: string; value: unknown }) => void
 ): Promise<GenerateContentResult> {
   const stream = await streamPromise;
   let combinedText = '';
   let modelVersion: string | undefined;
   let sdkHttpResponse: GenerateContentResult['sdkHttpResponse'];
   let usageMetadata: GenerateContentResult['usageMetadata'];
+  // Field scanner only spun up when a progress callback is wired.
+  // Pulls completed `fields.XXX: {...}` subobjects out of the
+  // streaming buffer and surfaces them for progressive UI work.
+  const scanner = onFieldProgress
+    ? (await import('./partial-json-field-scanner')).createFieldScanner()
+    : null;
   for await (const chunk of stream) {
     if (typeof chunk.text === 'string' && chunk.text.length > 0) {
       combinedText += chunk.text;
+      if (scanner && onFieldProgress) {
+        for (const field of scanner.feed(chunk.text)) {
+          try {
+            onFieldProgress(field);
+          } catch {
+            // Progress callback errors must never break collection —
+            // the caller's SSE emit can fail, we keep accumulating.
+          }
+        }
+      }
     }
     if (chunk.modelVersion && !modelVersion) {
       modelVersion = chunk.modelVersion;
@@ -425,7 +442,8 @@ export function createGeminiReviewExtractor(input: {
                 ...request.config,
                 abortSignal: controller.signal
               }
-            })
+            }),
+            context?.onVlmFieldProgress
           );
         } else {
           response = await client.generateContent({

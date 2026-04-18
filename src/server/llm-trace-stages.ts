@@ -47,6 +47,13 @@ export type TracedReviewExtractionInput = TraceMetadataInput & {
   intake: NormalizedReviewIntake;
   extractor: ReviewExtractor;
   latencyCapture?: ReviewLatencyCapture;
+  /**
+   * Streaming progress callback. Forwarded into the extractor's
+   * context so the Gemini streaming path can emit vlm-field frames
+   * as each top-level field's JSON value closes. Non-streaming
+   * extractors ignore this.
+   */
+  onVlmFieldProgress?: (field: { name: string; value: unknown }) => void;
 };
 
 export type TracedWarningValidationInput = TraceMetadataInput & {
@@ -75,7 +82,8 @@ export const tracedReviewExtraction = traceable(
     const extraction = await input.extractor(input.intake, {
       latencyCapture: input.latencyCapture,
       surface: input.surface,
-      extractionMode: resolveTraceMetadata(input).extractionMode
+      extractionMode: resolveTraceMetadata(input).extractionMode,
+      onVlmFieldProgress: input.onVlmFieldProgress
     });
     const actualProvider = inferProviderFromModel(extraction.model);
 
