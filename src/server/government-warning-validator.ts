@@ -29,6 +29,7 @@ import {
   buildPresenceSubCheck,
   isTextReliable
 } from './government-warning-subchecks';
+import { findMissingCriticalWords } from './government-warning-verification';
 
 const WARNING_CITATIONS = [
   '27 CFR 16.21 mandatory warning text',
@@ -49,9 +50,30 @@ export function buildGovernmentWarningCheck(
   }
 
   const extractedField = extraction.fields.governmentWarning;
-  // Use OCV text (from cropped/enhanced region) when available
-  const ocvText = warningOcv?.status === 'partial' ? warningOcv.extractedText : undefined;
-  const extractedText = normalizeGovernmentWarningText(ocvText ?? extractedField.value);
+  // Pick the CLEANEST read across VLM + OCV for display and
+  // downstream comparison. Previously we preferred OCV text whenever
+  // status was 'partial', which sometimes surfaced junk grabbed
+  // from an edge strip on labels where the warning isn't on the
+  // edge. When the overall vote landed at 'pass' thanks to other
+  // signals, the reviewer saw the junk in "Read from label"
+  // (user-reported bug). Fix: score each non-empty read against the
+  // canonical, pick the one with higher similarity for display.
+  const ocvRaw = warningOcv?.extractedText?.trim() ?? '';
+  const vlmRaw = extractedField.value?.trim() ?? '';
+  const ocvSim = ocvRaw ? computeWarningSimilarity(
+    normalizeGovernmentWarningText(ocvRaw),
+    CANONICAL_GOVERNMENT_WARNING
+  ) : 0;
+  const vlmSim = vlmRaw ? computeWarningSimilarity(
+    normalizeGovernmentWarningText(vlmRaw),
+    CANONICAL_GOVERNMENT_WARNING
+  ) : 0;
+  // Display winner: higher similarity wins. Tiebreak to OCV (more
+  // trustworthy for exact-text verification).
+  const pickedForDisplay = ocvRaw && (ocvSim >= vlmSim || !vlmRaw)
+    ? ocvRaw
+    : vlmRaw || ocvRaw;
+  const extractedText = normalizeGovernmentWarningText(pickedForDisplay);
   const exactSegments = diffGovernmentWarningText({
     required: CANONICAL_GOVERNMENT_WARNING,
     extracted: extractedText
@@ -111,7 +133,28 @@ export function buildGovernmentWarningCheck(
     })
   ]);
 
-  const status = summarizeWarningStatus(subChecks);
+  // Critical-words hard gate per 27 CFR § 16.21. A warning that
+  // scores high overall similarity but is missing "pregnancy",
+  // "birth defects", "operate", "machinery", or "health problems"
+  // is not compliant — targeted omissions can still score well
+  // under pure Levenshtein but disqualify the warning legally. We
+  // gate AFTER the subcheck vote so this check only downgrades
+  // (pass→review/fail), never upgrades (to 'pass').
+  const statusBeforeGate = summarizeWarningStatus(subChecks);
+  let status: CheckStatus = statusBeforeGate;
+  let criticalWordsNote: string | null = null;
+  if (hasWarningText && statusBeforeGate === 'pass') {
+    const missing = findMissingCriticalWords(extractedText);
+    if (missing.length > 0) {
+      // Downgrade — we have text that LOOKS like the warning but is
+      // missing statute-required wording. Never auto-reject; route to
+      // review so a human confirms whether OCR missed a term or the
+      // label genuinely omits it.
+      status = 'review';
+      criticalWordsNote =
+        `Warning appears present but is missing required wording (${missing.join(', ')}). Please confirm.`;
+    }
+  }
   const severity =
     status === 'fail' ? 'blocker' : status === 'review' ? 'major' : 'note';
 
@@ -120,7 +163,7 @@ export function buildGovernmentWarningCheck(
     label: 'Government warning',
     status,
     severity,
-    summary: buildWarningSummary({
+    summary: criticalWordsNote ?? buildWarningSummary({
       status,
       subChecks,
       hasWarningText,
