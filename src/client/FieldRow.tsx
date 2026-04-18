@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { FieldEvidencePanel } from './FieldEvidence';
 import { StatusBadge } from './StatusBadge';
 import { WarningEvidencePanel } from './WarningEvidence';
@@ -8,6 +9,14 @@ interface FieldRowProps {
   expanded: boolean;
   onToggle: () => void;
   standalone: boolean;
+  /**
+   * Row-level refine (Option C). `true` when a second-pass verification
+   * call is in flight AND this row is one of the identifier fields the
+   * refine pass is targeting. Shows a subtle pulsing indicator next to
+   * the status badge so the reviewer can tell the row might update in a
+   * moment — especially helpful when they've already expanded evidence.
+   */
+  refining?: boolean;
   rowRef?: (node: HTMLButtonElement | null) => void;
   onKeyNav?: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
 }
@@ -24,18 +33,55 @@ export function FieldRow({
   expanded,
   onToggle,
   standalone,
+  refining = false,
   rowRef,
   onKeyNav
 }: FieldRowProps) {
   const isWarning = check.id === 'government-warning';
   const panelId = `${check.id}-panel`;
 
+  // Smooth transition when the refine pass completes and the check
+  // updates. We track the previous status/value and, when they change
+  // while the row is NOT currently refining, pulse a primary ring
+  // briefly so the change is visible even if the row is expanded. The
+  // pulse clears on a timer so the UI doesn't stay highlighted
+  // forever.
+  const prevRef = useRef<{ status: string; extractedValue?: string }>({
+    status: check.status,
+    extractedValue: check.extractedValue
+  });
+  const [justUpdated, setJustUpdated] = useState(false);
+  useEffect(() => {
+    const prev = prevRef.current;
+    const changed =
+      prev.status !== check.status || prev.extractedValue !== check.extractedValue;
+    if (changed && !refining) {
+      setJustUpdated(true);
+      const timer = window.setTimeout(() => setJustUpdated(false), 1800);
+      prevRef.current = {
+        status: check.status,
+        extractedValue: check.extractedValue
+      };
+      return () => window.clearTimeout(timer);
+    }
+    prevRef.current = {
+      status: check.status,
+      extractedValue: check.extractedValue
+    };
+  }, [check.status, check.extractedValue, refining]);
+
   return (
     <article
+      aria-busy={refining ? true : undefined}
       className={[
         'bg-surface-container-lowest rounded-lg shadow-sm overflow-hidden ring-1 ring-outline-variant/15 border-l-4',
-        STATUS_BORDER[check.status]
-      ].join(' ')}
+        'transition-all duration-500 motion-reduce:transition-none',
+        STATUS_BORDER[check.status],
+        justUpdated ? 'ring-2 ring-primary/40' : '',
+        refining ? 'bg-primary/[0.02]' : ''
+      ]
+        .filter(Boolean)
+        .join(' ')}
     >
       <button
         ref={rowRef}
@@ -58,7 +104,20 @@ export function FieldRow({
           <span className="flex-1 font-mono text-sm text-on-surface truncate min-w-0">
             {check.extractedValue || '—'}
           </span>
-          <span className="shrink-0 flex md:justify-end">
+          <span className="shrink-0 flex items-center gap-2 md:justify-end">
+            {refining ? (
+              <span
+                className="inline-flex items-center gap-1 font-label text-[10px] font-bold uppercase tracking-widest text-primary"
+                title="Taking a closer look at this field."
+                aria-label="Verifying"
+              >
+                <span
+                  aria-hidden="true"
+                  className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse motion-reduce:animate-none"
+                />
+                Verifying
+              </span>
+            ) : null}
             <StatusBadge status={check.status} size="sm" />
           </span>
         </div>

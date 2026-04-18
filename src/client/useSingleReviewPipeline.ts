@@ -105,6 +105,12 @@ interface UseSingleReviewPipelineOptions {
   resolveTerminalReport: (
     liveReport: UIVerificationReport | null
   ) => UIVerificationReport;
+  /**
+   * Image-first prefetch cache key. When present, the submitReview
+   * call passes it via the x-extraction-cache-key header so the
+   * server skips re-extraction.
+   */
+  getExtractionCacheKey?: () => string | null;
   onEvent?: (event: ReviewPipelineEvent) => void;
 }
 
@@ -462,7 +468,8 @@ export function useSingleReviewPipeline(
           beverage: options.beverage,
           fields: options.fields,
           signal: controller.signal,
-          clientRequestId: ctx.clientRequestId
+          clientRequestId: ctx.clientRequestId,
+          extractionCacheKey: options.getExtractionCacheKey?.() ?? undefined
         });
 
         if (result.ok) {

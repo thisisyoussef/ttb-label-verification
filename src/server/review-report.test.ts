@@ -317,6 +317,40 @@ describe('review report builder', () => {
     expect(reportWarningCheck?.status).toBe(warningCheck.status);
   });
 
+  it('downgrades an otherwise-approving brand match to review when verification mode flags an alternativeReading', async () => {
+    const intake = buildIntake({
+      brandName: "Stone's Throw",
+      classType: 'Vodka',
+      alcoholContent: '45% Alc./Vol.',
+      netContents: '750 mL'
+    });
+    const extraction = buildExtraction({
+      fields: {
+        brandName: {
+          present: true,
+          value: "Stone's Throw",
+          confidence: 0.94,
+          visibleText: "Stone's Throw",
+          alternativeReading: 'Mill River Reserve'
+        }
+      }
+    });
+    const warningCheck = buildGovernmentWarningCheck(extraction);
+
+    const report = await buildVerificationReport({
+      intake,
+      extraction,
+      warningCheck
+    });
+
+    const brandCheck = report.checks.find((check) => check.id === 'brand-name');
+
+    expect(brandCheck?.status).toBe('review');
+    expect(brandCheck?.summary).toContain('Mill River Reserve');
+    expect(brandCheck?.comparison?.note).toContain('Mill River Reserve');
+    expect(brandCheck?.comparison?.status).toBe('value-mismatch');
+  });
+
   it('keeps reject summaries explicit even in standalone mode', async () => {
     const intake = buildIntake();
     const extraction = buildExtraction({

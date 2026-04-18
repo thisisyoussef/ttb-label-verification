@@ -1,7 +1,8 @@
-import type {
-  CheckReview,
-  ReviewExtraction,
-  ReviewExtractionField
+import {
+  OCR_FALLBACK_SENTINEL,
+  type CheckReview,
+  type ReviewExtraction,
+  type ReviewExtractionField
 } from '../shared/contracts/review';
 import type { NormalizedReviewIntake } from './review-intake';
 import {
@@ -22,6 +23,29 @@ import {
   judgeNetContents,
   type FieldJudgment
 } from './judgment-field-rules';
+import { extractFieldsFromOcrText } from './ocr-field-extractor';
+
+/**
+ * When the VLM reports a field as not-present but the Tesseract OCR
+ * prepass caught text at the right regex position, surface that text
+ * as a "likely" best guess instead of leaving the label side blank.
+ *
+ * Returns `null` when there's no OCR text, the text is too short to
+ * be trustworthy, or the OCR regex didn't recognize the field shape.
+ */
+function tryOcrFallbackValue(
+  spec: FieldSpec,
+  ocrText: string | undefined
+): { value: string; confidence: number } | null {
+  if (!ocrText || ocrText.length < 20) return null;
+  const parsed = extractFieldsFromOcrText(ocrText);
+  if (!parsed) return null;
+  const field = parsed.fields[spec.extractionKey];
+  if (!field?.present || !field.value || field.value.trim().length === 0) {
+    return null;
+  }
+  return { value: field.value, confidence: field.confidence };
+}
 
 export function buildFieldChecks(input: {
   intake: NormalizedReviewIntake;
@@ -39,7 +63,13 @@ function buildFieldCheck(input: {
 }): CheckReview | null {
   const applicationValue = input.intake.fields[input.spec.intakeKey];
   const extractedField = input.extraction.fields[input.spec.extractionKey];
-  const extractedValue = extractedField.present ? extractedField.value : undefined;
+  // Verification-mode populates `visibleText` with the exact label text.
+  // Prefer it when present; fall back to the bottom-up `value` otherwise.
+  // Both paths coexist so existing consumers keep working during rollout.
+  const extractedValue = extractedField.present
+    ? (extractedField.visibleText?.trim() || extractedField.value)
+    : undefined;
+  const alternativeReading = extractedField.alternativeReading?.trim() || undefined;
 
   if (!applicationValue && !extractedField.present) {
     return null;
@@ -63,11 +93,35 @@ function buildFieldCheck(input: {
       extractedField,
       extractedValue,
       id: input.spec.id,
-      label: input.spec.label
+      label: input.spec.label,
+      ocrFallback: extractedField.present ? null : tryOcrFallbackValue(input.spec, input.intake.ocrText)
     });
   }
 
   if (!extractedField.present || !extractedValue) {
+    const ocrGuess = tryOcrFallbackValue(input.spec, input.intake.ocrText);
+    if (ocrGuess) {
+      return {
+        id: input.spec.id,
+        label: input.spec.label,
+        status: 'review',
+        severity: 'minor',
+        summary: `Label ${OCR_FALLBACK_SENTINEL}: ${ocrGuess.value}.`,
+        details:
+          'Our vision model did not read this field cleanly, so we fell back to the label text directly. A human reviewer should confirm the value.',
+        confidence: Math.min(ocrGuess.confidence, missingFieldConfidence(input.extraction) || ocrGuess.confidence),
+        citations: citationsFor(input.extraction.beverageType),
+        applicationValue,
+        extractedValue: ocrGuess.value,
+        comparison: {
+          status: 'value-mismatch',
+          applicationValue,
+          extractedValue: ocrGuess.value,
+          note: `This value is ${OCR_FALLBACK_SENTINEL} — the vision model did not read it cleanly, so we read the label text directly.`
+        }
+      };
+    }
+
     return {
       id: input.spec.id,
       label: input.spec.label,
@@ -91,18 +145,37 @@ function buildFieldCheck(input: {
   const judgment = runFieldJudgment(input.spec.id, applicationValue, extractedValue, input.extraction.beverageType);
   if (judgment) {
     const rawMatch = applicationValue.trim() === extractedValue.trim();
-    const comparisonStatus = judgment.disposition === 'approve'
+    // Verification-mode: the model reported a DIFFERENT prominent value
+    // in the expected position. Downgrade an otherwise-passing judgment
+    // to review so the human sees the mismatch, and surface the
+    // alternative in the comparison note.
+    const hasAlternative = Boolean(
+      alternativeReading &&
+        alternativeReading.toLowerCase() !== extractedValue.toLowerCase()
+    );
+    const effectiveDisposition =
+      judgment.disposition === 'approve' && hasAlternative
+        ? 'review'
+        : judgment.disposition;
+    const comparisonStatus = effectiveDisposition === 'approve'
       ? (rawMatch ? 'match' as const : 'case-mismatch' as const)
       : 'value-mismatch' as const;
+    const altNote = hasAlternative
+      ? ` Label also shows "${alternativeReading}" in the expected position — human review recommended.`
+      : '';
     return {
       id: input.spec.id, label: input.spec.label,
-      status: judgment.disposition === 'approve' ? 'pass' : judgment.disposition === 'reject' ? 'fail' : 'review',
-      severity: judgment.disposition === 'approve' ? 'note' : judgment.disposition === 'reject' ? 'major' : (judgment.confidence >= 0.8 ? 'minor' : 'major'),
-      summary: judgment.disposition === 'approve' ? 'Label matches the approved record.' : judgment.note,
-      details: `[${judgment.rule}] ${judgment.note}`,
+      status: effectiveDisposition === 'approve' ? 'pass' : effectiveDisposition === 'reject' ? 'fail' : 'review',
+      severity: effectiveDisposition === 'approve' ? 'note' : effectiveDisposition === 'reject' ? 'major' : (judgment.confidence >= 0.8 ? 'minor' : 'major'),
+      summary: effectiveDisposition === 'approve'
+        ? 'Label matches the approved record.'
+        : hasAlternative
+          ? `Label shows "${alternativeReading}" in the expected position.`
+          : judgment.note,
+      details: `[${judgment.rule}] ${judgment.note}${altNote}`,
       confidence: judgment.confidence, citations: citationsFor(input.extraction.beverageType),
       applicationValue, extractedValue,
-      comparison: { status: comparisonStatus, applicationValue, extractedValue, note: `[${judgment.rule}] ${judgment.note}` }
+      comparison: { status: comparisonStatus, applicationValue, extractedValue, note: `[${judgment.rule}] ${judgment.note}${altNote}` }
     };
   }
 
@@ -163,8 +236,28 @@ function buildStandaloneFieldCheck(input: {
   extractedValue: string | undefined;
   id: string;
   label: string;
+  ocrFallback: { value: string; confidence: number } | null;
 }): CheckReview | null {
   if (!input.extractedField.present || !input.extractedValue) {
+    if (input.ocrFallback) {
+      return {
+        id: input.id,
+        label: input.label,
+        status: 'review',
+        severity: 'minor',
+        summary: `Label ${OCR_FALLBACK_SENTINEL}: ${input.ocrFallback.value}.`,
+        details:
+          'No application data was provided. Our vision model did not read this field cleanly, so we fell back to the label text directly. Confirm the value.',
+        confidence: input.ocrFallback.confidence,
+        citations: citationsFor(input.extraction.beverageType),
+        extractedValue: input.ocrFallback.value,
+        comparison: {
+          status: 'not-applicable',
+          extractedValue: input.ocrFallback.value,
+          note: `This value is ${OCR_FALLBACK_SENTINEL} — the vision model did not read it cleanly, so we read the label text directly.`
+        }
+      };
+    }
     return null;
   }
 

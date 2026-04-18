@@ -1,4 +1,25 @@
 import { useCallback, useEffect, useState } from 'react';
+import {
+  BUILTIN_SAMPLES,
+  BUILTIN_SAMPLE_BY_ID
+} from './builtin-sample-packs';
+
+/**
+ * Vite's toolbenchLabelsPlugin serves everything with Content-Type
+ * `image/png`. That trips our server-side Multer check when the file
+ * is actually a .webp — it rejects non-matching MIMEs. Override the
+ * blob MIME from the filename extension so the File handed to
+ * onLoadSample carries the truthful type.
+ */
+function guessMimeFromFilename(filename: string): string | undefined {
+  const ext = filename.toLowerCase().split('.').pop();
+  if (!ext) return undefined;
+  if (ext === 'webp') return 'image/webp';
+  if (ext === 'png') return 'image/png';
+  if (ext === 'jpg' || ext === 'jpeg') return 'image/jpeg';
+  if (ext === 'pdf') return 'application/pdf';
+  return undefined;
+}
 
 /**
  * Loads one real COLA Cloud label — image + matching application fields —
@@ -52,8 +73,14 @@ export function ToolbenchSamples({ onLoadSample, onLoadBatch }: ToolbenchSamples
   const [loadingBatch, setLoadingBatch] = useState(false);
 
   // Fetch the list once on mount so the panel can show what's available.
-  // Also probe the COLA Cloud live status so we only render the "Fetch
-  // live" button when an API key is wired up server-side.
+  // Falls back to the built-in sample list (bundled from the
+  // checked-in CSV via `?raw` import) when /api/eval/packs is
+  // unreachable — typical when the user is running only Vite and not
+  // the API process. Ensures the toolbench always has something to
+  // pick from locally.
+  //
+  // Also probes the COLA Cloud live status so we only render the
+  // "Fetch live" button when an API key is wired up server-side.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -76,9 +103,19 @@ export function ToolbenchSamples({ onLoadSample, onLoadBatch }: ToolbenchSamples
             filename: img.filename
           }))
         );
-      } catch (err) {
+        setLastError(null);
+      } catch {
         if (cancelled) return;
-        setLastError((err as Error).message);
+        // Silent fallback to built-ins. Surfacing the fetch error here
+        // would hide the (working) built-in list behind a scary
+        // "Failed to fetch" message.
+        setSamples(
+          BUILTIN_SAMPLES.map((s) => ({
+            id: s.id,
+            beverageType: s.beverageType,
+            filename: s.filename
+          }))
+        );
       } finally {
         if (!cancelled) setLoadingList(false);
       }
@@ -120,8 +157,37 @@ export function ToolbenchSamples({ onLoadSample, onLoadBatch }: ToolbenchSamples
         const blob = await imgRes.blob();
         const file = new File([blob], body.image.filename, { type: blob.type });
         onLoadSample(file, body.fields, body.image.id);
-      } catch (err) {
-        setLastError((err as Error).message);
+      } catch {
+        // Built-in fallback: server not available (or returned
+        // non-2xx). Use the bundled sample metadata + `/toolbench/
+        // labels/` image served by the Vite dev plugin. Images are
+        // served blob-style so we hand the onLoadSample callback a
+        // real File just like the server path.
+        const builtin = opts.id
+          ? BUILTIN_SAMPLE_BY_ID.get(opts.id)
+          : BUILTIN_SAMPLES[Math.floor(Math.random() * BUILTIN_SAMPLES.length)];
+        if (!builtin) {
+          setLastError(
+            opts.id
+              ? `Sample ${opts.id} is not bundled locally.`
+              : 'No built-in samples available.'
+          );
+          setLoadingSampleId(null);
+          return;
+        }
+        try {
+          const imgRes = await fetch(builtin.imageUrl);
+          if (!imgRes.ok) throw new Error(`offline image HTTP ${imgRes.status}`);
+          const blob = await imgRes.blob();
+          // The Vite middleware sets content-type to image/png even
+          // for .webp, so rely on the filename extension to hint
+          // Multer correctly when the file lands on the server.
+          const mime = guessMimeFromFilename(builtin.filename) ?? blob.type;
+          const file = new File([blob], builtin.filename, { type: mime });
+          onLoadSample(file, builtin.fields, builtin.id);
+        } catch (err) {
+          setLastError((err as Error).message);
+        }
       } finally {
         setLoadingSampleId(null);
       }

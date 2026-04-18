@@ -70,12 +70,55 @@ export function ToolbenchActions({
   const [healthError, setHealthError] = useState<string | null>(null);
   const [providerOverride, setProviderOverride] =
     useState<ProviderOverrideChoice>('default');
+  /**
+   * Server-advertised capability: is the Local extractor track
+   * available on this deployment? Ollama / in-process VLM runs only
+   * on local dev machines — on Railway production the AI_EXTRACTION_
+   * MODE_ALLOW_LOCAL env is false, so the server reports
+   * allowLocal: false and we hide the "Force local" option here.
+   * Starts as `null` (unknown) so the radio list doesn't flicker
+   * between "all three options" and "two options" on mount.
+   */
+  const [allowLocal, setAllowLocal] = useState<boolean | null>(null);
 
   // Hydrate from localStorage on mount so the toolbench reflects the
   // persisted choice across reloads.
   useEffect(() => {
     setProviderOverride(readProviderOverride());
   }, []);
+
+  // Probe the capability endpoint once. Silent failure — if the probe
+  // errors we default to "local disabled" rather than showing an
+  // option that would then fail on submission.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/capabilities');
+        if (!res.ok) throw new Error(`capabilities HTTP ${res.status}`);
+        const payload = (await res.json()) as { allowLocal?: boolean };
+        if (cancelled) return;
+        setAllowLocal(Boolean(payload.allowLocal));
+      } catch {
+        if (cancelled) return;
+        setAllowLocal(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // If local was previously chosen but the server now reports
+  // allowLocal=false (e.g. the user opened the bundle against the
+  // Railway deploy after testing locally), quietly reset to default
+  // so outgoing requests don't fail on every submit.
+  useEffect(() => {
+    if (allowLocal === false && providerOverride === 'local') {
+      setProviderOverride('default');
+      writeProviderOverride('default');
+    }
+  }, [allowLocal, providerOverride]);
 
   const altExtraction: ExtractionMode = extractionMode === 'cloud' ? 'local' : 'cloud';
   const extractionIcon = altExtraction === 'cloud' ? 'cloud' : 'hard_drive';
@@ -150,35 +193,50 @@ export function ToolbenchActions({
           className="mt-2 flex flex-col gap-1"
           aria-label="Force a specific extraction provider"
         >
-          {PROVIDER_OVERRIDE_OPTIONS.map((option) => (
-            <label
-              key={option.value}
-              className={[
-                'flex items-start gap-2 rounded px-2 py-1.5 cursor-pointer transition-colors',
-                providerOverride === option.value
-                  ? 'bg-primary/10 text-on-surface'
-                  : 'hover:bg-surface-container-high text-on-surface-variant'
-              ].join(' ')}
-            >
-              <input
-                type="radio"
-                name="ttb-provider-override"
-                value={option.value}
-                checked={providerOverride === option.value}
-                onChange={() => handleProviderOverrideChange(option.value)}
-                className="mt-0.5"
-              />
-              <span className="flex flex-col gap-0.5 min-w-0">
-                <span className="font-body text-xs font-semibold">
-                  {option.label}
+          {PROVIDER_OVERRIDE_OPTIONS.map((option) => {
+            // Hide the "Force local" choice when the server advertises
+            // local as unavailable (Railway production / staging).
+            // Still show it with a reason when the user is on a
+            // deployment that could support it but Ollama is off.
+            if (option.value === 'local' && allowLocal === false) {
+              return null;
+            }
+            return (
+              <label
+                key={option.value}
+                className={[
+                  'flex items-start gap-2 rounded px-2 py-1.5 cursor-pointer transition-colors',
+                  providerOverride === option.value
+                    ? 'bg-primary/10 text-on-surface'
+                    : 'hover:bg-surface-container-high text-on-surface-variant'
+                ].join(' ')}
+              >
+                <input
+                  type="radio"
+                  name="ttb-provider-override"
+                  value={option.value}
+                  checked={providerOverride === option.value}
+                  onChange={() => handleProviderOverrideChange(option.value)}
+                  className="mt-0.5"
+                />
+                <span className="flex flex-col gap-0.5 min-w-0">
+                  <span className="font-body text-xs font-semibold">
+                    {option.label}
+                  </span>
+                  <span className="font-body text-[10px] leading-snug text-on-surface-variant">
+                    {option.description}
+                  </span>
                 </span>
-                <span className="font-body text-[10px] leading-snug text-on-surface-variant">
-                  {option.description}
-                </span>
-              </span>
-            </label>
-          ))}
+              </label>
+            );
+          })}
         </fieldset>
+        {allowLocal === false ? (
+          <p className="mt-2 text-[10px] font-body text-on-surface-variant italic leading-snug">
+            Local extraction is not available on this deployment —
+            Ollama runs only on local dev machines.
+          </p>
+        ) : null}
       </div>
 
       {healthResult !== null && (

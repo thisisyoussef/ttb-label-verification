@@ -28,6 +28,7 @@ This file is the checked-in branch registry for normal story work.
 | `codex/TTB-EVAL-001-corpus-accuracy-merge` | `TTB-EVAL-001` | `codex` | `ready-pr` | expand the real eval corpus and add report-level plus raw extraction benchmark harnesses | #47 | `2026-04-15` | `2026-04-15` | `main` | published via isolated clean worktree; ready to merge |
 | `claude/TTB-000-ux-compact-verdict-strip` | `TTB-000` | `claude` | `draft-local` | compact verdict strip and severity-sorted field checklist | - | `2026-04-15` | `2026-04-15` | `main` | - |
 | `claude/TTB-000-local-fullarch` | `TTB-000` | `claude` | `published` | full-stack local pipeline (Ollama VLM + judgment), RunPod deploy, UX polish pass | #49 | `2026-04-15` | `2026-04-16` | `main` | RunPod Path B deploy + Tier 1-3 UX improvements |
+| `claude/TTB-000-autodetect-and-cleanup` | `TTB-000` | `claude` | `draft-local` | wire OCR-inferred beverage through SSE so Auto-detect badge updates; remove file size from single-label UI | - | `2026-04-18` | `2026-04-18` | `main` | - |
 <!-- ACTIVE_BRANCHES:END -->
 
 ## Closed branches

@@ -108,7 +108,24 @@ export const reviewExtractionFieldSchema = z
     present: z.boolean(),
     value: z.string().optional(),
     confidence: z.number().min(0).max(1),
-    note: z.string().optional()
+    note: z.string().optional(),
+    /**
+     * Verification-mode output for identifier fields. When the extractor
+     * runs in verification mode (VERIFICATION_MODE=on and application
+     * data was provided), the model is asked "is this applicant-declared
+     * value visible on the label?" — and the answer, the exact label
+     * text, goes here. Bottom-up extraction paths leave this undefined
+     * and keep writing to `value` as before.
+     */
+    visibleText: z.string().optional(),
+    /**
+     * When the model sees a DIFFERENT value in the position where it
+     * expected the applicant-declared one (e.g. a prominent fanciful
+     * name where the brand was expected), it reports it here so the
+     * reviewer can see the mismatch. Always paired with
+     * `present: true` and `visibleText` of the primary read.
+     */
+    alternativeReading: z.string().optional()
   })
   .superRefine((field, context) => {
     const hasValue = field.value !== undefined && field.value.trim().length > 0;
@@ -328,3 +345,13 @@ export type FieldReview = CheckReview;
 
 export const CANONICAL_GOVERNMENT_WARNING =
   'GOVERNMENT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. (2) Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems.';
+
+/**
+ * Sentinel phrase included in `comparison.note` when a field value came
+ * from the OCR fallback rather than the VLM's primary read. The server
+ * writes it; the client uses substring detection to surface a "Likely"
+ * badge on the label-side comparison cell. Kept as a shared constant
+ * so there is one canonical phrase — drift between server and client
+ * would silently break the badge.
+ */
+export const OCR_FALLBACK_SENTINEL = 'likely from the label (not verified by the vision model)';
