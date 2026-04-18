@@ -173,7 +173,6 @@ export function AppShell({
           <Processing
             image={single.image}
             beverage={single.beverage}
-            extractionMode={extractionMode}
             steps={single.steps}
             phase={single.phase}
             failureMessage={single.failureMessage}

@@ -49,12 +49,16 @@ const BASELINE_INSTRUCTIONS = [
   'Estimate warning visual signals for all-caps prefix, bold prefix, continuous paragraph, and visual separation.',
   'Provide a beverageTypeHint only when the label content supports it; otherwise use unknown.',
   'Populate the structured fields exactly as named, including governmentWarning when warning text is visible.',
-  // applicantAddress disambiguation: the VLM sometimes maps a
-  // marketing website or social handle into this field because a
-  // web URL is semantically an "address" too. 27 CFR §§ 4.35, 5.63,
-  // 7.24 require the bottler/importer POSTAL address. URLs must be
-  // ignored for this field.
-  'The applicantAddress field is STRICTLY the bottler, packer, or importer POSTAL address (street, city, state/country). NEVER populate applicantAddress with a web URL (http://..., www...., example.com), an email address, or a social-media handle. If the label shows only a URL/website and no postal address, set applicantAddress.present=false.'
+  // applicantAddress disambiguation: per 27 CFR §§ 4.35, 5.63, 7.24,
+  // this field is the NAME AND ADDRESS of the bottler, packer, or
+  // importer as it appears on the label — typically as a single
+  // printed line like "Bottled by Acme Brewing, 306 Main St., Boston,
+  // MA". The bottler/producer name qualifies even without a street
+  // address. What does NOT qualify: a marketing website, social
+  // handle, or email address. The VLM sometimes emits URLs here
+  // because a URL is semantically an "address" too; the guardrail
+  // rejects those downstream.
+  'The applicantAddress field is the NAME AND/OR POSTAL ADDRESS of the bottler, packer, or importer, as printed on the label (e.g. "Bottled by Acme Brewery, Boston, MA 02210", or "Bottled by Acme Brewery" without a street if no street is printed). A producer/bottler name alone qualifies. NEVER populate applicantAddress with a web URL (http://..., www...., example.com), an email address, or a social-media handle. If the label shows only a URL/website, set applicantAddress.present=false.'
 ] as const;
 
 const OCR_AUGMENTED_INSTRUCTIONS = [
@@ -75,7 +79,7 @@ const OCR_AUGMENTED_INSTRUCTIONS = [
   'Populate the structured fields exactly as named, including governmentWarning when warning text appears in the OCR output.',
   // Same disambiguation as BASELINE_INSTRUCTIONS — keep prompts in
   // sync so the OCR-augmented path doesn't leak URLs either.
-  'The applicantAddress field is STRICTLY the bottler, packer, or importer POSTAL address (street, city, state/country). NEVER populate applicantAddress with a web URL (http://..., www...., example.com), an email address, or a social-media handle. If the OCR text shows only a URL/website and no postal address, set applicantAddress.present=false.'
+  'The applicantAddress field is the NAME AND/OR POSTAL ADDRESS of the bottler, packer, or importer, as printed on the label (e.g. "Bottled by Acme Brewery, Boston, MA 02210", or "Bottled by Acme Brewery" without a street if no street is printed). A producer/bottler name alone qualifies. NEVER populate applicantAddress with a web URL (http://..., www...., example.com), an email address, or a social-media handle. If the OCR text shows only a URL/website, set applicantAddress.present=false.'
 ] as const;
 
 const ENDPOINT_OVERLAYS: Record<ReviewPromptSurface, readonly string[]> = {

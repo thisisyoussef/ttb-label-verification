@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import type { BeverageType } from '../shared/contracts/review';
-import type { ExtractionMode } from './appTypes';
 import {
   ProgressStrip,
   SkeletonFieldRow,
@@ -26,10 +25,15 @@ const BEVERAGE_LABELS: Record<BeverageSelection, string> = {
 interface ProcessingProps {
   image: LabelImage;
   beverage: BeverageSelection;
-  extractionMode: ExtractionMode;
   steps: ProcessingStep[];
   phase: ProcessingPhase;
   failureMessage: string;
+  /**
+   * Set by the caller when the pipeline fails in local mode — drives
+   * the "switch to cloud" recovery CTA. The underlying extraction
+   * mode itself is NOT surfaced anywhere in the reviewer UI (it's
+   * an engine-internal concern), only its failure implication.
+   */
   localUnavailable: boolean;
   /**
    * OCR-only preview landed by the parallel /api/review/stream?only=ocr
@@ -65,7 +69,6 @@ const SKELETON_ROWS: Array<{
 export function Processing({
   image,
   beverage,
-  extractionMode,
   steps,
   phase,
   failureMessage,
@@ -182,22 +185,11 @@ export function Processing({
               </span>
             </dd>
           </div>
-          <div className="flex flex-col gap-1">
-            <dt className="font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
-              Processing mode
-            </dt>
-            <dd className="flex items-center gap-2">
-              <span
-                className="material-symbols-outlined text-[16px] text-on-surface-variant"
-                aria-hidden="true"
-              >
-                {extractionMode === 'cloud' ? 'cloud' : 'hard_drive'}
-              </span>
-              <span className="font-body text-sm font-semibold text-on-surface">
-                {extractionMode === 'cloud' ? 'Cloud' : 'Local'}
-              </span>
-            </dd>
-          </div>
+          {/* Processing-mode indicator intentionally hidden from the
+              reviewer UI — whether extraction ran cloud or local is
+              an engine-internal detail and doesn't help compliance
+              review. It's still in the request/telemetry payload for
+              debugging via DevTools if needed. */}
         </dl>
 
         <div className="mt-auto pt-6 border-t border-outline-variant/15">
