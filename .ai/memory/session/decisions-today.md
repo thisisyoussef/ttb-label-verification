@@ -1,5 +1,9 @@
 # Decisions Today
 
+- Keep the default agent contract lean: SSOT, branch tracker, memory bank, TDD, and clean code are the core workflow.
+- Default new work to a fresh story branch in the current checkout; use sibling linked worktrees only for parallel tasks or dirty-checkout isolation.
+- Stop tracking `.claude/worktrees/**` in git.
+- Freeze inherited source-size violations in a checked-in baseline file so the guard still blocks new oversize files and line-count regressions.
 - Adopt the default gauntlet workflow baseline in this repo.
 - Use `docs/process/SINGLE_SOURCE_OF_TRUTH.md` as the checked-in active story and lane tracker.
 - Split execution into a Claude UI checklist and a Codex engineering checklist against the same tracker.

@@ -12,8 +12,13 @@ import {
   type BranchLane,
   type ClosedBranchStatus,
 } from "./branch-tracker.js";
+import {
+  buildOpenNotes,
+  resolveDefaultBase,
+  resolveWorktreePath,
+} from "./story-branch-lib.js";
 
-const TRACKER_PATH = path.resolve(process.cwd(), "docs/process/BRANCH_TRACKER.md");
+const TRACKER_RELATIVE_PATH = path.join("docs", "process", "BRANCH_TRACKER.md");
 
 function fail(message: string): never {
   console.error(`\n[story-branch] ${message}`);
@@ -43,16 +48,28 @@ function runGit(args: string[], options?: { allowFailure?: boolean }): string {
   }
 }
 
-function readTracker(): string {
+function getRepoRoot(): string {
+  return runGit(["rev-parse", "--show-toplevel"]);
+}
+
+function getTrackerPath(repoRoot: string): string {
+  return path.resolve(repoRoot, TRACKER_RELATIVE_PATH);
+}
+
+function refExists(ref: string): boolean {
+  return Boolean(runGit(["rev-parse", "--verify", ref], { allowFailure: true }));
+}
+
+function readTracker(trackerPath: string): string {
   try {
-    return fs.readFileSync(TRACKER_PATH, "utf8");
+    return fs.readFileSync(trackerPath, "utf8");
   } catch (error) {
-    fail(`Could not read ${TRACKER_PATH}: ${error instanceof Error ? error.message : String(error)}`);
+    fail(`Could not read ${trackerPath}: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
-function writeTracker(content: string): void {
-  fs.writeFileSync(TRACKER_PATH, content);
+function writeTracker(trackerPath: string, content: string): void {
+  fs.writeFileSync(trackerPath, content);
 }
 
 function today(): string {
@@ -81,7 +98,7 @@ function parseArgs(argv: string[]): { command: string; flags: Record<string, str
 function assertCleanWorktree(): void {
   if (runGit(["status", "--short"], { allowFailure: true })) {
     fail(
-      "Opening a new story branch from a dirty worktree is blocked. Commit, stash, or use an isolated worktree first.",
+      "Opening a new branch in the current worktree is blocked while it is dirty. Commit, stash, or pass --worktree <path> to create a linked worktree instead.",
     );
   }
 }
@@ -91,8 +108,15 @@ function openBranch(flags: Record<string, string>): void {
   const storyId = flags.story;
   const summary = flags.summary;
   const description = flags.description?.trim();
-  const base = flags.base?.trim() || runGit(["branch", "--show-current"]);
-  const notes = flags.notes?.trim() || `opened from ${base}`;
+  const repoRoot = getRepoRoot();
+  const currentBranch = runGit(["branch", "--show-current"]);
+  const base = resolveDefaultBase({
+    requestedBase: flags.base,
+    currentBranch,
+    availableRefs: ["origin/main", "main"].filter((ref) => refExists(ref)),
+  });
+  const requestedWorktree = flags.worktree?.trim();
+  let worktreePath: string | undefined;
   const status = (flags.status as ActiveBranchStatus | undefined) || "draft-local";
 
   if (lane !== "claude" && lane !== "codex" && lane !== "chore") {
@@ -107,17 +131,33 @@ function openBranch(flags: Record<string, string>): void {
     fail("Branch description must be real content, not a placeholder.");
   }
 
-  assertCleanWorktree();
-
   const branch = buildBranchName({ lane, storyId, summary });
   if (runGit(["rev-parse", "--verify", `refs/heads/${branch}`], { allowFailure: true })) {
     fail(`Branch '${branch}' already exists locally.`);
   }
 
-  runGit(["switch", "-c", branch, base]);
+  if (requestedWorktree) {
+    try {
+      worktreePath = resolveWorktreePath(repoRoot, path.resolve(process.cwd(), requestedWorktree));
+    } catch (error) {
+      fail(error instanceof Error ? error.message : String(error));
+    }
 
-  const tracker = readTracker();
+    if (fs.existsSync(worktreePath)) {
+      fail(`Worktree path '${worktreePath}' already exists. Choose a new sibling path.`);
+    }
+
+    runGit(["worktree", "add", "-b", branch, worktreePath, base]);
+  } else {
+    assertCleanWorktree();
+    runGit(["switch", "-c", branch, base]);
+  }
+
+  const trackerRoot = worktreePath || repoRoot;
+  const trackerPath = getTrackerPath(trackerRoot);
+  const tracker = readTracker(trackerPath);
   writeTracker(
+    trackerPath,
     upsertActiveBranchEntry(tracker, {
       branch,
       storyId,
@@ -128,16 +168,26 @@ function openBranch(flags: Record<string, string>): void {
       opened: today(),
       updated: today(),
       base,
-      notes,
+      notes: buildOpenNotes({
+        requestedNotes: flags.notes,
+        base,
+        worktreePath,
+      }),
     }),
   );
 
-  console.log(`\n[story-branch] Created '${branch}' from '${base}' and updated docs/process/BRANCH_TRACKER.md.`);
+  console.log(
+    `\n[story-branch] Created '${branch}' from '${base}' and updated ${path.relative(
+      trackerRoot,
+      trackerPath,
+    )}.${worktreePath ? `\n[story-branch] New linked worktree: ${worktreePath}` : ""}`,
+  );
 }
 
 function updateBranch(flags: Record<string, string>): void {
+  const trackerPath = getTrackerPath(getRepoRoot());
   const branch = flags.branch?.trim() || runGit(["branch", "--show-current"]);
-  const tracker = readTracker();
+  const tracker = readTracker(trackerPath);
   const activeEntry = findActiveBranchEntry(tracker, branch);
 
   if (!activeEntry) {
@@ -150,6 +200,7 @@ function updateBranch(flags: Record<string, string>): void {
   }
 
   writeTracker(
+    trackerPath,
     upsertActiveBranchEntry(tracker, {
       ...activeEntry,
       status: (flags.status as ActiveBranchStatus | undefined) || activeEntry.status,
@@ -164,6 +215,7 @@ function updateBranch(flags: Record<string, string>): void {
 }
 
 function closeBranch(flags: Record<string, string>): void {
+  const trackerPath = getTrackerPath(getRepoRoot());
   const branch = flags.branch?.trim() || runGit(["branch", "--show-current"]);
   const finalStatus = flags["final-status"] as ClosedBranchStatus | undefined;
 
@@ -171,8 +223,9 @@ function closeBranch(flags: Record<string, string>): void {
     fail("close requires --final-status merged|abandoned");
   }
 
-  const tracker = readTracker();
+  const tracker = readTracker(trackerPath);
   writeTracker(
+    trackerPath,
     closeActiveBranchEntry(tracker, branch, {
       finalStatus,
       closed: today(),

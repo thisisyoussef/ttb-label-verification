@@ -1,14 +1,6 @@
 # Harness Memory
 
-The memory tree separates durable repo truths from current-work context.
+- `project/` stores durable patterns and anti-patterns
+- `session/` stores current focus, decisions, and blockers
 
-## Layout
-
-- `project/` — durable architecture, patterns, anti-patterns, and technical debt
-- `session/` — active context, blockers, and decisions for the current run of work
-
-## Rules
-
-- Keep memory aligned with checked-in code and docs.
-- Move recurring lessons into `project/`.
-- Keep `session/` concise and current; do not turn it into an archive.
+Keep memory short, current, and grounded in checked-in repo truth.

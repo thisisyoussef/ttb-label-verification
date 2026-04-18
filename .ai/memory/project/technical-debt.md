@@ -2,6 +2,9 @@
 
 ## Current gaps
 
+- Some older `.ai` workflow files still exist only as compatibility stubs for historical references; they should stay small and should not grow back into the primary contract.
+- Some older story packets still reflect the previous spec-heavier flow and may need cleanup over time.
+- The source-size guard now relies on a checked-in baseline waiver for inherited oversized files; the long-term fix is still to shrink those files and delete them from the baseline.
 - The repo now has Gemini-generated synthetic core-six PNGs under `evals/labels/assets/`, but authoritative curated label binaries are still missing; the synthetic set is acceptable for internal smoke runs, not for final production-grade corpus claims.
 - The integrated `POST /api/review` path is live, but real-label live corpus execution is still unproven because the current core-six image assets are synthetic fixtures rather than curated internal label examples; `TTB-207` and `TTB-208` therefore still rely on sanitized generated media plus traced route evidence as the interim comparison seam.
 - The batch engine is now live and a cloud-mode batch happy path is proven locally, but the client still lacks a dedicated hook-level regression harness for the `live | fixture` source transitions that now gate batch runtime behavior.

@@ -6,6 +6,7 @@ This file is the checked-in branch registry for normal story work.
 
 - `docs/process/SINGLE_SOURCE_OF_TRUTH.md` remains the canonical tracker for story order, lane ownership, and handoff state.
 - This file is the canonical tracker for branch lifecycle metadata: branch name, story id, description, status, PR state, and closeout notes.
+- Use the `Notes` column for linked worktree paths when a story runs in a sibling worktree.
 - The published copy on `main` is the canonical shared view. Story branches must update their own row as soon as they are opened so the tracker merges forward cleanly.
 - Use `npm run story:branch -- open ...`, `update ...`, and `close ...` instead of editing the active table by hand unless the helper is blocked.
 
@@ -23,6 +24,7 @@ This file is the checked-in branch registry for normal story work.
 <!-- ACTIVE_BRANCHES:START -->
 | Branch | Story | Lane | Status | Description | PR | Opened | Updated | Base | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `chore/TTB-WF-003-lean-agent-workspace` | `TTB-WF-003` | `chore` | `draft-local` | simplify agent docs, make direct branch work the default, and keep optional sibling worktrees | - | `2026-04-18` | `2026-04-18` | `origin/main` | linked worktree: /Users/youss/Development/gauntlet/ttb-label-verification-wf-003-lean |
 <!-- ACTIVE_BRANCHES:END -->
 
 ## Closed branches

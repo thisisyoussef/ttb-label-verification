@@ -2,6 +2,10 @@
 
 ## Workflow pattern
 
+- Keep the active agent contract lean: SSOT, branch tracker, memory bank, TDD, and clean code are the default read path.
+- Default new work to a fresh story branch in the current checkout; use sibling linked worktrees only when parallel isolation is actually needed.
+- Prefer `origin/main` as the base for fresh story work unless a different base is intentional.
+- For inherited guard violations already present on `main`, prefer a checked-in baseline freeze that blocks regressions and new offenders over disabling the guard entirely.
 - Non-trivial work starts with preflight, lookup, and sizing.
 - Standard feature work produces a checked-in universal packet under `docs/specs/<story-id>/`.
 - Visible or branch-heavy stories add `user-flow-map.md` to the packet before implementation so every meaningful branch is planned, not rediscovered during debugging.
