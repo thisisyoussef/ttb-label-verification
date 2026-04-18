@@ -1,6 +1,6 @@
 # Single Source of Truth
 
-Last updated: 2026-04-18 (`TTB-WF-003` is active on `chore/TTB-WF-003-lean-agent-workspace` to remove the old lane split, keep SSOT plus the memory bank, make direct branch work the default, keep sibling worktrees optional for parallel isolation, and rename the default Stitch mode from `claude-direct` to `direct` with backward-compatible alias support. `TTB-210` still needs traced LangSmith evidence because the current auth path fails with `401 /datasets` in the tracked eval flow and `403` on direct trace upload. `TTB-401` remains blocked on `TTB-210`.)
+Last updated: 2026-04-18 (`TTB-WF-003` is active on `chore/TTB-WF-003-worktree-env-bootstrap` to add automatic repo-local env bootstrap for new linked worktrees, keep routine env sync out of normal progress chatter, and finish the lean direct-branch workflow cleanup. `TTB-210` still needs traced LangSmith evidence because the current auth path fails with `401 /datasets` in the tracked eval flow and `403` on direct trace upload. `TTB-401` remains blocked on `TTB-210`.)
 
 ## Continue resolution
 
@@ -29,8 +29,8 @@ Last updated: 2026-04-18 (`TTB-WF-003` is active on `chore/TTB-WF-003-lean-agent
 
 - Project status: runnable scaffold plus full-product planning set with live GitHub and Railway backing.
 - Runtime status: React + Express scaffold exists, the shared review contract includes typed extraction plus warning evidence, `POST /api/review` keeps uploads in memory and runs the integrated extraction + warning + aggregation path, `POST /api/review/seed` remains the scaffold-only inspection route, `POST /api/review/extraction` runs the live extraction boundary, `POST /api/review/warning` stages the warning validator, and contracts are tested.
-- Process status: TDD gate, LangSmith-backed trace-driven development, direct branch workflow, optional sibling worktrees, deployment flow, repo-managed git hooks, and publish gates are checked in.
-- Planning status: `TTB-106`, `TTB-107`, `TTB-108`, `TTB-206`, `TTB-207`, `TTB-208`, `TTB-209`, `TTB-211`, `TTB-302`, and `TTB-303` are complete. `TTB-212` was archived by user request.
+- Process status: TDD gate, LangSmith-backed trace-driven development, direct branch workflow, automatic repo-local env bootstrap for new linked worktrees, deployment flow, repo-managed git hooks, and publish gates are checked in.
+- Planning status: `TTB-WF-003`, `TTB-106`, `TTB-107`, `TTB-108`, `TTB-206`, `TTB-207`, `TTB-208`, `TTB-209`, `TTB-211`, `TTB-302`, and `TTB-303` are complete. `TTB-212` was archived by user request.
 - GitHub bootstrap status: live repo exists at `thisisyoussef/ttb-label-verification`.
 - Railway bootstrap status: project, service, staging, production, public domains, and GitHub Actions token wiring are configured.
 
@@ -46,7 +46,7 @@ Last updated: 2026-04-18 (`TTB-WF-003` is active on `chore/TTB-WF-003-lean-agent
 
 | Order | Story ID | Parent | Title | Status | Next action | Blocking gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| 0.5 | `TTB-WF-003` | workflow | lean agent workspace and direct-branch story workflow | `in-progress` | remove the old agent lane split, keep SSOT plus memory bank, make direct branch work the default, and keep sibling worktrees available when parallel isolation is useful | none |
+| 0.5 | `TTB-WF-003` | workflow | lean agent workspace and direct-branch story workflow | `in-progress` | land the linked-worktree env bootstrap and quiet env-sync workflow cleanup, then move on to `TTB-210` | none |
 | 21 | `TTB-210` | `TTB-002` | persona-centered prompt profiles and endpoint plus mode guardrails | `in-progress` | publish the remaining traced evidence after refreshing LangSmith auth; local code, tests, build, and fixture evals are already green | LangSmith auth currently fails with `401 /datasets` in the tracked eval flow and `403` on direct trace upload |
 | 23 | `TTB-401` | `TTB-004` | final privacy, performance, eval, and submission pack | `blocked-by-dependency` | run the release gate and package the submission | `TTB-210` complete |
 

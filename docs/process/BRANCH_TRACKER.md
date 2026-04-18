@@ -25,7 +25,7 @@ This file is the checked-in branch registry for normal story work.
 | Branch | Story | Lane | Status | Description | PR | Opened | Updated | Base | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `codex/TTB-000-dynamic-verdict-banner` | `TTB-000` | `codex` | `draft-local` | make the verdict banner follow the live matched/review state and remove overly optimistic review copy | - | `2026-04-18` | `2026-04-18` | `origin/main` | isolated merge worktree for verdict banner fix |
-| `chore/TTB-WF-003-worktree-env-bootstrap` | `TTB-WF-003` | `chore` | `draft-local` | bootstrap repo-local env for isolated worktrees and keep routine env sync silent | - | `2026-04-18` | `2026-04-18` | `origin/main` | opened from origin/main |
+| `chore/TTB-WF-003-worktree-env-bootstrap` | `TTB-WF-003` | `chore` | `draft-pr` | bootstrap repo-local env for isolated worktrees and keep routine env sync silent | `#106` | `2026-04-18` | `2026-04-18` | `origin/main` | opened from origin/main |
 <!-- ACTIVE_BRANCHES:END -->
 
 ## Closed branches
