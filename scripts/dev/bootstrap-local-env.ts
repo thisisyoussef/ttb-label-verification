@@ -2,8 +2,8 @@ import { readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { DEFAULT_LANGSMITH_PROJECT } from '../src/server/langsmith-config';
-import { parseDotEnvFile } from '../src/server/load-local-env';
+import { DEFAULT_LANGSMITH_PROJECT } from '../../src/server/langsmith-config';
+import { parseDotEnvFile } from '../../src/server/load-local-env';
 
 const DEFAULT_ENV_VALUES = {
   OPENAI_MODEL: 'gpt-5.4-mini',

@@ -6,11 +6,11 @@ import {
   batchExportPayloadSchema,
   batchPreflightResponseSchema,
   batchStreamFrameSchema
-} from '../src/shared/contracts/review';
+} from '../../src/shared/contracts/review';
 import type {
   ExtractionQualityState,
   VerificationReport
-} from '../src/shared/contracts/review';
+} from '../../src/shared/contracts/review';
 import {
   emptyFieldMetric,
   emptyRuleMetric,
@@ -115,7 +115,7 @@ async function _collectNdjsonFrames(response: Response) {
  * measured from request start to the frame's arrival.
  */
 async function collectNdjsonFramesWithLatency(response: Response, startTime: number) {
-  const frames: Array<import('../src/shared/contracts/review').BatchStreamFrame> = [];
+  const frames: Array<import('../../src/shared/contracts/review').BatchStreamFrame> = [];
   const itemLatencyMs = new Map<string, number>();
 
   if (!response.body) {
@@ -172,10 +172,32 @@ async function main() {
   const repoRoot = process.cwd();
   process.env.NODE_ENV = 'test';
   process.env.OPENAI_STORE = 'false';
-  const { loadLocalEnv } = await import('../src/server/load-local-env');
+  const { loadLocalEnv } = await import('../../src/server/load-local-env');
   loadLocalEnv(repoRoot);
-  const { createApp } = await import('../src/server/index');
-  const batchManifestPath = path.join(repoRoot, 'evals/batch/cola-cloud/manifest.json');
+  const { createApp } = await import('../../src/server/index');
+
+  // Allow the batch manifest to be overridden with --manifest <path> so we
+  // can re-use this runner for the PDF fixture pack (or any future variant)
+  // without cloning the whole script.
+  const cliArgs = process.argv.slice(2);
+  let manifestOverride: string | null = null;
+  for (let i = 0; i < cliArgs.length; i++) {
+    const arg = cliArgs[i];
+    if (arg === '--manifest' && i + 1 < cliArgs.length) {
+      manifestOverride = cliArgs[i + 1] ?? null;
+      break;
+    }
+    if (arg?.startsWith('--manifest=')) {
+      manifestOverride = arg.slice('--manifest='.length);
+      break;
+    }
+  }
+  const batchManifestPath = manifestOverride
+    ? path.isAbsolute(manifestOverride)
+      ? manifestOverride
+      : path.join(repoRoot, manifestOverride)
+    : path.join(repoRoot, 'evals/batch/cola-cloud/manifest.json');
+  const batchManifestDir = path.dirname(batchManifestPath);
   const batchManifest = JSON.parse(
     await readFile(batchManifestPath, 'utf8')
   ) as BatchFixtureManifest;
@@ -316,12 +338,7 @@ async function main() {
         }>;
       };
     }> = [];
-    // When EVAL_SETS is set (comma-separated), only run those pack IDs.
-    const setsFilter = process.env.EVAL_SETS?.trim();
-    const selectedSets = setsFilter
-      ? batchManifest.sets.filter((s) => setsFilter.split(',').includes(s.id))
-      : batchManifest.sets;
-    for (const set of selectedSets) {
+    for (const set of batchManifest.sets) {
       const form = new FormData();
       const images: Array<{ id: string; filename: string }> = [];
       for (const imageCase of set.imageCases) {
@@ -332,7 +349,9 @@ async function main() {
         images.push({ id: imageCase.id, filename });
         form.append('labels', file);
       }
-      const csvPath = path.join(repoRoot, 'evals/batch/cola-cloud', set.csvFile);
+      // CSVs live alongside the manifest (so the PDF variant can ship its
+      // own cola-cloud-pdf/<pack>.csv without cloning the runner).
+      const csvPath = path.join(batchManifestDir, set.csvFile);
       const csvBuffer = await readFile(csvPath);
       form.append(
         'manifest',
@@ -547,10 +566,31 @@ async function main() {
       manifest: path.relative(repoRoot, batchManifestPath),
       results: runResults
     };
-    const outputPath = path.join(
-      repoRoot,
-      process.env.EVAL_OUTPUT_PATH ?? 'evals/results/2026-04-16-local-fullarch.json'
-    );
+    // Allow overriding the output path via --output <path> or OUTPUT_PATH env.
+    // Falls back to the canonical file to preserve existing callers.
+    const argv = process.argv.slice(2);
+    let outputOverride: string | null = null;
+    for (let i = 0; i < argv.length; i++) {
+      if (argv[i] === '--output' && i + 1 < argv.length) {
+        outputOverride = argv[i + 1] ?? null;
+        break;
+      }
+      if (argv[i]?.startsWith('--output=')) {
+        outputOverride = argv[i]!.slice('--output='.length);
+        break;
+      }
+    }
+    if (!outputOverride && process.env.OUTPUT_PATH?.trim()) {
+      outputOverride = process.env.OUTPUT_PATH.trim();
+    }
+    const outputPath = outputOverride
+      ? path.isAbsolute(outputOverride)
+        ? outputOverride
+        : path.join(repoRoot, outputOverride)
+      : path.join(
+          repoRoot,
+          'evals/results/2026-04-15-TTB-EVAL-001-batch-real-corpus.json'
+        );
     await writeFile(outputPath, JSON.stringify(output, null, 2) + '\n');
     console.log(`[batch-fixtures] wrote ${outputPath}`);
 
@@ -612,5 +652,4 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   });
 }
 
-export const _unused_ndjson_local = _collectNdjsonFrames;
-
+export const _unused_ndjson = _collectNdjsonFrames;

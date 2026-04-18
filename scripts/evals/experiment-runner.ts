@@ -112,7 +112,7 @@ async function runExperiment(config: ExperimentConfig): Promise<ExperimentResult
   process.env.NODE_ENV = 'test';
 
   // Start server
-  const { createApp } = await import('../src/server/index');
+  const { createApp } = await import('../../src/server/index');
   const server = createServer(createApp());
   const port = await new Promise<number>((resolve) => {
     server.listen(0, () => {

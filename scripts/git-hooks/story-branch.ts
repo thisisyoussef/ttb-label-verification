@@ -12,7 +12,7 @@ import {
   type BranchLane,
   type ClosedBranchStatus,
 } from "./branch-tracker.js";
-import { bootstrapLocalEnv } from "./bootstrap-local-env.js";
+import { bootstrapLocalEnv } from "../dev/bootstrap-local-env.js";
 import {
   buildOpenNotes,
   resolveDefaultBase,

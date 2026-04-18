@@ -16,7 +16,7 @@ process.env.NODE_ENV = 'test';
 process.env.OPENAI_STORE = 'false';
 
 // Load env for API keys
-const { loadLocalEnv } = await import('../src/server/load-local-env.js');
+const { loadLocalEnv } = await import('../../src/server/load-local-env.js');
 loadLocalEnv(process.cwd());
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });

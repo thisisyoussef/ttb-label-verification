@@ -121,16 +121,18 @@ Zod contracts and helpers used by both client and server. Import the contracts f
 
 ## scripts
 
-CLI utilities, roughly grouped by purpose:
+CLI utilities, grouped into subfolders by purpose:
 
-| Purpose | Files |
-|---|---|
-| **Eval runners** | `remote-eval.ts`, `fast-eval.ts`, `run-cola-cloud-*`, `run-30-experiments.ts`, `run-gemini-batch-*`, `experiment-runner.ts`, `eval-batch-metrics.ts`, `judgment-variations.ts`, `anchor-track-eval.ts`, `anchor-all-fields-experiment.ts`, `batch-pipelining-bench.ts`, `compare-pdf-vs-image-results.ts` |
-| **Fixture generators** | `generate-*`, `convert-labels-to-pdf.ts`, `convert-batch-fixtures-to-pdf.ts`, `fetch-cola-cloud-labels.ts`, `gemini-batch-extraction*` |
-| **Git hooks / story tools** | `install-git-hooks.ts`, `git-commit-msg-gate.ts`, `git-story-gate.ts`, `story-branch.ts`, `story-branch-lib.ts`, `branch-tracker.ts`, `branch-tracker.test.ts` |
-| **Local dev / debug** | `bootstrap-local-env.ts`, `bootstrap-github-repo.sh`, `cache-local-model.ts`, `check-provider-resolution.ts`, `check-source-size*`, `debug-warning-fail.ts`, `ollama-vlm-smoke.ts`, `stitch-*`, `langsmith-smoke-test.ts`, `validate-evals.ts` |
+```
+scripts/
+├── evals/      Eval runners + benchmarks (remote-eval, judgment-variations, gemini-batch-*)
+├── fixtures/   Fixture + asset generators (generate-*, convert-*-to-pdf, fetch-cola-*)
+├── git-hooks/  Commit/push gates, story branch tracker (git-story-gate, branch-tracker, check-source-size)
+├── stitch/     Stitch design-tool integration (stitch-auth, stitch-mcp-proxy, stitch-story)
+└── dev/        Local dev utilities + smokes (bootstrap-local-env, cache-local-model, *-smoke)
+```
 
-See `scripts/README.md` for a longer description per script.
+See [`scripts/README.md`](scripts/README.md) for a description per script.
 
 ## Tests
 

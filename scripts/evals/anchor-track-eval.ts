@@ -18,8 +18,8 @@
 import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 
-import { runAnchorTrack } from '../src/server/anchor-field-track';
-import type { NormalizedReviewFields } from '../src/server/review-intake';
+import { runAnchorTrack } from '../../src/server/anchor-field-track';
+import type { NormalizedReviewFields } from '../../src/server/review-intake';
 
 interface Case {
   id: string;

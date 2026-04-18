@@ -7,7 +7,7 @@ import { validateEvalManifests } from './validate-evals';
 
 describe('validate evals script', () => {
   it('accepts the checked-in live label subsets', () => {
-    const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+    const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
     const report = validateEvalManifests({ repoRoot });
 

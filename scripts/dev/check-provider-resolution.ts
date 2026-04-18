@@ -1,7 +1,7 @@
 process.env.NODE_ENV = 'test';
-import { createConfiguredReviewExtractor } from '../src/server/review-extractor-factory';
-import { readExtractionRoutingPolicy } from '../src/server/ai-provider-policy';
-import { loadLocalEnv } from '../src/server/load-local-env';
+import { createConfiguredReviewExtractor } from '../../src/server/review-extractor-factory';
+import { readExtractionRoutingPolicy } from '../../src/server/ai-provider-policy';
+import { loadLocalEnv } from '../../src/server/load-local-env';
 
 loadLocalEnv(process.cwd());
 

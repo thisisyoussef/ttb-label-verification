@@ -13,9 +13,9 @@ Core docs:
 
 Core helpers:
 
-- `scripts/story-branch.ts` — open, update, and close story branches; can optionally create linked worktrees
-- `scripts/branch-tracker.ts` — tracker helpers
-- `scripts/git-story-gate.ts` — commit, push, and publish gates
+- `scripts/git-hooks/story-branch.ts` — open, update, and close story branches; can optionally create linked worktrees
+- `scripts/git-hooks/branch-tracker.ts` — tracker helpers
+- `scripts/git-hooks/git-story-gate.ts` — commit, push, and publish gates
 
 Core workflows:
 

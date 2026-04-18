@@ -20,19 +20,19 @@ import path from 'node:path';
 
 import type {
   VerificationReport
-} from '../src/shared/contracts/review';
+} from '../../src/shared/contracts/review';
 import {
   createLocalLlmReviewExtractor,
   readLocalLlmReviewExtractionConfig
-} from '../src/server/local-llm-review-extractor';
+} from '../../src/server/local-llm-review-extractor';
 import {
   createLocalLlmInferenceFn,
   disposeLocalLlmCache
-} from '../src/server/local-llm-inference';
-import { runOcrPrepass } from '../src/server/ocr-prepass';
-import type { NormalizedReviewIntake, NormalizedReviewFields } from '../src/server/review-intake';
-import { buildGovernmentWarningCheck } from '../src/server/government-warning-validator';
-import { buildVerificationReport } from '../src/server/review-report';
+} from '../../src/server/local-llm-inference';
+import { runOcrPrepass } from '../../src/server/ocr-prepass';
+import type { NormalizedReviewIntake, NormalizedReviewFields } from '../../src/server/review-intake';
+import { buildGovernmentWarningCheck } from '../../src/server/government-warning-validator';
+import { buildVerificationReport } from '../../src/server/review-report';
 
 interface ImageCase {
   id: string;

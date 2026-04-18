@@ -2,7 +2,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { reviewExtractionSchema } from '../src/shared/contracts/review';
+import { reviewExtractionSchema } from '../../src/shared/contracts/review';
 
 type ColaCloudCase = {
   id: string;
@@ -172,9 +172,9 @@ async function main() {
   process.env.NODE_ENV = 'test';
   process.env.OPENAI_STORE = 'false';
 
-  const { loadLocalEnv } = await import('../src/server/load-local-env');
+  const { loadLocalEnv } = await import('../../src/server/load-local-env');
   loadLocalEnv(repoRoot);
-  const { createApp } = await import('../src/server/index');
+  const { createApp } = await import('../../src/server/index');
 
   const colaManifest = JSON.parse(
     await readFile(path.join(repoRoot, 'evals/labels/cola-cloud.manifest.json'), 'utf8')

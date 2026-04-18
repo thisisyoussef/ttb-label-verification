@@ -8,7 +8,7 @@ async function main() {
   process.env.NODE_ENV = 'test';
   process.env.OPENAI_STORE = 'false';
 
-  const { loadLocalEnv } = await import('../src/server/load-local-env');
+  const { loadLocalEnv } = await import('../../src/server/load-local-env');
   loadLocalEnv(process.cwd());
 
   console.log('env AI_PROVIDER=', process.env.AI_PROVIDER);
@@ -16,7 +16,7 @@ async function main() {
   console.log('env AI_EXTRACTION_MODE_DEFAULT=', process.env.AI_EXTRACTION_MODE_DEFAULT);
   console.log('env AI_EXTRACTION_MODE_ALLOW_LOCAL=', process.env.AI_EXTRACTION_MODE_ALLOW_LOCAL);
 
-  const { createApp } = await import('../src/server/index');
+  const { createApp } = await import('../../src/server/index');
   const app = createApp();
 
   const server = await new Promise<import('node:http').Server>((resolve) => {

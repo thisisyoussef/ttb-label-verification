@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { verifyWarningPresenceByOcr } from '../src/server/government-warning-verification';
+import { verifyWarningPresenceByOcr } from '../../src/server/government-warning-verification';
 
 async function main() {
   const labels = [

@@ -14,8 +14,8 @@ import path from 'node:path';
 import {
   createOllamaVlmReviewExtractor,
   readOllamaVlmReviewExtractionConfig
-} from '../src/server/ollama-vlm-review-extractor';
-import { createNormalizedReviewIntake } from '../src/server/review-intake';
+} from '../../src/server/ollama-vlm-review-extractor';
+import { createNormalizedReviewIntake } from '../../src/server/review-intake';
 
 async function main() {
   const repoRoot = process.cwd();

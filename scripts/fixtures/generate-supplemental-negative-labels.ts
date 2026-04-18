@@ -6,7 +6,7 @@ import { promisify } from 'node:util';
 import {
   defaultNetContents,
   formatAlcoholContent
-} from './eval-corpus-types';
+} from '../evals/eval-corpus-types';
 import type {
   ColaCloudCase,
   ColaCloudManifest,
@@ -14,7 +14,7 @@ import type {
   GoldenManifest,
   SupplementalNegativeCase,
   SupplementalNegativeManifest
-} from './eval-corpus-types';
+} from '../evals/eval-corpus-types';
 
 const execFileAsync = promisify(execFile);
 type NegativeTemplate = {

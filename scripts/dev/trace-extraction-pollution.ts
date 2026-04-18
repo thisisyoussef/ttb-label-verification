@@ -14,12 +14,12 @@ process.env.OPENAI_STORE = 'false';
 
 async function main() {
   const repoRoot = process.cwd();
-  const { loadLocalEnv } = await import('../src/server/load-local-env');
+  const { loadLocalEnv } = await import('../../src/server/load-local-env');
   loadLocalEnv(repoRoot);
 
-  const { runOcrPrepass } = await import('../src/server/ocr-prepass');
-  const { runWarningOcv } = await import('../src/server/warning-region-ocv');
-  const { createApp } = await import('../src/server/index');
+  const { runOcrPrepass } = await import('../../src/server/ocr-prepass');
+  const { runWarningOcv } = await import('../../src/server/warning-region-ocv');
+  const { createApp } = await import('../../src/server/index');
 
   const labels = [
     { id: 'lake-placid', path: 'evals/labels/assets/cola-cloud/lake-placid-shredder-malt-beverage.webp', appAbv: '4% Alc./Vol.' },

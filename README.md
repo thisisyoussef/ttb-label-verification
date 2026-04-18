@@ -168,7 +168,7 @@ Full log: [`docs/evals/2026-04-17-cola-cloud-all-production-run.txt`](docs/evals
 
 **Configs B2 and H** (the shipped architecture) consistently deliver **26–27/28 correct** with **0–2 false rejects** and **avg ~5 seconds**. Earlier research-recommended variants (configs D, E, F — single-VLM pipelines) regressed to 18–23/28 on our corpus, so the OCR reconciler stayed.
 
-The 859-variation synthetic test harness ([`scripts/judgment-variations.ts`](scripts/judgment-variations.ts)) gives an independent correctness view: every `judgeX` rule hit **92.7%** match against its expected disposition across generated legit / ambiguous / illegit perturbations.
+The 859-variation synthetic test harness ([`scripts/evals/judgment-variations.ts`](scripts/evals/judgment-variations.ts)) gives an independent correctness view: every `judgeX` rule hit **92.7%** match against its expected disposition across generated legit / ambiguous / illegit perturbations.
 
 ---
 
@@ -202,10 +202,10 @@ AI_PROVIDER=cloud \
   npm run dev:api
 
 # 2. Run the 28-label corpus in another shell
-BASE_URL=http://127.0.0.1:8787 npx tsx scripts/remote-eval.ts --slice=cola-cloud-all
+BASE_URL=http://127.0.0.1:8787 npx tsx scripts/evals/remote-eval.ts --slice=cola-cloud-all
 
 # 3. Or run the synthetic rule harness (no server needed)
-npx tsx scripts/judgment-variations.ts
+npx tsx scripts/evals/judgment-variations.ts
 ```
 
 ### Feature flags (all optional)
@@ -248,9 +248,14 @@ evals/
 └── llm/                          Golden-case harness (vitest + LangSmith)
 
 scripts/
-├── remote-eval.ts                Run the 28-label corpus against any URL
-├── judgment-variations.ts        859 synthetic tests of each judgeX rule
-└── debug-warning-fail.ts         Single-label warning-check probe
+├── evals/                        Eval runners + benchmarks
+│   ├── remote-eval.ts              Run the 28-label corpus against any URL
+│   └── judgment-variations.ts      859 synthetic tests of each judgeX rule
+├── fixtures/                     Generate / convert test fixtures
+├── git-hooks/                    Commit + push gates, story branch tracker
+├── stitch/                       Stitch design-tool integration
+└── dev/                          Local dev, smokes, debug probes
+    └── debug-warning-fail.ts       Single-label warning-check probe
 
 docs/evals/                       Checked-in production eval logs
 ```

@@ -31,8 +31,8 @@ import {
   judgeVarietal,
   judgeVintage,
   type FieldJudgment
-} from '../src/server/judgment-field-rules';
-import { CANONICAL_GOVERNMENT_WARNING } from '../src/shared/contracts/review-base';
+} from '../../src/server/judgment-field-rules';
+import { CANONICAL_GOVERNMENT_WARNING } from '../../src/shared/contracts/review-base';
 
 type GoldenRow = {
   filename: string;

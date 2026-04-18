@@ -41,8 +41,8 @@ async function loadEnv(file: string): Promise<void> {
   }
 }
 
-import { checkSpiritsColocation } from '../src/server/spirits-colocation-check';
-import type { NormalizedUploadedLabel } from '../src/server/review-intake';
+import { checkSpiritsColocation } from '../../src/server/spirits-colocation-check';
+import type { NormalizedUploadedLabel } from '../../src/server/review-intake';
 
 const LABELS = [
   // Approved spirits labels — should all colocate cleanly.

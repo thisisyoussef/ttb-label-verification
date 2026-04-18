@@ -1,4 +1,4 @@
-import type { CheckReview } from '../src/shared/contracts/review';
+import type { CheckReview } from '../../src/shared/contracts/review';
 
 export type FieldMetric = {
   rowsWithCheck: number;

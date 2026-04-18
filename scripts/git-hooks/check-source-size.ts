@@ -10,7 +10,7 @@ import {
 const MAX_LINES = 500;
 const WARNING_LINES = 350;
 const ROOT = process.cwd();
-const BASELINE_PATH = path.resolve(ROOT, "scripts/source-size-baseline.json");
+const BASELINE_PATH = path.resolve(ROOT, "scripts/git-hooks/source-size-baseline.json");
 const TARGETS = [
   "src",
   "scripts",

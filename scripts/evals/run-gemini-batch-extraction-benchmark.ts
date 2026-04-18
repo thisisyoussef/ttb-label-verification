@@ -19,8 +19,8 @@ import {
   type GeminiBatchBenchmarkOptions,
   writeGeminiBatchBenchmarkArtifact
 } from './gemini-batch-benchmark-helpers';
-import { loadLocalEnv } from '../src/server/load-local-env';
-import { readGeminiReviewExtractionConfig } from '../src/server/gemini-review-extractor';
+import { loadLocalEnv } from '../../src/server/load-local-env';
+import { readGeminiReviewExtractionConfig } from '../../src/server/gemini-review-extractor';
 
 async function main() {
   const repoRoot = process.cwd();

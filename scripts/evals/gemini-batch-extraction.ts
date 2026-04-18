@@ -1,14 +1,14 @@
-import { buildGeminiReviewExtractionRequest, type GeminiReviewExtractionConfig } from '../src/server/gemini-review-extractor';
+import { buildGeminiReviewExtractionRequest, type GeminiReviewExtractionConfig } from '../../src/server/gemini-review-extractor';
 import {
   normalizeReviewExtractionModelOutput,
   reviewExtractionModelOutputSchema
-} from '../src/server/review-extraction-model-output';
-import type { ReviewExtractionModelOutput } from '../src/server/review-extraction';
+} from '../../src/server/review-extraction-model-output';
+import type { ReviewExtractionModelOutput } from '../../src/server/review-extraction';
 import type {
   NormalizedReviewFields,
   NormalizedReviewIntake,
   NormalizedUploadedLabel
-} from '../src/server/review-intake';
+} from '../../src/server/review-intake';
 
 export const INLINE_BATCH_MAX_BYTES = 19 * 1024 * 1024;
 

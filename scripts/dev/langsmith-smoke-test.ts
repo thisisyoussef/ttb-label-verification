@@ -3,8 +3,8 @@ import { spawnSync } from 'node:child_process';
 import {
   buildLangSmithProcessEnv,
   readLangSmithConfig
-} from '../src/server/langsmith-config';
-import { loadLocalEnv } from '../src/server/load-local-env';
+} from '../../src/server/langsmith-config';
+import { loadLocalEnv } from '../../src/server/load-local-env';
 
 type LangSmithProjectRecord = {
   id?: string;

@@ -13,9 +13,9 @@ process.env.NODE_ENV = 'test';
 process.env.OPENAI_STORE = 'false';
 
 async function main() {
-  const { loadLocalEnv } = await import('../src/server/load-local-env');
+  const { loadLocalEnv } = await import('../../src/server/load-local-env');
   loadLocalEnv(repoRoot);
-  const { createApp } = await import('../src/server/index');
+  const { createApp } = await import('../../src/server/index');
 
   // Representative slice: 2 spirits, 2 wine, 2 malt + 1 negative
   const cases = [

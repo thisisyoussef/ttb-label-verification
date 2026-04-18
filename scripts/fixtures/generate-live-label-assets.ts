@@ -4,7 +4,7 @@ import process from 'node:process';
 
 import { GoogleGenAI } from '@google/genai';
 
-import { loadLocalEnv } from '../src/server/load-local-env';
+import { loadLocalEnv } from '../../src/server/load-local-env';
 
 type LabelManifest = {
   cases: Array<{
@@ -335,7 +335,7 @@ async function main() {
   const { force, selectedCaseIds, manifestPath: manifestPathArg } = parseArgs(
     process.argv.slice(2)
   );
-  const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+  const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
   const manifestPath = path.isAbsolute(manifestPathArg)
     ? manifestPathArg
     : path.join(
