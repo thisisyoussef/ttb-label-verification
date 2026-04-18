@@ -54,51 +54,63 @@ The reconciler then picks per-field winners in `src/server/extraction-merge.ts` 
 
 ## src/server by domain
 
-The server is ~130 flat files today. They cluster into these domains:
+The clearest four clusters are now subfolders; the rest stay flat at `src/server/` where the pipeline entry points are most visible. See [`src/server/README.md`](src/server/README.md) for the full per-file map.
 
-| Domain | File prefix | What it does |
-|---|---|---|
-| **Extractors** | `gemini-*`, `openai-*`, `transformers-*`, `ollama-*`, `local-llm-review-extractor*` | Provider-specific VLM clients that return a `ReviewExtraction` |
-| **Extraction reconciler** | `extraction-merge*`, `extraction-ocr-reconciler*`, `extraction-cache*`, `parallel-extraction*`, `split-extraction*` | Merge VLM + OCR reads per field, cache by image hash |
-| **OCR** | `ocr-*`, `pdf-label-converter*` | Tesseract prepass, image preprocessing, PDF → image conversion |
-| **Government warning** | `government-warning-*`, `warning-ocr-cross-check*` | Canonical 27 CFR 16.21/16.22 validator, 2-of-3 vote, sub-checks |
-| **Field judgment** | `judgment-*` | One `judgeX` per field (brand, class, ABV, address, etc.), weighted verdict rollup |
-| **Anchor track** | `anchor-*` | Per-field anchoring signals that can upgrade review → pass |
-| **Review report** | `review-report*`, `review-intake*`, `review-prompt-policy*`, `review-extraction*`, `review-extractor-guardrails*`, `review-*` | End-to-end report builder, intake normalization, prompt policy, fallbacks |
-| **LLM uncertainty resolver** | `llm-resolver*`, `llm-*`, `langsmith-*`, `judgment-llm-client-factory*` | One-directional review → pass resolver, tracing, provider routing |
-| **Batch mode** | `batch-*`, `register-batch-routes*` | Multi-label CSV + image uploads, matching, session state |
-| **Routes / Express** | `index.*`, `register-*`, `request-handlers*`, `server-events*`, `help-routes*`, `review-stream-route*` | HTTP surface |
-| **Taxonomy** | `taxonomy/` | Lookup tables shared by judgment rules |
-| **Testing helpers** | `testing/`, `synthetic-label-*`, `spirits-colocation-check*` | Fixtures + helpers reused across tests |
-| **Infra** | `ai-provider-policy*`, `boot-warmup*`, `load-local-env*`, `partial-json-field-scanner*`, `review-latency*`, `review-provider-*`, `review-fallback-executor*` | Provider routing, bootstrap, parsing safety |
+```
+src/server/
+├── anchor/     Per-field anchor-track (upgrade review → pass when applicant values are visibly on the label)
+├── batch/      Batch-mode CSV + session state + matching
+├── judgment/   Per-field judge functions + weighted verdict rollup + LLM resolver client
+├── warning/    27 CFR government warning validator (canonical diff, sub-checks, OCV, 2-of-3 vote)
+├── taxonomy/   Lookup tables (grape varietals, geography, address abbreviations, class-type aliases)
+├── testing/    Reusable test fixtures + helpers
+│
+├── index.ts                 Express app factory
+├── llm-trace.ts             Pipeline orchestrator (parallel OCR + OCV + VLM)
+├── review-report.ts         End-to-end VerificationReport builder
+├── extraction-merge.ts      Per-field winner selection across VLM + OCR + region overrides
+├── gemini-review-extractor.ts        Cloud VLM path
+├── ollama-vlm-review-extractor.ts    Local VLM path
+├── llm-resolver.ts          One-directional review → pass uncertainty resolver
+├── register-review-routes.ts         POST /api/review[*] surface
+├── register-batch-routes.ts          POST /api/batch[*] surface
+└── …                        (other extractors, OCR helpers, support utilities)
+```
 
 The most load-bearing files (read these first if you're orienting):
 
 1. `src/server/index.ts` — Express entry, route registration
 2. `src/server/review-report.ts` — Pipeline orchestrator, final `VerificationReport` builder
 3. `src/server/extraction-merge.ts` — Per-field winner selection from the parallel reads
-4. `src/server/judgment-field-rules.ts` — `judgeBrandName`, `judgeClassType`, `judgeAlcoholContent`, etc.
-5. `src/server/judgment-scoring.ts` — Verdict rollup + safety gates
+4. `src/server/judgment/judgment-field-rules.ts` — `judgeBrandName`, `judgeClassType`, `judgeAlcoholContent`, etc.
+5. `src/server/judgment/judgment-scoring.ts` — Verdict rollup + safety gates
 6. `src/server/llm-resolver.ts` — LLM uncertainty resolver (one-directional)
-7. `src/server/government-warning-validator.ts` — 27 CFR warning check
+7. `src/server/warning/government-warning-validator.ts` — 27 CFR warning check
 
 ## src/client by area
 
-The client is ~135 flat files. They cluster like this:
+Four domain clusters are subfolders; the reviewer's primary surface (Results, VerdictBanner, FieldRow, reviewDisplayAdapter) stays at `src/client/` root where it's most visible. See [`src/client/README.md`](src/client/README.md) for the full per-file map.
 
-| Area | File prefix | What it does |
-|---|---|---|
-| **Single-label review** | `Results*`, `VerdictBanner*`, `FieldRow*`, `StatusBadge*`, `FieldEvidence*`, `CrossFieldChecks*`, `NoTextState*`, `ResultsPinnedColumn*`, `reviewDisplayAdapter*` | Post-submit results UI; the reviewer's primary surface |
-| **Intake** | `Intake*`, `IntakeFormControls*`, `BeverageTypeField*`, `VarietalEditor*` | The form the reviewer fills before submission |
-| **Batch mode** | `Batch*`, `MatchingReview*`, `appBatchState*`, `batchTypes*`, `batchWorkflow*`, `batchDashboard*` | Multi-label upload + matching + drill-in shell |
-| **Auth / shell** | `App*`, `AppShell*`, `AuthScreen*`, `BackBreadcrumb*` | Top-level chrome |
-| **Guided tour** | `GuidedTour*`, `guided-tour-*`, `help-tour-runtime*` | First-run walkthrough |
-| **Help system** | `Help*`, `help-runtime*`, `InfoAnchor*` | Inline tooltips + help drawer |
-| **Eval demo** | `EvalDemo*` | Recorded-corpus demo for onboarding |
-| **Toolbench** | `toolbench/`, `toolbenchRouteState*` | Internal diagnostics surface |
-| **Streaming + runtime** | `review-runtime*`, `singleReviewFlow*`, `useStreamingReview*`, `useRefineReview*`, `mergeRefinedReport*`, `reviewFailureMessage*` | Client-side pipeline driver: SSE stream, row-level refine, failure copy |
-| **Shared UI primitives** | `DropZone*`, `ConfidenceMeter*`, `HelpTooltip*`, `ImagePreviewOverlay*`, `LabelImageGallery*`, `types*` | Reusable pieces |
-| **Display logic** | `reviewDisplayAdapter*`, `resolveCheckBadge*`, `resultScenario*`, `dynamic-review-copy*` (shared) | User-facing verdict + copy adapter (engine verdict → display verdict) |
+```
+src/client/
+├── auth/       AuthScreen + client-only auth state + session timeout
+├── batch/      Batch dashboard + upload + matching + drill-in (26 files)
+├── eval/       EvalDemo surface for recorded-corpus demos
+├── tour/       First-run guided tour + help-tour orchestration
+├── toolbench/  Internal diagnostics UI
+│
+├── App.tsx                    Top-level routing
+├── AppShell.tsx               Persistent chrome
+├── Results.tsx                Primary post-submit surface
+├── VerdictBanner.tsx          approve / review / recommend-reject banner
+├── FieldRow.tsx               Per-check row with evidence
+├── reviewDisplayAdapter.ts    Engine verdict → user-facing copy (the single UX seam)
+├── review-runtime.ts          Review-run orchestrator
+├── useStreamingReview.ts      SSE frame consumer
+├── Intake.tsx                 Pre-submit form
+├── HelpLauncher.tsx           Help drawer
+└── …                          (processing views, scenario fixtures, shared primitives)
+```
 
 The most load-bearing files:
 
@@ -106,7 +118,7 @@ The most load-bearing files:
 2. `src/client/Results.tsx` — primary post-submit surface
 3. `src/client/reviewDisplayAdapter.ts` — engine verdict → user-facing copy; the single seam for UX
 4. `src/client/review-runtime.ts` + `src/client/useStreamingReview.ts` — client-side pipeline driver
-5. `src/client/BatchDashboard.tsx` — batch-mode entry
+5. `src/client/batch/BatchDashboard.tsx` — batch-mode entry
 
 ## src/shared
 
