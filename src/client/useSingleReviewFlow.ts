@@ -6,7 +6,7 @@ import {
   prefillFromReport
 } from './appSingleState';
 import type { View } from './appTypes';
-import { buildTourDemoImage, resolveTourDemoReviewReport } from './help-tour-runtime';
+import { buildTourDemoImage, resolveTourDemoReviewReport } from './tour/help-tour-runtime';
 import { DEFAULT_FAILURE_MESSAGE } from './reviewFailureMessage';
 import { logReviewClientEvent } from './review-observability';
 import { resolveResultReport } from './review-runtime';

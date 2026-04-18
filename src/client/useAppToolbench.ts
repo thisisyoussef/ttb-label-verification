@@ -6,7 +6,7 @@ import type { SingleReviewFlow } from './singleReviewFlowSupport';
 import { resolveToolbenchAssetRoute } from './toolbenchRouteState';
 import type { LabelImage, OriginChoice } from './types';
 import type { SampleFields } from './toolbench/toolbenchSampleSupport';
-import type { BatchWorkflow } from './useBatchWorkflow';
+import type { BatchWorkflow } from './batch/useBatchWorkflow';
 
 function toLabelImage(file: File): LabelImage {
   return {

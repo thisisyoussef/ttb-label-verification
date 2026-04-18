@@ -1,21 +1,21 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { BackBreadcrumb } from './BackBreadcrumb';
-import { BatchDashboard } from './BatchDashboard';
-import { BatchDrillInShell } from './BatchDrillInShell';
-import { BatchProcessing } from './BatchProcessing';
-import { BatchUpload } from './BatchUpload';
-import { GuidedTourSpotlight } from './GuidedTourSpotlight';
+import { BatchDashboard } from './batch/BatchDashboard';
+import { BatchDrillInShell } from './batch/BatchDrillInShell';
+import { BatchProcessing } from './batch/BatchProcessing';
+import { BatchUpload } from './batch/BatchUpload';
+import { GuidedTourSpotlight } from './tour/GuidedTourSpotlight';
 import { HelpLauncher } from './HelpLauncher';
 import { ImagePreviewOverlay } from './ImagePreviewOverlay';
 import { Intake } from './Intake';
 import { Processing } from './Processing';
 import { Results } from './Results';
-import { SessionTimeoutModal } from './SessionTimeoutModal';
-import { SignedInIdentity } from './SignedInIdentity';
+import { SessionTimeoutModal } from './auth/SessionTimeoutModal';
+import { SignedInIdentity } from './auth/SignedInIdentity';
 import { type HelpShowMe } from './helpManifest';
 import type { ExtractionMode, Mode, View } from './appTypes';
-import type { BatchWorkflow } from './useBatchWorkflow';
-import type { HelpTourFlow } from './useHelpTourState';
+import type { BatchWorkflow } from './batch/useBatchWorkflow';
+import type { HelpTourFlow } from './tour/useHelpTourState';
 import type { SingleReviewFlow } from './useSingleReviewFlow';
 
 interface AppShellProps {

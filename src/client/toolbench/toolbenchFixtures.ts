@@ -1,5 +1,5 @@
 import { seedScenarios, type SeedScenario } from '../scenarios';
-import { SEED_BATCHES } from '../batchScenarios';
+import { SEED_BATCHES } from '../batch/batchScenarios';
 
 export type ToolbenchSingleScenario = SeedScenario;
 

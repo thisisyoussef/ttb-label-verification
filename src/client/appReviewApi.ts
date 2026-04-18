@@ -8,8 +8,8 @@ import {
   type ReviewIntakeFields,
   type ReviewStreamFrame
 } from '../shared/contracts/review';
-import { buildBatchResolutions } from './batch-runtime';
-import type { BatchLabelImage, BatchMatchingState } from './batchTypes';
+import { buildBatchResolutions } from './batch/batch-runtime';
+import type { BatchLabelImage, BatchMatchingState } from './batch/batchTypes';
 import { withProviderOverrideHeader } from './providerOverride';
 import type {
   BeverageSelection,

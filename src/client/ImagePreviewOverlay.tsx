@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { BatchLabelImage } from './batchTypes';
+import type { BatchLabelImage } from './batch/batchTypes';
 
 interface ImagePreviewOverlayProps {
   image: BatchLabelImage | null;

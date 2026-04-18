@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppShell } from './AppShell';
 import { AssessorToolbench } from './toolbench/AssessorToolbench';
-import { EvalDemo } from './EvalDemo';
+import { EvalDemo } from './eval/EvalDemo';
 // (scenarioImageLoader import removed — scenario panel retired; the
 // toolbench now loads real COLA Cloud samples via /api/eval/sample.)
-import { AuthScreen } from './AuthScreen';
+import { AuthScreen } from './auth/AuthScreen';
 import {
   advanceAuthPhase,
   advanceSessionTimeoutCountdown,
@@ -12,7 +12,7 @@ import {
   getSessionTimeoutSeconds,
   SESSION_TIMEOUTS,
   type AuthPhase
-} from './authState';
+} from './auth/authState';
 import type { ExtractionMode, Mode, View } from './appTypes';
 import {
   isTourNextDisabled,
@@ -21,11 +21,11 @@ import {
   resolveTourInteractionAction,
   resolveTourStep,
   type TourRuntimeContext
-} from './help-tour-runtime';
+} from './tour/help-tour-runtime';
 import type { HelpShowMe, TourStep } from './helpManifest';
 import { seedScenarios } from './scenarios';
-import { useBatchWorkflow } from './useBatchWorkflow';
-import { useHelpTourState } from './useHelpTourState';
+import { useBatchWorkflow } from './batch/useBatchWorkflow';
+import { useHelpTourState } from './tour/useHelpTourState';
 import { useAppToolbench } from './useAppToolbench';
 import { useSingleReviewFlow } from './useSingleReviewFlow';
 import { fixturesEnabled } from './review-runtime';
