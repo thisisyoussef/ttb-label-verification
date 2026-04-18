@@ -1,6 +1,6 @@
 # Single Source of Truth
 
-Last updated: 2026-04-18 (`TTB-WF-003` is active on `chore/TTB-WF-003-worktree-env-bootstrap` to add automatic repo-local env bootstrap for new linked worktrees, keep routine env sync out of normal progress chatter, and finish the lean direct-branch workflow cleanup. `TTB-210` still needs traced LangSmith evidence because the current auth path fails with `401 /datasets` in the tracked eval flow and `403` on direct trace upload. `TTB-401` remains blocked on `TTB-210`.)
+Last updated: 2026-04-18 (`TTB-WF-003` is complete after removing the old lane split, making direct branch work the default, adding automatic repo-local env bootstrap for new linked worktrees, keeping routine env sync out of normal progress chatter, and letting a branch close its own tracker row through local gates. `TTB-210` still needs traced LangSmith evidence because the current auth path fails with `401 /datasets` in the tracked eval flow and `403` on direct trace upload. `TTB-401` remains blocked on `TTB-210`.)
 
 ## Continue resolution
 
@@ -36,9 +36,9 @@ Last updated: 2026-04-18 (`TTB-WF-003` is active on `chore/TTB-WF-003-worktree-e
 
 ## Active pointers
 
-- Active story: `TTB-WF-003`
-- Next preferred story: `TTB-WF-003`, then `TTB-210`
-- Next blocking story: `TTB-WF-003`, then `TTB-210`, then `TTB-401`
+- Active story: `TTB-210`
+- Next preferred story: `TTB-210`
+- Next blocking story: `TTB-210`, then `TTB-401`
 - Current blocker owner: none
 - Current manual user action: none
 
@@ -46,11 +46,10 @@ Last updated: 2026-04-18 (`TTB-WF-003` is active on `chore/TTB-WF-003-worktree-e
 
 | Order | Story ID | Parent | Title | Status | Next action | Blocking gate |
 | --- | --- | --- | --- | --- | --- | --- |
-| 0.5 | `TTB-WF-003` | workflow | lean agent workspace and direct-branch story workflow | `in-progress` | land the linked-worktree env bootstrap and quiet env-sync workflow cleanup, then move on to `TTB-210` | none |
 | 21 | `TTB-210` | `TTB-002` | persona-centered prompt profiles and endpoint plus mode guardrails | `in-progress` | publish the remaining traced evidence after refreshing LangSmith auth; local code, tests, build, and fixture evals are already green | LangSmith auth currently fails with `401 /datasets` in the tracked eval flow and `403` on direct trace upload |
 | 23 | `TTB-401` | `TTB-004` | final privacy, performance, eval, and submission pack | `blocked-by-dependency` | run the release gate and package the submission | `TTB-210` complete |
 
-Completed leaf stories through `TTB-209`, `TTB-211`, `TTB-302`, and `TTB-303` are the current baseline.
+Completed leaf stories through `TTB-WF-003`, `TTB-209`, `TTB-211`, `TTB-302`, and `TTB-303` are the current baseline.
 
 ## Review and handoff points
 
