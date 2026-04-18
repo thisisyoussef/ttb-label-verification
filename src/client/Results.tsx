@@ -8,6 +8,10 @@ import { ResultsPinnedColumn } from './ResultsPinnedColumn';
 import { StandaloneBanner } from './StandaloneBanner';
 import { VerdictBanner } from './VerdictBanner';
 import { REFINABLE_FIELD_IDS } from './useRefineReview';
+import {
+  resolveDynamicReviewPhrase,
+  summarizeReviewSeverity
+} from '../shared/dynamic-review-copy';
 import type {
   BeverageSelection,
   CheckReview,
@@ -219,7 +223,18 @@ export function Results({
     report.extractionQuality.state === 'low-confidence'
       ? 'The image was hard to read — please review these results carefully.'
       : null;
+  // Recompute the verdict subtitle from the CURRENT checks every
+  // render so the row-level refine pass (which mutates individual
+  // rows in place) is reflected immediately. The server-computed
+  // `report.verdictSecondary` is only used as a fallback for the
+  // non-review verdict states (reject deciding-check phrasing,
+  // standalone-mode notice, etc.) where the dynamic resolver
+  // returns undefined.
+  const dynamicReviewPhrase = resolveDynamicReviewPhrase(
+    summarizeReviewSeverity([...report.checks, ...report.crossFieldChecks])
+  );
   const secondary =
+    dynamicReviewPhrase ??
     report.verdictSecondary ??
     (lowConfidenceSecondary ? lowConfidenceSecondary : undefined);
 
