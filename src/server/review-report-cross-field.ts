@@ -1,5 +1,6 @@
 import type { CheckReview, ReviewExtraction } from '../shared/contracts/review';
 import type { NormalizedReviewIntake } from './review-intake';
+import type { SpiritsColocationResult } from './spirits-colocation-check';
 
 const DISTILLED_CITATIONS = [
   '27 CFR 5.61 mandatory label information',
@@ -11,9 +12,23 @@ const MALT_ABV_CITATIONS = [
   'TTB malt beverage ABV format guidance'
 ];
 
+const COLOCATION_PIECE_LABELS: Record<string, string> = {
+  'brand-name': 'brand name',
+  'class-type': 'class/type designation',
+  'alcohol-content': 'alcohol content statement'
+};
+
 export function buildCrossFieldChecks(input: {
   intake: NormalizedReviewIntake;
   extraction: ReviewExtraction;
+  /**
+   * Result of the parallel spirits same-field-of-vision VLM call
+   * (see src/server/spirits-colocation-check.ts). Populated upstream
+   * by the orchestration layer for distilled-spirits reviews when
+   * GEMINI_API_KEY is configured. Undefined falls back to the
+   * "please confirm by eye" placeholder.
+   */
+  spiritsColocation?: SpiritsColocationResult | null;
 }): CheckReview[] {
   const checks: CheckReview[] = [];
 
@@ -41,30 +56,65 @@ export function buildCrossFieldChecks(input: {
 function buildSpiritsSameFieldOfVisionCheck(input: {
   intake: NormalizedReviewIntake;
   extraction: ReviewExtraction;
+  spiritsColocation?: SpiritsColocationResult | null;
 }): CheckReview {
-  if (input.intake.standalone) {
+  // The colocation rule is purely a property of the label image, so
+  // it runs even in standalone mode (no application data) when the
+  // VLM signal is available.
+  const colocation = input.spiritsColocation ?? null;
+
+  if (!colocation) {
     return {
       id: 'same-field-of-vision',
       label: 'Same field of vision',
       status: 'info',
       severity: 'note',
-      summary: 'Skipped because no application data was provided.',
+      summary: 'Automatic check unavailable. Please confirm by eye.',
       details:
-        'This check needs application data to compare against. Nothing was provided, so this one was skipped.',
-      confidence: 1,
+        'Brand name, class/type, and alcohol content must all appear together on the same side of a spirits label. The automatic image check is not available on this run — please confirm by looking at the label.',
+      confidence: input.extraction.imageQuality.state === 'ok' ? 0.54 : 0.42,
       citations: DISTILLED_CITATIONS
     };
   }
 
+  const panelDescription = colocation.primaryPanelDescription
+    ? `Primary panel: ${colocation.primaryPanelDescription}.`
+    : '';
+  const reason = colocation.reason ? ` ${colocation.reason}` : '';
+
+  if (colocation.colocated) {
+    return {
+      id: 'same-field-of-vision',
+      label: 'Same field of vision',
+      status: 'pass',
+      severity: 'note',
+      summary: 'Brand, class/type, and alcohol content all appear on the same panel.',
+      details:
+        `${panelDescription} The required pieces are all visible together on that panel.${reason}`.trim(),
+      confidence: colocation.confidence,
+      citations: DISTILLED_CITATIONS
+    };
+  }
+
+  const missingLabels = colocation.missingFromPrimary
+    .map((piece) => COLOCATION_PIECE_LABELS[piece] ?? piece)
+    .filter(Boolean);
+  const missingPhrase =
+    missingLabels.length === 0
+      ? 'one or more required pieces are not on the primary panel'
+      : missingLabels.length === 1
+        ? `the ${missingLabels[0]} is not on the primary panel`
+        : `${missingLabels.slice(0, -1).join(', ')} and ${missingLabels[missingLabels.length - 1]} are not on the primary panel`;
+
   return {
     id: 'same-field-of-vision',
     label: 'Same field of vision',
-    status: 'info',
-    severity: 'note',
-    summary: 'This check is not yet available. Please confirm by eye.',
+    status: 'review',
+    severity: 'major',
+    summary: `Looks like ${missingPhrase}.`,
     details:
-      'Brand name, class/type, and alcohol content must all appear together on the same side of a spirits label. This version of the tool does not check that yet. Please confirm by looking at the label.',
-    confidence: input.extraction.imageQuality.state === 'ok' ? 0.54 : 0.42,
+      `${panelDescription} A reviewer should confirm directly on the label image — brand name, class/type, and alcohol content all need to share the same primary panel under 27 CFR 5.61.${reason}`.trim(),
+    confidence: colocation.confidence,
     citations: DISTILLED_CITATIONS
   };
 }

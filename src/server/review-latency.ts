@@ -16,7 +16,9 @@ export type ReviewLatencyStage =
   | 'ocr-prepass'
   | 'warning-ocv'
   | 'region-detection'
-  | 'llm-judgment';
+  | 'llm-judgment'
+  // Spirits-only same-field-of-vision VLM check (27 CFR 5.61).
+  | 'spirits-colocation';
 
 export type ReviewLatencyStageOutcome =
   | 'success'

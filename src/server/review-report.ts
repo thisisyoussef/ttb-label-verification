@@ -81,6 +81,14 @@ export async function buildVerificationReport(input: {
    * Default false — single-label flow runs the resolver inline.
    */
   deferResolver?: boolean;
+  /**
+   * Result of the parallel spirits same-field-of-vision VLM call.
+   * Populated for distilled-spirits reviews when GEMINI_API_KEY is
+   * configured. When omitted the cross-field check falls back to
+   * the "please confirm by eye" placeholder so deploys without a
+   * Gemini key still produce a coherent report.
+   */
+  spiritsColocation?: import('./spirits-colocation-check').SpiritsColocationResult | null;
 }): Promise<VerificationReport> {
   const extractionQuality = {
     globalConfidence: input.extraction.imageQuality.score,
@@ -140,7 +148,11 @@ export async function buildVerificationReport(input: {
   });
   const checks = resolverOutcome.checks;
 
-  const crossFieldChecks = buildCrossFieldChecks(input);
+  const crossFieldChecks = buildCrossFieldChecks({
+    intake: input.intake,
+    extraction: input.extraction,
+    spiritsColocation: input.spiritsColocation
+  });
   const counts = countStatuses(checks, crossFieldChecks);
   const verdictResult = deriveWeightedVerdict({
     checks,

@@ -74,6 +74,13 @@ export type TracedReviewReportInput = TraceMetadataInput & {
    * per-label calls. See batch-session.ts for the aggregation code.
    */
   deferResolver?: boolean;
+  /**
+   * Forwarded into buildVerificationReport so the spirits same-
+   * field-of-vision cross-field check can render a real status
+   * instead of the placeholder. Computed upstream by the parallel
+   * VLM call in `spirits-colocation-check.ts`.
+   */
+  spiritsColocation?: import('./spirits-colocation-check').SpiritsColocationResult | null;
 };
 
 export const tracedReviewExtraction = traceable(
@@ -140,7 +147,8 @@ export const tracedReviewReport = traceable(
       extraction: input.extraction,
       warningCheck: input.warningCheck,
       id: input.reportId,
-      deferResolver: input.deferResolver
+      deferResolver: input.deferResolver,
+      spiritsColocation: input.spiritsColocation
     });
   },
   {
