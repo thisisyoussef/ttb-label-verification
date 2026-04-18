@@ -6,6 +6,7 @@ import {
   type VerificationReport
 } from '../shared/contracts/review';
 import type { NormalizedReviewIntake } from './review-intake';
+import type { AnchorTrackResult } from './anchor-field-track';
 import { buildCrossFieldChecks } from './review-report-cross-field';
 import { buildFieldChecks } from './review-report-field-checks';
 import {
@@ -89,6 +90,15 @@ export async function buildVerificationReport(input: {
    * Gemini key still produce a coherent report.
    */
   spiritsColocation?: import('./spirits-colocation-check').SpiritsColocationResult | null;
+  /**
+   * Optional anchor track output from `runAnchorTrack()`. When
+   * supplied, per-field anchoring signals are used to upgrade
+   * review→pass where the anchor confirmed the application value is
+   * present on the label. When null/undefined, no merge happens —
+   * the report builds from VLM/judgment signals alone. See
+   * `review-report-field-checks.ts` for the merge logic.
+   */
+  anchorTrack?: AnchorTrackResult | null;
 }): Promise<VerificationReport> {
   const extractionQuality = {
     globalConfidence: input.extraction.imageQuality.score,
@@ -117,7 +127,11 @@ export async function buildVerificationReport(input: {
     });
   }
 
-  const initialChecks = buildFieldChecks(input);
+  const initialChecks = buildFieldChecks({
+    intake: input.intake,
+    extraction: input.extraction,
+    anchorTrack: input.anchorTrack ?? null
+  });
   initialChecks.push(input.warningCheck);
 
   // Sealed-verdict short-circuit: if any check already landed at status='fail'
