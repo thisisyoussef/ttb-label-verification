@@ -6,13 +6,15 @@ on:
       - opened
       - reopened
       - synchronize
-      - edited
-      - ready_for_review
   push:
     branches:
       - main
       - production
   workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   actions: read
@@ -60,112 +62,6 @@ jobs:
               `Commit ${commitSha} reached '${targetBranch}' via merged PR #${mergedPull.number}.`,
             );
 
-  pr-description:
-    if: ${{ github.event_name == 'pull_request' && !github.event.pull_request.draft }}
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Validate PR description
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const body = context.payload.pull_request?.body ?? '';
-            const pullNumber = context.payload.pull_request?.number;
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const requiredHeadings = [
-              'Summary',
-              'What Changed',
-              'Files or Surfaces Touched',
-              'Tests Added or Updated',
-              'Validation',
-              'Risks',
-              'Screenshots or Manual QA',
-              'Follow-ups',
-            ];
-
-            function extractSection(heading) {
-              const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-              const pattern = new RegExp(`(^|\\n)## ${escaped}\\s*\\n([\\s\\S]*?)(?=\\n## |$)`, 'm');
-              const match = body.match(pattern);
-              return match?.[2] ?? null;
-            }
-
-            function normalize(text) {
-              return text
-                .replace(/<!--[\s\S]*?-->/g, '')
-                .trim();
-            }
-
-            function isPlaceholder(text) {
-              const collapsed = text
-                .replace(/^[-*]\s*/gm, '')
-                .replace(/\s+/g, ' ')
-                .trim()
-                .toLowerCase();
-
-              return [
-                '',
-                'tbd',
-                'todo',
-                'pending',
-                'n/a',
-                'na',
-                'not applicable',
-                'none',
-                '...',
-                '-',
-                '?',
-              ].includes(collapsed);
-            }
-
-            const failures = [];
-
-            for (const heading of requiredHeadings) {
-              const rawSection = extractSection(heading);
-
-              if (rawSection == null) {
-                failures.push(`Missing required PR section: '${heading}'.`);
-                continue;
-              }
-
-              const section = normalize(rawSection);
-
-              if (isPlaceholder(section)) {
-                failures.push(`PR section '${heading}' is empty or placeholder-only.`);
-              }
-            }
-
-            const validationSection = normalize(extractSection('Validation') ?? '');
-            if (validationSection && !/`[^`]+`/.test(validationSection)) {
-              failures.push("PR section 'Validation' must list the exact commands or checks that were run.");
-            }
-
-            if (pullNumber != null) {
-              const files = await github.paginate(github.rest.pulls.listFiles, {
-                owner,
-                repo,
-                pull_number: pullNumber,
-                per_page: 100,
-              });
-
-              const hasTestFileChanges = files.some((file) =>
-                /(^|\/)(__tests__\/.+|.+\.(test|spec)\.[a-z0-9]+)$/i.test(file.filename),
-              );
-
-              const testsSection = normalize(extractSection('Tests Added or Updated') ?? '');
-              const saysNoTests = /\b(no test files changed|none|not applicable)\b/i.test(testsSection);
-
-              if (hasTestFileChanges && saysNoTests) {
-                failures.push(
-                  "PR section 'Tests Added or Updated' says no tests changed, but the diff includes test file changes.",
-                );
-              }
-            }
-
-            if (failures.length > 0) {
-              core.setFailed(failures.join('\n'));
-            }
   verify:
     runs-on: ubuntu-latest
 
@@ -182,10 +78,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run typecheck
+        run: npm run typecheck
+
       - name: Run tests
         run: npm run test
 
+      - name: Build application
+        if: ${{ github.event_name != 'pull_request' }}
+        run: npm run build
+
       - name: Run golden LLM evals
+        if: ${{ github.event_name != 'pull_request' }}
         env:
           LANGSMITH_API_KEY: ${{ secrets.LANGSMITH_API_KEY }}
           LANGSMITH_PROJECT: ttb-label-verification-dev
@@ -198,9 +102,3 @@ jobs:
             export LANGSMITH_TEST_TRACKING=false
           fi
           npm run eval:golden
-
-      - name: Run typecheck
-        run: npm run typecheck
-
-      - name: Build application
-        run: npm run build

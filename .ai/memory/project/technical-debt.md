@@ -9,6 +9,7 @@
 - The current Stryker harness remains noisy for `src/server/ai-provider-policy.ts`.
 - The new Gemini Batch runner currently targets the approved live `cola-cloud` plus `supplemental-generated` corpus only; if later stories want broader offline sweeps, the corpus expansion and inline-size guard need to be revisited without falling back to the Files API.
 - TTB rule normalization has not yet been turned into machine-readable source files.
+- PR CI still installs full dependencies for workflow-only and docs-only changes; if it becomes a drag again, the next step is safe path-based narrowing without reintroducing hidden merge automation.
 
 ## Process debt
 
