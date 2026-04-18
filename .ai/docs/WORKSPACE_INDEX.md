@@ -6,7 +6,8 @@ Core docs:
 - `docs/process/SINGLE_SOURCE_OF_TRUTH.md` — active story and next-step tracker
 - `docs/process/GIT_HYGIENE.md` — branch, worktree, push, and merge rules
 - `docs/process/BRANCH_TRACKER.md` — branch lifecycle registry
-- `CLAUDE.md` — Claude lane contract
+- `CLAUDE.md` — agent mirror for Claude
+- `docs/process/CODEX_CHECKLIST.md` — implementation checklist used for engineering or mixed-surface story work
 - `docs/specs/FULL_PRODUCT_SPEC.md` — product blueprint
 - `docs/specs/PROJECT_STORY_INDEX.md` — story queue
 

@@ -16,7 +16,7 @@ This file is the canonical operating contract for this repo. Keep it lean.
 ## Non-negotiables
 
 - Build from checked-in docs and code, not from chat memory.
-- `docs/process/SINGLE_SOURCE_OF_TRUTH.md` is the canonical checked-in tracker for active story, lane, and next step.
+- `docs/process/SINGLE_SOURCE_OF_TRUTH.md` is the canonical checked-in tracker for active story, status, and next step.
 - `docs/process/BRANCH_TRACKER.md` is the canonical checked-in tracker for branch lifecycle metadata.
 - `.ai/memory/**` is the memory bank. Keep it concise and aligned with checked-in truth.
 - Default to TDD, DRY, small modules, clear names, and single-purpose files.
@@ -26,12 +26,13 @@ This file is the canonical operating contract for this repo. Keep it lean.
 - Low-confidence visual claims default to `review`.
 - The single-label cloud path keeps its `<= 5,000 ms` public target unless a later measured story changes it.
 
-## Lane ownership
+## Agent model
 
-- Claude owns net-new UI direction in `src/client/**`.
-- Codex owns `src/server/**`, `src/shared/**`, validators, tests, tooling, infra, and workflow docs.
-- After Claude establishes UI direction, Codex may make story-scoped client refinements that help integration or maintainability.
-- If work crosses lanes, redirect explicitly with the next agent and exact file paths.
+- Claude and Codex are both full agents for this repo.
+- Either agent may work in `src/client/**`, `src/server/**`, `src/shared/**`, tests, tooling, infra, and docs when the story requires it.
+- Existing story packets, design docs, and historical handoff docs are context, not standing ownership gates.
+- Redirect only for real blockers: explicit user review, missing returned assets, unavailable credentials or tooling that cannot be recovered locally, or a manual release step the user must authorize.
+- Historical `docs/backlog/codex-handoffs/**` files remain useful context for older stories, but they are not a default prerequisite for new work.
 
 ## Story flow
 
@@ -40,6 +41,8 @@ This file is the canonical operating contract for this repo. Keep it lean.
 - Do the work directly on a fresh story branch by default.
 - Specs are optional. Create or update docs under `docs/specs/<story-id>/` only when the work is large, ambiguous, cross-cutting, risky, or the user asks for planning artifacts.
 - When a task is small and clear, implement directly and keep the documentation update proportional.
+- Before implementation, map the blast radius for touched routes, contracts, fixtures, evals, and adjacent flows instead of assuming the change is local.
+- Old UI-first packets and handoff files may still explain earlier design decisions, but they do not block direct execution unless the story explicitly says it is waiting on user approval or missing assets.
 
 ## Branch and worktree rules
 

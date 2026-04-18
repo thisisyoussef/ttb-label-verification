@@ -4,7 +4,7 @@ Last updated: 2026-04-18
 
 This file is the checked-in branch registry for normal story work.
 
-- `docs/process/SINGLE_SOURCE_OF_TRUTH.md` remains the canonical tracker for story order, lane ownership, and handoff state.
+- `docs/process/SINGLE_SOURCE_OF_TRUTH.md` remains the canonical tracker for story order, active status, blockers, and next-step resolution.
 - This file is the canonical tracker for branch lifecycle metadata: branch name, story id, description, status, PR state, and closeout notes.
 - Use the `Notes` column for linked worktree paths when a story runs in a sibling worktree.
 - The published copy on `main` is the canonical shared view. Story branches must update their own row as soon as they are opened so the tracker merges forward cleanly.
@@ -22,7 +22,7 @@ This file is the checked-in branch registry for normal story work.
 ## Active branches
 
 <!-- ACTIVE_BRANCHES:START -->
-| Branch | Story | Lane | Status | Description | PR | Opened | Updated | Base | Notes |
+| Branch | Story | Prefix | Status | Description | PR | Opened | Updated | Base | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `chore/TTB-WF-003-lean-agent-workspace` | `TTB-WF-003` | `chore` | `draft-local` | simplify agent docs, make direct branch work the default, and keep optional sibling worktrees | - | `2026-04-18` | `2026-04-18` | `origin/main` | linked worktree: /Users/youss/Development/gauntlet/ttb-label-verification-wf-003-lean |
 <!-- ACTIVE_BRANCHES:END -->
@@ -30,7 +30,7 @@ This file is the checked-in branch registry for normal story work.
 ## Closed branches
 
 <!-- CLOSED_BRANCHES:START -->
-| Branch | Story | Lane | Final status | Description | Closed | Notes |
+| Branch | Story | Prefix | Final status | Description | Closed | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | `claude/TTB-000-autodetect-and-cleanup` | `TTB-000` | `claude` | `merged` | wire OCR-inferred beverage through SSE so Auto-detect badge updates; remove file size from single-label UI | `2026-04-18` | landed across PRs #76, #77, and #78 |
 | `claude/TTB-000-local-fullarch` | `TTB-000` | `claude` | `merged` | full-stack local pipeline (Ollama VLM + judgment), RunPod deploy, UX polish pass | `2026-04-18` | merged via PR #49; later local history contains reverted perf experiments |

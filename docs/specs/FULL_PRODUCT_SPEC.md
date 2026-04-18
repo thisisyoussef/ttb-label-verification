@@ -21,7 +21,7 @@ Build a standalone web application that helps TTB reviewers verify alcohol bever
 - `TTB-208` and `TTB-209` now provide the latency measurement foundation, winning Gemini defaults, and checked-in 20-case latency corpus for the default cloud path, while keeping the public contract at `<= 5,000 ms`.
 - The model may extract and classify, but final compliance outcomes come from deterministic logic and typed contracts.
 - Uncertain visual judgments, especially boldness, same-field-of-vision, continuity, and separation, default to `review`.
-- Claude-direct UI development is the default in this repo. Automated Stitch and manual Comet remain available as explicit alternate flows when a story benefits from Stitch-generated references.
+- Direct UI development is the default in this repo. Automated Stitch and manual Comet remain available as explicit alternate flows when a story benefits from Stitch-generated references.
 
 ## Primary personas
 
@@ -188,25 +188,18 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 - `TTB-108`: extraction mode selector and mode-aware processing states
 - `TTB-401`: final privacy, performance, eval, and submission pack
 
-## Lane split
+## Agent model
 
-### Claude
-
-- owns frontend design in `src/client/**`
-- defaults to direct UI implementation, and prepares Stitch briefs only when a pass explicitly uses automated or manual Stitch
-- stops at visual approval, writes Codex handoffs, and then continues the next UI story
-
-### Codex
-
-- owns contracts, server, validators, OpenAI integration, tests, evals, LangSmith trace-driven development, privacy, performance, and submission docs
-- preserves the approved UI without redesigning it and may wire approved `src/client/**` surfaces to live behavior
-- blocks and returns to Claude when a required UI change appears
+- Claude and Codex are both full agents in this repo.
+- Either agent may implement frontend, backend, contracts, tests, evals, and flow docs directly on a story branch.
+- Older UI-first handoffs and lane-marked packets remain useful context for past stories, but they are not a default blocker for new work.
+- Stitch is optional per story. Use direct implementation by default, switch to automated or manual Stitch only when the story benefits from that flow.
 
 ## Compact packet rule
 
 - Every leaf story has a checked-in packet under `docs/specs/<story-id>/`.
 - During planning, that packet may be a compact `story-packet.md`.
-- Before active implementation, any agent may create or expand the packet into the standard working docs needed to move the story forward. Lane ownership still controls implementation and handoff work.
+- Before active implementation, any agent may create or expand the packet into the standard working docs needed to move the story forward.
 
 ## Env and integration needs
 
