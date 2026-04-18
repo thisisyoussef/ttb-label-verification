@@ -56,14 +56,14 @@ const TOUR_STEPS: TourStep[] = [
     totalSteps: 8,
     title: 'One verdict, backed by evidence',
     body:
-      'The results page shows one verdict — Approve, Review, or Reject — with a field-by-field checklist. Every row is explainable.',
+      'The results page shows one verdict — Looks good, or Needs review — with a field-by-field checklist. Every row is explainable.',
     target: 'tour-verdict-banner'
   },
   {
     anchorKey: 'warning-evidence',
     stepIndex: 6,
     totalSteps: 8,
-    title: 'What rejection looks like',
+    title: 'What needs review looks like',
     body:
       'That label passed — but the government warning is the most common reason one won\u2019t. The tool checks it five ways: presence, exact text, uppercase heading, continuous paragraph, and legibility. Let\u2019s switch to a label with issues so you can see how problems are surfaced.',
     target: 'tour-warning-row',
