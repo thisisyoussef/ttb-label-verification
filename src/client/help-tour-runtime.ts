@@ -243,7 +243,18 @@ export function resolvePendingVerifyAdvanceAction(
   step: TourStep,
   context: TourRuntimeContext
 ): PendingVerifyAdvanceAction {
-  if (step.target !== 'tour-verify-button') {
+  // The verify-the-label step keeps its index across the
+  // intake → processing → results transition, but `resolveTourStep`
+  // swaps the resolved target to `tour-processing-status` while the
+  // pipeline is running so the spotlight has something to anchor to.
+  // Treat both targets as the same logical step here — otherwise the
+  // pending-advance flag gets cleared the moment view→processing,
+  // and the auto-advance to the verdict step never fires when
+  // results arrive.
+  if (
+    step.target !== 'tour-verify-button' &&
+    step.target !== 'tour-processing-status'
+  ) {
     return { kind: 'clear' };
   }
 

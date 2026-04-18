@@ -216,7 +216,10 @@ export function Processing({
       </aside>
 
       <section className="md:col-span-8 lg:col-span-9 bg-background px-6 md:px-8 xl:px-16 py-6 xl:py-12 flex flex-col gap-6 xl:gap-8 overflow-y-auto">
-        <header className="flex flex-col gap-4">
+        <header
+          className="flex flex-col gap-4"
+          data-tour-target="tour-processing-status"
+        >
           <div>
             <h1 className="font-headline text-2xl xl:text-4xl font-extrabold text-on-surface tracking-tight">
               Reviewing this label
