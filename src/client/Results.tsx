@@ -267,6 +267,7 @@ export function Results({
               counts={report.counts}
               standalone={report.standalone}
               extractionQualityState={report.extractionQuality.state}
+              checks={[...report.checks, ...report.crossFieldChecks]}
               secondary={secondary}
               extractedFieldCount={report.checks.length}
               rulesAppliedCount={report.checks.length + report.crossFieldChecks.length}

@@ -5,6 +5,7 @@ import {
   type DisplayVerdict
 } from './reviewDisplayAdapter';
 import type {
+  CheckReview,
   ExtractionQualityState,
   VerificationCounts
 } from './types';
@@ -13,14 +14,16 @@ interface VerdictBannerProps {
   counts: VerificationCounts;
   standalone: boolean;
   extractionQualityState: ExtractionQualityState;
+  checks?: CheckReview[];
   secondary?: string;
   extractedFieldCount?: number;
   rulesAppliedCount?: number;
 }
 
-// Display-only skins. The banner keeps the same two visual states, but the
-// review headline now adapts to the actual reviewer workload instead of
-// always using one generic label.
+// Display-only skins. Approve stays tertiary (matched-green), review stays
+// caution-amber, and recommend-reject uses the error palette — muted
+// enough to match the softer copy ("probably not a label") while still
+// reading as a clearly different state from a normal review.
 const VERDICT_SKIN: Record<DisplayVerdict, { bg: string; border: string; icon: string; text: string }> = {
   approve: {
     bg: 'bg-tertiary-container/30',
@@ -33,6 +36,12 @@ const VERDICT_SKIN: Record<DisplayVerdict, { bg: string; border: string; icon: s
     border: 'border-caution',
     icon: 'text-on-caution-container',
     text: 'text-on-caution-container'
+  },
+  'recommend-reject': {
+    bg: 'bg-error-container/40',
+    border: 'border-error',
+    icon: 'text-on-error-container',
+    text: 'text-on-error-container'
   }
 };
 
@@ -40,6 +49,7 @@ export function VerdictBanner({
   counts,
   standalone,
   extractionQualityState,
+  checks,
   secondary,
   extractedFieldCount,
   rulesAppliedCount
@@ -47,7 +57,8 @@ export function VerdictBanner({
   const copy = resolveDisplayVerdictCopy({
     counts,
     standalone,
-    extractionQualityState
+    extractionQualityState,
+    checks
   });
   const skin = VERDICT_SKIN[copy.verdict];
   const displayCounts = toDisplayCounts(counts);
@@ -135,7 +146,9 @@ function buildAttribution(
   const tail =
     verdict === 'approve'
       ? 'everything matched'
-      : 'some fields need a human look';
+      : verdict === 'recommend-reject'
+        ? "nothing we recognise as label content came through"
+        : 'some fields need a human look';
 
   parts.push(tail);
   return parts.join(' · ');

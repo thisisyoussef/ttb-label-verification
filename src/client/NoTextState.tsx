@@ -7,25 +7,28 @@ export function NoTextState({ onTryAnother, onContinueWithCaution }: NoTextState
   return (
     <section
       role="alert"
-      aria-label="No readable text found in this image"
-      className="bg-surface-container-low border-l-4 border-secondary rounded-lg p-6 md:p-8 flex flex-col gap-6"
+      aria-label="No readable label content found in this image"
+      className="bg-error-container/40 border-l-4 border-error rounded-lg p-6 md:p-8 flex flex-col gap-6"
     >
       <div className="flex items-start gap-5">
         <div className="p-3 bg-surface-container-lowest rounded-lg shadow-sm flex-shrink-0">
           <span
             aria-hidden="true"
-            className="material-symbols-outlined text-secondary text-3xl"
+            className="material-symbols-outlined text-on-error-container text-3xl"
           >
-            visibility_off
+            report
           </span>
         </div>
         <div className="flex flex-col gap-2">
           <h2 className="font-headline text-2xl font-bold text-on-surface">
-            We couldn't read enough text from this image.
+            This doesn't look like a label.
           </h2>
           <p className="font-body text-on-surface-variant leading-relaxed max-w-2xl">
-            The photo may be too blurry, too dark, or cropped. Your inputs are still here —
-            nothing was saved.
+            We couldn't read any label content from this image — it may be too
+            blurry, too dark, or a photo of something else entirely. You'll
+            probably want to reject this submission. If the wrong image was
+            uploaded, try again with a clearer photo of the label. Your inputs
+            are still here — nothing was saved.
           </p>
         </div>
       </div>
