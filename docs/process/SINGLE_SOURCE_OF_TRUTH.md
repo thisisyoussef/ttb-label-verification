@@ -56,7 +56,8 @@ Completed leaf stories through `TTB-209`, `TTB-211`, `TTB-302`, and `TTB-303` ar
 
 - Hand off to the user for Stitch review only when the current pass is using automated or manual Stitch.
 - Hand off to the user for visual review when the story explicitly needs design approval before the work can proceed.
-- Hand off to QA-style review or final acceptance after implementation, tests, evals, privacy checks, and timing proof are complete.
+- Hand off to QA-style review or final acceptance after implementation, tests, evals, privacy checks, timing proof, and the required end-to-end API-plus-Comet browser verification are complete.
+- Mergeable story work should normally be pushed and merged before final acceptance handoff, not left sitting as a local-only branch.
 - After deployable stories, report staging deployment status or the exact CI or Railway deploy failure.
 
 ## Update rules

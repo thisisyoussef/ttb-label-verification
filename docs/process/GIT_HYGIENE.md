@@ -63,4 +63,5 @@ git worktree prune
 - Push the story branch.
 - Keep the PR body accurate and production-grade.
 - Merge through GitHub PRs.
+- When the story is done and mergeable, agents should run this push and merge path by default instead of waiting for a separate user prompt.
 - Delete the worktree after the branch is merged or intentionally abandoned.
