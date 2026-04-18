@@ -119,6 +119,16 @@ export function plainifyReason(raw: string): string {
     // Class/type matches..."). Strip every occurrence — they're engine
     // debug breadcrumbs, not reviewer-facing copy.
     .replace(/\[\s*[a-z0-9][a-z0-9-]*\s*\]\s*/gi, '')
+    // Strip engine-level diagnostic formatting like `app="X" ext="Y"`
+    // that leaked into a couple of judgment notes. The server copy
+    // has been updated to avoid this but the rewrite is a safety
+    // net — a reviewer should never see quoted-key debug bags.
+    .replace(/\bapp\s*=\s*"[^"]*"\s*(?:ext\s*=\s*"[^"]*"\s*)?/gi, '')
+    .replace(/\bext\s*=\s*"[^"]*"\s*/gi, '')
+    // Strip "Defer to LLM" / "LLM judgment" phrasing — users don't
+    // care which component resolves an ambiguity.
+    .replace(/\s*Defer to (?:the )?LLM(?: judgment)?(?: or human review)?\.?/gi, '')
+    .replace(/\bLLM judgment\b/gi, 'further review')
     // "(95% match)" / "(90% match)" → ""
     .replace(/\s*\(\s*\d+%\s*match\s*\)/gi, '')
     // "Warning text matches the required wording (95% match)." handled above

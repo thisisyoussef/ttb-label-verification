@@ -247,12 +247,12 @@ export function ToolbenchSamples({ onLoadSample, onLoadBatch }: ToolbenchSamples
       const csvBlob = await csvRes.blob();
       const csvFile = new File([csvBlob], pack.csvFile, { type: 'text/csv' });
 
-      // Pull the first 10 images; 10 is the sweet spot where the batch
-      // pipelining bench runs in ~15s at BATCH_CONCURRENCY=5.
-      const MAX_PACK_IMAGES = 10;
-      const slice = pack.images.slice(0, MAX_PACK_IMAGES);
+      // Pull ALL images in the pack so the CSV row count matches the
+      // image count — otherwise the batch-intake "unmatched rows"
+      // section fills up with every CSV row we didn't upload an image
+      // for, and the user has to match them manually.
       const imageFiles: File[] = [];
-      for (const img of slice) {
+      for (const img of pack.images) {
         const source = img.assetPath.split('/')[3] ?? 'cola-cloud';
         const url = `/api/eval/label-image/${encodeURIComponent(source)}/${encodeURIComponent(img.filename)}`;
         const imgRes = await fetch(url);
@@ -305,7 +305,7 @@ export function ToolbenchSamples({ onLoadSample, onLoadBatch }: ToolbenchSamples
             {loadingLive ? 'Connecting to COLA Cloud…' : 'Fetch live sample'}
           </button>
           <p className="text-[11px] text-on-surface-variant leading-snug">
-            Hits the federal COLA Cloud REST API using our server-side key. Pulls a
+            Hits the COLA Cloud REST API using our server-side key. Pulls a
             fresh random approved label each click.
           </p>
         </section>
@@ -322,7 +322,7 @@ export function ToolbenchSamples({ onLoadSample, onLoadBatch }: ToolbenchSamples
           className="inline-flex items-center justify-center gap-2 rounded-md bg-tertiary text-on-tertiary px-3 py-2 text-sm font-label font-semibold transition-colors hover:bg-tertiary/90 disabled:bg-tertiary/40 disabled:cursor-not-allowed"
         >
           <span className="material-symbols-outlined text-[16px]">inventory_2</span>
-          {loadingBatch ? 'Loading pack…' : 'Load test batch (10 labels)'}
+          {loadingBatch ? 'Loading pack…' : 'Load test batch'}
         </button>
         <p className="text-[11px] text-on-surface-variant leading-snug">
           Populates the batch intake with 10 real COLA labels + their matching CSV.

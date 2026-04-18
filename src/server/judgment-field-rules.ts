@@ -549,7 +549,7 @@ export function judgeCountryOfOrigin(
     disposition: 'review',
     confidence: 0.50,
     rule: 'country-ambiguous-defer-to-llm',
-    note: `Country values differ: app="${appValue}" ext="${extValue}". Defer to LLM judgment or human review.`,
+    note: `The country on the application (${appValue}) doesn't clearly match what the label shows (${extValue}). A human reviewer should take a look.`,
     tier: 'high'
   };
 }

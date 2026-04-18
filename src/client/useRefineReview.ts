@@ -39,23 +39,37 @@ export interface RefineHandle {
   reset: () => void;
 }
 
-export const IDENTIFIER_FIELD_IDS = new Set([
+/**
+ * Which rows the "Verifying" indicator lights up on. The refine
+ * server call runs the full pipeline under VERIFICATION_MODE=on and
+ * returns EVERY field refreshed, so we merge every row regardless of
+ * id — but we still surface the pulsing pill on the same identifier
+ * + numeric fields that benefit from the second pass (brand, class,
+ * country, address, ABV, net contents, warning).
+ */
+export const REFINABLE_FIELD_IDS = new Set([
   'brand-name',
   'class-type',
   'country-of-origin',
-  'applicant-address'
+  'applicant-address',
+  'alcohol-content',
+  'net-contents',
+  'government-warning'
 ]);
 
+/** @deprecated Use REFINABLE_FIELD_IDS. Kept for backwards compatibility. */
+export const IDENTIFIER_FIELD_IDS = REFINABLE_FIELD_IDS;
+
 /**
- * Pure: returns true when the report has at least one identifier
- * field in 'review' status — i.e. where verification-mode has a real
- * chance of resolving the ambiguity.
+ * Pure: returns true when the report has ANY field in 'review'
+ * status. Refine runs the full pipeline with verification-mode on
+ * and refreshes every row — not just identifiers — so the "one more
+ * look" pass applies to ABV, net contents, warning, and address the
+ * same way it does to brand / class / country.
  */
 export function hasRefinableRows(report: UIVerificationReport | null): boolean {
   if (!report) return false;
-  return report.checks.some(
-    (check) => check.status === 'review' && IDENTIFIER_FIELD_IDS.has(check.id)
-  );
+  return report.checks.some((check) => check.status === 'review');
 }
 
 export function useRefineReview(): RefineHandle {
@@ -123,8 +137,12 @@ export function mergeRefinedReport(
   refined: UIVerificationReport
 ): UIVerificationReport {
   const refinedById = new Map(refined.checks.map((check) => [check.id, check]));
+  // Merge every row the refined report touched, not just identifiers.
+  // The refine call re-runs the full pipeline so ABV / net contents /
+  // warning / address all come back refreshed too; dropping the
+  // identifier-only filter means the second pass actually resolves
+  // what the user sees in `review` status.
   const nextChecks = base.checks.map((check) => {
-    if (!IDENTIFIER_FIELD_IDS.has(check.id)) return check;
     const swap = refinedById.get(check.id);
     return swap ?? check;
   });

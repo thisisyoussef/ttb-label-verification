@@ -161,7 +161,7 @@ function buildFieldCheck(input: {
       ? (rawMatch ? 'match' as const : 'case-mismatch' as const)
       : 'value-mismatch' as const;
     const altNote = hasAlternative
-      ? ` Label also shows "${alternativeReading}" in the expected position — human review recommended.`
+      ? ` The label also appears to show "${alternativeReading}" — a human reviewer should take a look.`
       : '';
     return {
       id: input.spec.id, label: input.spec.label,
@@ -170,7 +170,7 @@ function buildFieldCheck(input: {
       summary: effectiveDisposition === 'approve'
         ? 'Label matches the approved record.'
         : hasAlternative
-          ? `Label shows "${alternativeReading}" in the expected position.`
+          ? `Label appears to show "${alternativeReading}" where the approved value was expected.`
           : judgment.note,
       details: `[${judgment.rule}] ${judgment.note}${altNote}`,
       confidence: judgment.confidence, citations: citationsFor(input.extraction.beverageType),
