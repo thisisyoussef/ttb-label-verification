@@ -270,6 +270,9 @@ Build uses **Nixpacks** so `tesseract-ocr` and `tesseract-ocr-eng` are installed
 
 ## Additional docs
 
+- [`ARCHITECTURE.md`](ARCHITECTURE.md) — directory map, domain groupings, where each concern lives
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — on-ramp for new contributors (humans and agents)
+- [`AGENTS.md`](AGENTS.md) — operating contract for Claude / Codex
 - [`docs/reference/submission-baseline.md`](docs/reference/submission-baseline.md) — assumptions register, evidence map, and open gaps
 - [`docs/process/DEPLOYMENT_FLOW.md`](docs/process/DEPLOYMENT_FLOW.md) — full CI / Railway flow
 - [`docs/specs/FULL_PRODUCT_SPEC.md`](docs/specs/FULL_PRODUCT_SPEC.md) — product shape and story map
