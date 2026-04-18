@@ -21,6 +21,13 @@ import {
   isCountryEquivalent,
   GRAPE_SYNONYMS
 } from './judgment-equivalence';
+import {
+  addressTokenOverlap,
+  normalizeAddress
+} from './taxonomy/address-abbreviations';
+import {
+  resolvesToSameStandardBottle
+} from './taxonomy/net-contents-units';
 
 export type FieldJudgment = {
   disposition: 'approve' | 'review' | 'reject';
@@ -421,6 +428,21 @@ export function judgeNetContents(
     };
   }
 
+  // Standard TTB bottle sizes (27 CFR 4.72 + 5.203): both sides snap
+  // to the same regulatory size within tolerance (e.g. "750 mL" on
+  // form + "25 fl oz" label → both snap to 750 mL). Catches the
+  // common "label printed a rounded fl oz" case that our raw-mL diff
+  // misses because 25.0 fl oz rounds to 739 mL, outside the 5 mL band.
+  if (resolvesToSameStandardBottle(appValue, extValue, 15)) {
+    return {
+      disposition: 'approve',
+      confidence: 0.90,
+      rule: 'net-contents-standard-bottle',
+      note: `Net contents resolve to the same TTB standard bottle size. Approved: "${appValue}"; label: "${extValue}".`,
+      tier: 'medium'
+    };
+  }
+
   return {
     disposition: 'reject',
     confidence: 0.92,
@@ -457,6 +479,23 @@ export function judgeApplicantAddress(
     };
   }
 
+  // USPS Pub 28 normalization: expand abbreviations so "St"/"Street",
+  // "Ave"/"Avenue", "Bros"/"Brothers", etc. compare equal. This
+  // catches the most common "is it really different?" false positives
+  // before we get to overlap scoring. If the normalized forms match
+  // exactly, we've resolved the mismatch deterministically.
+  const uspsApp = normalizeAddress(appValue);
+  const uspsExt = normalizeAddress(extValue);
+  if (uspsApp === uspsExt) {
+    return {
+      disposition: 'approve',
+      confidence: 0.93,
+      rule: 'address-usps-normalized-match',
+      note: 'Same address — only USPS-style abbreviations (St/Street, Ave/Avenue, etc.) differ.',
+      tier: 'medium'
+    };
+  }
+
   // Tokenize and check for city/state overlap (most discriminating parts)
   const appTokens = new Set(
     appNormalized.split(/[\s,.]+/).filter((t) => t.length >= 3)
@@ -470,7 +509,13 @@ export function judgeApplicantAddress(
     if (extTokens.has(tok)) shared += 1;
   }
   const minSize = Math.min(appTokens.size, extTokens.size);
-  const overlap = minSize > 0 ? shared / minSize : 0;
+  let overlap = minSize > 0 ? shared / minSize : 0;
+
+  // Also compute USPS-normalized token overlap as a second signal.
+  // When that's higher, prefer it — abbreviation expansion only helps
+  // when the label uses the abbreviated form.
+  const uspsOverlap = addressTokenOverlap(appValue, extValue);
+  if (uspsOverlap > overlap) overlap = uspsOverlap;
 
   // Substring match — labels often shorten "Brooklyn, NY 11201" to "Brooklyn, NY"
   if (
