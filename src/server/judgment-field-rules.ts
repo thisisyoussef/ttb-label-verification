@@ -107,11 +107,12 @@ export function judgeAlcoholContent(
     };
   }
 
+  const diffDisplay = Number(diff.toFixed(1));
   return {
     disposition: 'reject',
     confidence: 0.95,
     rule: 'abv-numeric-mismatch',
-    note: `Alcohol content differs by ${diff}% (approved ${appAbv}%, label ${extAbv}%).`,
+    note: `Alcohol content differs by ${diffDisplay}% (approved ${appAbv}%, label ${extAbv}%).`,
     tier: 'critical'
   };
 }
