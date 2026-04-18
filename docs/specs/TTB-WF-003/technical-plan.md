@@ -2,7 +2,7 @@
 
 ## Scope
 
-Keep the repo workflow disciplined but smaller, restore direct branch work as the default, and keep linked worktrees as an optional isolation path.
+Keep the repo workflow disciplined but smaller, restore direct branch work as the default, keep linked worktrees as an optional isolation path, and slim the GitHub PR flow so it does not become a second workflow engine.
 
 ## Files
 
@@ -47,6 +47,14 @@ Keep the repo workflow disciplined but smaller, restore direct branch work as th
 - The helper rejects worktree paths inside the repo root so nested `.claude/worktrees/**` cannot become the default again.
 - The branch tracker keeps worktree path detail in the `Notes` column instead of expanding the table shape.
 
+### Lean PR and CI flow
+
+- Auto-opened story PRs should be ready by default rather than drafts.
+- PR CI should stay lightweight and fast enough to act as a merge backstop: install deps, typecheck, and test.
+- Full verification, including build and golden evals, should stay on pushes to `main` and `production`.
+- Hidden auto-merge and auto-update workflows should be removed so normal story completion happens through direct push, PR, and merge steps instead of background orchestration.
+- Docs should explicitly tell agents not to narrate waiting on checks unless those checks actually block merge or deploy.
+
 ### Source-size waiver baseline
 
 - The repo currently has inherited files over the 500-line cap on `origin/main`.
@@ -64,5 +72,6 @@ Keep the repo workflow disciplined but smaller, restore direct branch work as th
 - Add focused unit tests for repo-local env bootstrap, including sibling inventory recovery for Gemini and OpenAI keys.
 - Add focused unit tests for the source-size baseline classification logic.
 - Add focused unit coverage for finding a closed branch row and accepting it in the git gate path.
+- Validate the GitHub workflow change by checking the workflow YAML, PR template, and git/deploy docs stay aligned on the same ready-PR plus light-PR-CI contract.
 - Run the script-focused tests while iterating.
 - Before handoff, run `npm run test`, `npm run typecheck`, and `npm run build`.

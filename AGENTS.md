@@ -49,6 +49,7 @@ This file is the canonical operating contract for this repo. Keep it lean.
 - Keep in-progress updates short and action-oriented.
 - Do not narrate internal reasoning, speculative continuity clues, or tracker inconsistencies unless they materially block the work.
 - Treat routine env-sync recovery in a linked worktree as operational detail. Run it or let the branch helper run it, and mention it only when live work is still blocked afterward.
+- Do not tell the user you are waiting on draft-to-ready transitions, background PR checks, or similar GitHub bookkeeping unless those checks are the concrete blocker to merge or deploy.
 - If checked-in docs disagree and the correction is obvious, fix the docs and report the correction plainly instead of talking through the intermediate analysis.
 - Avoid lane-resolution chatter, agent-role chatter, and status noise in user-facing updates unless the user explicitly asks for workflow debugging.
 
@@ -73,6 +74,8 @@ This file is the canonical operating contract for this repo. Keep it lean.
 - Run `npm run gate:push` before reviewable pushes.
 - Run `npm run gate:publish` before claiming a branch is on GitHub.
 - Do not push directly to `main` or `production` for story work.
+- Story branches publish to ready PRs by default.
+- Treat PR CI as a lightweight backstop, not a conversational waiting stage.
 - When a story is done and mergeable, do not stop at a local commit. Push the branch, open or update the GitHub PR, and merge it unless the user explicitly asks to hold it or a concrete blocker exists.
 
 ## Verification
@@ -83,10 +86,11 @@ This file is the canonical operating contract for this repo. Keep it lean.
   - exercise the real API path with non-default inputs
   - click through the real user flow in a real browser using Comet
   - confirm the UI reflects the live response rather than fixture-only behavior
-- Before handoff, run:
+- Before handoff for runtime or API behavior changes, run:
   - `npm run test`
   - `npm run typecheck`
   - `npm run build`
+- For docs-only, workflow-only, or narrowly scoped tooling changes, run the smallest focused validation that proves the changed surface plus the git publish gates.
 
 ## Memory updates after work
 

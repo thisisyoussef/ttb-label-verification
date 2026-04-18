@@ -14,6 +14,9 @@ The repo currently repeats workflow rules across too many files and still carrie
 - Agents read a much smaller core contract.
 - SSOT and memory bank remain the durable coordination layer.
 - Starting a new task defaults to working directly on a fresh story branch.
+- Story branches auto-open ready PRs instead of draft PRs.
+- PR CI becomes a lightweight merge backstop instead of a second full handoff ritual.
+- Hidden auto-merge and auto-update GitHub workflows stop owning normal story completion.
 - The branch helper can still create and track an optional sibling worktree when isolation is needed, and that isolated checkout should start with repo-local env bootstrap instead of depending on another worktree's `.env`.
 - Nested `.claude/worktrees` stop being a tracked repo surface.
 - A branch can move its own row into closed history and still pass the final local gate run.
@@ -31,6 +34,7 @@ The repo currently repeats workflow rules across too many files and still carrie
 9. The source-size gate uses a checked-in baseline waiver for inherited oversized files so unrelated workflow branches can still commit while blocking new oversized files and growth beyond the baseline.
 10. SSOT, branch tracker, story packet, and memory reflect the new workflow truth, including the auto-bootstrap rule for new linked worktrees and the expectation that routine env recovery stays out of normal progress chatter.
 11. A branch's own final closeout commit can pass local gates after the row has moved from active branches into closed history.
+12. GitHub opens story PRs as ready by default, PR CI stays lightweight, and agents merge directly after local publish gates instead of waiting on a separate auto-merge or ready-for-review loop.
 
 ## Out of scope
 

@@ -12,14 +12,14 @@ permissions:
   pull-requests: write
 
 jobs:
-  open-draft-story-pr:
+  open-story-pr:
     runs-on: ubuntu-latest
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Open draft PR when a story branch is first published
+      - name: Open ready PR when a story branch is first published
         uses: actions/github-script@v7
         with:
           script: |
@@ -69,10 +69,10 @@ jobs:
                 base: 'main',
                 title,
                 body,
-                draft: true,
+                draft: false,
               });
 
-              core.notice(`Opened draft PR #${pull.number} for '${branch}'.`);
+              core.notice(`Opened PR #${pull.number} for '${branch}'.`);
             } catch (error) {
               if (
                 error.status === 422 &&

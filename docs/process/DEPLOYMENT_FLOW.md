@@ -21,7 +21,7 @@ Why this model:
 
 - it uses the same Railway CLI locally and in GitHub Actions
 - it removes manual Railway service-setting drift from the harness
-- CI remains the hard gate before staging or production deploys
+- full CI remains the hard gate before staging or production deploys
 - the repo still stays simple: one app, one service, two long-lived environments
 
 ## Git gates around deploys
@@ -108,10 +108,11 @@ Do not store app data, uploads, or results in Railway volumes or attached databa
 ## GitHub workflows
 
 - `.github/workflows/ci.yml`
-  - runs tests, typecheck, and build on PRs and on pushes to `main` and `production`
+  - runs a lightweight `typecheck` plus `test` pass on PRs
+  - runs the full release verification set on pushes to `main` and `production`: `typecheck`, `test`, `build`, and golden evals
   - rejects `main` and `production` updates that are not associated with a merged pull request
 - `.github/workflows/auto-open-story-prs.yml`
-  - opens a draft PR to `main` when a normal story branch is first published and no PR already exists
+  - opens a ready PR to `main` when a normal story branch is first published and no PR already exists
 - `.github/workflows/railway-post-deploy.yml`
   - listens for successful `ci` runs triggered by branch pushes
   - uses Railway CLI with `RAILWAY_API_TOKEN`
@@ -127,15 +128,16 @@ Do not store app data, uploads, or results in Railway volumes or attached databa
 ### After a deployable implementation story is complete
 
 1. Finish the story packet and handoff normally.
-2. Merge the story into `main` through its GitHub PR, not by direct ref update.
-3. Let CI pass.
-4. The `railway-deploy` workflow runs `railway up` against `staging`.
-5. The deploy workflow verifies `/api/health`.
-6. Include staging deployment status in the final acceptance or deployment note.
+2. Push the story branch, run `npm run gate:publish`, and open or update the GitHub PR.
+3. If local gates are green and GitHub allows the merge, merge the PR instead of waiting around for PR CI chatter.
+4. If GitHub blocks the merge, report the exact blocker.
+5. After merge, `ci` runs on `main` and the `railway-deploy` workflow runs `railway up` against `staging`.
+6. The deploy workflow verifies `/api/health`.
+7. Include staging deployment status in the final acceptance or deployment note.
 
 ### After a docs-only or harness-only story is complete
 
-- CI still runs after merge.
+- the lightweight PR CI still runs before merge and the full `main` CI still runs after merge.
 - the branch-driven deploy workflow may still run even if runtime code did not change.
 - if no runtime artifact changed, say that explicitly in handoff notes instead of implying a meaningful app delta shipped.
 

@@ -61,10 +61,19 @@ git worktree prune
 - The source-size guard now freezes inherited oversized files at their checked-in line counts through `scripts/source-size-baseline.json`; new oversized files or growth beyond that baseline still fail the gate.
 - The branch-tracker gate also accepts the current branch in closed history during that branch's own final closeout commit and push, so the tracker can be finalized without bypassing hooks.
 
+## CI posture
+
+- Local gates are the primary merge contract for story work.
+- GitHub PR CI is intentionally lightweight and should stay fast enough to act as a backstop, not a second full handoff ritual.
+- Full verification still runs on pushes to `main` and `production` before the deploy path continues.
+- Do not report that you are "waiting on checks" by default. If local gates are green and GitHub allows the merge, merge the PR.
+- Mention GitHub checks only when they are the concrete blocker to merge or deploy.
+
 ## PR and merge path
 
 - Push the story branch.
-- Keep the PR body accurate and production-grade.
+- A published story branch auto-opens a ready PR to `main` unless one already exists.
+- Keep the PR body accurate and concise.
 - Merge through GitHub PRs.
-- When the story is done and mergeable, agents should run this push and merge path by default instead of waiting for a separate user prompt.
+- When the story is done and mergeable, agents should run this push and merge path by default instead of waiting for a separate user prompt or narrating CI idle time.
 - Delete the worktree after the branch is merged or intentionally abandoned.

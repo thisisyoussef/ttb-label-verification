@@ -17,3 +17,6 @@
 
 6. Update the checked-in trackers and memory.
    - Validation: SSOT, branch tracker, packet docs, and memory files reflect the new durable workflow truth.
+
+7. Slim the GitHub PR path.
+   - Validation: story branches auto-open ready PRs, PR CI is lightweight, the repo no longer auto-merges or auto-updates story PRs in the background, and the checked-in docs tell agents to merge directly after local publish gates unless GitHub actually blocks.

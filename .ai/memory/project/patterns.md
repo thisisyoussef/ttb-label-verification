@@ -14,6 +14,7 @@
 - Prompt, model, tool-call, and agentic LLM stories use trace-driven development through `docs/process/TRACE_DRIVEN_DEVELOPMENT.md` and `.ai/workflows/trace-driven-development.md`, with LangSmith tracing kept off outside explicit local trace runs.
 - Direct UI work is the default. Stitch remains optional through `STITCH_FLOW_MODE=direct|automated|manual`; the legacy `claude-direct` value is accepted only as a compatibility alias.
 - Story work uses checked-in git gates: story-scoped branches, `npm run gate:commit` before reviewable commits, `npm run gate:push` before reviewable pushes, and PR-only merges to `main`.
+- Published story branches auto-open ready PRs, and PR CI stays intentionally light so it acts as a merge backstop rather than a second full workflow engine.
 - Done means published and merged when the branch is mergeable; agents should push and merge by default unless the user asks to hold or a concrete blocker exists.
 
 ## Product pattern
