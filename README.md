@@ -143,6 +143,92 @@ This repo was built with a deliberately heavy process spine because the brief ha
 
 The result is that the repo explains not only **what** was built, but **how** requirements moved from source material to specs, from specs to tests, and from tests/evals into release-facing docs.
 
+## Examples Of Depth And Critical Thinking
+
+One of the easiest ways to tell whether this project was built with rigor is to look for places where the code chooses the conservative answer instead of the convenient one.
+
+### 1. The contract itself encodes the privacy posture
+
+This is not only README language. The extraction contract literally carries the no-persistence claim:
+
+```ts
+export const reviewExtractionSchema = z.object({
+  extraction: reviewExtractionCoreSchema,
+  noPersistence: z.literal(true),
+  standaloneInverseLabelCheck: standaloneInverseLabelCheckSchema.optional()
+});
+```
+
+That seam exists in [`src/shared/contracts/review-base.ts`](src/shared/contracts/review-base.ts), and the OpenAI path separately enforces `store: false` at the provider call boundary. The point is that privacy is expressed in both docs and runtime contracts, not left as a policy comment.
+
+### 2. The model is intentionally prevented from becoming the judge
+
+The report builder computes the verdict after extraction, not inside the model adapter:
+
+```ts
+const crossFieldChecks = buildCrossFieldChecks({ intake, extraction, spiritsColocation });
+const verdictResult = deriveWeightedVerdict(checks, extraction.imageQuality, warningCheck);
+```
+
+That decision lives in [`src/server/review-report.ts`](src/server/review-report.ts). It is a strong critical-thinking choice because it makes the failure modes auditable: models can be wrong about what they saw, but the compliance logic stays deterministic, typed, and testable.
+
+### 3. The repo prefers uncertainty over false certainty
+
+The scoring path does not treat weak visual evidence as permission to pass. It explicitly forces review in uncertainty-heavy situations:
+
+- low-confidence or weak warning evidence
+- image-quality issues
+- ambiguous same-field-of-vision or formatting judgments
+
+The core logic is in [`src/server/judgment-scoring.ts`](src/server/judgment-scoring.ts) and [`src/server/review-report-cross-field.ts`](src/server/review-report-cross-field.ts). This is where the product shows real judgment: the safest failure mode for a reviewer tool is often `review`, not a fragile automated pass.
+
+### 4. Provider flexibility was designed without letting the architecture drift
+
+The provider-router seam means Gemini, OpenAI Responses, and restricted-network/local extraction can feed the same typed downstream pipeline:
+
+- routing policy: [`src/server/ai-provider-policy.ts`](src/server/ai-provider-policy.ts)
+- extractor factory: [`src/server/review-extractor-factory.ts`](src/server/review-extractor-factory.ts)
+- shared extraction-output normalization: [`src/server/review-extraction-model-output.ts`](src/server/review-extraction-model-output.ts)
+
+That is a deeper architectural move than “add another model.” It means the project can change extraction backends without rewriting the warning validator, field judges, batch engine, or UI report contract.
+
+### 5. The government warning path was treated as a first-class reasoning problem
+
+Instead of checking warning text with one coarse boolean, the repo breaks it into sub-checks, diff evidence, and regulatory references:
+
+- validator: [`src/server/government-warning-validator.ts`](src/server/government-warning-validator.ts)
+- sub-check logic: [`src/server/government-warning-subchecks.ts`](src/server/government-warning-subchecks.ts)
+- UI evidence surface: [`src/client/WarningEvidence.tsx`](src/client/WarningEvidence.tsx)
+
+That is why the results screen can explain *why* a warning landed in `Needs review` instead of only asserting that it failed.
+
+### 6. The latency work shows product thinking, not just micro-optimization
+
+The project does not talk about latency as one number. It separates:
+
+- **perceived latency**: OCR preview, extraction prefetch, silent refine
+- **actual latency**: warmup, provider fallback windows, stage timings
+
+The supporting seams are visible in:
+
+- [`src/client/useOcrPreview.ts`](src/client/useOcrPreview.ts)
+- [`src/client/useExtractionPrefetch.ts`](src/client/useExtractionPrefetch.ts)
+- [`src/client/useRefineReview.ts`](src/client/useRefineReview.ts)
+- [`src/server/review-latency.ts`](src/server/review-latency.ts)
+
+That split is a sign of strong critical thinking because the brief was about reviewer experience, not just benchmark vanity.
+
+### 7. The repo treats evaluation as a design artifact, not a last-minute QA step
+
+The golden set, live core-six subset, latency slice, and checked-in run artifacts are all part of the architecture:
+
+- canonical corpus: [`evals/golden/manifest.json`](evals/golden/manifest.json)
+- live subset: [`evals/labels/manifest.json`](evals/labels/manifest.json)
+- timing/benchmark evidence: [docs/EVAL_RESULTS.md](docs/EVAL_RESULTS.md)
+- process docs: [docs/process/TEST_QUALITY_STANDARD.md](docs/process/TEST_QUALITY_STANDARD.md) and [docs/process/TRACE_DRIVEN_DEVELOPMENT.md](docs/process/TRACE_DRIVEN_DEVELOPMENT.md)
+
+That is one of the strongest signals in the repo: requirements were translated into datasets, eval slices, timing artifacts, and release-facing documentation, not only into feature tickets.
+
 ## Architecture Summary
 
 The central invariant is:
