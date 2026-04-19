@@ -1,9 +1,8 @@
-import { useState } from 'react';
-import type { ReviewRelevanceResult } from '../shared/contracts/review';
+import { useEffect, useState } from 'react';
 import { BeverageTypeField } from './BeverageTypeField';
 import { useHint } from './useHint';
 import { DropZone } from './DropZone';
-import { ReviewRelevanceBanner } from './ReviewRelevanceBanner';
+import { shouldShowWineFields } from './intakeDisplay';
 import {
   abvTagFor,
   FieldGroup,
@@ -44,8 +43,6 @@ interface IntakeProps {
   secondaryImage: LabelImage | null;
   beverage: BeverageSelection;
   fields: IntakeFields;
-  reviewRelevance: ReviewRelevanceResult | null;
-  reviewRelevancePending: boolean;
   onImagesChange: (
     primaryImage: LabelImage | null,
     secondaryImage: LabelImage | null
@@ -53,7 +50,6 @@ interface IntakeProps {
   onBeverageChange: (value: BeverageSelection) => void;
   onFieldsChange: (fields: IntakeFields) => void;
   onVerify: () => void;
-  onContinueAfterRelevanceWarning: () => void;
   onClear: () => void;
   onLaunchTour?: () => void;
 }
@@ -63,17 +59,15 @@ export function Intake({
   secondaryImage,
   beverage,
   fields,
-  reviewRelevance,
-  reviewRelevancePending,
   onImagesChange,
   onBeverageChange,
   onFieldsChange,
   onVerify,
-  onContinueAfterRelevanceWarning,
   onClear,
   onLaunchTour
 }: IntakeProps) {
   const [confirmingClear, setConfirmingClear] = useState(false);
+  const [revealWineFields, setRevealWineFields] = useState(false);
   const verifyDisabled = image === null;
   const jsonPasteHint = useHint('json-paste', image !== null);
 
@@ -82,7 +76,17 @@ export function Intake({
   };
 
   const abvTag = abvTagFor(beverage);
-  const showWineFields = beverage === 'wine';
+  const showWineFields = shouldShowWineFields({
+    beverage,
+    fields,
+    revealWineFields
+  });
+
+  useEffect(() => {
+    if (beverage !== 'auto' || isFieldsEmpty(fields)) {
+      setRevealWineFields(false);
+    }
+  }, [beverage, fields]);
 
   const onPrimary = () => {
     if (verifyDisabled) return;
@@ -117,12 +121,6 @@ export function Intake({
                 secondaryImage={secondaryImage}
                 onChange={onImagesChange}
               />
-              <ReviewRelevanceBanner
-                pending={reviewRelevancePending}
-                relevance={reviewRelevance}
-                onTryAnotherImage={() => onImagesChange(null, null)}
-                onContinueAnyway={onContinueAfterRelevanceWarning}
-              />
               {jsonPasteHint.visible && !image ? (
                 <p className="text-xs text-on-surface-variant/70 font-label flex items-center gap-1.5 mt-2">
                   <span className="material-symbols-outlined text-[14px]" aria-hidden="true">lightbulb</span>
@@ -145,6 +143,15 @@ export function Intake({
               <div className="bg-surface-container-low rounded-lg p-5 md:p-6 xl:p-8 flex flex-col gap-6 xl:gap-8">
                 <div className="flex flex-col gap-4">
                   <BeverageTypeField value={beverage} onChange={onBeverageChange} />
+                  {beverage === 'auto' && !showWineFields ? (
+                    <button
+                      type="button"
+                      onClick={() => setRevealWineFields(true)}
+                      className="self-start text-sm font-semibold text-primary hover:underline"
+                    >
+                      Add wine details if this might be wine
+                    </button>
+                  ) : null}
                   <PasteFromJson
                     fields={fields}
                     onFieldsChange={onFieldsChange}
@@ -247,6 +254,12 @@ export function Intake({
 
                 {showWineFields ? (
                   <FieldGroup title="Wine details">
+                    {beverage === 'auto' ? (
+                      <p className="text-sm text-on-surface-variant font-body -mt-2">
+                        Auto-detect can stay on. Add appellation, vintage, or varietals here only
+                        if the COLA application includes them.
+                      </p>
+                    ) : null}
                     <IntakeFieldRow columns={2}>
                       <TextField
                         label="Appellation"

@@ -13,12 +13,13 @@ import type {
 } from './types';
 
 /**
- * Row-level refine (Option C). After the initial Results render, any
- * identifier row in 'review' status gets a second-pass verification
- * call. Server re-runs the pipeline with VERIFICATION_MODE=on so the
- * VLM sees the applicant-declared identifiers and decides whether
- * each is actually visible on the label (instead of bottom-up
- * guessing, which commonly mis-slots brand vs fanciful name).
+ * Row-level refine (Option C). After the initial live report lands,
+ * any identifier row in 'review' status gets a second-pass
+ * verification call. Server re-runs the pipeline with
+ * VERIFICATION_MODE=on so the VLM sees the applicant-declared
+ * identifiers and decides whether each is actually visible on the
+ * label (instead of bottom-up guessing, which commonly mis-slots
+ * brand vs fanciful name).
  *
  * The initial report stays authoritative. When the refine completes,
  * the consumer merges individual rows from the refined report back
@@ -74,6 +75,19 @@ export const IDENTIFIER_FIELD_IDS = REFINABLE_FIELD_IDS;
 export function hasRefinableRows(report: UIVerificationReport | null): boolean {
   if (!report) return false;
   return report.checks.some((check) => check.status === 'review');
+}
+
+export function shouldStartRefine(input: {
+  report: UIVerificationReport | null;
+  image: LabelImage | null;
+  useFixtureReport: boolean;
+  startedReportId: string | null;
+}) {
+  if (!input.report) return false;
+  if (!input.image || input.image.demoScenarioId) return false;
+  if (input.useFixtureReport) return false;
+  if (input.startedReportId === input.report.id) return false;
+  return hasRefinableRows(input.report);
 }
 
 export function useRefineReview(): RefineHandle {

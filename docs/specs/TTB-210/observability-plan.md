@@ -2,14 +2,7 @@
 
 ## Goal
 
-Make the quick relevance branch easy to diagnose without logging raw uploads or OCR text.
-
-## Client events
-
-- `review.relevance.gated`
-  - emitted when Verify is paused because the quick scan returned `unlikely-label`
-- `review.relevance.override`
-  - emitted when the reviewer chooses `Continue anyway`
+Keep the internal relevance preflight diagnosable without surfacing a pre-submit gate and without logging raw uploads or OCR text.
 
 ## Server signals
 

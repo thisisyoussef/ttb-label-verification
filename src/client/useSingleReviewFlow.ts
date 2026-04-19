@@ -31,11 +31,8 @@ import {
 import { useSpeculativePrefetch } from './useSpeculativePrefetch';
 import { useOcrPreview } from './useOcrPreview';
 import { useExtractionPrefetch } from './useExtractionPrefetch';
-import {
-  hasRefinableRows,
-  mergeRefinedReport,
-  useRefineReview
-} from './useRefineReview';
+import { mergeRefinedReport } from './useRefineReview';
+import { useRefineCoordinator } from './useRefineCoordinator';
 
 export type { SingleReviewFlow } from './singleReviewFlowSupport';
 
@@ -55,6 +52,14 @@ export function useSingleReviewFlow(options: {
   const reviewTraceIdRef = useRef<string | null>(null);
 
   const useFixtureReport = options.fixtureControlsEnabled && scenarioId !== 'blank';
+
+  const { refine, clearRefineState, startRefineForReport } = useRefineCoordinator({
+    useFixtureReport,
+    beverage,
+    fields: fieldsState,
+    imageRef,
+    secondaryImageRef
+  });
 
   const revokeImage = useCallback((previous: LabelImage | null) => {
     if (previous?.previewUrl.startsWith('blob:')) {
@@ -120,6 +125,7 @@ export function useSingleReviewFlow(options: {
     // Ref reads the latest cacheKey at submit time without recomputing
     // the pipeline deps on every prefetch state change.
     getExtractionCacheKey: () => extractionPrefetchRef.current,
+    onLiveReportReady: startRefineForReport,
     onEvent: handlePipelineEvent
   });
 
@@ -147,6 +153,7 @@ export function useSingleReviewFlow(options: {
   }, [extractionPrefetch.cacheKey]);
 
   const runLiveReview = useCallback(() => {
+    clearRefineState();
     if (speculativePrefetchEnabled && image && !forceFailure) {
       const hit = prefetch.consumeCacheHit(
         image,
@@ -178,6 +185,7 @@ export function useSingleReviewFlow(options: {
     prefetch,
     secondaryImage,
     speculativePrefetchEnabled,
+    clearRefineState,
     startReview,
     startReviewFromPrefetch
   ]);
@@ -195,21 +203,10 @@ export function useSingleReviewFlow(options: {
     [beverage, extractionPrefetch, prefetch]
   );
 
-  // Row-level refine runs after live Results render and skips offline tour images.
-  const refine = useRefineReview();
   useEffect(() => {
-    if (
-      phase === 'terminal' &&
-      report &&
-      !useFixtureReport &&
-      image &&
-      !image.demoScenarioId &&
-      hasRefinableRows(report)
-    ) {
-      refine.start({ report, image, secondaryImage, beverage, fields: fieldsState });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, report?.id]);
+    startRefineForReport(report);
+  }, [report, startRefineForReport]);
+
   useEffect(() => {
     if (refine.refinedReport && report) {
       const merged = mergeRefinedReport(report, refine.refinedReport);
@@ -223,7 +220,7 @@ export function useSingleReviewFlow(options: {
     prefetch.clearPrefetch();
     ocrPreview.reset();
     extractionPrefetch.reset();
-    refine.reset();
+    clearRefineState();
     reviewTraceIdRef.current = null;
     revokeImage(imageRef.current);
     revokeImage(secondaryImageRef.current);
@@ -236,7 +233,7 @@ export function useSingleReviewFlow(options: {
     setVariantOverride('auto');
     setReport(null);
     resetPipelineState();
-  }, [abandonInFlightReview, extractionPrefetch, ocrPreview, prefetch, refine, resetPipelineState, revokeImage, setReport]);
+  }, [abandonInFlightReview, clearRefineState, extractionPrefetch, ocrPreview, prefetch, resetPipelineState, revokeImage, setReport]);
 
   const applyScenario = useCallback(
     (scenario: SeedScenario) => {
@@ -250,6 +247,7 @@ export function useSingleReviewFlow(options: {
   const loadTourScenario = useCallback(
     (scenario: SeedScenario) => {
       abandonInFlightReview();
+      clearRefineState();
       revokeImage(imageRef.current);
       logReviewClientEvent('tour.demo.intake-loaded', {
         scenarioId: scenario.id
@@ -274,6 +272,7 @@ export function useSingleReviewFlow(options: {
     [
       abandonInFlightReview,
       applyScenario,
+      clearRefineState,
       options,
       resetPipelineState,
       revokeImage,
@@ -285,6 +284,7 @@ export function useSingleReviewFlow(options: {
   const showTourResults = useCallback(
     async (scenario: SeedScenario, variant: ResultVariantOverride = 'auto') => {
       abandonInFlightReview();
+      clearRefineState();
       revokeImage(imageRef.current);
 
       // Await the real image fetch when the scenario points at a
@@ -323,6 +323,7 @@ export function useSingleReviewFlow(options: {
     [
       abandonInFlightReview,
       applyScenario,
+      clearRefineState,
       options,
       resetPipelineState,
       revokeImage,
@@ -345,8 +346,6 @@ export function useSingleReviewFlow(options: {
     failureMessage,
     report,
     ocrPreview: ocrPreview.preview,
-    reviewRelevance: extractionPrefetch.relevance,
-    reviewRelevancePending: extractionPrefetch.relevancePending,
     refineStatus: refine.status,
     variantOptions: REVIEW_VARIANT_OPTIONS,
     setBeverage,
@@ -354,22 +353,8 @@ export function useSingleReviewFlow(options: {
     setForceFailure,
     setVariantOverride,
     onVerify: () => {
-      const verifyIntent = resolveVerifyIntent({
-        hasImage: Boolean(image),
-        relevance: extractionPrefetch.relevance
-      });
-      if (verifyIntent === 'confirm-unlikely') {
-        logReviewClientEvent('review.relevance.gated', {
-          decision: extractionPrefetch.relevance?.decision
-        });
-        return;
-      }
-      runLiveReview();
-    },
-    onContinueAfterRelevanceWarning: () => {
-      logReviewClientEvent('review.relevance.override', {
-        decision: extractionPrefetch.relevance?.decision
-      });
+      const verifyIntent = resolveVerifyIntent({ hasImage: Boolean(image) });
+      if (verifyIntent === 'disabled') return;
       runLiveReview();
     },
     onCancel: () => {
@@ -389,9 +374,11 @@ export function useSingleReviewFlow(options: {
       options.setView('intake');
     },
     onRetry: () => {
+      clearRefineState();
       void startReview(false);
     },
     onImageChange: (next) => {
+      clearRefineState();
       revokeImage(image);
       if (!next) {
         revokeImage(secondaryImage);
@@ -410,6 +397,7 @@ export function useSingleReviewFlow(options: {
       setImage(next);
     },
     onSecondaryImageChange: (next) => {
+      clearRefineState();
       revokeImage(secondaryImage);
       const nextSecondary = image ? next : null;
       refreshImagePrefetch(image, nextSecondary);
@@ -423,6 +411,7 @@ export function useSingleReviewFlow(options: {
       setSecondaryImage(nextSecondary);
     },
     onImagesChange: (primary, secondary = null) => {
+      clearRefineState();
       const nextSecondary = primary ? secondary : null;
       if (image && image !== primary && image !== nextSecondary) {
         revokeImage(image);
@@ -444,6 +433,7 @@ export function useSingleReviewFlow(options: {
       });
     },
     onClear: () => {
+      clearRefineState();
       revokeImage(image);
       revokeImage(secondaryImage);
       refreshImagePrefetch(null, null);
@@ -472,6 +462,7 @@ export function useSingleReviewFlow(options: {
       options.setView('intake');
     },
     onTryAnotherImage: () => {
+      clearRefineState();
       revokeImage(image);
       revokeImage(secondaryImage);
       setImage(null);

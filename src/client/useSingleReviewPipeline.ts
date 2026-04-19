@@ -112,6 +112,7 @@ interface UseSingleReviewPipelineOptions {
    * server skips re-extraction.
    */
   getExtractionCacheKey?: () => string | null;
+  onLiveReportReady?: (liveReport: UIVerificationReport) => void;
   onEvent?: (event: ReviewPipelineEvent) => void;
 }
 
@@ -435,12 +436,13 @@ export function useSingleReviewPipeline(
       if (!ctx) return;
       clearPipelineTimer();
       resetPipelineState();
+      options.onLiveReportReady?.(cachedReport);
       timerRef.current = window.setTimeout(() => {
         if (ctx.requestId !== requestIdRef.current) return;
         completePipeline(ctx.requestId, cachedReport);
       }, PREFETCH_ABBREVIATED_MS);
     },
-    [beginReview, clearPipelineTimer, completePipeline, resetPipelineState]
+    [beginReview, clearPipelineTimer, completePipeline, options, resetPipelineState]
   );
 
   const startReview = useCallback(
@@ -485,6 +487,7 @@ export function useSingleReviewPipeline(
             standalone: result.report.standalone,
             extractionState: result.report.extractionQuality.state
           });
+          options.onLiveReportReady?.(result.report);
           completePipeline(ctx.requestId, result.report);
           return;
         }

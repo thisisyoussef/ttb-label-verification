@@ -102,6 +102,11 @@ export function evaluateReviewRelevance(input: {
     Boolean(detectedBeverage)
   ].filter(Boolean).length;
   const score = computeRelevanceScore(aggregated, Boolean(detectedBeverage));
+  const hasWeakReadableEvidence =
+    aggregated.textLength >= 24 ||
+    aggregated.alcoholKeywordHits > 0 ||
+    aggregated.hasApplicantAddress ||
+    aggregated.hasCountryOfOrigin;
   const hasOnlyNoTextFailures =
     input.images.length > 0 &&
     input.images.every(
@@ -163,7 +168,7 @@ export function evaluateReviewRelevance(input: {
     });
   }
 
-  if (strongSignalCount === 0 && score <= 2) {
+  if (strongSignalCount === 0 && score <= 2 && !hasWeakReadableEvidence) {
     return reviewRelevanceResultSchema.parse({
       decision: 'unlikely-label',
       confidence: 0.8,
