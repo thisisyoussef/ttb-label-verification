@@ -315,6 +315,39 @@ describe('government warning validator', () => {
     ]);
   });
 
+  it('keeps bold-only heading negatives in review instead of hard-failing the warning', () => {
+    const check = buildGovernmentWarningCheck(
+      buildExtraction({
+        warningSignals: {
+          prefixBold: {
+            status: 'no',
+            confidence: 0.98,
+            note: 'Heading weight looks close to the following body text.'
+          }
+        }
+      })
+    );
+
+    expect(check.status).toBe('pass');
+    expect(check.warning?.result).toMatchObject({
+      overall: 'pass',
+      focus: 'formatting-check',
+      label: 'Warning text verified'
+    });
+    expect(check.warning?.subChecks).toMatchObject([
+      { id: 'present', status: 'pass' },
+      { id: 'exact-text', status: 'pass' },
+      { id: 'uppercase-bold-heading', status: 'review' },
+      { id: 'continuous-paragraph', status: 'pass' },
+      { id: 'legibility', status: 'pass' }
+    ]);
+    expect(
+      check.warning?.subChecks.find((subCheck) => subCheck.id === 'uppercase-bold-heading')?.reason
+    ).toBe(
+      'Heading text is uppercase, but bold styling cannot be confirmed reliably from this image.'
+    );
+  });
+
   it('fails when a readable label is missing the warning text entirely', () => {
     const check = buildGovernmentWarningCheck(
       buildExtraction({

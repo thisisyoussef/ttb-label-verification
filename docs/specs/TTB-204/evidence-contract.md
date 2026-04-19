@@ -45,7 +45,8 @@
   - applies only to the opening `GOVERNMENT WARNING` heading, not the rest of the warning body
   - deterministic failure for visible mixed-case heading text
   - visual boldness uses the extracted `prefixBold` signal and compares the heading against the words immediately after it
-  - uncertainty falls back to `review`
+  - a bold-only negative from that single visual signal is not treated as a deterministic defect on its own
+  - uncertainty or uncorroborated boldness doubt falls back to `review`
 - `continuous-paragraph`
   - driven by the extracted `continuousParagraph` signal
 - `legibility`

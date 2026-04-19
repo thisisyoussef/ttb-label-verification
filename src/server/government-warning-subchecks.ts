@@ -151,8 +151,9 @@ export function buildHeadingSubCheck(input: {
     return {
       id: 'uppercase-bold-heading',
       label: 'Warning heading is uppercase and bold',
-      status: 'fail',
-      reason: 'The heading does not appear bold.'
+      status: 'review',
+      reason:
+        'Heading text is uppercase, but bold styling cannot be confirmed reliably from this image.'
     };
   }
 
