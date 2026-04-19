@@ -1,12 +1,29 @@
 import express from 'express';
 
 const COLA_CLOUD_API_BASE = 'https://app.colacloud.us/api/v1';
-const COLA_CLOUD_CACHE_TTL_MS = 10 * 60 * 1000;
+// 2 min (was 10 min) so the "Fetch live" button keeps rotating through
+// the COLA corpus instead of recycling the same 30 IDs for ten minutes.
+const COLA_CLOUD_CACHE_TTL_MS = 2 * 60 * 1000;
+const COLA_CLOUD_PER_PAGE = 100;
+// Rolling window of recently-shown TTB IDs. Keeps variety high across
+// clicks without forcing a summary-cache refresh each time.
+const COLA_CLOUD_RECENT_WINDOW = 40;
+// Randomizing the search on each cache refresh widens the pool we sample
+// from across spirits/wine/malt and different approval-year slices.
+const COLA_CLOUD_PRODUCT_TYPES = ['distilled spirits', 'wine', 'malt beverage', ''];
+const COLA_CLOUD_APPROVAL_WINDOWS = ['2014-01-01', '2018-01-01', '2021-01-01', '2023-01-01'];
+const COLA_CLOUD_MAX_PAGE = 5;
+// Most calls prefer 2+ images (front+back reviewer workflow), but ~1 in
+// 4 should actively surface single-image records (wraparound cans,
+// cylindrical bottles) so they stay represented in the sample rotation.
+const COLA_CLOUD_SINGLE_IMAGE_CHANCE = 0.25;
 
 let colaCloudCache: {
   fetchedAt: number;
   summaries: ColaCloudSummary[];
 } | null = null;
+
+const recentlyShownTtbIds: string[] = [];
 
 type ColaCloudSummary = {
   ttb_id: string;
@@ -15,6 +32,7 @@ type ColaCloudSummary = {
   product_type: string;
   class_name: string;
   origin_name: string;
+  image_count: number;
 };
 
 type ColaCloudImage = {
@@ -140,7 +158,30 @@ async function fetchFreshColaCloudDetail(apiKey: string) {
 
   if (!cacheValid) {
     type SearchResponse = { data: ColaCloudSummary[] };
-    const search = await fetchColaCloudJson<SearchResponse>('/colas?per_page=30', apiKey);
+    const productType = randomPick(COLA_CLOUD_PRODUCT_TYPES);
+    const approvalDateFrom = randomPick(COLA_CLOUD_APPROVAL_WINDOWS);
+    const page = 1 + Math.floor(Math.random() * COLA_CLOUD_MAX_PAGE);
+    const params = new URLSearchParams({
+      per_page: String(COLA_CLOUD_PER_PAGE),
+      page: String(page),
+      approval_date_from: approvalDateFrom
+    });
+    if (productType) {
+      params.set('product_type', productType);
+    }
+    let search = await fetchColaCloudJson<SearchResponse>(
+      `/colas?${params.toString()}`,
+      apiKey
+    );
+    // Randomized page can land past the end of a narrow slice; fall back
+    // to page 1 of the same query so we never cache an empty summary list.
+    if (!search.data.length && page > 1) {
+      params.set('page', '1');
+      search = await fetchColaCloudJson<SearchResponse>(
+        `/colas?${params.toString()}`,
+        apiKey
+      );
+    }
     colaCloudCache = {
       fetchedAt: Date.now(),
       summaries: search.data
@@ -149,24 +190,70 @@ async function fetchFreshColaCloudDetail(apiKey: string) {
 
   const summaries = colaCloudCache?.summaries ?? [];
   if (summaries.length === 0) {
-    throw new Error('COLA Cloud returned no records.');
+    return null;
   }
+
+  // Most calls prefer 2+ images; a minority actively surface 1-image
+  // records so wraparound/can labels show up in rotation. The
+  // single-image path biases the pool to image_count === 1 first — a
+  // uniform random pick from a 2+-dominant corpus would rarely surface
+  // them otherwise. Recently-shown IDs are deprioritized in either mode.
+  const allowSingleImage = Math.random() < COLA_CLOUD_SINGLE_IMAGE_CHANCE;
+  const recentSet = new Set(recentlyShownTtbIds);
+  const pool = allowSingleImage
+    ? buildPool(summaries, (summary) => summary.image_count === 1, recentSet)
+    : buildPool(summaries, (summary) => summary.image_count >= 2, recentSet);
 
   type DetailResponse = { data: ColaCloudDetail };
   for (let attempt = 0; attempt < 5; attempt += 1) {
-    const candidate = summaries[Math.floor(Math.random() * summaries.length)]!;
+    const candidate = pool[Math.floor(Math.random() * pool.length)]!;
     try {
       const res = await fetchColaCloudJson<DetailResponse>(
         `/colas/${encodeURIComponent(candidate.ttb_id)}`,
         apiKey
       );
-      if (res.data.images?.length) {
+      const imageCount = res.data.images?.length ?? 0;
+      // Hold the target for the first couple of attempts in case a
+      // summary's image_count disagreed with the detail response. After
+      // that, accept any record with images so we don't 502 when a
+      // narrow slice happens to be lopsided.
+      const meetsTarget = allowSingleImage ? imageCount >= 1 : imageCount >= 2;
+      if (meetsTarget || (attempt >= 2 && imageCount >= 1)) {
+        rememberRecentTtbId(res.data.ttb_id);
         return res.data;
       }
     } catch {}
   }
 
   return null;
+}
+
+function buildPool(
+  summaries: ColaCloudSummary[],
+  predicate: (summary: ColaCloudSummary) => boolean,
+  recentSet: Set<string>
+): ColaCloudSummary[] {
+  const qualified = summaries.filter(predicate);
+  const fresh = qualified.filter((summary) => !recentSet.has(summary.ttb_id));
+  if (fresh.length > 0) return fresh;
+  if (qualified.length > 0) return qualified;
+  const freshAny = summaries.filter((summary) => !recentSet.has(summary.ttb_id));
+  return freshAny.length > 0 ? freshAny : summaries;
+}
+
+function randomPick<T>(items: readonly T[]): T {
+  return items[Math.floor(Math.random() * items.length)]!;
+}
+
+function rememberRecentTtbId(ttbId: string) {
+  const existingIndex = recentlyShownTtbIds.indexOf(ttbId);
+  if (existingIndex !== -1) {
+    recentlyShownTtbIds.splice(existingIndex, 1);
+  }
+  recentlyShownTtbIds.push(ttbId);
+  while (recentlyShownTtbIds.length > COLA_CLOUD_RECENT_WINDOW) {
+    recentlyShownTtbIds.shift();
+  }
 }
 
 async function fetchColaCloudJson<T>(endpoint: string, apiKey: string): Promise<T> {

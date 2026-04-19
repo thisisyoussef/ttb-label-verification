@@ -37,7 +37,7 @@ describe('eval COLA Cloud routes', () => {
     const fetchMock = vi.fn(async (input: string | URL | Request) => {
       const url = String(input);
 
-      if (url === 'https://app.colacloud.us/api/v1/colas?per_page=30') {
+      if (url.startsWith('https://app.colacloud.us/api/v1/colas?')) {
         return new Response(
           JSON.stringify({
             data: [
@@ -47,7 +47,8 @@ describe('eval COLA Cloud routes', () => {
                 product_name: 'Reserve',
                 product_type: 'Distilled Spirits',
                 class_name: 'Vodka',
-                origin_name: 'United States'
+                origin_name: 'United States',
+                image_count: 2
               }
             ]
           }),
