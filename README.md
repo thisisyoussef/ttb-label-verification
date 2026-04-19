@@ -16,20 +16,9 @@ The central invariant is:
 - reviewer-facing UI deliberately collapses internal `reject` into `Needs review` so the human remains accountable
 - no upload or verification report is intended to be persisted; contracts carry `noPersistence: true`, and the OpenAI adapter enforces `store: false`
 
-```mermaid
-flowchart LR
-    A["Label image(s) + COLA data"] --> B1["Tesseract OCR prepass"]
-    A --> B2["Warning OCV"]
-    A --> B3["Gemini / OpenAI / Ollama extraction"]
-    B1 --> C["Reconcile extracted fields"]
-    B2 --> C
-    B3 --> C
-    C --> D["Deterministic field judges"]
-    D --> E["Cross-field checks"]
-    E --> F["One-directional resolver<br/>review -> pass only"]
-    F --> G["Weighted verdict rollup"]
-    G --> H["VerificationReport"]
-```
+![Architecture pipeline](docs/diagrams/readme-architecture-pipeline.svg)
+
+_Diagram source: [Mermaid source](docs/diagrams/src/readme-architecture-pipeline.mmd)._
 
 The full architectural narrative, regulatory mapping, warning deep dive, and eval history live here:
 

@@ -1,0 +1,7 @@
+flowchart TD
+    A["Reviewer workstation"] --> B["Azure Gov app service / container app"]
+    B --> C["Internal model endpoint or enclave-hosted Ollama"]
+    B --> D["Internal OCR / CV helpers"]
+    B --> E["FedRAMP audit store"]
+    B --> F["Identity / access control"]
+    B -. "no public model egress" .-> G["Blocked by policy"]
