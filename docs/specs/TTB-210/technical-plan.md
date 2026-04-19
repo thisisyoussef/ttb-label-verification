@@ -23,7 +23,7 @@ Harden the shared extraction path with endpoint-aware and mode-aware prompt poli
 - `src/server/index.ts`
   - route `/api/review`, `/api/review/extraction`, and `/api/review/warning` through explicit endpoint intents
 - `src/server/batch-session.ts`
-  - request the `batch` extraction overlay for item processing
+  - route item processing through the same canonical `review` extraction overlay and inline report pipeline used by single review while keeping batch session orchestration intact
 
 ## Prompt-policy model
 
@@ -39,7 +39,6 @@ Use one shared prompt-policy contract:
   - `review`
   - `extraction`
   - `warning`
-  - `batch`
 - mode overlay:
   - `cloud`
   - `local`
@@ -57,7 +56,7 @@ Targets:
 - reject outputs that are structurally incomplete in a way the route cannot trust
 - downgrade suspicious certainty instead of preserving brittle high-confidence claims
 - preserve valid "field absent" or "warning absent" evidence when the output is internally consistent
-- keep batch failures item-local
+- keep batch failures item-local without creating a separate batch-only extraction or resolver path
 
 Examples:
 
@@ -65,7 +64,7 @@ Examples:
 - `review`: keep non-label or no-text auto-detect cases at `unknown` instead of letting the strict distilled-spirits fallback create a fake commodity classification
 - `warning`: require explicit warning field plus warning-signal blocks, but allow genuine warning absence to flow into deterministic validation
 - `extraction`: preserve the richest bounded notes for debugging and follow-on validators
-- `batch`: keep the session moving while flagging the specific row that degraded
+- `batch`: keep the session moving while flagging the specific row that degraded, but derive extraction and report behavior from the same single-review path
 - `local` mode: aggressively downgrade weak formatting or spatial certainty before it reaches deterministic checks
 
 ## User-centered intent

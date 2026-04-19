@@ -48,10 +48,10 @@ A shared extraction baseline plus small endpoint overlays and structural guardra
   - review route profile: `review-extraction/review-cloud-v1`
   - extraction route profile: `review-extraction/extraction-cloud-v1`
   - warning route profile: `review-extraction/warning-cloud-v1`
-  - batch route profile: `review-extraction/batch-cloud-v1`
+  - batch route profile: `review-extraction/review-cloud-v1` via the batch run/retry surfaces
   - guardrail policy: `review-extraction/structural-guardrails-cloud-v1`
 - winning local behavior:
-  - route and batch surfaces now resolve prompt policy centrally from endpoint surface + extraction mode
+  - route and batch surfaces now resolve prompt policy centrally from endpoint surface + extraction mode, with batch item execution pinned to the canonical `review` overlay
   - contradictory no-text outputs are sanitized into explicit uncertainty instead of surfacing fake certainty
   - warning-absent outputs preserve absence while downgrading unsupported warning-signal certainty
   - local-mode overlays and guardrails now downgrade formatting/spatial claims instead of promoting them

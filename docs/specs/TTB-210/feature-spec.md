@@ -13,7 +13,7 @@ The current extraction path uses one generic prompt string for every model-backe
 - Jenny needs complete, well-explained evidence and uncertainty that is actually usable.
 - Sarah needs stable, demo-friendly behavior that does not drift between endpoints.
 - Marcus needs privacy-safe prompt discipline and failure behavior that can be documented.
-- Janet needs batch consistency and item-local degradation rather than noisy session-wide instability.
+- Janet needs batch consistency and item-local failure containment rather than a separate batch-only review path.
 
 Without a shared prompt policy and endpoint-aware plus mode-aware guardrails, provider work can succeed technically while still producing user-hostile behavior on `/api/review`, `/api/review/extraction`, `/api/review/warning`, or the batch engine.
 
@@ -21,7 +21,7 @@ Without a shared prompt policy and endpoint-aware plus mode-aware guardrails, pr
 
 - Single-label review becomes less likely to overstate certainty on ambiguous labels.
 - Extraction-only and warning-only paths become more consistent with the full review route instead of feeling like separate products.
-- Batch execution handles weak or sparse extractions in a way that protects Janet's queue instead of amplifying noise.
+- Batch execution reuses the same extraction and report behavior as single review while still protecting Janet's queue from session-wide noise.
 - The product can explain its prompt/guardrail posture to Marcus and leadership as an intentional reviewer-safety layer, not just a model string.
 
 ## Acceptance criteria
@@ -31,7 +31,6 @@ Without a shared prompt policy and endpoint-aware plus mode-aware guardrails, pr
      - `review`
      - `extraction`
      - `warning`
-     - `batch`
    - mode overlays for:
      - `cloud`
      - `local`
@@ -44,7 +43,7 @@ Without a shared prompt policy and endpoint-aware plus mode-aware guardrails, pr
    - `review`: balanced extraction for reviewer trust and downstream comparison
    - `extraction`: richest field coverage and notes without changing the typed contract
    - `warning`: maximum fidelity on government warning text and warning visual signals
-   - `batch`: consistency, concise item-level degradation, and no session-wide noise inflation
+   - batch item processing reuses the `review` overlay so single review remains the source of truth for extraction posture and results
 4. Mode overlays reflect the execution-mode reality:
    - `cloud`: maximize accurate field and visual-signal coverage without overcalling
    - `local`: preserve text extraction, prefer abstention on weak formatting/spatial judgments, and never up-rank unsupported visual reasoning
@@ -53,7 +52,7 @@ Without a shared prompt policy and endpoint-aware plus mode-aware guardrails, pr
    - impossible field/value combinations
    - missing warning-signal blocks on warning-sensitive calls
    - unsafe high-confidence hallucination patterns
-6. `/api/review`, `/api/review/extraction`, `/api/review/warning`, and batch item processing all resolve prompt policy and guardrails through the same central path instead of embedding route-local prompt strings.
+6. `/api/review`, `/api/review/extraction`, `/api/review/warning`, and batch item processing all resolve prompt policy and guardrails through the same central path instead of embedding route-local prompt strings, with batch item processing explicitly mapped onto the canonical `review` overlay.
 7. Tests prove non-default submitted values survive through the route boundary and that partial or hallucinated model outputs degrade to explicit uncertainty or structured error rather than fake certainty.
 8. Trace and eval artifacts record the winning prompt-profile and guardrail thresholds against the approved fixture slice before this story is considered complete.
 9. The additional prompt and guardrail overhead stays within the active cloud/default single-label latency target.
@@ -65,7 +64,7 @@ Without a shared prompt policy and endpoint-aware plus mode-aware guardrails, pr
 - A decorative art upload or other non-label image produces sparse extraction. Auto-detect must keep the beverage type `unknown` unless there is trustworthy alcohol-label evidence.
 - The same label is processed through the review route and warning-only route. Prompt overlays may differ, but the extraction contract and user-facing trust posture must stay consistent.
 - The same label is processed in cloud mode and local mode. Mode overlays may differ, but the contract and trust posture must remain consistent.
-- Batch items from the same importer drift across repeated runs. The route should surface item-local instability clearly rather than polluting the full session.
+- Batch items from the same importer drift across repeated runs. The route should keep those results aligned with single-review extraction behavior while surfacing row-local instability clearly instead of polluting the full session.
 
 ## Out of scope
 

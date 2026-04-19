@@ -56,21 +56,24 @@ describe('review prompt policy', () => {
     );
   });
 
-  it('maps batch retry traffic onto the batch overlay and local-mode caution', () => {
+  it('routes batch traffic through the same review overlay and local-mode caution', () => {
     const policy = resolveReviewPromptPolicy({
       surface: '/api/batch/retry',
       extractionMode: 'local'
     });
 
-    expect(policy.promptProfile).toBe('review-extraction/batch-local-v1');
+    expect(policy.promptProfile).toBe('review-extraction/review-local-v1');
     expect(policy.guardrailPolicy).toBe(
       'review-extraction/structural-guardrails-local-v1'
     );
     expect(policy.prompt).toContain(
-      'Keep degradation item-local and concise so one weak label does not inflate session-wide noise.'
+      'Optimize for balanced extraction that preserves reviewer trust for downstream deterministic comparison.'
     );
     expect(policy.prompt).toContain(
       'Local mode must preserve readable text but abstain on weak formatting or spatial judgments.'
+    );
+    expect(policy.prompt).not.toContain(
+      'Keep degradation item-local and concise so one weak label does not inflate session-wide noise.'
     );
   });
 
