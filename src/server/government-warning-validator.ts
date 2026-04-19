@@ -84,9 +84,13 @@ export function buildGovernmentWarningCheck(
 
     return false;
   });
-  const exactMatch = extractedText === CANONICAL_GOVERNMENT_WARNING;
+  // Body capitalization is policed by the dedicated heading sub-check,
+  // not by the character-level diff. Treating the diff as a strict match
+  // when only body case differs prevents the "minor read differences"
+  // banner from firing on labels that are substantively correct.
   const exactWordingMatch =
     extractedText.toUpperCase() === CANONICAL_GOVERNMENT_WARNING.toUpperCase();
+  const exactMatch = exactWordingMatch;
   const textReliable =
     isTextReliable(extraction) || warningOcv?.status === 'verified';
   const hasVlmText = extractedField.present && vlmRaw.length > 0;
