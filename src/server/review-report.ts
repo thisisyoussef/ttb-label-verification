@@ -3,6 +3,7 @@ import {
   verificationReportSchema,
   type CheckReview,
   type ReviewExtraction,
+  type ReviewExtractionFields,
   type VerificationReport
 } from '../shared/contracts/review';
 import type { NormalizedReviewIntake } from './review-intake';
@@ -22,6 +23,43 @@ import {
   resolveAmbiguousFieldChecks
 } from './llm-resolver';
 
+// Check-id → ReviewExtractionFields key. Used to stamp the VLM's
+// evidence-image attribution onto each per-field check so the UI can
+// render a "seen on image N" badge without re-plumbing extraction.
+// Cross-field checks and warning sub-checks don't map to a single
+// extraction slot and are intentionally absent.
+const CHECK_ID_TO_FIELD_KEY: Record<string, keyof ReviewExtractionFields> = {
+  'brand-name': 'brandName',
+  'fanciful-name': 'fancifulName',
+  'class-type': 'classType',
+  'alcohol-content': 'alcoholContent',
+  'net-contents': 'netContents',
+  'applicant-address': 'applicantAddress',
+  'country-of-origin': 'countryOfOrigin',
+  'age-statement': 'ageStatement',
+  'sulfite-declaration': 'sulfiteDeclaration',
+  appellation: 'appellation',
+  vintage: 'vintage',
+  'government-warning': 'governmentWarning'
+};
+
+function stampEvidenceImageOnChecks(
+  checks: CheckReview[],
+  extraction: ReviewExtraction
+): CheckReview[] {
+  return checks.map((check) => {
+    if (check.evidenceImage !== undefined) return check;
+    const fieldKey = CHECK_ID_TO_FIELD_KEY[check.id];
+    if (!fieldKey) return check;
+    const field = extraction.fields[fieldKey];
+    if (!field || field === undefined) return check;
+    const candidate = (field as { evidenceImage?: number | null })
+      .evidenceImage;
+    if (candidate === undefined || candidate === null) return check;
+    return { ...check, evidenceImage: candidate };
+  });
+}
+
 /**
  * Re-derive the verdict, counts, and summary for an existing report
  * whose `checks` array has been patched after the fact (e.g. by the
@@ -40,9 +78,13 @@ export function rebuildReportWithPatchedChecks(input: {
   intake: NormalizedReviewIntake;
   extraction: ReviewExtraction;
 }): VerificationReport {
-  const counts = countStatuses(input.patchedChecks, input.report.crossFieldChecks);
+  const stampedPatchedChecks = stampEvidenceImageOnChecks(
+    input.patchedChecks,
+    input.extraction
+  );
+  const counts = countStatuses(stampedPatchedChecks, input.report.crossFieldChecks);
   const verdictResult = deriveWeightedVerdict({
-    checks: input.patchedChecks,
+    checks: stampedPatchedChecks,
     crossFieldChecks: input.report.crossFieldChecks,
     standalone: input.report.standalone,
     extraction: input.extraction
@@ -53,13 +95,13 @@ export function rebuildReportWithPatchedChecks(input: {
     verdict,
     verdictSecondary: deriveVerdictSecondary({
       verdict,
-      checks: input.patchedChecks,
+      checks: stampedPatchedChecks,
       crossFieldChecks: input.report.crossFieldChecks,
       standalone: input.report.standalone,
       extraction: input.extraction
     }),
     counts,
-    checks: input.patchedChecks,
+    checks: stampedPatchedChecks,
     summary: deriveSummary({
       verdict,
       standalone: input.report.standalone,
@@ -176,6 +218,11 @@ export async function buildVerificationReport(input: {
   });
   const verdict = verdictResult.verdict;
 
+  const stampedChecks = stampEvidenceImageOnChecks(checks, input.extraction);
+  const stampedCrossFieldChecks = stampEvidenceImageOnChecks(
+    crossFieldChecks,
+    input.extraction
+  );
   return verificationReportSchema.parse({
     id: input.id ?? input.extraction.id,
     mode: 'single-label',
@@ -191,8 +238,8 @@ export async function buildVerificationReport(input: {
     standalone: input.intake.standalone,
     extractionQuality,
     counts,
-    checks,
-    crossFieldChecks,
+    checks: stampedChecks,
+    crossFieldChecks: stampedCrossFieldChecks,
     latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
     noPersistence: true,
     summary: deriveSummary({

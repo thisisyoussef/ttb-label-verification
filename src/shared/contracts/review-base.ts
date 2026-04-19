@@ -277,7 +277,15 @@ export const checkReviewSchema = z.object({
   applicationValue: z.string().optional(),
   extractedValue: z.string().optional(),
   comparison: comparisonEvidenceSchema.optional(),
-  warning: warningEvidenceSchema.optional()
+  warning: warningEvidenceSchema.optional(),
+  /**
+   * Zero-indexed ordinal of the uploaded label image that produced the
+   * extracted value, propagated from the underlying
+   * `ReviewExtractionField.evidenceImage`. Absent on single-image
+   * reviews and on cross-field checks that aren't tied to a single
+   * extraction slot. No front/back semantics — strictly upload order.
+   */
+  evidenceImage: z.number().int().min(0).nullable().optional()
 });
 
 export const fieldReviewSchema = checkReviewSchema;
