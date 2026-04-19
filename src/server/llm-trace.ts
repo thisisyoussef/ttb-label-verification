@@ -5,20 +5,26 @@ import type {
   ReviewExtraction,
   VerificationReport
 } from '../shared/contracts/review';
-import { runWarningOcrCrossCheck } from './warning-ocr-cross-check';
-import { runOcrPrepass, isOcrPrepassEnabled } from './ocr-prepass';
-import { runWarningOcv, type WarningOcvResult } from './warning-region-ocv';
+import { isOcrPrepassEnabled } from './ocr-prepass';
+import { type WarningOcvResult } from './warning-region-ocv';
 import {
-  runAnchorTrack,
   resolveAnchorMergeMode,
   type AnchorTrackResult
 } from './anchor-field-track';
 import { reconcileExtractionWithOcr } from './extraction-ocr-reconciler';
 import { extractFieldsFromOcrText } from './ocr-field-extractor';
-import { runVlmRegionDetection, isRegionDetectionEnabled } from './vlm-region-detector';
+import { isRegionDetectionEnabled } from './vlm-region-detector';
 import { createJudgmentLlmClient } from './judgment-llm-client-factory';
 import { mergeOcrAndVlm, applyRegionOverrides } from './extraction-merge';
 import { resolveReviewJudgment } from './review-surface-judgment';
+import {
+  runAnchorTrackOverLabels,
+  runOcrPrepassOverLabels,
+  runSpiritsColocationOverLabels,
+  runVlmRegionDetectionOverLabels,
+  runWarningOcrCrossCheckOverLabels,
+  runWarningOcvOverLabels
+} from './multi-label-stages';
 import {
   tracedReviewExtraction,
   tracedWarningValidation,
@@ -47,7 +53,6 @@ import {
   type ReviewLatencySummary
 } from './review-latency';
 import {
-  checkSpiritsColocation,
   isSpiritsColocationAvailable,
   type SpiritsColocationResult
 } from './spirits-colocation-check';
@@ -134,7 +139,7 @@ const tracedReviewSurface = traceable(
     const useSimplePipeline = process.env.EXTRACTION_PIPELINE?.trim().toLowerCase() === 'simple';
 
     const ocrPromise = prepassEnabled && !useSimplePipeline
-      ? measureStage(() => runOcrPrepass(input.intake.label))
+      ? measureStage(() => runOcrPrepassOverLabels(input.intake.labels))
       : Promise.resolve(null);
 
     // Wire OCV to a VLM-bounded abort signal. OCV's fast path (bottom crop)
@@ -148,7 +153,10 @@ const tracedReviewSurface = traceable(
     const ocvController = new AbortController();
     const ocvPromise = prepassEnabled
       ? measureStage(() =>
-          runWarningOcv({ label: input.intake.label, signal: ocvController.signal })
+          runWarningOcvOverLabels({
+            labels: input.intake.labels,
+            signal: ocvController.signal
+          })
         )
       : Promise.resolve(null);
 
@@ -178,7 +186,9 @@ const tracedReviewSurface = traceable(
     const anchorPromise: Promise<{ result: AnchorTrackResult | null; elapsedMs: number }> =
       anchorMergeMode === 'disabled'
         ? Promise.resolve({ result: null, elapsedMs: 0 })
-        : measureStage(() => runAnchorTrack(input.intake.label, input.intake.fields));
+        : measureStage(() =>
+            runAnchorTrackOverLabels(input.intake.labels, input.intake.fields)
+          );
 
     // Await all four in parallel. Anchor adds one Tesseract call but
     // it runs alongside the existing 3 stages — no wall-clock cost
@@ -243,7 +253,7 @@ const tracedReviewSurface = traceable(
     // Verified OCR text overrides VLM extraction (no hallucination).
     if (isRegionDetectionEnabled()) {
       const regionStage = await measureStage(() =>
-        runVlmRegionDetection(input.intake.label)
+        runVlmRegionDetectionOverLabels(input.intake.labels)
       );
       latencyCapture.recordSpan({
         stage: 'region-detection',
@@ -267,7 +277,10 @@ const tracedReviewSurface = traceable(
       { status: 'abstain', reason: 'no-vlm-warning-text' };
     if (vlmWarning.length > 0) {
       try {
-        ocrCrossCheck = await runWarningOcrCrossCheck({ label: input.intake.label, vlmWarningText: vlmWarning });
+        ocrCrossCheck = await runWarningOcrCrossCheckOverLabels({
+          labels: input.intake.labels,
+          vlmWarningText: vlmWarning
+        });
       } catch {
         ocrCrossCheck = { status: 'abstain', reason: 'ocr-error' };
       }
@@ -294,7 +307,7 @@ const tracedReviewSurface = traceable(
       isSpiritsColocationAvailable()
     ) {
       const colocationStage = await measureStage(() =>
-        checkSpiritsColocation(input.intake.label)
+        runSpiritsColocationOverLabels(input.intake.labels)
       );
       spiritsColocation = colocationStage.result;
       latencyCapture.recordSpan({

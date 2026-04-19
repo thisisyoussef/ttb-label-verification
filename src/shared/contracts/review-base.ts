@@ -125,7 +125,17 @@ export const reviewExtractionFieldSchema = z
      * reviewer can see the mismatch. Always paired with
      * `present: true` and `visibleText` of the primary read.
      */
-    alternativeReading: z.string().optional()
+    alternativeReading: z.string().optional(),
+    /**
+     * Zero-indexed ordinal of the uploaded label image the value was
+     * read from (0 = first file submitted, 1 = second, etc.). Only set
+     * when a multi-image intake was submitted AND the extractor could
+     * attribute the evidence. `null`/omitted on single-image intakes and
+     * on non-VLM merged values where attribution is not tracked.
+     *
+     * No front/back semantics — ordinal reflects upload order only.
+     */
+    evidenceImage: z.number().int().min(0).nullable().optional()
   })
   .superRefine((field, context) => {
     const hasValue = field.value !== undefined && field.value.trim().length > 0;
