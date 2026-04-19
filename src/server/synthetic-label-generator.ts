@@ -7,6 +7,7 @@ import {
   type SyntheticLabelExpected,
   type SyntheticLabelFields,
   type SyntheticLabelGenerateResponse,
+  type SyntheticLabelImage,
   type Verdict
 } from '../shared/contracts/review';
 import { putSyntheticImage } from './synthetic-label-cache';
@@ -33,6 +34,13 @@ import { putSyntheticImage } from './synthetic-label-cache';
 const IMAGEN_MODEL = 'imagen-4.0-generate-001';
 const IMAGEN_TIMEOUT_MS = 30_000;
 const NONE_PROBABILITY = 0.4;
+/**
+ * Odds that a generation includes a companion back label alongside the
+ * front. Kept under 50% so button-mashing the toolbench doesn't double
+ * the Imagen bill in aggregate — the user asked for two images
+ * "sometimes", not always.
+ */
+const BACK_LABEL_PROBABILITY = 0.35;
 
 type FakeBrand = {
   brand: string;
@@ -177,6 +185,44 @@ function buildBaselineImagePrompt(input: {
     `Government warning paragraph in small print at the bottom, exactly: "${CANONICAL_GOVERNMENT_WARNING}"`,
     'No images of people, no realistic logos, no copyrighted brand artwork. Make the brand name read clearly and large.'
   ];
+}
+
+function buildBackImagePrompt(input: {
+  beverage: BeverageType;
+  brand: FakeBrand;
+  classType: string;
+  netContents: string;
+  includeWarning: boolean;
+}): string[] {
+  // Back labels are typically calmer than fronts: smaller brand mark,
+  // marketing blurb, barcode placeholder, bottler address, and often
+  // the government warning (which on real products frequently lives on
+  // the back). We keep the warning text canonical when present so the
+  // extractor doesn't flag a malformed warning.
+  const beverageLabel =
+    input.beverage === 'wine'
+      ? 'wine back label'
+      : input.beverage === 'malt-beverage'
+        ? 'beer / malt beverage back label'
+        : 'distilled-spirits back label';
+
+  const lines = [
+    `Photorealistic flat back-facing scan of a US TTB-style ${beverageLabel}, no bottle, no shadows. White background. Clean printed typography, looks like a production label. Portrait 3:4 aspect.`,
+    `Small brand mark (top, smaller than the front): "${input.brand.brand}"`,
+    `Short marketing paragraph about the ${input.classType}, 2-3 sentences.`,
+    `Bottler / applicant address (small print): "${input.brand.brand}, ${input.brand.city}, ${input.brand.state}"`,
+    `Net contents restated: "${input.netContents}"`,
+    'Barcode placeholder rectangle bottom-left (black parallel lines + 12-digit number below).',
+    'No images of people, no realistic logos, no copyrighted brand artwork.'
+  ];
+  if (input.includeWarning) {
+    lines.splice(
+      4,
+      0,
+      `Government warning paragraph in small print: "${CANONICAL_GOVERNMENT_WARNING}"`
+    );
+  }
+  return lines;
 }
 
 function pickDefectPlan(beverage: BeverageType): DefectPlan {
@@ -336,7 +382,7 @@ export async function generateSyntheticLabel(
   const baseline = buildBaselineFields(beverage);
   const defectPlan = pickDefectPlan(beverage);
 
-  const promptLines = defectPlan.mutateImagePrompt(
+  const frontPromptLines = defectPlan.mutateImagePrompt(
     buildBaselineImagePrompt({
       beverage,
       brand: baseline.brand,
@@ -345,14 +391,89 @@ export async function generateSyntheticLabel(
       netContents: baseline.netContents
     })
   );
-  const prompt = promptLines.join('\n');
+  const frontPrompt = frontPromptLines.join('\n');
 
   const generate = deps.generateImage ?? defaultGenerateImage;
-  const { bytes, mime } = await generate(prompt);
+  const stamp = Date.now();
 
-  const ext = mime === 'image/jpeg' ? 'jpg' : mime === 'image/webp' ? 'webp' : 'png';
-  const filename = `synthetic-${beverage}-${defectPlan.kind}-${Date.now()}.${ext}`;
-  const id = putSyntheticImage({ bytes, mime, filename });
+  // Front image is always generated. The optional back image is
+  // generated in parallel to keep click-to-load latency close to the
+  // single-image baseline. If the back generation fails for any reason
+  // we fall back to returning just the front so a transient Imagen
+  // hiccup on image 2 doesn't block the whole sample.
+  const wantsBack =
+    defectPlan.kind !== 'warning-missing' &&
+    Math.random() < BACK_LABEL_PROBABILITY;
+
+  // When the defect is "warning missing on the label", omit the warning
+  // from BOTH sides so the pipeline has to flag it. Otherwise, a
+  // realistic label usually has the warning on exactly one side — if
+  // it's on the front today we keep the back without a warning
+  // duplicate; if front omitted it (no defect applied), the back can
+  // carry it. We already block the back path for `warning-missing` via
+  // `wantsBack`, so when we do produce a back label we leave the front
+  // prompt's warning alone and keep the back silent on it. Keeping
+  // canonical-warning duplication off the table avoids the extractor
+  // double-counting.
+  const generateFront = async (): Promise<{
+    bytes: Buffer;
+    mime: string;
+  }> => generate(frontPrompt);
+
+  const generateBack = async (): Promise<{
+    bytes: Buffer;
+    mime: string;
+  } | null> => {
+    if (!wantsBack) return null;
+    try {
+      const backPrompt = buildBackImagePrompt({
+        beverage,
+        brand: baseline.brand,
+        classType: baseline.classType,
+        netContents: baseline.netContents,
+        includeWarning: false
+      }).join('\n');
+      return await generate(backPrompt);
+    } catch {
+      return null;
+    }
+  };
+
+  const [front, back] = await Promise.all([generateFront(), generateBack()]);
+
+  const extFor = (mime: string) =>
+    mime === 'image/jpeg' ? 'jpg' : mime === 'image/webp' ? 'webp' : 'png';
+
+  const frontExt = extFor(front.mime);
+  const frontFilename = `synthetic-${beverage}-${defectPlan.kind}-${stamp}-front.${frontExt}`;
+  const frontId = putSyntheticImage({
+    bytes: front.bytes,
+    mime: front.mime,
+    filename: frontFilename
+  });
+  const frontImage: SyntheticLabelImage = {
+    id: frontId,
+    url: `/api/eval/synthetic/image/${encodeURIComponent(frontId)}`,
+    filename: frontFilename,
+    beverageType: beverage
+  };
+
+  const images: SyntheticLabelImage[] = [frontImage];
+  if (back) {
+    const backExt = extFor(back.mime);
+    const backFilename = `synthetic-${beverage}-${defectPlan.kind}-${stamp}-back.${backExt}`;
+    const backId = putSyntheticImage({
+      bytes: back.bytes,
+      mime: back.mime,
+      filename: backFilename
+    });
+    images.push({
+      id: backId,
+      url: `/api/eval/synthetic/image/${encodeURIComponent(backId)}`,
+      filename: backFilename,
+      beverageType: beverage
+    });
+  }
 
   const declared = defectPlan.mutateDeclared(baseline.fields);
   const expected: SyntheticLabelExpected = {
@@ -362,12 +483,8 @@ export async function generateSyntheticLabel(
   };
 
   return {
-    image: {
-      id,
-      url: `/api/eval/synthetic/image/${encodeURIComponent(id)}`,
-      filename,
-      beverageType: beverage
-    },
+    image: frontImage,
+    ...(images.length > 1 ? { images } : {}),
     fields: declared,
     expected
   };

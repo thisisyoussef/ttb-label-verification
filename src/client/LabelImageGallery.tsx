@@ -26,16 +26,16 @@ export function LabelImageGallery({
     () => [
       {
         id: 'primary',
-        label: 'Primary label',
-        shortLabel: 'Primary',
+        label: 'Image 1',
+        shortLabel: 'Image 1',
         image: primaryImage
       },
       ...(secondaryImage
         ? [
             {
               id: 'secondary' as const,
-              label: 'Second label',
-              shortLabel: 'Second',
+              label: 'Image 2',
+              shortLabel: 'Image 2',
               image: secondaryImage
             }
           ]

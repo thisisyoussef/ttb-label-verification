@@ -40,6 +40,7 @@ import type {
   StoredBatchAssignment,
   UploadedBatchFile
 } from './batch-session-types';
+import { estimateBatchSecondsRemaining } from './batch-session-estimate';
 type ExtractorOverride = {
   extractor: ReviewExtractor;
   extractionMode: ExtractionMode;
@@ -104,16 +105,14 @@ export class BatchSessionStore {
           type: 'progress',
           done: 0,
           total: assignments.length,
-          secondsRemainingEstimate: assignments.length * 5
+          secondsRemainingEstimate: estimateBatchSecondsRemaining(assignments.length)
         })
       );
     }
-    let totalDurationMs = 0;
     const concurrency = readBatchConcurrency();
     type CompletedItem = {
       index: number;
       result: Awaited<ReturnType<BatchSessionStore['processAssignment']>>;
-      durationMs: number;
     };
     // Map keyed by a unique dispatch id so we can remove the winning
     // promise cleanly (no identity-on-resolved-value contortions).
@@ -121,7 +120,6 @@ export class BatchSessionStore {
     let nextDispatchId = 0;
     const dispatch = (assignmentIndex: number) => {
       const dispatchId = nextDispatchId++;
-      const startedAt = Date.now();
       const assignment = assignments[assignmentIndex]!;
       const completedOrder = assignmentIndex + 1;
       const promise = (async (): Promise<CompletedItem> => {
@@ -133,8 +131,7 @@ export class BatchSessionStore {
         });
         return {
           index: assignmentIndex,
-          result,
-          durationMs: Date.now() - startedAt
+          result
         };
       })().finally(() => {
         inFlight.delete(dispatchId);
@@ -143,9 +140,8 @@ export class BatchSessionStore {
       return promise;
     };
     const emitCompletion = async (completed: CompletedItem) => {
-      const { index, result, durationMs } = completed;
+      const { index, result } = completed;
       const assignment = assignments[index]!;
-      totalDurationMs += durationMs;
       session.results.set(assignment.primaryImage.id, {
         row: result.row,
         assignment
@@ -169,17 +165,13 @@ export class BatchSessionStore {
         })
       );
       if (session.totals.done < session.totals.started) {
-        const averageMs = totalDurationMs / session.totals.done;
         const remaining = session.totals.started - session.totals.done;
         await onFrame(
           batchStreamFrameSchema.parse({
             type: 'progress',
             done: session.totals.done,
             total: session.totals.started,
-            secondsRemainingEstimate: Math.max(
-              0,
-              Math.round((averageMs * remaining) / 1000 / concurrency)
-            )
+            secondsRemainingEstimate: estimateBatchSecondsRemaining(remaining)
           })
         );
       }

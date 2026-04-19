@@ -5,7 +5,6 @@ import {
 } from '../../shared/contracts/review';
 import { BUILTIN_SAMPLES } from './builtin-sample-packs';
 import {
-  deriveImageMime,
   fetchSampleFiles,
   guessMimeFromFilename,
   prettifyLabel,
@@ -248,17 +247,14 @@ export function ToolbenchSamples({
         throw new Error(message);
       }
       const parsed = syntheticLabelGenerateResponseSchema.parse(await res.json());
-      const imgRes = await fetch(parsed.image.url);
-      if (!imgRes.ok) throw new Error(`synthetic image HTTP ${imgRes.status}`);
-      const blob = await imgRes.blob();
-      const mime = deriveImageMime(blob.type, parsed.image.filename);
-      const file = new File([blob], parsed.image.filename, { type: mime });
+      const images = parsed.images ?? [parsed.image];
+      const files = await fetchSampleFiles(images);
       // Use the synthetic-specific callback if provided so the
       // toolbench stays open and the expected-verdict chip remains
       // visible. Falls back to the regular onLoadSample (which closes
       // the drawer) if a parent didn't wire the synthetic variant.
       const fill = onLoadSyntheticSample ?? onLoadSample;
-      fill([file], parsed.fields, parsed.image.id);
+      fill(files, parsed.fields, parsed.image.id);
       setLastSynthExpected(parsed.expected);
     } catch (err) {
       setLastError((err as Error).message);

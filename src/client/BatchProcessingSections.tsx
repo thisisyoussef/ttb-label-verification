@@ -4,27 +4,10 @@ import type {
   BatchStreamItem,
   BatchTerminalSummary
 } from './batchTypes';
-
-const STATUS_COPY: Record<BatchItemStatus, string> = {
-  pass: 'Pass',
-  review: 'Review',
-  fail: 'Fail',
-  error: 'Error'
-};
-
-const STATUS_ICON: Record<BatchItemStatus, string> = {
-  pass: 'check_circle',
-  review: 'warning',
-  fail: 'cancel',
-  error: 'error'
-};
-
-const STATUS_CLASS: Record<BatchItemStatus, string> = {
-  pass: 'bg-tertiary-container/40 text-on-tertiary-container',
-  review: 'bg-caution-container text-on-caution-container',
-  fail: 'bg-error-container/40 text-on-error-container',
-  error: 'bg-surface-container-highest text-on-surface-variant'
-};
+import {
+  countBatchNeedsReview,
+  resolveBatchStatusDisplay
+} from './batchStatusDisplay';
 
 export function Header({
   phase,
@@ -178,17 +161,18 @@ export function TerminalSummary({
   onBackToIntake: () => void;
   onOpenDashboard: () => void;
 }) {
-  const tone: 'tertiary' | 'error' | 'neutral' =
+  const needsReview = countBatchNeedsReview(summary);
+  const tone: 'tertiary' | 'caution' | 'neutral' =
     summary.pass === summary.total && summary.total > 0
       ? 'tertiary'
-      : summary.fail === summary.total && summary.total > 0
-        ? 'error'
+      : needsReview === summary.total && summary.total > 0
+        ? 'caution'
         : 'neutral';
   const toneClass =
     tone === 'tertiary'
       ? 'border-tertiary bg-tertiary-container/20'
-      : tone === 'error'
-        ? 'border-error bg-error-container/15'
+      : tone === 'caution'
+        ? 'border-caution bg-caution-container/15'
         : 'border-primary bg-primary-container/20';
   return (
     <section
@@ -202,7 +186,7 @@ export function TerminalSummary({
           All {summary.total} labels reviewed.
         </h2>
         <p className="text-sm text-on-surface-variant font-body">
-          {summary.pass} Pass · {summary.review} Review · {summary.fail} Fail
+          {summary.pass} Pass · {needsReview} Needs review
           {summary.error > 0 ? ` · ${summary.error} Error` : ''}
         </p>
       </div>
@@ -290,12 +274,13 @@ export function PrivacyFoot() {
 }
 
 function summaryIntent(summary: BatchTerminalSummary): string {
+  const needsReview = countBatchNeedsReview(summary);
   if (summary.total === 0) return 'No labels finished.';
   if (summary.pass === summary.total) {
     return `All ${summary.total} labels passed.`;
   }
-  if (summary.fail === summary.total) {
-    return `All ${summary.total} labels were rejected. Open the dashboard to review each one.`;
+  if (needsReview === summary.total) {
+    return `All ${summary.total} labels need review. Open the dashboard to inspect each one.`;
   }
   return `All ${summary.total} labels reviewed. Nothing is stored.`;
 }
@@ -328,11 +313,6 @@ function StreamRow({
           >
             {item.filename}
           </button>
-          {item.secondaryFilename ? (
-            <p className="font-mono text-xs text-on-surface-variant truncate">
-              + {item.secondaryFilename}
-            </p>
-          ) : null}
           {item.status === 'error' ? (
             <p className="text-xs text-error font-body mt-0.5">
               {item.errorMessage || 'Could not process this label \u2014 retry or skip.'}
@@ -373,69 +353,43 @@ function StreamThumb({
   item: BatchStreamItem;
   onPreview: () => void;
 }) {
+  const boxClass =
+    'w-10 h-[52px] rounded border border-outline-variant/20 bg-surface-container-highest flex items-center justify-center flex-shrink-0 cursor-zoom-in transition-transform hover:scale-[1.05] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary overflow-hidden';
+  const body = item.isPdf ? (
+    <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-on-surface-variant">
+      picture_as_pdf
+    </span>
+  ) : item.previewUrl ? (
+    <img
+      alt={`Preview of ${item.filename}`}
+      src={item.previewUrl}
+      className="w-10 h-[52px] object-cover"
+    />
+  ) : (
+    <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-on-surface-variant">
+      image
+    </span>
+  );
   return (
     <button
       type="button"
       onClick={onPreview}
       aria-label={`View larger preview of ${item.filename}`}
-      className="relative w-10 h-[52px] flex-shrink-0 cursor-zoom-in transition-transform hover:scale-[1.05] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      className={boxClass}
     >
-      <StreamThumbFace
-        filename={item.filename}
-        previewUrl={item.previewUrl}
-        isPdf={item.isPdf}
-        className="absolute inset-0 rounded border border-outline-variant/20 bg-surface-container-highest flex items-center justify-center overflow-hidden"
-      />
-      {item.secondaryImageId ? (
-        <StreamThumbFace
-          filename={item.secondaryFilename ?? 'secondary label'}
-          previewUrl={item.secondaryPreviewUrl ?? null}
-          isPdf={item.secondaryIsPdf ?? false}
-          className="absolute -bottom-1 -right-1 w-5 h-6 rounded border border-outline-variant/20 bg-surface-container-lowest flex items-center justify-center overflow-hidden shadow-ambient"
-        />
-      ) : null}
+      {body}
     </button>
   );
 }
 
-function StreamThumbFace({
-  filename,
-  previewUrl,
-  isPdf,
-  className
-}: {
-  filename: string;
-  previewUrl: string | null;
-  isPdf: boolean;
-  className: string;
-}) {
-  return (
-    <div className={className}>
-      {isPdf ? (
-        <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-on-surface-variant">
-          picture_as_pdf
-        </span>
-      ) : previewUrl ? (
-        <img
-          alt={`Preview of ${filename}`}
-          src={previewUrl}
-          className="w-full h-full object-cover"
-        />
-      ) : (
-        <span aria-hidden="true" className="material-symbols-outlined text-[18px] text-on-surface-variant">
-          image
-        </span>
-      )}
-    </div>
-  );
-}
-
 function StreamStatusBadge({ status }: { status: BatchItemStatus }) {
+  const display = resolveBatchStatusDisplay(status);
+
   return (
     <span
       className={[
         'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-label font-bold uppercase tracking-wider',
-        STATUS_CLASS[status]
+        display.className
       ].join(' ')}
     >
       <span
@@ -443,9 +397,9 @@ function StreamStatusBadge({ status }: { status: BatchItemStatus }) {
         className="material-symbols-outlined text-[14px]"
         style={{ fontVariationSettings: "'FILL' 1" }}
       >
-        {STATUS_ICON[status]}
+        {display.icon}
       </span>
-      <span>{STATUS_COPY[status]}</span>
+      <span>{display.label}</span>
     </span>
   );
 }

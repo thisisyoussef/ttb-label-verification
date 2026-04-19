@@ -64,6 +64,12 @@ export const syntheticLabelFieldsSchema = z.object({
 
 export const syntheticLabelGenerateResponseSchema = z.object({
   image: syntheticLabelImageSchema,
+  /**
+   * When Imagen produced both a front and a back label the full set
+   * lands here (front first). Single-image generations omit the field
+   * so older clients keep working. The client pulls `images ?? [image]`.
+   */
+  images: z.array(syntheticLabelImageSchema).min(1).max(2).optional(),
   fields: syntheticLabelFieldsSchema,
   expected: syntheticLabelExpectedSchema
 });

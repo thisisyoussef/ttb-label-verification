@@ -285,7 +285,6 @@ function buildLiteralAnchorPriorityCheck(input: {
     }
   };
 }
-
 function alternativeReadingForcesReview(input: {
   fieldId: string;
   applicationValue: string;

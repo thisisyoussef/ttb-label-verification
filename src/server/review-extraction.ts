@@ -184,6 +184,55 @@ export function normalizeImageQualityAssessment(
   };
 }
 
+/**
+ * Synthetic "no text detected" model output. Used as a fast-path when
+ * the OCR pre-pass returns zero characters — instead of spending 3-7s
+ * on a VLM call to confirm what Tesseract already told us in ~1s, we
+ * construct the same shape the VLM would produce for a blank / non-
+ * label image and let the downstream pipeline route it to a
+ * `beverageType: 'unknown'`, `state: 'no-text-extracted'` report.
+ */
+export function buildNoTextExtractionModelOutput(): ReviewExtractionModelOutput {
+  const absentField = () => ({
+    present: false,
+    confidence: 0
+  });
+  const uncertainSignal = () => ({
+    status: 'uncertain' as const,
+    confidence: 0
+  });
+
+  return {
+    fields: {
+      brandName: absentField(),
+      fancifulName: absentField(),
+      classType: absentField(),
+      alcoholContent: absentField(),
+      netContents: absentField(),
+      applicantAddress: absentField(),
+      countryOfOrigin: absentField(),
+      ageStatement: absentField(),
+      sulfiteDeclaration: absentField(),
+      appellation: absentField(),
+      vintage: absentField(),
+      governmentWarning: absentField(),
+      varietals: []
+    },
+    warningSignals: {
+      prefixAllCaps: uncertainSignal(),
+      prefixBold: uncertainSignal(),
+      continuousParagraph: uncertainSignal(),
+      separateFromOtherContent: uncertainSignal()
+    },
+    imageQuality: {
+      score: 0,
+      issues: ['No text detected in the image.'],
+      noTextDetected: true
+    },
+    summary: 'No text detected in the image; structured extraction skipped.'
+  };
+}
+
 export function finalizeReviewExtraction(input: {
   intake: NormalizedReviewIntake;
   model: string;

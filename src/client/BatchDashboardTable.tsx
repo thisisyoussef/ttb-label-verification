@@ -3,27 +3,7 @@ import type {
   BatchDashboardRow,
   BatchItemStatus
 } from './batchTypes';
-
-const STATUS_COPY: Record<BatchItemStatus, string> = {
-  pass: 'Pass',
-  review: 'Review',
-  fail: 'Fail',
-  error: 'Error'
-};
-
-const STATUS_ICON: Record<BatchItemStatus, string> = {
-  pass: 'check_circle',
-  review: 'warning',
-  fail: 'cancel',
-  error: 'error'
-};
-
-const STATUS_CLASS: Record<BatchItemStatus, string> = {
-  pass: 'bg-tertiary-container/40 text-on-tertiary-container',
-  review: 'bg-caution-container text-on-caution-container',
-  fail: 'bg-error-container/40 text-on-error-container',
-  error: 'bg-surface-container-highest text-on-surface-variant'
-};
+import { resolveBatchStatusDisplay } from './batchStatusDisplay';
 
 const BEVERAGE_LABELS: Record<BatchDashboardRow['beverageType'], string> = {
   'distilled-spirits': 'Distilled Spirits',
@@ -119,11 +99,6 @@ function TriageRow({
           className="text-left min-w-0 hover:underline"
         >
           <p className="font-mono text-sm text-on-surface truncate">{row.filename}</p>
-          {row.secondaryFilename ? (
-            <p className="font-mono text-xs text-on-surface-variant truncate">
-              + {row.secondaryFilename}
-            </p>
-          ) : null}
           <p className="text-xs text-on-surface-variant truncate">
             {row.brandName} · {row.classType}
           </p>
@@ -163,44 +138,13 @@ function TriageRow({
 
 function RowThumb({ row }: { row: BatchDashboardRow }) {
   return (
-    <div className="relative w-16 h-[84px]">
-      <ThumbFace
-        filename={row.filename}
-        previewUrl={row.previewUrl}
-        isPdf={row.isPdf}
-        className="absolute inset-0 rounded border border-outline-variant/20 bg-surface-container-highest flex items-center justify-center overflow-hidden"
-      />
-      {row.secondaryImageId ? (
-        <ThumbFace
-          filename={row.secondaryFilename ?? 'secondary label'}
-          previewUrl={row.secondaryPreviewUrl ?? null}
-          isPdf={row.secondaryIsPdf ?? false}
-          className="absolute -bottom-1 -right-1 w-8 h-10 rounded border border-outline-variant/20 bg-surface-container-lowest flex items-center justify-center overflow-hidden shadow-ambient"
-        />
-      ) : null}
-    </div>
-  );
-}
-
-function ThumbFace({
-  filename,
-  previewUrl,
-  isPdf,
-  className
-}: {
-  filename: string;
-  previewUrl: string | null;
-  isPdf: boolean;
-  className: string;
-}) {
-  return (
-    <div className={className}>
-      {isPdf ? (
+    <div className="w-16 h-[84px] rounded border border-outline-variant/20 bg-surface-container-highest flex items-center justify-center overflow-hidden">
+      {row.isPdf ? (
         <span aria-hidden="true" className="material-symbols-outlined text-[22px] text-on-surface-variant">
           picture_as_pdf
         </span>
-      ) : previewUrl ? (
-        <img src={previewUrl} alt={`Preview of ${filename}`} className="w-full h-full object-cover" />
+      ) : row.previewUrl ? (
+        <img src={row.previewUrl} alt={`Preview of ${row.filename}`} className="w-full h-full object-cover" />
       ) : (
         <span aria-hidden="true" className="material-symbols-outlined text-[22px] text-on-surface-variant">
           image
@@ -211,11 +155,13 @@ function ThumbFace({
 }
 
 function StatusBadge({ status }: { status: BatchItemStatus }) {
+  const display = resolveBatchStatusDisplay(status);
+
   return (
     <span
       className={[
         'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-label font-bold uppercase tracking-wider',
-        STATUS_CLASS[status]
+        display.className
       ].join(' ')}
     >
       <span
@@ -223,9 +169,9 @@ function StatusBadge({ status }: { status: BatchItemStatus }) {
         className="material-symbols-outlined text-[14px]"
         style={{ fontVariationSettings: "'FILL' 1" }}
       >
-        {STATUS_ICON[status]}
+        {display.icon}
       </span>
-      <span>{STATUS_COPY[status]}</span>
+      <span>{display.label}</span>
     </span>
   );
 }

@@ -1,6 +1,6 @@
 import { Readable } from 'node:stream';
 
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { buildExtractionPayload } from './index.test-helpers';
 import {
@@ -8,6 +8,7 @@ import {
   runTracedReviewSurface,
   runTracedWarningSurface
 } from './llm-trace';
+import * as ocrPrepass from './ocr-prepass';
 import { createNormalizedReviewIntake } from './review-intake';
 
 function buildUploadedLabel() {
@@ -118,6 +119,59 @@ describe('LLM trace surfaces', () => {
     });
     expect(result.noPersistence).toBe(true);
     expect(result.fields.brandName.value).toBe('Trace Brand');
+  });
+
+  describe('OCR fast-exit on blank images', () => {
+    const originalOcrPrepassFlag = process.env.OCR_PREPASS;
+
+    beforeEach(() => {
+      process.env.OCR_PREPASS = 'enabled';
+    });
+
+    afterEach(() => {
+      if (originalOcrPrepassFlag === undefined) {
+        delete process.env.OCR_PREPASS;
+      } else {
+        process.env.OCR_PREPASS = originalOcrPrepassFlag;
+      }
+      vi.restoreAllMocks();
+    });
+
+    it('short-circuits the pipeline when OCR extracts no text', async () => {
+      vi.spyOn(ocrPrepass, 'runOcrPrepass').mockResolvedValue({
+        status: 'failed',
+        reason: 'no-text-extracted',
+        durationMs: 42
+      });
+
+      const intake = buildIntake();
+      // Make the extractor take a noticeable amount of time — if the
+      // short-circuit is working, we should return well before this
+      // resolves. The extractor fires (we don't plumb abort signals)
+      // but its result is discarded.
+      const extractor = vi.fn().mockImplementation(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve(buildExtractionPayload()), 5_000)
+          )
+      );
+
+      const startedAt = performance.now();
+      const report = await runTracedReviewSurface({
+        surface: '/api/review',
+        extractionMode: 'cloud',
+        clientTraceId: 'trace-fast-exit-001',
+        intake,
+        extractor
+      });
+      const elapsedMs = performance.now() - startedAt;
+
+      expect(elapsedMs).toBeLessThan(1_000);
+      expect(report.verdict).toBe('review');
+      expect(report.extractionQuality.state).toBe('no-text-extracted');
+      expect(report.summary).toMatch(/no text/i);
+      expect(report.checks).toHaveLength(0);
+    });
   });
 
   it('keeps the warning surface on the warning-check contract', async () => {

@@ -43,7 +43,6 @@ export function findPriorityLiteralAnchorForCheck(
   if (anchor.matchKind !== 'literal') return null;
   return anchor;
 }
-
 /**
  * Look up the per-field anchor result for a given check id. Returns
  * null when no anchor ran (feature flag off) or the field didn't
