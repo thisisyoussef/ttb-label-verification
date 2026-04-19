@@ -26,7 +26,6 @@ interface FieldRowProps {
    */
   totalImages?: number;
   rowRef?: (node: HTMLButtonElement | null) => void;
-  articleRef?: (node: HTMLElement | null) => void;
   onKeyNav?: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
 }
 
@@ -45,7 +44,6 @@ export function FieldRow({
   refining = false,
   totalImages = 1,
   rowRef,
-  articleRef,
   onKeyNav
 }: FieldRowProps) {
   const isWarning = check.id === 'government-warning';
@@ -83,7 +81,6 @@ export function FieldRow({
 
   return (
     <article
-      ref={articleRef}
       aria-busy={refining ? true : undefined}
       className={[
         'bg-surface-container-lowest rounded-lg shadow-sm overflow-hidden ring-1 ring-outline-variant/15 border-l-4',
