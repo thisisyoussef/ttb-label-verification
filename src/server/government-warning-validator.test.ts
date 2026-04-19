@@ -380,7 +380,6 @@ describe('government warning validator', () => {
       { id: 'legibility', status: 'pass' }
     ]);
   });
-
   it('fails when a readable label is missing the warning text entirely', () => {
     const check = buildGovernmentWarningCheck(
       buildExtraction({
