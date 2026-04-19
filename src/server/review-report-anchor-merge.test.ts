@@ -84,14 +84,19 @@ function extraction(): ReviewExtraction {
   });
 }
 
-function anchorConfirming(fieldId: string, matchKind: 'literal' | 'equivalent' = 'literal'): AnchorTrackResult {
+function anchorConfirming(
+  fieldId: string,
+  matchKind: 'literal' | 'equivalent' = 'literal',
+  expected = 'Vodka',
+  tokens = ['vodka']
+): AnchorTrackResult {
   return {
     fields: [
       {
         field: fieldId,
-        expected: 'Vodka',
-        tokens: ['vodka'],
-        tokensFound: 1,
+        expected,
+        tokens,
+        tokensFound: tokens.length,
         coverage: 1,
         status: 'found',
         matchKind
@@ -172,5 +177,91 @@ describe('buildVerificationReport anchor-merge', () => {
     // ABV was a clean VLM match — should remain pass regardless of
     // anchor's missing signal on class.
     expect(abvCheck?.status).toBe('pass');
+  });
+
+  it('literal ABV anchor overrides a contradictory VLM read', async () => {
+    const ext = reviewExtractionSchema.parse({
+      ...extraction(),
+      fields: {
+        ...extraction().fields,
+        alcoholContent: {
+          present: true,
+          value: '40% Alc./Vol.',
+          confidence: 0.94
+        }
+      }
+    });
+    const report = await buildVerificationReport({
+      intake: intake(),
+      extraction: ext,
+      warningCheck: buildGovernmentWarningCheck(ext),
+      anchorTrack: anchorConfirming(
+        'abv',
+        'literal',
+        '45% Alc./Vol.',
+        ['45', 'alc', 'vol']
+      )
+    });
+    const abvCheck = report.checks.find((c) => c.id === 'alcohol-content');
+
+    expect(abvCheck?.status).toBe('pass');
+    expect(abvCheck?.summary).toBe('Label matches the approved record.');
+    expect(abvCheck?.extractedValue).toBe('45% Alc./Vol.');
+    expect(abvCheck?.comparison?.status).toBe('match');
+    expect(report.verdict).toBe('approve');
+  });
+
+  it('literal anchor fixes only the anchored row and leaves other blockers intact', async () => {
+    const ext = reviewExtractionSchema.parse({
+      ...extraction(),
+      fields: {
+        ...extraction().fields,
+        brandName: { present: false, confidence: 0.05 },
+        classType: { present: false, confidence: 0.05 },
+        alcoholContent: {
+          present: true,
+          value: '40% Alc./Vol.',
+          confidence: 0.94
+        }
+      }
+    });
+    const report = await buildVerificationReport({
+      intake: intake(),
+      extraction: ext,
+      warningCheck: buildGovernmentWarningCheck(ext),
+      anchorTrack: {
+        fields: [
+          {
+            field: 'brand',
+            expected: 'Stones Throw',
+            tokens: ['stones', 'throw'],
+            tokensFound: 2,
+            coverage: 1,
+            status: 'found',
+            matchKind: 'literal'
+          },
+          {
+            field: 'class',
+            expected: 'Vodka',
+            tokens: ['vodka'],
+            tokensFound: 1,
+            coverage: 1,
+            status: 'found',
+            matchKind: 'literal'
+          }
+        ],
+        ocrWordCount: 30,
+        durationMs: 500,
+        canFastApprove: false
+      }
+    });
+    const brandCheck = report.checks.find((c) => c.id === 'brand-name');
+    const classCheck = report.checks.find((c) => c.id === 'class-type');
+    const abvCheck = report.checks.find((c) => c.id === 'alcohol-content');
+
+    expect(brandCheck?.status).toBe('pass');
+    expect(classCheck?.status).toBe('pass');
+    expect(abvCheck?.status).toBe('fail');
+    expect(report.verdict).toBe('reject');
   });
 });

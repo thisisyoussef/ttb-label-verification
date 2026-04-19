@@ -17,6 +17,33 @@ const CHECK_TO_ANCHOR_ID: Record<string, string> = {
   'applicant-address': 'address'
 };
 
+function findAnchorForCheck(
+  checkId: string,
+  anchorTrack: AnchorTrackResult | null | undefined
+): FieldAnchor | null {
+  if (!anchorTrack) return null;
+  const anchorFieldId = CHECK_TO_ANCHOR_ID[checkId];
+  if (!anchorFieldId) return null;
+  return anchorTrack.fields.find((field) => field.field === anchorFieldId) ?? null;
+}
+
+/**
+ * Strong literal anchors are the highest-precision variant of the
+ * top-down "does the label contain the approved value?" check. These
+ * are the only anchors allowed to take priority over a conflicting
+ * bottom-up field read.
+ */
+export function findPriorityLiteralAnchorForCheck(
+  checkId: string,
+  anchorTrack: AnchorTrackResult | null | undefined
+): FieldAnchor | null {
+  const anchor = findAnchorForCheck(checkId, anchorTrack);
+  if (!anchor) return null;
+  if (anchor.status !== 'found') return null;
+  if (anchor.matchKind !== 'literal') return null;
+  return anchor;
+}
+
 /**
  * Look up the per-field anchor result for a given check id. Returns
  * null when no anchor ran (feature flag off) or the field didn't
@@ -31,10 +58,7 @@ function findStrongAnchorFor(
   checkId: string,
   anchorTrack: AnchorTrackResult | null | undefined
 ): FieldAnchor | null {
-  if (!anchorTrack) return null;
-  const anchorFieldId = CHECK_TO_ANCHOR_ID[checkId];
-  if (!anchorFieldId) return null;
-  const anchor = anchorTrack.fields.find((field) => field.field === anchorFieldId);
+  const anchor = findAnchorForCheck(checkId, anchorTrack);
   if (!anchor || anchor.status !== 'found') return null;
   return anchor;
 }

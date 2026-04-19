@@ -8,6 +8,10 @@
 ## Hypothesis
 
 A shared extraction baseline plus small endpoint overlays and structural guardrails will improve reviewer trust and endpoint consistency without adding material latency to the single-label path.
+The current follow-up hypothesis is narrower: when a strong literal anchor says
+the approved field value is clearly on the label, that top-down signal should
+take priority for the field row even if the bottom-up read is contradictory,
+while the overall verdict still depends on the rest of the report.
 
 ## Fixture slice
 
@@ -36,6 +40,8 @@ A shared extraction baseline plus small endpoint overlays and structural guardra
 - `guardrail-overreach`: valid missing-field evidence converted into adapter failure
 - `batch-inconsistency`: repeated item behavior drifts in batch
 - `prompt-bloat`: latency increase caused by prompt/guardrail additions
+- `anchor-overreach`: literal anchor priority clears a field row that should
+  still be blocked by a real label defect elsewhere
 
 ## Decision record
 
@@ -59,6 +65,15 @@ A shared extraction baseline plus small endpoint overlays and structural guardra
   - `npm run eval:golden`
   - route-level spot checks against `/api/review/relevance`
   - `X-Stage-Timings` headers and existing latency-focused tests
+- local anchor-priority follow-up evidence:
+  - `npx vitest run src/server/review-report-anchor-merge.test.ts src/server/review-pipeline.e2e.test.ts`
+  - `NODE_ENV=test npx tsx -e <fast-slice anchor stress A/B>` comparing `ANCHOR_MERGE=disabled` vs `enabled` on real labels with a hostile extractor stub
+  - winning stress-run result: fast-slice correctness improved from `1/7` to
+    `2/7`, field passes improved from `10` to `20`, review rows dropped from
+    `22` to `12`, fail rows held at `2`, `harpoon` improved from `review` to
+    `approve`, and `negative-abv` stayed `reject`
 - remaining persona tradeoffs:
   - none observed in fixture-backed evals
   - no external trace publication is required after the external trace dependency removal
+  - `npm run eval:golden` still carries the pre-existing `G-02:warning`
+    warning-route failure; the literal-anchor follow-up did not change it
