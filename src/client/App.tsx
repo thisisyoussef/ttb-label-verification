@@ -5,6 +5,7 @@ import { EvalDemo } from './EvalDemo';
 // (scenarioImageLoader import removed — scenario panel retired; the
 // toolbench now loads real COLA Cloud samples via /api/eval/sample.)
 import { AuthScreen } from './AuthScreen';
+import { AuthBootSplash } from './AuthBootSplash';
 import {
   advanceAuthPhase,
   advanceSessionTimeoutCountdown,
@@ -27,6 +28,7 @@ import { seedScenarios } from './scenarios';
 import { useBatchWorkflow } from './useBatchWorkflow';
 import { useHelpTourState } from './useHelpTourState';
 import { useAppToolbench } from './useAppToolbench';
+import { useFontsReady } from './useFontsReady';
 import { useSingleReviewFlow } from './useSingleReviewFlow';
 import { fixturesEnabled } from './review-runtime';
 
@@ -49,6 +51,7 @@ function isEvalDemoEnabled(): boolean {
 export function App() {
   const evalDemoEnabled = isEvalDemoEnabled();
   const [pathname, setPathname] = useState<string>(readInitialPathname);
+  const fontsReady = useFontsReady();
 
   useEffect(() => {
     const onPopState = () => setPathname(window.location.pathname);
@@ -357,6 +360,7 @@ export function App() {
   const sessionTimeoutRemainingSeconds = getSessionTimeoutSeconds(sessionRemainingMs);
 
   if (authPhase !== 'signed-in') {
+    if (!fontsReady) return <AuthBootSplash />;
     return (
       <AuthScreen
         phase={authPhase}
