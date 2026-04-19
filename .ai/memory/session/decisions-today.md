@@ -6,6 +6,9 @@
 - Add explicit `cola-cloud-warning-visible` and `cola-cloud-warning-not-visible` golden slices so warning-reader regressions can be monitored without front-only assets drowning the signal.
 - Resolve the warning exact-text contradiction by promoting two independent pass-grade reads to a pass-grade exact-text subcheck, while mixed warning reads downgrade to review instead of fail.
 - Treat heading-format negatives conservatively on live labels: use the visual all-caps signal, not noisy transcribed casing, for hard all-caps defects; keep bold-only negatives in review until a stronger style detector exists.
+- Narrow warning conflicts to true `pass` versus `fail` disagreement only; `pass+review` and `review+fail` should not trigger the same soft-conflict path.
+- Restore the exact-text pass path only when a pass-grade warning signal exists, no signal directly fails, similarity stays high, and the warning diff shows no lexical insertion/deletion. Case drift and punctuation noise are acceptable; missing words are not.
+- Keep the warning route golden G-02 expectation as the oracle: exact-text can pass while the uppercase heading still fails, and the overall warning verdict still fails for the right reason.
 - Keep the default agent contract lean: SSOT, branch tracker, memory bank, TDD, and clean code are the core workflow.
 - Default new work to a fresh story branch in the current checkout; use sibling linked worktrees only for parallel tasks or dirty-checkout isolation.
 - Keep `docs/specs/<story-id>/` as the universal story packet, but make spec expansion proportional to the size and risk of the change.

@@ -272,9 +272,7 @@ function buildVoteCounts(
 }
 
 function hasConflictingSignals(counts: WarningVoteCounts): boolean {
-  return [counts.passCount, counts.reviewCount, counts.failCount].filter(
-    (count) => count > 0
-  ).length > 1;
+  return counts.passCount > 0 && counts.failCount > 0;
 }
 
 function isActiveWarningVoteSignal(

@@ -330,7 +330,7 @@ describe('government warning vote resolution', () => {
     });
   });
 
-  it('returns the mean of the pass signals when pass consensus is reached', () => {
+  it('returns the mean of the pass signals when pass consensus is reached without treating pass+review as conflicting', () => {
     expect(
       resolveWarningVote(
         [
@@ -349,7 +349,7 @@ describe('government warning vote resolution', () => {
       failCount: 0,
       passConsensus: true,
       failConsensus: false,
-      conflictingSignals: true
+      conflictingSignals: false
     });
   });
 
@@ -398,7 +398,7 @@ describe('government warning vote resolution', () => {
     expect(resolution.similarity).toBeCloseTo(0.83, 12);
   });
 
-  it('uses the two-signal mean for unresolved two-way votes', () => {
+  it('uses the two-signal mean for unresolved pass+review votes without marking them as true conflicts', () => {
     expect(
       resolveWarningVote(
         [
@@ -416,8 +416,30 @@ describe('government warning vote resolution', () => {
       failCount: 0,
       passConsensus: false,
       failConsensus: false,
+      conflictingSignals: false
+    });
+  });
+
+  it('marks direct pass-vs-fail disagreement as conflicting', () => {
+    const resolution = resolveWarningVote(
+      [
+        signal({ source: 'vlm', vote: 'pass', similarity: 0.97 }),
+        signal({ source: 'ocv', vote: 'fail', similarity: 0.42 })
+      ],
+      0.1
+    );
+
+    expect(resolution).toMatchObject({
+      vote: 'review',
+      activeSignals: 2,
+      passCount: 1,
+      reviewCount: 0,
+      failCount: 1,
+      passConsensus: false,
+      failConsensus: false,
       conflictingSignals: true
     });
+    expect(resolution.similarity).toBeCloseTo(0.695, 12);
   });
 
   it('sorts similarities before taking the unresolved three-signal median', () => {

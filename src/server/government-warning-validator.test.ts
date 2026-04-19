@@ -250,7 +250,7 @@ describe('government warning validator', () => {
     expect(check.severity).toBe('blocker');
     expect(check.warning?.subChecks).toMatchObject([
       { id: 'present', status: 'pass' },
-      { id: 'exact-text', status: 'review' },
+      { id: 'exact-text', status: 'pass' },
       { id: 'uppercase-bold-heading', status: 'fail' },
       { id: 'continuous-paragraph', status: 'pass' },
       { id: 'legibility', status: 'pass' }

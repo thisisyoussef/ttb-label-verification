@@ -1,21 +1,13 @@
 # Active Context
 
-- Current focus: `TTB-401` assessor-facing screenshot pass for the documentation packet and README
-- Current story branch: `codex/TTB-401-assessor-screenshots`, cut from `origin/main` in `/Users/youss/Development/gauntlet/ttb-label-verification-ttb401-screenshots`
-- Current objective: add a screenshot-backed evaluator guide, fold Toolbench into the README assessor walkthrough, and make the fastest test path obvious to a reviewer or procurement-style assessor
-- Ad hoc follow-up merged into this session: `TTB-204` warning behavior diagnostics and non-warning capitalization cleanup on `codex/TTB-204-warning-golden-diagnostics`
-- Warning follow-up objective: keep `case-mismatch` UI surfacing scoped to the government warning diff, split the real warning corpus into warning-visible vs warning-not-visible slices, and harden the exact-text / heading-format warning path against false fails on approved labels
-- Current capture set lives in `docs/screenshots/` and was taken from the running local app on `http://localhost:5179`
-- Current documentation emphasis: Toolbench as evaluator harness, `/api/review/refine` as a silent second pass, and perceived-latency tactics as part of the product story rather than hidden implementation detail
-- `codex/TTB-401-mermaid-restore` is the earlier follow-up that restored native Mermaid and sharpened the assessor framing; this branch layers the practical testing walkthrough on top
-- Current tooling cleanup: `STITCH_FLOW_MODE=direct` is now the canonical default, with `claude-direct` accepted only as a legacy alias
-- Current workflow baseline: new linked worktree creation bootstraps repo-local `.env` automatically, including Gemini when present; story PRs auto-open as ready; PR CI is lightweight; and routine env sync plus check-wait chatter stays out of progress updates unless it still blocks live work
-- `TTB-EVAL-002` adds an opt-in inline Gemini Batch benchmark path for the approved live extraction corpus while keeping `npm run eval:golden` as the canonical fixture-backed gate.
-- `TTB-304` is being published from `/Users/youss/Development/gauntlet/ttb-label-verification-304-publish` after isolating it from unrelated `TTB-210` changes in the main checkout.
-- Next queue blocker after the workflow cleanup and eval merge remains `TTB-210`, where traced LangSmith evidence is still blocked by `401 /datasets` in the tracked eval flow and `403` on direct trace upload
-- Current `TTB-210` slice hardens beverage auto-detect so decorative art, sparse non-label reads, and no-text extractions stay `unknown` unless the extraction still carries trustworthy alcohol-label evidence.
-- Current `TTB-210` batch-alignment slice removes the old batch-only prompt overlay and deferred aggregated resolver path so batch run/retry item processing now uses the same canonical review prompt and inline report pipeline as single review.
-- Warning diagnostics artifacts: `evals/results/2026-04-19-warning-diagnostics-cola-cloud-real.json` remains the baseline full-slice run; the new visibility-split runs live in `evals/results/2026-04-19-warning-diagnostics-cola-cloud-warning-not-visible-current.json` and `evals/results/2026-04-19-warning-diagnostics-cola-cloud-warning-visible-{current,repeat,final,final2}.json` to track warning-only behavior case by case.
+- Current focus: `TTB-204` government warning pass-retune follow-up on `codex/TTB-204-warning-pass-retune`
+- Current worktree: `/Users/youss/Development/gauntlet/ttb-label-verification-ttb204-warning-diagnostics`
+- Current objective: restore rightful government-warning exact-text passes after the April 19 strictness regression without weakening real wording defects
+- Current implementation shape: exact-text now passes when a pass-grade warning signal exists, no signal directly fails, similarity stays high, and the diff contains no lexical insert/delete defects; heading-format enforcement remains scoped to the opening heading
+- Current verification state: focused warning unit tests, full `npm run test`, `npm run typecheck`, `npm run build`, and full `npm run eval:golden` are green
+- Current mutation state: `src/server/government-warning-vote.ts` retains a `100%` mutation score with `0` survivors; `src/server/government-warning-subchecks.ts` remains weak (`51.52%`, `77` survivors, `109` errors)
+- Current durable caution: the subchecks helper still needs stronger direct assertions around heading detection, low-confidence legibility branches, and reason-bearing branches even though the functional warning gates are now green
+- Warning diagnostics artifacts remain in `evals/results/2026-04-19-warning-diagnostics-*.json` as the baseline evidence for this retune
 - GitHub repo and Railway project remain live; the checked-in deploy flow still uses GitHub Actions plus Railway CLI
 - Current contract anchor: `src/shared/contracts/review.ts`
 - Current progress tracker: `docs/process/SINGLE_SOURCE_OF_TRUTH.md`

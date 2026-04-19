@@ -7,7 +7,7 @@ import {
 import { similarityToVote } from './government-warning-vote';
 
 describe('government warning similarity thresholds', () => {
-  it('keeps borderline 0.92 similarities in review instead of auto-passing a single noisy read', () => {
+  it('keeps borderline 0.92 similarities in review when no warning signal actually lands in the pass band', () => {
     expect(similarityToVote(0.92)).toBe('review');
     expect(
       buildExactTextSubCheck({
@@ -16,9 +16,27 @@ describe('government warning similarity thresholds', () => {
         textReliable: true,
         similarity: 0.92,
         passConsensus: false,
-        conflictingSignals: false
+        conflictingSignals: false,
+        supportingPassSignal: false,
+        hasLexicalInsertionOrDeletion: false
       }).status
     ).toBe('review');
+  });
+
+  it('passes reliable mixed reads once one independent signal passes and none directly contradict it', () => {
+    expect(similarityToVote(0.905)).toBe('review');
+    expect(
+      buildExactTextSubCheck({
+        hasWarningText: true,
+        exactWordingMatch: false,
+        textReliable: true,
+        similarity: 0.905,
+        passConsensus: false,
+        conflictingSignals: false,
+        supportingPassSignal: true,
+        hasLexicalInsertionOrDeletion: false
+      }).status
+    ).toBe('pass');
   });
 
   it('passes when two independent reads land in the pass band despite minor read noise', () => {
@@ -29,7 +47,9 @@ describe('government warning similarity thresholds', () => {
         textReliable: true,
         similarity: 0.964,
         passConsensus: true,
-        conflictingSignals: false
+        conflictingSignals: false,
+        supportingPassSignal: true,
+        hasLexicalInsertionOrDeletion: false
       }).status
     ).toBe('pass');
   });
@@ -42,7 +62,9 @@ describe('government warning similarity thresholds', () => {
         textReliable: true,
         similarity: 0.708,
         passConsensus: false,
-        conflictingSignals: true
+        conflictingSignals: true,
+        supportingPassSignal: true,
+        hasLexicalInsertionOrDeletion: false
       }).status
     ).toBe('review');
   });
@@ -56,7 +78,9 @@ describe('government warning similarity thresholds', () => {
         textReliable: true,
         similarity: 0.74,
         passConsensus: false,
-        conflictingSignals: false
+        conflictingSignals: false,
+        supportingPassSignal: false,
+        hasLexicalInsertionOrDeletion: false
       }).status
     ).toBe('fail');
   });
@@ -69,7 +93,9 @@ describe('government warning similarity thresholds', () => {
         textReliable: false,
         similarity: 0.74,
         passConsensus: false,
-        conflictingSignals: false
+        conflictingSignals: false,
+        supportingPassSignal: false,
+        hasLexicalInsertionOrDeletion: false
       }).status
     ).toBe('review');
   });

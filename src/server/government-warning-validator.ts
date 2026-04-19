@@ -73,6 +73,17 @@ export function buildGovernmentWarningCheck(
     required: CANONICAL_GOVERNMENT_WARNING,
     extracted: extractedText
   });
+  const hasLexicalInsertionOrDeletion = exactSegments.some((segment) => {
+    if (segment.kind === 'missing') {
+      return /[A-Za-z0-9]/.test(segment.required);
+    }
+
+    if (segment.kind === 'wrong-character' && segment.required.length === 0) {
+      return /[A-Za-z0-9]/.test(segment.extracted);
+    }
+
+    return false;
+  });
   const exactMatch = extractedText === CANONICAL_GOVERNMENT_WARNING;
   const exactWordingMatch =
     extractedText.toUpperCase() === CANONICAL_GOVERNMENT_WARNING.toUpperCase();
@@ -124,7 +135,10 @@ export function buildGovernmentWarningCheck(
       textReliable,
       similarity: textSimilarity,
       passConsensus: voteResolution.passConsensus,
-      conflictingSignals: voteResolution.conflictingSignals
+      conflictingSignals: voteResolution.conflictingSignals,
+      supportingPassSignal:
+        voteResolution.passCount > 0 && voteResolution.failCount === 0,
+      hasLexicalInsertionOrDeletion
     }),
     buildHeadingSubCheck({
       extractedText,
