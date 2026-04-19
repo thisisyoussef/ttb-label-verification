@@ -24,9 +24,8 @@ This file is the checked-in branch registry for normal story work.
 <!-- ACTIVE_BRANCHES:START -->
 | Branch | Story | Lane | Status | Description | PR | Opened | Updated | Base | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `codex/TTB-304-dual-image-intake` | `TTB-304` | `codex` | `draft-local` | carry optional secondary label images through single review, batch matching, toolbench samples, and results evidence without persistence | - | `2026-04-18` | `2026-04-18` | `origin/main` | isolated publish worktree at `/Users/youss/Development/gauntlet/ttb-label-verification-304-publish` |
-| `codex/TTB-210-batch-single-source` | `TTB-210` | `codex` | `draft-local` | align batch run and retry item processing to the canonical single-review prompt and inline report pipeline | - | `2026-04-19` | `2026-04-19` | `origin/main` | isolated clean publish worktree at `/Users/youss/Development/gauntlet/ttb-label-verification-210-merge` |
 | `codex/TTB-000-dynamic-verdict-banner` | `TTB-000` | `codex` | `draft-local` | make the verdict banner follow the live matched/review state and remove overly optimistic review copy | - | `2026-04-18` | `2026-04-18` | `origin/main` | isolated merge worktree for verdict banner fix |
+| `codex/TTB-210-batch-single-source` | `TTB-210` | `codex` | `draft-local` | align batch run and retry item processing to the canonical single-review prompt and inline report pipeline | - | `2026-04-19` | `2026-04-19` | `origin/main` | isolated clean publish worktree at `/Users/youss/Development/gauntlet/ttb-label-verification-210-merge` |
 | `codex/TTB-EVAL-002-gemini-batch-golden-set` | `TTB-EVAL-002` | `codex` | `draft-pr` | add an opt-in inline Gemini Batch runner for approved live eval corpus sweeps without touching the canonical fixture gate | `#107` | `2026-04-18` | `2026-04-18` | `origin/main` | isolated eval worktree; dry-run verified on approved 35-case corpus; live Gemini Batch job `batches/zciec1j41bshzbm1n77tufdc3a85ynp9578o` submitted and still provider-side async |
 <!-- ACTIVE_BRANCHES:END -->
 
@@ -35,6 +34,7 @@ This file is the checked-in branch registry for normal story work.
 <!-- CLOSED_BRANCHES:START -->
 | Branch | Story | Lane | Final status | Description | Closed | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| `codex/TTB-304-dual-image-intake` | `TTB-304` | `codex` | `merged` | carry optional secondary label images through single review, batch matching, toolbench samples, and results evidence without persistence | `2026-04-19` | merged via PR #119 |
 | `chore/TTB-WF-003-branch-tracker` | `TTB-WF-003` | `chore` | `merged` | add the branch tracker workflow and enforce branch metadata updates | `2026-04-18` | merged via PR #44 |
 | `chore/TTB-WF-003-branch-tracker-conflict-fix` | `TTB-WF-003` | `chore` | `merged` | repair BRANCH_TRACKER merge markers and finalize TTB-WF-003 history | `2026-04-18` | merged via PR #109 |
 | `chore/TTB-WF-003-lean-agent-workspace` | `TTB-WF-003` | `chore` | `merged` | simplify agent docs, make direct branch work the default, and keep optional sibling worktrees | `2026-04-18` | merged via PR #103 |
