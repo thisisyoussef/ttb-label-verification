@@ -106,50 +106,24 @@ const tracedReviewSurface = traceable(
     const latencyCapture = resolveLatencyCapture(input);
     const startedAt = performance.now();
 
-    // PARALLEL PRE-EXTRACTION PIPELINE
-    //
-    // OCR pre-pass, warning OCV, and VLM extraction are all independent —
-    // they don't consume each other's outputs, so they can run concurrently.
-    // This shaves 1-3s off the critical path compared to running them
-    // sequentially (see latency analysis in accuracy-research-2026-04-15.md).
-    //
-    // Warning OCV can optionally consume the pre-pass OCR text to skip
-    // re-running Tesseract. We thread that dependency with a fast Promise
-    // chain while still firing the other two in parallel.
+    // Parallelize OCR pre-pass, warning OCV, and VLM extraction. They do not
+    // depend on one another and running them together cuts 1-3s from the path.
     let augmentedIntake = input.intake;
     let warningOcv: WarningOcvResult | undefined;
 
-    // Fire all three in parallel. The VLM is always the long pole (3-5s);
-    // OCR pre-pass and OCV finish well before the VLM returns.
-    //
-    // KEY FIX: previously OCV was wrapped in `ocrPromise.then(...)` as a
-    // piggyback optimization — reusing OCR text to skip a second Tesseract
-    // pass. That saved ~500ms of Tesseract work but SERIALIZED OCV behind
-    // OCR, costing ~1s of wall-clock time on labels where OCR is slower
-    // than OCV. OCV runs its own Tesseract on a different (cropped +
-    // rotated) region anyway, so the reuse was marginal. We now fire
-    // OCV truly independently — it always does its own pass, but gets
-    // the wall-clock parallelism with OCR + VLM.
+    // The VLM is usually the long pole, so keep OCR pre-pass and OCV fully
+    // independent instead of serializing OCV behind OCR text reuse.
     const prepassEnabled = isOcrPrepassEnabled();
-    // EXTRACTION_PIPELINE=simple: skip OCR pre-pass + merge entirely,
-    // trust the VLM's structured extraction as-is. Keep the warning OCV
-    // because it's a canonical-text verifier (checking known text against
-    // a fixed target), not an extractor — a genuinely complementary signal.
-    // See docs/ARCHITECTURE_AND_DECISIONS.md for the rationale.
+    // EXTRACTION_PIPELINE=simple skips OCR pre-pass + merge and trusts the
+    // VLM structure, but still keeps warning OCV as a canonical-text check.
     const useSimplePipeline = process.env.EXTRACTION_PIPELINE?.trim().toLowerCase() === 'simple';
 
     const ocrPromise = prepassEnabled && !useSimplePipeline
       ? measureStage(() => runOcrPrepassOverLabels(input.intake.labels))
       : Promise.resolve(null);
 
-    // Wire OCV to a VLM-bounded abort signal. OCV's fast path (bottom crop)
-    // always runs to completion — it's the primary OCV signal and finishes
-    // in ~300-500ms. Its slower rotation fallbacks (up to 5 crops) are
-    // cancellable: once the VLM returns (our long pole), we abort any
-    // still-pending rotation work so OCV can never extend wall-clock on
-    // labels where the VLM comes back fast. Edge-case wrap-around warnings
-    // still get caught when the VLM is slow, which is exactly when we can
-    // afford the extra rotation spawns.
+    // OCV's slow rotation fallbacks are cancellable once the VLM returns so
+    // they never extend wall-clock after the long pole completes.
     const ocvController = new AbortController();
     const ocvPromise = prepassEnabled
       ? measureStage(() =>
@@ -160,28 +134,16 @@ const tracedReviewSurface = traceable(
         )
       : Promise.resolve(null);
 
-    // VLM extraction — always runs, uses the standard prompt (no OCR text
-    // injected). The OCR-augmented prompt suppresses VLM warning detection
-    // because the VLM obeys "use OCR as primary source" and reports fields
-    // absent from OCR as not present — even when it can see them in the image.
-    // Instead, we use VLM for full extraction, then override text fields with
-    // OCR values in the merge step below.
+    // VLM extraction always uses the standard prompt; OCR values override text
+    // fields later instead of biasing the model with an OCR-first prompt.
     const vlmPromise = measureStage(() =>
       runTracedReviewExtraction({ ...input, intake: input.intake, latencyCapture })
     );
-    // As soon as the VLM resolves (success or failure), abort OCV's
-    // rotation fallbacks. The fast-path bottom crop has already returned
-    // by then in the overwhelming majority of cases.
+    // Stop OCV rotation fallbacks once the VLM resolves.
     vlmPromise.finally(() => ocvController.abort()).catch(() => {});
 
-    // Parallel anchor track — takes the application values as known
-    // targets, runs one Tesseract TSV pass on the full label, and
-    // checks per-field whether each value's tokens are present. Used
-    // downstream to upgrade review→pass on fields the VLM was
-    // uncertain about but anchor confirmed. Only runs when
-    // ANCHOR_MERGE=enabled (or shadow) — default is off during
-    // rollout. Returns null when flag is off so the report layer
-    // falls through to legacy behavior.
+    // Parallel anchor track confirms application values against full-label OCR
+    // and can upgrade uncertain review results when ANCHOR_MERGE is enabled.
     const anchorMergeMode = resolveAnchorMergeMode();
     const anchorPromise: Promise<{ result: AnchorTrackResult | null; elapsedMs: number }> =
       anchorMergeMode === 'disabled'
@@ -190,9 +152,8 @@ const tracedReviewSurface = traceable(
             runAnchorTrackOverLabels(input.intake.labels, input.intake.fields)
           );
 
-    // Await all four in parallel. Anchor adds one Tesseract call but
-    // it runs alongside the existing 3 stages — no wall-clock cost
-    // on cold labels because VLM is the long pole.
+    // Await all four in parallel. Anchor adds work but does not typically
+    // extend wall-clock because the VLM remains the long pole.
     const [ocrStage, ocvStage, vlmStage, anchorStage] = await Promise.all([
       ocrPromise,
       ocvPromise,
@@ -218,9 +179,7 @@ const tracedReviewSurface = traceable(
         durationMs: ocvStage.elapsedMs
       });
     }
-    // anchor stage telemetry — only meaningful when flag is on. In
-    // 'shadow' mode we still record the stage but pass null to the
-    // report layer so the merge doesn't fire (for A/B metrics).
+    // In shadow mode we still capture anchor telemetry but skip the merge.
     if (anchorStage.result) {
       latencyCapture.recordSpan({
         stage: 'anchor-track',
@@ -233,8 +192,8 @@ const tracedReviewSurface = traceable(
 
     let extractionElapsedMs = vlmStage.elapsedMs;
 
-    // OCR-first extraction: regex extracts fields from OCR text (no LLM, no pollution).
-    // VLM still runs for visual signals and as fallback when OCR has insufficient text.
+    // OCR-first extraction: regex harvests text fields, VLM still covers
+    // visual signals and sparse-OCR fallback.
     let extractionResult: ReviewExtraction;
 
     const ocrRegexOutput = augmentedIntake.ocrText
@@ -248,9 +207,7 @@ const tracedReviewSurface = traceable(
       extractionResult = vlmStage.result;
     }
 
-    // VLM region detection → per-region OCR override.
-    // VLM tells us WHERE fields are, OCR reads WHAT they say.
-    // Verified OCR text overrides VLM extraction (no hallucination).
+    // VLM finds regions; OCR supplies verified text for those regions.
     if (isRegionDetectionEnabled()) {
       const regionStage = await measureStage(() =>
         runVlmRegionDetectionOverLabels(input.intake.labels)
@@ -262,7 +219,6 @@ const tracedReviewSurface = traceable(
       });
       extractionElapsedMs += regionStage.elapsedMs;
 
-      // Override fields with verified per-region OCR text
       extractionResult = applyRegionOverrides(extractionResult, regionStage.result.regions);
     }
 
@@ -295,12 +251,8 @@ const tracedReviewSurface = traceable(
       durationMs: warningStage.elapsedMs
     });
 
-    // Spirits same-field-of-vision check (27 CFR 5.61). Fires only
-    // for distilled-spirits extractions and only when a Gemini key
-    // is configured. Adds ~2-4s of VLM latency on a cold call but
-    // avoids cost on non-spirits reviews. The result is forwarded
-    // into buildVerificationReport so the cross-field check renders
-    // a real status instead of the placeholder.
+    // Spirits same-field-of-vision check (27 CFR 5.61) only runs for
+    // distilled-spirits reviews when Gemini is configured.
     let spiritsColocation: SpiritsColocationResult | null = null;
     if (
       reconciledExtraction.beverageType === 'distilled-spirits' &&
@@ -334,14 +286,7 @@ const tracedReviewSurface = traceable(
       durationMs: reportStage.elapsedMs
     });
 
-    // LLM JUDGMENT LAYER — resolves ambiguous field mismatches that survive
-    // deterministic normalization. Only runs for fields with high
-    // variability (country-of-origin, applicant-address) where lookup
-    // tables can't cover the long tail. See review-surface-judgment.ts
-    // for the allowlist + verdict re-derivation logic.
-    //
-    // Typical added latency: 300-700ms total (parallelized across fields).
-    // Opt-out with LLM_JUDGMENT=disabled env var.
+    // LLM judgment resolves the remaining ambiguous high-variance fields.
     let finalReport = reportStage.result;
     const judgmentClient = createJudgmentLlmClient();
     if (judgmentClient) {
@@ -591,4 +536,3 @@ export async function runTracedWarningSurface(input: TracedWarningSurfaceInput) 
     throw error;
   }
 }
-
