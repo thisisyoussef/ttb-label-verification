@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { FieldAnchor } from './anchor-field-track';
-import { maybeUpgradeCheckWithAnchor } from './review-report-field-checks';
+import { maybeUpgradeCheckWithAnchor } from './review-report-anchor-upgrade';
 import type { CheckReview } from '../shared/contracts/review';
 
 function review(overrides: Partial<CheckReview> = {}): CheckReview {

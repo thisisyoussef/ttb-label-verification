@@ -5,6 +5,7 @@ import {
   type ReviewExtractionField
 } from '../shared/contracts/review';
 import type { NormalizedReviewIntake } from './review-intake';
+import { maybeUpgradeChecksWithAnchors } from './review-report-anchor-upgrade';
 import {
   citationsFor,
   compareFieldValues,
@@ -24,100 +25,7 @@ import {
   type FieldJudgment
 } from './judgment-field-rules';
 import { extractFieldsFromOcrText } from './ocr-field-extractor';
-import type { AnchorTrackResult, FieldAnchor } from './anchor-field-track';
-
-/**
- * Map a check spec `id` → anchor-track `field` id. The anchor track
- * uses short keys ('brand', 'class', 'abv', 'net', 'country',
- * 'address') while the report uses longer hyphenated ids. Fanciful
- * has no analogous check spec id because cross-field judgment handles
- * it; it's still anchored for telemetry but not merged here.
- */
-const CHECK_TO_ANCHOR_ID: Record<string, string> = {
-  'brand-name': 'brand',
-  'class-type': 'class',
-  'alcohol-content': 'abv',
-  'net-contents': 'net',
-  'country-of-origin': 'country',
-  'applicant-address': 'address'
-};
-
-/**
- * Look up the per-field anchor result for a given check id. Returns
- * null when no anchor ran (feature flag off) or the field didn't
- * anchor strongly enough to be useful.
- *
- * We only return 'found'-status anchors. 'partial' and 'missing' are
- * useless for the upgrade path — they can't tell us the VLM's review
- * was wrong. 'skipped' (blank application value) already means there's
- * nothing to verify.
- */
-function findStrongAnchorFor(
-  checkId: string,
-  anchorTrack: AnchorTrackResult | null | undefined
-): FieldAnchor | null {
-  if (!anchorTrack) return null;
-  const anchorFieldId = CHECK_TO_ANCHOR_ID[checkId];
-  if (!anchorFieldId) return null;
-  const anchor = anchorTrack.fields.find((f) => f.field === anchorFieldId);
-  if (!anchor || anchor.status !== 'found') return null;
-  return anchor;
-}
-
-/**
- * Per-field merge: when the anchor confirms the application value is
- * present on the label, upgrade a 'review' check to 'pass'. Never
- * downgrades — anchor can only save uncertainty, not create it.
- *
- * Applies to review verdicts only; fail/pass are preserved. Downstream
- * the resolver and weighted-verdict pass still run on the upgraded
- * check set, so if a blocker fail is present in another field, the
- * overall verdict is unaffected.
- */
-export function maybeUpgradeCheckWithAnchor(
-  check: CheckReview,
-  anchor: FieldAnchor | null
-): CheckReview {
-  if (!anchor) return check;
-  if (check.status !== 'review') return check;
-  // User-facing copy is deliberately plain: no mention of "anchor",
-  // "OCR", "token", "vision model", or other engine internals. The
-  // reviewer sees "Label matches the approved record." — identical to
-  // the wording used when the primary judgment approves a field.
-  // Equivalent matches add one human-readable hint about WHY it
-  // matched (alt spelling / region name / abbreviation) so the
-  // reviewer understands why Rheingau passes a Germany check.
-  const equivalenceHint =
-    anchor.matchKind === 'equivalent'
-      ? 'The label shows a recognized equivalent of the approved value.'
-      : 'The approved value is clearly printed on the label.';
-  // The pre-upgrade check often has empty/missing extractedValue and
-  // a comparison block that says "Not visible on the label" (the VLM
-  // didn't read the field cleanly, which is exactly why the anchor
-  // pass is overriding to pass). We must rewrite both so the
-  // expanded evidence panel doesn't contradict the new "Matches"
-  // badge. The application value itself is the most accurate thing
-  // to render on the label side — the anchor confirmed those tokens
-  // are present.
-  const matchedLabelValue =
-    anchor.expected || check.applicationValue || check.extractedValue;
-  return {
-    ...check,
-    status: 'pass',
-    severity: 'note',
-    summary: 'Label matches the approved record.',
-    details: equivalenceHint,
-    extractedValue: matchedLabelValue,
-    comparison: matchedLabelValue
-      ? {
-          status: 'match',
-          applicationValue: check.applicationValue ?? anchor.expected,
-          extractedValue: matchedLabelValue,
-          note: equivalenceHint
-        }
-      : check.comparison
-  };
-}
+import type { AnchorTrackResult } from './anchor-field-track';
 
 /**
  * When the VLM reports a field as not-present but the Tesseract OCR
@@ -147,12 +55,10 @@ export function buildFieldChecks(input: {
   anchorTrack?: AnchorTrackResult | null;
 }): CheckReview[] {
   const anchorTrack = input.anchorTrack ?? null;
-  return FIELD_SPECS
+  const checks = FIELD_SPECS
     .map((spec) => buildFieldCheck({ ...input, spec }))
-    .filter((check): check is CheckReview => check !== null)
-    .map((check) =>
-      maybeUpgradeCheckWithAnchor(check, findStrongAnchorFor(check.id, anchorTrack))
-    );
+    .filter((check): check is CheckReview => check !== null);
+  return maybeUpgradeChecksWithAnchors(checks, anchorTrack);
 }
 
 function buildFieldCheck(input: {
@@ -248,18 +154,24 @@ function buildFieldCheck(input: {
     // in the expected position. Downgrade an otherwise-passing judgment
     // to review so the human sees the mismatch, and surface the
     // alternative in the comparison note.
-    const hasAlternative = Boolean(
+    const hasConflictingAlternative = Boolean(
       alternativeReading &&
-        alternativeReading.toLowerCase() !== extractedValue.toLowerCase()
+        alternativeReading.toLowerCase() !== extractedValue.toLowerCase() &&
+        alternativeReadingForcesReview({
+          fieldId: input.spec.id,
+          applicationValue,
+          alternativeReading,
+          beverageType: input.extraction.beverageType
+        })
     );
     const effectiveDisposition =
-      judgment.disposition === 'approve' && hasAlternative
+      judgment.disposition === 'approve' && hasConflictingAlternative
         ? 'review'
         : judgment.disposition;
     const comparisonStatus = effectiveDisposition === 'approve'
       ? (rawMatch ? 'match' as const : 'case-mismatch' as const)
       : 'value-mismatch' as const;
-    const altNote = hasAlternative
+    const altNote = hasConflictingAlternative
       ? ` The label also appears to show "${alternativeReading}" — a human reviewer should take a look.`
       : '';
     return {
@@ -268,7 +180,7 @@ function buildFieldCheck(input: {
       severity: effectiveDisposition === 'approve' ? 'note' : effectiveDisposition === 'reject' ? 'major' : (judgment.confidence >= 0.8 ? 'minor' : 'major'),
       summary: effectiveDisposition === 'approve'
         ? 'Label matches the approved record.'
-        : hasAlternative
+        : hasConflictingAlternative
           ? `Label appears to show "${alternativeReading}" where the approved value was expected.`
           : judgment.note,
       details: `[${judgment.rule}] ${judgment.note}${altNote}`,
@@ -327,6 +239,39 @@ function buildFieldCheck(input: {
       note: comparison.note
     }
   };
+}
+
+function alternativeReadingForcesReview(input: {
+  fieldId: string;
+  applicationValue: string;
+  alternativeReading: string;
+  beverageType: string;
+}): boolean {
+  const normalizedApp = input.applicationValue.trim().toLowerCase();
+  const normalizedAlt = input.alternativeReading.trim().toLowerCase();
+
+  if (normalizedAlt === normalizedApp) {
+    return false;
+  }
+
+  const alternativeJudgment = runFieldJudgment(
+    input.fieldId,
+    input.applicationValue,
+    input.alternativeReading,
+    input.beverageType
+  );
+  if (alternativeJudgment?.disposition === 'approve') {
+    return false;
+  }
+
+  if (!alternativeJudgment) {
+    const comparison = compareFieldValues(input.applicationValue, input.alternativeReading);
+    if (comparison.status === 'match' || comparison.status === 'case-mismatch') {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 function buildStandaloneFieldCheck(input: {
