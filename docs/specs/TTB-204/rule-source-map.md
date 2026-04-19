@@ -10,7 +10,7 @@
 | Rule ID | Applies To | Severity | Source Docs | Deterministic or Advisory | Uncertainty Fallback | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | `GOV-WARN-EXACT` | labels with a required U.S. warning | blocker | `27 CFR 16.21`; `docs/reference/product-docs/ttb-implementation-roadmap-final.md`; `docs/reference/product-docs/ttb-product-spec-final.md` | deterministic when warning text is readable | `review` when warning read is low-confidence or image quality is weak | whitespace is normalized before comparison; wording and punctuation must stay exact; body-letter case differences stay reviewable noise rather than a hard fail when the wording otherwise matches |
-| `GOV-WARN-FORMAT` | labels with a required U.S. warning | blocker | `27 CFR 16.22`; TTB health warning guidance; product docs | mixed | `review` when boldness, continuity, legibility, or separation are uncertain | the separate uppercase/bold requirement applies to the opening `GOVERNMENT WARNING` heading only; boldness is judged relative to the words immediately after the heading |
+| `GOV-WARN-FORMAT` | labels with a required U.S. warning | blocker | `27 CFR 16.22`; TTB health warning guidance; product docs | mixed | `review` when boldness, continuity, legibility, or separation are uncertain | the separate uppercase/bold requirement applies to the opening `GOVERNMENT WARNING` heading only; boldness is judged relative to the words immediately after the heading and does not hard-fail from one uncorroborated visual `no` signal |
 
 ## Source URLs
 

@@ -26,6 +26,7 @@
 ## Cases run
 
 - `body-case-only-warning`
+- `bold-only-heading-negative`
 - `showcase-warning-defect`
 - `missing-word-warning`
 - `warning-threshold-review-band`
@@ -41,6 +42,7 @@
 | Case | Expected | Actual | Latency | Notes |
 | --- | --- | --- | --- | --- |
 | `body-case-only-warning` | `pass` with heading still separately checked | `pass` | test runtime only | body letter case no longer hard-fails exact wording |
+| `bold-only-heading-negative` | heading sub-check stays `review`, not confident `fail` | `matched` | test runtime only | single extracted boldness miss no longer claims the heading "does not appear bold" |
 | `showcase-warning-defect` | `fail` | `fail` | test runtime only | exact-text drops to `review`; heading defect still blocks approval |
 | `missing-word-warning` | one warning wording downgrade, not two | matched | test runtime only | missing-language focus no longer stacks on top of exact-text |
 | `warning-threshold-review-band` | near-match stays `review` until wording is exact | matched | test runtime only | high similarity alone no longer auto-passes |
@@ -62,9 +64,11 @@
 
 ## Regressions
 
-- none in the targeted warning-validator slice
+- none in the targeted warning-validator slice; `npm run test -- src/server/government-warning-validator.test.ts`, `npm run build`, and `npm run gate:commit` stayed green for the bold-confidence follow-up
+- repo-wide `npm run test` and `npm run typecheck` are currently blocked on the rebased `main` baseline by unrelated `langsmith/traceable`, `langsmith/wrappers`, and `langsmith/vitest` module-resolution failures outside the warning validator surface
 
 ## Follow-up
 
-- Targeted mutation run `npm run test:mutation -- --mutate "src/server/government-warning-subchecks.ts"` completed with `51.57%` mutation score (`80` killed, `61` survived, `2` timed out, `16` no coverage, `91` errors); the survivors cluster around heading/legibility helper branches and string-level subcheck messages, so warning-subcheck coverage still needs a focused hardening pass before this logic should be treated as mutation-strong.
-- Run a broader fixture or live warning-route sweep before the next publish pass if the repo-wide dirty worktree and gate blockers are cleared.
+- The earlier targeted mutation baseline on `src/server/government-warning-subchecks.ts` remains the last completed score (`51.57%` mutation score with survivors clustered around heading/legibility helper branches and string-level subcheck messages).
+- A fresh rerun on this follow-up (`npm run test:mutation -- --mutate "src/server/government-warning-subchecks.ts"`) was blocked by Stryker's initial dry run timing out in the unrelated `server deployment surfaces accepts a multipart review request and returns the integrated report` test, so this patch carries an explicit mutation waiver instead of pretending the rerun completed.
+- Run a broader fixture or live warning-route sweep after the current LangSmith module-resolution break on `main` is repaired.
