@@ -10,12 +10,11 @@ describe('HelpLauncher', () => {
         active={false}
         showNudge={true}
         onLaunch={vi.fn()}
-        onDismissNudge={vi.fn()}
       />
     );
 
-    expect(html).toContain('Guided tour introduction');
-    expect(html).toContain('How this works');
-    expect(html).toContain('Take the tour');
+    expect(html).toContain('data-help-indicator="true"');
+    expect(html).toContain('Tour available');
+    expect(html).not.toContain('Guided tour introduction');
   });
 });
