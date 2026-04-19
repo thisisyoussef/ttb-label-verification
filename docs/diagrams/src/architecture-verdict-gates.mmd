@@ -1,0 +1,10 @@
+flowchart TD
+    A["Check fails"] --> B{"Tier / gate"}
+    B -->|"critical or some high fail"| C["Reject"]
+    B -->|"uncertain evidence"| D["Review"]
+    B -->|"medium or low accumulation"| E["Weighted review threshold"]
+    E -->|"below threshold"| F["Approve"]
+    E -->|"at or above threshold"| D
+    A --> G{"special case"}
+    G -->|"warning not in this photo"| D
+    G -->|"low image quality"| D

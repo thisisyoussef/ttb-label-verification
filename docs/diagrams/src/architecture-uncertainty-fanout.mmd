@@ -1,0 +1,11 @@
+flowchart LR
+    A["Label image"] --> B1["Tesseract OCR prepass"]
+    A --> B2["Warning OCV"]
+    A --> B3["VLM extraction"]
+    A --> B4["Warning anchor search"]
+    B1 --> C["OCR field extraction"]
+    C --> D["OCR reconciler"]
+    B2 --> D
+    B3 --> D
+    B4 --> D
+    D --> E["Deterministic validators"]

@@ -1,0 +1,17 @@
+sequenceDiagram
+    participant R as Request
+    participant O as OCR prepass
+    participant W as Warning OCV
+    participant V as VLM extractor
+    participant A as Anchor search
+    participant J as Deterministic judgment
+    R->>O: start
+    R->>W: start
+    R->>V: start
+    R->>A: start
+    O-->>R: OCR text
+    W-->>R: warning signal
+    V-->>R: extracted fields
+    A-->>R: anchor
+    R->>J: reconcile + validate
+    J-->>R: report + timings

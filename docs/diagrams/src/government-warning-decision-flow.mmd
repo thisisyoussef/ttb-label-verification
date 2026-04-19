@@ -1,0 +1,9 @@
+flowchart TD
+    A["Three warning signals"] --> B["Vote result"]
+    B --> C["Five sub-checks"]
+    C --> D{"Critical words present?"}
+    D -->|No, low confidence| E["Review"]
+    D -->|No, strong fail| F["Reject"]
+    D -->|Yes| G{"Visual / text confidence high enough?"}
+    G -->|No| H["Review"]
+    G -->|Yes| I["Pass"]

@@ -13,6 +13,7 @@
 - Batch execution: `src/server/batch-session.ts` and related modules keep sessions in memory, stream run frames, and shape dashboard and export payloads around the existing single-label report builder while reusing the same inline review pipeline for each batch item
 - Eval cost-discipline slice: `TTB-EVAL-002` adds `scripts/gemini-batch-extraction.ts` plus `scripts/run-gemini-batch-extraction-benchmark.ts` as an opt-in inline Gemini Batch path for approved live eval corpus sweeps; it reuses the runtime Gemini request plus schema seam, writes only local result artifacts, and stays outside the shipped review routes
 - Help-manifest slice: `src/shared/contracts/help.ts` plus `src/shared/help-fixture.ts` define the typed tutorial and help contract, `GET /api/help/manifest` serves that manifest, and `src/client/help-runtime.ts` hydrates the approved help UI with a fixture fallback when needed
+- Docs diagram slice: evaluator-facing architecture docs now keep editable Mermaid source in `docs/diagrams/src`, rendered SVG assets in `docs/diagrams`, and a lightweight renderer in `scripts/render-doc-diagrams.mjs` exposed as `npm run docs:diagrams`
 
 ## Core execution model
 

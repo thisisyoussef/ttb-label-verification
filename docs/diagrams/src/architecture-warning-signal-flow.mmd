@@ -1,0 +1,7 @@
+flowchart LR
+    A["VLM warning text"] --> D["2-of-3 vote"]
+    B["Warning-region OCV"] --> D
+    C["Full-image OCR cross-check"] --> D
+    D --> E["Five sub-checks"]
+    E --> F["Warning focus + confidence"]
+    F --> G["Reviewer evidence panel"]

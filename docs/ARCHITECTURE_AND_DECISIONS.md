@@ -26,18 +26,9 @@ This repository is not trying to replace TTB reviewers with a generic document a
 | Janet, batch reviewer | High-throughput queue triage across many labels | Preflight + streaming batch sessions, retry/export, filterable dashboard, and concurrency control (`src/server/register-batch-routes.ts:54-187`; `src/server/batch-session.ts:73-398`; `src/client/BatchDashboardControls.tsx:9-208`) |
 | Marcus, IT administrator | Deployable, diagnosable software without the original author present | `.env.example`, health/capabilities routes, Railway/Nixpacks scaffolding, local mode, and explicit no-persistence contract language (`.env.example:1-95`; `src/server/register-app-routes.ts:34-83`; `railway.toml:1-18`; `nixpacks.toml:1-38`) |
 
-```mermaid
-flowchart LR
-    A["Input: label photo(s) + COLA fields"] --> B["Structured extraction"]
-    B --> C["Deterministic checks"]
-    C --> D["Verification report"]
-    D --> E["Single-label reviewer"]
-    D --> F["Batch queue"]
-    D --> G["Admin diagnostics"]
-    E --> H["Veteran path: inspect evidence directly"]
-    E --> I["Junior path: follow severity, help, and citations"]
-    F --> J["Filter, retry, export, drill in"]
-```
+![User journey](./diagrams/architecture-user-journey.svg)
+
+_Diagram source: [Mermaid source](./diagrams/src/architecture-user-journey.mmd)._
 
 ### Reviewer Experience Is Deliberately Split Between Expert And Guided Use
 
@@ -78,15 +69,9 @@ const crossFieldChecks = buildCrossFieldChecks({ intake, extraction, spiritsColo
 const verdictResult = deriveWeightedVerdict(checks, extraction.imageQuality, warningCheck);
 ```
 
-```mermaid
-flowchart LR
-    A["Provider adapters"] --> B["ReviewExtraction"]
-    B --> C["Field checks + warning validator"]
-    C --> D["Cross-field checks"]
-    D --> E["Weighted verdict rollup"]
-    E --> F["VerificationReport"]
-    A -. "cannot emit verdict" .-> F
-```
+![Trust boundary](./diagrams/architecture-trust-boundary.svg)
+
+_Diagram source: [Mermaid source](./diagrams/src/architecture-trust-boundary.mmd)._
 
 ### Why The VLM Never Makes Compliance Decisions
 
@@ -130,18 +115,9 @@ What stays untouched:
 
 Claude is notably absent from the implemented adapter set today. The architecture is ready for another adapter, but no Claude extractor exists in live code (`src/server/review-extractor-factory.ts:81-86`; `src/server/ai-provider-policy.ts:23-29,142-157`).
 
-```mermaid
-flowchart TD
-    A["Request mode"] --> B["readExtractionRoutingPolicy"]
-    B --> C["createConfiguredReviewExtractor"]
-    C --> D["Gemini adapter"]
-    C --> E["OpenAI adapter"]
-    C --> F["Ollama/Qwen adapter"]
-    D --> G["ReviewExtraction"]
-    E --> G
-    F --> G
-    G --> H["Deterministic validators"]
-```
+![Provider routing](./diagrams/architecture-provider-routing.svg)
+
+_Diagram source: [Mermaid source](./diagrams/src/architecture-provider-routing.mmd)._
 
 ### Why The Verdict Is Three-Tier, Not Binary
 
@@ -164,19 +140,9 @@ That middle tier exists because the product docs describe a workflow where veter
 
 The repo’s defense against hallucination is architectural rather than prompt-based. It uses multiple independent reads, typed schemas, reconciliation, confidence caps, one-directional repair, and conservative verdict gates. The fan-out/fan-in orchestration in `runTracedReviewSurface` is the central mechanic: OCR prepass, warning OCV, VLM extraction, and anchor search run in parallel, then their outputs are reconciled before validation (`src/server/llm-trace.ts:101-204`).
 
-```mermaid
-flowchart LR
-    A["Label image"] --> B1["Tesseract OCR prepass"]
-    A --> B2["Warning OCV"]
-    A --> B3["VLM extraction"]
-    A --> B4["Warning anchor search"]
-    B1 --> C["OCR field extraction"]
-    C --> D["OCR reconciler"]
-    B2 --> D
-    B3 --> D
-    B4 --> D
-    D --> E["Deterministic validators"]
-```
+![Uncertainty fanout](./diagrams/architecture-uncertainty-fanout.svg)
+
+_Diagram source: [Mermaid source](./diagrams/src/architecture-uncertainty-fanout.mmd)._
 
 ### Hallucination Is Contained With Structure, Caps, And Secondary Signals
 
@@ -219,18 +185,9 @@ The auto-reject split is based on whether the field encodes a safety-critical or
 
 Other fields are intentionally prevented from doing that. Brand name, applicant address, country of origin, and varietal never hard-reject in their field judges; they top out at `review` because the cost of false failure on formatting, abbreviations, or geography aliasing is too high (`src/server/judgment-field-rules.ts:274-424`; `src/server/judgment-field-rules-secondary.ts:62-225`). Net contents is an interesting middle case: the field judge can return `reject`, but the weighted scorer treats medium-tier failures differently and can still land on overall `review` rather than `reject` depending on the rest of the report (`src/server/judgment-field-rules-secondary.ts:15-60`; `src/server/judgment-scoring.ts:182-241`).
 
-```mermaid
-flowchart TD
-    A["Check fails"] --> B{"Tier / gate"}
-    B -->|"critical or some high fail"| C["Reject"]
-    B -->|"uncertain evidence"| D["Review"]
-    B -->|"medium or low accumulation"| E["Weighted review threshold"]
-    E -->|"below threshold"| F["Approve"]
-    E -->|"at or above threshold"| D
-    A --> G{"special case"}
-    G -->|"warning not in this photo"| D
-    G -->|"low image quality"| D
-```
+![Verdict gates](./diagrams/architecture-verdict-gates.svg)
+
+_Diagram source: [Mermaid source](./diagrams/src/architecture-verdict-gates.mmd)._
 
 ### “Not In This Photo” Is Treated As A Review State, Not A Failure
 
@@ -276,15 +233,9 @@ The shipped warning subchecks are fixed in the contract:
 
 Those IDs are frozen in `src/shared/contracts/review-base.ts:52-58,212-225` so the UI always renders the same evidence rows. `WarningEvidence.tsx` then turns the result into something a reviewer can actually act on: overall assessment, subcheck list, text comparison, and citations (`src/client/WarningEvidence.tsx:20-119`).
 
-```mermaid
-flowchart LR
-    A["VLM warning text"] --> D["2-of-3 vote"]
-    B["Warning-region OCV"] --> D
-    C["Full-image OCR cross-check"] --> D
-    D --> E["Five sub-checks"]
-    E --> F["Warning focus + confidence"]
-    F --> G["Reviewer evidence panel"]
-```
+![Warning signal flow](./diagrams/architecture-warning-signal-flow.svg)
+
+_Diagram source: [Mermaid source](./diagrams/src/architecture-warning-signal-flow.mmd)._
 
 The vote is one of the smarter pieces of the system. `government-warning-vote.ts` converts each signal into pass/review/fail bands, then derives a voted similarity by majority rather than trusting the noisiest source (`src/server/government-warning-vote.ts:48-148`). That exists specifically because identical labels can extract slightly differently across runs. The repo calls that out directly in the warning deep dive and in the accuracy research (`docs/GOVERNMENT_WARNING.md:25-58`; `docs/reference/accuracy-research-2026-04-15.md:49-51`).
 
@@ -346,17 +297,9 @@ The repo does not try to encode every possible CFR dependency. It does, however,
 
 Those are selected by beverage type in `src/server/review-report-cross-field.ts:21-54`.
 
-```mermaid
-graph TD
-    A["beverageType"] --> B["spirits -> same field of vision"]
-    A --> C["wine -> vintage/appellation"]
-    A --> D["malt beverage -> ABV format"]
-    E["countryOfOrigin"] --> C
-    F["vintage"] --> C
-    G["alcoholContent"] --> B
-    H["brandName"] --> B
-    I["classType"] --> B
-```
+![Cross-field dependency graph](./diagrams/architecture-cross-field-dependencies.svg)
+
+_Diagram source: [Mermaid source](./diagrams/src/architecture-cross-field-dependencies.mmd)._
 
 The wine dependency is narrower than some planning docs imply. Live code enforces a vintage-without-appellation failure using `27 CFR 4.34` citations (`src/server/review-report-cross-field.ts:122-162`), but it does **not** currently implement a broader varietal/appellation dependency rule. The Prädikat-on-American-wine helper exists in taxonomy (`src/server/taxonomy/wine-classes.ts:227-251`) but is not yet surfaced as a report check. That is a good example of the repo being stronger as a prototype architecture than as a complete regulatory implementation.
 
@@ -391,25 +334,9 @@ Latency work in this repo is about two things: keep the single-label path within
 
 `runTracedReviewSurface` runs OCR prepass, warning OCV, VLM extraction, and warning-anchor search concurrently with `Promise.all` (`src/server/llm-trace.ts:101-131`). Batch mode then adds a second layer of concurrency across labels using an in-flight queue and `Promise.race`, bounded by `BATCH_CONCURRENCY` and clamped to `8` (`src/server/batch-session.ts:112-204,392-398`).
 
-```mermaid
-sequenceDiagram
-    participant R as Request
-    participant O as OCR prepass
-    participant W as Warning OCV
-    participant V as VLM extractor
-    participant A as Anchor search
-    participant J as Deterministic judgment
-    R->>O: start
-    R->>W: start
-    R->>V: start
-    R->>A: start
-    O-->>R: OCR text
-    W-->>R: warning signal
-    V-->>R: extracted fields
-    A-->>R: anchor
-    R->>J: reconcile + validate
-    J-->>R: report + timings
-```
+![Parallel timing](./diagrams/architecture-parallel-timing.svg)
+
+_Diagram source: [Mermaid source](./diagrams/src/architecture-parallel-timing.mmd)._
 
 The single most expensive operation remains the VLM provider wait. The repo attacks that cost by overlapping everything else with it, warming the app at startup (`src/server/index.ts:52-82`), avoiding obviously harmful extra passes by default, and keeping cross-mode fallback bounded to provider-failure classes rather than logical disagreement (`src/server/review-extractor-factory.ts:235-353`; `src/server/ai-provider-policy.ts:65-79`).
 
@@ -468,19 +395,9 @@ Secrets are managed by environment variables and deployment platform config, not
 
 The repo supports two meaningful runtime modes today: cloud extraction and local extraction. `readExtractionRoutingPolicy` makes that explicit with `mode: 'cloud' | 'local'` and provider orders derived from env vars (`src/server/ai-provider-policy.ts:81-159`). The README carries the operator setup details; the architecture point is that the same app surface can run with different extractor backends because the extraction contract stays stable.
 
-```mermaid
-flowchart LR
-    subgraph Cloud["Cloud mode"]
-      A["Browser / operator"] --> B["Node app"]
-      B --> C["Gemini or OpenAI extractor"]
-      B --> D["Local OCR / warning helpers"]
-    end
-    subgraph Local["Local / air-gapped mode"]
-      E["Browser / operator"] --> F["Node app"]
-      F --> G["Ollama / local model"]
-      F --> H["Local OCR / warning helpers"]
-    end
-```
+![Deployment topology](./diagrams/architecture-deployment-topology.svg)
+
+_Diagram source: [Mermaid source](./diagrams/src/architecture-deployment-topology.mmd)._
 
 Why local mode matters is not abstract. Marcus’s persona explicitly calls out Azure Government, firewall restrictions, and long FedRAMP timelines (`docs/reference/product-docs/ttb-user-personas.md:241-257`). The prototype addresses that by making the model layer swappable and by keeping the deterministic validator local either way. It does **not** make the prototype itself FedRAMP-ready. There is no durable audit store, no identity / RBAC layer, no government-hosted secret manager integration, and no formal outbound-network enforcement in code.
 
@@ -494,15 +411,9 @@ Rate-limit handling also exists but is provider-specific, not globally centraliz
 
 Inside an Azure Government / FedRAMP boundary, the prototype architecture would need a stricter deployment topology: outbound traffic pinned to approved internal services, local or boundary-approved model serving, durable audit logging inside the enclave, identity and access control, stronger readiness probes, and probably queue-backed workload smoothing for scale. The good news is that the current architecture already isolates the model-extraction seam from the rule engine, which is the hardest part to retrofit. The missing pieces are operational, not conceptual.
 
-```mermaid
-flowchart TD
-    A["Reviewer workstation"] --> B["Azure Gov app service / container app"]
-    B --> C["Internal model endpoint or enclave-hosted Ollama"]
-    B --> D["Internal OCR / CV helpers"]
-    B --> E["FedRAMP audit store"]
-    B --> F["Identity / access control"]
-    B -. "no public model egress" .-> G["Blocked by policy"]
-```
+![Azure Government topology](./diagrams/architecture-azure-gov-topology.svg)
+
+_Diagram source: [Mermaid source](./diagrams/src/architecture-azure-gov-topology.mmd)._
 
 ## Testing And Evaluation Philosophy
 
