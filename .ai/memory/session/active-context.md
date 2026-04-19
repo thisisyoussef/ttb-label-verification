@@ -3,6 +3,8 @@
 - Current focus: `TTB-401` assessor-facing screenshot pass for the documentation packet and README
 - Current story branch: `codex/TTB-401-assessor-screenshots`, cut from `origin/main` in `/Users/youss/Development/gauntlet/ttb-label-verification-ttb401-screenshots`
 - Current objective: add a screenshot-backed evaluator guide, fold Toolbench into the README assessor walkthrough, and make the fastest test path obvious to a reviewer or procurement-style assessor
+- Ad hoc follow-up merged into this session: `TTB-204` warning behavior diagnostics and non-warning capitalization cleanup on `codex/TTB-204-warning-golden-diagnostics`
+- Warning follow-up objective: keep `case-mismatch` UI surfacing scoped to the government warning diff, split the real warning corpus into warning-visible vs warning-not-visible slices, and harden the exact-text / heading-format warning path against false fails on approved labels
 - Current capture set lives in `docs/screenshots/` and was taken from the running local app on `http://localhost:5179`
 - Current documentation emphasis: Toolbench as evaluator harness, `/api/review/refine` as a silent second pass, and perceived-latency tactics as part of the product story rather than hidden implementation detail
 - `codex/TTB-401-mermaid-restore` is the earlier follow-up that restored native Mermaid and sharpened the assessor framing; this branch layers the practical testing walkthrough on top
@@ -13,6 +15,7 @@
 - Next queue blocker after the workflow cleanup and eval merge remains `TTB-210`, where traced LangSmith evidence is still blocked by `401 /datasets` in the tracked eval flow and `403` on direct trace upload
 - Current `TTB-210` slice hardens beverage auto-detect so decorative art, sparse non-label reads, and no-text extractions stay `unknown` unless the extraction still carries trustworthy alcohol-label evidence.
 - Current `TTB-210` batch-alignment slice removes the old batch-only prompt overlay and deferred aggregated resolver path so batch run/retry item processing now uses the same canonical review prompt and inline report pipeline as single review.
+- Warning diagnostics artifacts: `evals/results/2026-04-19-warning-diagnostics-cola-cloud-real.json` remains the baseline full-slice run; the new visibility-split runs live in `evals/results/2026-04-19-warning-diagnostics-cola-cloud-warning-not-visible-current.json` and `evals/results/2026-04-19-warning-diagnostics-cola-cloud-warning-visible-{current,repeat,final,final2}.json` to track warning-only behavior case by case.
 - GitHub repo and Railway project remain live; the checked-in deploy flow still uses GitHub Actions plus Railway CLI
 - Current contract anchor: `src/shared/contracts/review.ts`
 - Current progress tracker: `docs/process/SINGLE_SOURCE_OF_TRUTH.md`

@@ -168,7 +168,6 @@ function buildFieldCheck(input: {
   // Use field-specific judgment rules when available
   const judgment = runFieldJudgment(input.spec.id, applicationValue, extractedValue, input.extraction.beverageType);
   if (judgment) {
-    const rawMatch = applicationValue.trim() === extractedValue.trim();
     // Verification-mode: the model reported a DIFFERENT prominent value
     // in the expected position. Downgrade an otherwise-passing judgment
     // to review so the human sees the mismatch, and surface the
@@ -188,7 +187,7 @@ function buildFieldCheck(input: {
         ? 'review'
         : judgment.disposition;
     const comparisonStatus = effectiveDisposition === 'approve'
-      ? (rawMatch ? 'match' as const : 'case-mismatch' as const)
+      ? 'match'
       : 'value-mismatch' as const;
     const altNote = hasConflictingAlternative
       ? ` The label also appears to show "${alternativeReading}" — a human reviewer should take a look.`

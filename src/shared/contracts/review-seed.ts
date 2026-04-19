@@ -28,8 +28,8 @@ export const seedVerificationReport: VerificationReport = {
       'Seed fixture keeps ambiguous visual judgments in review until live extraction and validator stories land.'
   },
   counts: {
-    pass: 1,
-    review: 3,
+    pass: 2,
+    review: 2,
     fail: 0
   },
   latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
@@ -59,11 +59,11 @@ export const seedVerificationReport: VerificationReport = {
     {
       id: 'alcohol-content',
       label: 'Alcohol content',
-      status: 'review',
-      severity: 'minor',
-      summary: 'Formatting difference requires a quick human check.',
+      status: 'pass',
+      severity: 'note',
+      summary: 'Application value matches what was read from the label.',
       details:
-        'The extracted value differs only by letter casing. The richer contract preserves that cosmetic mismatch as review rather than a hard fail.',
+        'The application value matches what was read from the label after cosmetic normalization.',
       confidence: 0.86,
       citations: [
         'TTB distilled spirits mandatory label information',
@@ -72,10 +72,10 @@ export const seedVerificationReport: VerificationReport = {
       applicationValue: '45% Alc./Vol.',
       extractedValue: '45% alc./vol.',
       comparison: {
-        status: 'case-mismatch',
+        status: 'match',
         applicationValue: '45% Alc./Vol.',
         extractedValue: '45% alc./vol.',
-        note: 'Only letter casing differs.'
+        note: 'Values match after case normalization.'
       }
     },
     {
@@ -353,7 +353,7 @@ function compareSeedValues(
   }
 
   if (applicationValue.toLowerCase() === extractedValue.toLowerCase()) {
-    return 'case-mismatch';
+    return 'match';
   }
 
   return 'value-mismatch';
@@ -364,7 +364,7 @@ function seedComparisonSummary(status: ComparisonStatus): string {
     case 'match':
       return 'Application value matches what was read from the label.';
     case 'case-mismatch':
-      return 'Formatting difference requires a quick human check.';
+      return 'Application value matches what was read from the label.';
     case 'value-mismatch':
       return 'Application value does not match what was read from the label.';
     case 'not-applicable':
@@ -377,7 +377,7 @@ function seedComparisonDetails(status: ComparisonStatus): string {
     case 'match':
       return 'The application value matches the text read from the label.';
     case 'case-mismatch':
-      return 'The application value differs from what was read from the label only by letter casing.';
+      return 'The application value matches what was read from the label after cosmetic normalization.';
     case 'value-mismatch':
       return 'The application value does not match what was read from the label.';
     case 'not-applicable':
@@ -390,7 +390,7 @@ function seedComparisonNote(status: ComparisonStatus): string {
     case 'match':
       return 'Values match exactly.';
     case 'case-mismatch':
-      return 'Only letter casing differs.';
+      return 'Values match after case normalization.';
     case 'value-mismatch':
       return 'The application value does not match what was read from the label.';
     case 'not-applicable':

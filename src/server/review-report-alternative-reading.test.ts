@@ -145,7 +145,7 @@ describe('review report alternative-reading guardrails', () => {
 
     expect(classTypeCheck?.status).toBe('pass');
     expect(classTypeCheck?.summary).toBe('Label matches the approved record.');
-    expect(classTypeCheck?.comparison?.status).toBe('case-mismatch');
+    expect(classTypeCheck?.comparison?.status).toBe('match');
     expect(classTypeCheck?.comparison?.note).toContain(
       'TTB class "ale" accepts label wording "INDIA PALE ALE".'
     );
@@ -185,7 +185,7 @@ describe('review report alternative-reading guardrails', () => {
 
     expect(countryCheck?.status).toBe('pass');
     expect(countryCheck?.summary).toBe('Label matches the approved record.');
-    expect(countryCheck?.comparison?.status).toBe('case-mismatch');
+    expect(countryCheck?.comparison?.status).toBe('match');
     expect(countryCheck?.comparison?.note).toBe(
       '[country-equivalent] Country of origin matches the approved record.'
     );

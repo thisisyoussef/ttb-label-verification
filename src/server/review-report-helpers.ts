@@ -126,15 +126,15 @@ export function compareFieldValues(
 
   if (normalizedApplication.toLowerCase() === normalizedExtracted.toLowerCase()) {
     return {
-      status: 'case-mismatch',
-      note: 'Only letter casing differs.'
+      status: 'match',
+      note: 'Values match after case normalization.'
     };
   }
 
   if (normalizeCosmetic(applicationValue) === normalizeCosmetic(extractedValue)) {
     return {
-      status: 'case-mismatch',
-      note: 'Only casing, spacing, or punctuation differs.'
+      status: 'match',
+      note: 'Values match after cosmetic normalization.'
     };
   }
 
