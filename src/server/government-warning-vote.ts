@@ -29,6 +29,11 @@ type ActiveWarningVoteSignal = WarningVoteSignal & {
   vote: Exclude<WarningSignalVote, 'abstain'>;
 };
 
+type WarningVoteCounts = Pick<
+  WarningVoteResolution,
+  'passCount' | 'reviewCount' | 'failCount'
+>;
+
 export type WarningVoteResolution = {
   vote: Exclude<WarningSignalVote, 'abstain'>;
   similarity: number;
@@ -56,7 +61,6 @@ export function computeWarningSimilarity(
   const b = canonical.trim().toUpperCase();
   if (a === b) return 1;
   const max = Math.max(a.length, b.length);
-  if (max === 0) return 0;
   const distance = levenshteinDistance(a, b);
   return Math.max(0, 1 - distance / max);
 }
@@ -114,7 +118,7 @@ export function collectWarningVoteSignals(input: {
       signals.push({
         source: 'ocr-cross-check',
         vote: input.hasVlmText ? similarityToVote(input.vlmSimilarity) : 'abstain',
-        similarity: input.vlmSimilarity
+        similarity: input.hasVlmText ? input.vlmSimilarity : 0
       });
     } else if (input.ocrCrossCheck.status === 'disagree') {
       signals.push({ source: 'ocr-cross-check', vote: 'review', similarity: 0 });
@@ -161,13 +165,13 @@ export function resolveWarningVote(
   const active = signals.filter(isActiveWarningVoteSignal);
   if (active.length === 0) {
     const fallbackVote = similarityToVote(fallback);
+    const counts = buildVoteCounts([fallbackVote]);
+
     return {
       vote: fallbackVote,
       similarity: fallback,
       activeSignals: 0,
-      passCount: fallbackVote === 'pass' ? 1 : 0,
-      reviewCount: fallbackVote === 'review' ? 1 : 0,
-      failCount: fallbackVote === 'fail' ? 1 : 0,
+      ...counts,
       passConsensus: false,
       failConsensus: false,
       conflictingSignals: false
@@ -176,35 +180,31 @@ export function resolveWarningVote(
 
   if (active.length === 1) {
     const [signal] = active;
+    const counts = buildVoteCounts([signal.vote]);
+
     return {
       vote: signal.vote,
-      similarity: signal.similarity || fallback,
+      similarity: signal.similarity,
       activeSignals: 1,
-      passCount: signal.vote === 'pass' ? 1 : 0,
-      reviewCount: signal.vote === 'review' ? 1 : 0,
-      failCount: signal.vote === 'fail' ? 1 : 0,
+      ...counts,
       passConsensus: false,
       failConsensus: false,
       conflictingSignals: false
     };
   }
 
+  const counts = buildVoteCounts(active.map((signal) => signal.vote));
   const passSignals = active.filter((signal) => signal.vote === 'pass');
-  const reviewSignals = active.filter((signal) => signal.vote === 'review');
   const failSignals = active.filter((signal) => signal.vote === 'fail');
-  const passCount = passSignals.length;
-  const reviewCount = reviewSignals.length;
-  const failCount = failSignals.length;
+  const { passCount, reviewCount, failCount } = counts;
   const passConsensus = passCount >= 2;
   const failConsensus = failCount >= 2;
-  const conflictingSignals =
-    (passCount > 0 && failCount > 0) ||
-    (reviewCount > 0 && (passCount > 0 || failCount > 0));
+  const conflictingSignals = hasConflictingSignals(counts);
 
   if (passConsensus) {
     return {
       vote: 'pass',
-      similarity: meanSimilarity(passSignals.map((signal) => signal.similarity), fallback),
+      similarity: meanSimilarity(passSignals.map((signal) => signal.similarity)),
       activeSignals: active.length,
       passCount,
       reviewCount,
@@ -218,7 +218,7 @@ export function resolveWarningVote(
   if (failConsensus) {
     return {
       vote: 'fail',
-      similarity: meanSimilarity(failSignals.map((signal) => signal.similarity), fallback),
+      similarity: meanSimilarity(failSignals.map((signal) => signal.similarity)),
       activeSignals: active.length,
       passCount,
       reviewCount,
@@ -247,12 +247,34 @@ export function resolveWarningVote(
   };
 }
 
-function meanSimilarity(values: number[], fallback: number) {
-  if (values.length === 0) {
-    return fallback;
+function meanSimilarity(values: number[]): number {
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function buildVoteCounts(
+  votes: Array<Exclude<WarningSignalVote, 'abstain'>>
+): WarningVoteCounts {
+  let passCount = 0;
+  let reviewCount = 0;
+  let failCount = 0;
+
+  for (const vote of votes) {
+    if (vote === 'pass') {
+      passCount += 1;
+    } else if (vote === 'review') {
+      reviewCount += 1;
+    } else {
+      failCount += 1;
+    }
   }
 
-  return values.reduce((sum, value) => sum + value, 0) / values.length;
+  return { passCount, reviewCount, failCount };
+}
+
+function hasConflictingSignals(counts: WarningVoteCounts): boolean {
+  return [counts.passCount, counts.reviewCount, counts.failCount].filter(
+    (count) => count > 0
+  ).length > 1;
 }
 
 function isActiveWarningVoteSignal(
@@ -264,10 +286,8 @@ function isActiveWarningVoteSignal(
 function levenshteinDistance(a: string, b: string): number {
   const m = a.length;
   const n = b.length;
-  if (m === 0) return n;
-  if (n === 0) return m;
-  let previous = new Array<number>(n + 1);
-  let current = new Array<number>(n + 1);
+  let previous = new Uint32Array(n + 1);
+  let current = new Uint32Array(n + 1);
   for (let j = 0; j <= n; j += 1) previous[j] = j;
   for (let i = 1; i <= m; i += 1) {
     current[0] = i;
