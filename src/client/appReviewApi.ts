@@ -309,12 +309,12 @@ export async function streamReview(options: {
 }
 
 /**
- * Option C row-level refine. After Results renders, if any identifier
- * row is in 'review' status, we can ask the server to re-run the
- * pipeline with VERIFICATION_MODE forced on — the VLM then sees the
- * applicant's brand/class/country values and verifies visibility on
- * the label instead of bottom-up guessing. Returns the full refined
- * report so the client can merge specific rows.
+ * Option C row-level refine. After the initial live report lands, if
+ * any identifier row is in 'review' status, we can ask the server to
+ * re-run the pipeline with VERIFICATION_MODE forced on — the VLM then
+ * sees the applicant's brand/class/country values and verifies
+ * visibility on the label instead of bottom-up guessing. Returns the
+ * full refined report so the client can merge specific rows.
  *
  * Silent failure — refine is always a "nice to have" second pass; the
  * original report stays displayed if the refine request errors.

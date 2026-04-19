@@ -43,6 +43,25 @@ describe('evaluateReviewRelevance', () => {
     expect(result.continueAllowed).toBe(true);
   });
 
+  it('keeps readable but nonspecific label text in the uncertain bucket', () => {
+    const result = evaluateReviewRelevance({
+      ocrEnabled: true,
+      images: [
+        {
+          status: 'ok',
+          text: [
+            'STONE RIDGE',
+            'SMALL BATCH RESERVE',
+            'HANDCRAFTED FOR PATIENT AGING'
+          ].join('\n')
+        }
+      ]
+    });
+
+    expect(result.decision).toBe('uncertain');
+    expect(result.shouldPrefetchExtraction).toBe(false);
+  });
+
   it('combines front and back image signals before deciding', () => {
     const result = evaluateReviewRelevance({
       ocrEnabled: true,

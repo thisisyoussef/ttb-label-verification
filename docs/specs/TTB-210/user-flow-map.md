@@ -1,37 +1,23 @@
 # User Flow Map
 
-## Intake quick-scan branch
+## Intake and verify flow
 
 1. Reviewer selects one or two label images.
-2. Client sends the upload to `/api/review/relevance`.
-3. Server runs OCR-only relevance preflight and returns:
-   - `likely-label`
-   - `uncertain`
-   - `unlikely-label`
+2. Intake does not show a quick-break relevance warning.
+3. Reviewer clicks Verify and enters the canonical review path immediately.
+4. Background OCR-only relevance may still run as internal prefetch advice, but it is not surfaced pre-submit.
+5. The end-result surface uses the authoritative review report to decide whether the image was readable enough to treat as a label.
 
-## Branches
+## End-result branches
 
-- `likely-label`
-  - client starts `/api/review/extract-only` in the background
-  - reviewer keeps filling the form
-  - Verify uses the cached extraction when available
+- readable label
+  - show the normal results surface
 
-- `uncertain`
-  - client does not auto-start extract-only
-  - reviewer may continue into the canonical review path normally
-
-- `unlikely-label`
-  - intake shows a quick-break warning
-  - reviewer may:
-    - `Try another image`
-    - `Continue anyway`
+- unreadable or likely-not-a-label result
+  - show the end-result readability state after Verify, not at intake
 
 ## Non-happy paths
 
-- OCR unavailable or preflight route failure
-  - fall back to the previous behavior
-  - do not strand the reviewer
-
-- reviewer clicks Verify after `unlikely-label`
-  - keep the warning visible
-  - do not enter Processing until the reviewer explicitly continues anyway
+- OCR unavailable or relevance route failure
+  - do not block Verify
+  - keep the result driven by the canonical review path

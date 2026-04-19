@@ -162,13 +162,10 @@ export function AppShell({
             secondaryImage={single.secondaryImage}
             beverage={single.beverage}
             fields={single.fields}
-            reviewRelevance={single.reviewRelevance}
-            reviewRelevancePending={single.reviewRelevancePending}
             onImagesChange={single.onImagesChange}
             onBeverageChange={single.setBeverage}
             onFieldsChange={single.setFields}
             onVerify={single.onVerify}
-            onContinueAfterRelevanceWarning={single.onContinueAfterRelevanceWarning}
             onClear={single.onClear}
             onLaunchTour={help.onLaunchTour}
           />
