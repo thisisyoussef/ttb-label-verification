@@ -68,3 +68,4 @@ This file is the checked-in branch registry for normal story work.
 | `codex/TTB-210-non-label-fallback` | `TTB-210` | `codex` | `merged` | keep non-label and no-text auto-detect uploads at `unknown` unless the extraction still carries trustworthy alcohol-label evidence | `2026-04-18` | merged via PR #112 |
 | `codex/TTB-EVAL-001-corpus-accuracy-merge` | `TTB-EVAL-001` | `codex` | `merged` | expand the real eval corpus and add report-level plus raw extraction benchmark harnesses | `2026-04-18` | merged via PR #47 |
 <!-- CLOSED_BRANCHES:END -->
+
