@@ -2,7 +2,7 @@ import type { ExtractionMode } from './ai-provider-policy';
 import type { LlmEndpointSurface } from './llm-policy';
 import type { NormalizedReviewFields } from './review-intake';
 
-export type ReviewPromptSurface = 'review' | 'extraction' | 'warning' | 'batch';
+export type ReviewPromptSurface = 'review' | 'extraction' | 'warning';
 
 /**
  * Set of identifier fields that the verification-mode prompt asks the
@@ -94,10 +94,6 @@ const ENDPOINT_OVERLAYS: Record<ReviewPromptSurface, readonly string[]> = {
   warning: [
     'Prioritize exact government warning text, punctuation, and warning visual signals.',
     'If warning evidence is weak, say so explicitly instead of upgrading it into certainty.'
-  ],
-  batch: [
-    'Optimize for stable item-level extraction under repeated batch execution.',
-    'Keep degradation item-local and concise so one weak label does not inflate session-wide noise.'
   ]
 } as const;
 
@@ -126,8 +122,7 @@ export function resolveReviewPromptSurface(
       return 'warning';
     case '/api/batch/run':
     case '/api/batch/retry':
-    case 'batch':
-      return 'batch';
+      return 'review';
   }
 }
 

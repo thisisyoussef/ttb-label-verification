@@ -4,7 +4,7 @@
 
 - Objective: define the shared prompt-policy contract and endpoint overlays for the current model-backed routes
 - Dependency: `must-have`
-- Validation: prompt-policy tests prove the repo can resolve `review`, `extraction`, `warning`, and `batch` overlays deterministically
+- Validation: prompt-policy tests prove the repo can resolve `review`, `extraction`, and `warning` overlays deterministically while batch item surfaces map to the canonical `review` overlay
 
 ## Task 2
 

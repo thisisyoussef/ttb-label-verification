@@ -75,7 +75,6 @@ function buildExtractionPayload(overrides: Record<string, unknown> = {}) {
     ...overrides
   });
 }
-
 function buildWarningPayload() {
   return checkReviewSchema.parse({
     id: 'government-warning',
@@ -127,7 +126,6 @@ function buildWarningPayload() {
     }
   });
 }
-
 function buildReviewPayload(overrides: Record<string, unknown> = {}) {
   return verificationReportSchema.parse({
     id: 'trace-report-001',
@@ -154,13 +152,13 @@ function buildReviewPayload(overrides: Record<string, unknown> = {}) {
     ...overrides
   });
 }
-
 type ReviewSurfaceCallInput = {
   surface: string;
   extractionMode?: string;
   clientTraceId?: string;
   fixtureId?: string;
   reportId?: string;
+  deferResolver?: boolean;
   intake: NormalizedReviewIntake;
   extractor: ReviewExtractor;
 };
@@ -182,7 +180,6 @@ type WarningSurfaceCallInput = {
   intake: NormalizedReviewIntake;
   extractor: ReviewExtractor;
 };
-
 const {
   runTracedReviewSurfaceMock,
   runTracedExtractionSurfaceMock,
@@ -194,21 +191,17 @@ const {
   ),
   runTracedWarningSurfaceMock: vi.fn(async () => buildWarningPayload())
 }));
-
 vi.mock('./llm-trace', () => ({
   runTracedReviewSurface: runTracedReviewSurfaceMock,
   runTracedExtractionSurface: runTracedExtractionSurfaceMock,
   runTracedWarningSurface: runTracedWarningSurfaceMock
 }));
-
 import { createApp } from './index';
-
 const serversToClose: Array<{
   close: (callback: (error?: Error | undefined) => void) => void;
 }> = [];
 async function startServer(options: Parameters<typeof createApp>[0] = {}) {
   const app = createApp(options);
-
   return await new Promise<{
     close: (callback: (error?: Error | undefined) => void) => void;
     address: () => AddressInfo | string | null;
@@ -223,7 +216,6 @@ function serverUrl(
   pathname: string
 ) {
   const address = server.address();
-
   if (!address || typeof address === 'string') {
     throw new Error('Server address not available.');
   }
@@ -235,7 +227,6 @@ function readCallInput<T>(mockFn: unknown, index = 0) {
   const calls = (mockFn as { mock: { calls: Array<[T]> } }).mock.calls;
   return calls[index]?.[0];
 }
-
 function validReviewFields() {
   return {
     beverageType: 'auto',
@@ -333,7 +324,6 @@ afterEach(async () => {
   runTracedReviewSurfaceMock.mockClear();
   runTracedExtractionSurfaceMock.mockClear();
   runTracedWarningSurfaceMock.mockClear();
-
   await Promise.all(
     serversToClose.splice(0).map(
       (server) =>
@@ -373,8 +363,6 @@ describe('LLM route trace surfaces', () => {
     expect(traceInput?.intake.label.originalName).toBe('label.png');
     expect(traceInput?.intake.fields.brandName).toBe('Trace Brand');
   });
-
-
   it('routes /api/review/extraction through the traced extraction surface', async () => {
     const extractor = vi.fn().mockResolvedValue(buildExtractionPayload());
     const server = await startServer({ extractor });
@@ -428,71 +416,76 @@ describe('LLM route trace surfaces', () => {
   });
 
   it('routes batch run and retry through their own traced review surfaces', async () => {
+    const previousBatchResolverAggregation =
+      process.env.BATCH_RESOLVER_AGGREGATION;
+    process.env.BATCH_RESOLVER_AGGREGATION = 'enabled';
     runTracedReviewSurfaceMock
       .mockImplementationOnce(async () => {
         throw new Error('Trace review failed on the first batch attempt.');
       })
       .mockImplementationOnce(async () => buildReviewPayload());
 
-    const server = await startServer({ extractor: vi.fn() });
-    serversToClose.push(server);
+    try {
+      const server = await startServer({ extractor: vi.fn() });
+      serversToClose.push(server);
 
-    const preflightResponse = await postBatchPreflight(server, 'retry-trace.png');
-    const preflightPayload = (await preflightResponse.json()) as {
-      batchSessionId: string;
-    };
+      const preflightResponse = await postBatchPreflight(server, 'retry-trace.png');
+      const preflightPayload = (await preflightResponse.json()) as {
+        batchSessionId: string;
+      };
 
-    const runResponse = await fetch(serverUrl(server, '/api/batch/run'), {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        batchSessionId: preflightPayload.batchSessionId,
-        resolutions: [
-          {
-            imageId: 'image-trace-001',
-            action: {
-              kind: 'matched',
-              rowId: 'row-1'
+      const runResponse = await fetch(serverUrl(server, '/api/batch/run'), {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          batchSessionId: preflightPayload.batchSessionId,
+          resolutions: [
+            {
+              imageId: 'image-trace-001',
+              action: {
+                kind: 'matched',
+                rowId: 'row-1'
+              }
             }
-          }
-        ]
-      })
-    });
+          ]
+        })
+      });
 
-    expect(runResponse.status).toBe(200);
+      expect(runResponse.status).toBe(200);
 
-    const retryResponse = await fetch(
-      serverUrl(
-        server,
-        `/api/batch/${preflightPayload.batchSessionId}/retry/image-trace-001`
-      ),
-      {
-        method: 'POST'
+      const retryResponse = await fetch(
+        serverUrl(
+          server,
+          `/api/batch/${preflightPayload.batchSessionId}/retry/image-trace-001`
+        ),
+        {
+          method: 'POST'
+        }
+      );
+
+      expect(retryResponse.status).toBe(200);
+      expect(runTracedReviewSurfaceMock).toHaveBeenCalledTimes(2);
+      const batchRunTrace = readCallInput<ReviewSurfaceCallInput>(runTracedReviewSurfaceMock, 0);
+      const batchRetryTrace = readCallInput<ReviewSurfaceCallInput>(runTracedReviewSurfaceMock, 1);
+      expect(batchRunTrace?.surface).toBe('/api/batch/run');
+      expect(batchRunTrace?.extractionMode).toBe('cloud');
+      expect(batchRunTrace?.fixtureId).toBe('image-trace-001');
+      expect(batchRunTrace?.clientTraceId).toBe('/api/batch/run:image-trace-001');
+      expect(batchRunTrace?.deferResolver).toBeUndefined();
+      expect(batchRetryTrace?.surface).toBe('/api/batch/retry');
+      expect(batchRetryTrace?.extractionMode).toBe('cloud');
+      expect(batchRetryTrace?.fixtureId).toBe('image-trace-001');
+      expect(batchRetryTrace?.clientTraceId).toBe('/api/batch/retry:image-trace-001');
+      expect(batchRetryTrace?.deferResolver).toBeUndefined();
+    } finally {
+      if (previousBatchResolverAggregation === undefined) {
+        delete process.env.BATCH_RESOLVER_AGGREGATION;
+      } else {
+        process.env.BATCH_RESOLVER_AGGREGATION =
+          previousBatchResolverAggregation;
       }
-    );
-
-    expect(retryResponse.status).toBe(200);
-    expect(runTracedReviewSurfaceMock).toHaveBeenCalledTimes(2);
-    const batchRunTrace = readCallInput<ReviewSurfaceCallInput>(
-      runTracedReviewSurfaceMock,
-      0
-    );
-    const batchRetryTrace = readCallInput<ReviewSurfaceCallInput>(
-      runTracedReviewSurfaceMock,
-      1
-    );
-
-    expect(batchRunTrace?.surface).toBe('/api/batch/run');
-    expect(batchRunTrace?.extractionMode).toBe('cloud');
-    expect(batchRunTrace?.fixtureId).toBe('image-trace-001');
-    expect(batchRunTrace?.clientTraceId).toBe('/api/batch/run:image-trace-001');
-    expect(batchRetryTrace?.surface).toBe('/api/batch/retry');
-    expect(batchRetryTrace?.extractionMode).toBe('cloud');
-    expect(batchRetryTrace?.fixtureId).toBe('image-trace-001');
-    expect(batchRetryTrace?.clientTraceId).toBe(
-      '/api/batch/retry:image-trace-001'
-    );
+    }
   });
 });

@@ -216,7 +216,7 @@ describe('Gemini review extractor', () => {
     expect(result.value.thinkingBudget).toBe(0);
   });
 
-  it('builds an image extraction request with inline image bytes and structured output config', () => {
+  it('builds a batch image extraction request with the canonical review overlay and structured output config', () => {
     const request = buildGeminiReviewExtractionRequest({
       intake: buildIntake(),
       config: {
@@ -244,11 +244,20 @@ describe('Gemini review extractor', () => {
     const contents = Array.isArray(request.contents)
       ? request.contents
       : [request.contents];
-    expect(contents[0]).toMatchObject({
-      text: expect.stringContaining(
-        'Keep degradation item-local and concise so one weak label does not inflate session-wide noise.'
-      )
-    });
+    const promptPart = contents[0];
+    if (
+      typeof promptPart !== 'object' ||
+      promptPart === null ||
+      !('text' in promptPart)
+    ) {
+      throw new Error('Expected the first Gemini content part to be prompt text.');
+    }
+    expect(promptPart.text).toContain(
+      'Optimize for balanced extraction that preserves reviewer trust for downstream deterministic comparison.'
+    );
+    expect(promptPart.text).not.toContain(
+      'Keep degradation item-local and concise so one weak label does not inflate session-wide noise.'
+    );
     expect(contents[1]).toMatchObject({
       inlineData: {
         mimeType: 'image/png'

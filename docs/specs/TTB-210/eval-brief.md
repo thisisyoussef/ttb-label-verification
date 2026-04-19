@@ -42,7 +42,7 @@ This story changes prompt wording, endpoint-specific extraction intent, and post
 - Dave: no obvious overcalling on cosmetic or uncertain cases
 - Jenny: complete evidence and usable confidence/note quality
 - Marcus: privacy-safe prompt discipline and failure notes
-- Janet: item-local batch degradation and repeated-run consistency
+- Janet: single-source batch consistency, row-local failure containment, and repeated-run stability
 
 ## Pass criteria
 

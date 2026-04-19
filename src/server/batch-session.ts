@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-
 import {
   type BatchDashboardResponse,
   batchDashboardResponseSchema,
@@ -9,12 +8,6 @@ import {
   type ReviewExtraction,
   type VerificationReport
 } from '../shared/contracts/review';
-import { createJudgmentLlmClient } from './judgment-llm-client-factory';
-import {
-  readResolverConfig,
-  resolveAmbiguousFieldChecksBatch
-} from './llm-resolver';
-import { rebuildReportWithPatchedChecks } from './review-report';
 import { type AiProvider, type ExtractionMode } from './ai-provider-policy';
 import type { LlmEndpointSurface } from './llm-policy';
 import { runTracedReviewSurface } from './llm-trace';
@@ -47,26 +40,28 @@ import type {
   StoredBatchAssignment,
   UploadedBatchFile
 } from './batch-session-types';
-
 type ExtractorOverride = {
   extractor: ReviewExtractor;
   extractionMode: ExtractionMode;
   providers: AiProvider[];
 };
-
 export class BatchSessionStore {
   private readonly sessions = new Map<string, BatchSession>();
   private readonly extractor: ReviewExtractor;
   private readonly extractionMode: ExtractionMode;
   private readonly providers: AiProvider[];
   private readonly latencyObserver?: ReviewLatencyObserver;
-
   constructor(input: {
     extractor: ReviewExtractor;
     extractionMode: ExtractionMode;
     providers: AiProvider[];
     latencyObserver?: ReviewLatencyObserver;
-    // Accepted for API symmetry with the review route plumbing.
+    /**
+     * Accepted for API symmetry with the review route plumbing. Batch
+     * overrides come in as per-call `run`/`retry` arguments, so this is
+     * unused at the store level but kept on the constructor input so
+     * `createApp` can pass a single shape to both.
+     */
     extractorResolver?: unknown;
   }) {
     this.extractor = input.extractor;
@@ -75,7 +70,6 @@ export class BatchSessionStore {
     this.latencyObserver = input.latencyObserver;
     void input.extractorResolver;
   }
-
   createPreflight(input: {
     manifest: unknown;
     imageFiles: UploadedBatchFile[];
@@ -85,7 +79,6 @@ export class BatchSessionStore {
     this.sessions.set(session.id, session);
     return session.preflight;
   }
-
   async run(
     payload: BatchStartRequest,
     onFrame: RunFrameWriter,
@@ -93,7 +86,6 @@ export class BatchSessionStore {
   ) {
     const session = this.requireSession(payload.batchSessionId);
     const assignments = resolveBatchAssignments(session, payload.resolutions);
-
     session.assignments = new Map(
       assignments.map((assignment) => [assignment.primaryImage.id, assignment])
     );
@@ -106,7 +98,6 @@ export class BatchSessionStore {
       done: 0
     };
     session.summary = emptySummary();
-
     if (assignments.length > 0) {
       await onFrame(
         batchStreamFrameSchema.parse({
@@ -117,17 +108,6 @@ export class BatchSessionStore {
         })
       );
     }
-
-    // Bounded-concurrency pipeline across labels. The old sequential loop
-    // wasted the time every `processAssignment` spent waiting on Gemini —
-    // on a 10-label batch, sequential = 10 × ~3.5s ≈ 35s. With concurrency
-    // N we keep N VLM calls in flight, so total wall ≈ first_call +
-    // ceil((remaining_calls / N) * per_call_ms).
-    //
-    // N is capped to avoid Gemini rate-limit fire (BATCH_CONCURRENCY env,
-    // default 3). completedOrder matches the assignment's index in the
-    // submitted CSV, independent of which label's VLM finishes first, so
-    // the UI renders rows in original order.
     let totalDurationMs = 0;
     const concurrency = readBatchConcurrency();
     type CompletedItem = {
@@ -139,23 +119,6 @@ export class BatchSessionStore {
     // promise cleanly (no identity-on-resolved-value contortions).
     const inFlight = new Map<number, Promise<CompletedItem>>();
     let nextDispatchId = 0;
-
-    // Track per-label intake + extraction when the aggregated resolver
-    // is active; populated during emitCompletion, consumed in the
-    // post-drain aggregation step.
-    type DeferredLabel = {
-      imageId: string;
-      intake: NonNullable<CompletedItem['result']['intake']>;
-      extraction: NonNullable<CompletedItem['result']['extraction']>;
-      report: VerificationReport;
-    };
-    const deferredLabels: DeferredLabel[] = [];
-
-    // When enabled, skip per-label ambiguity resolution and run one
-    // aggregated Gemini call after all labels land.
-    const useAggregatedResolver =
-      process.env.BATCH_RESOLVER_AGGREGATION?.trim().toLowerCase() === 'enabled';
-
     const dispatch = (assignmentIndex: number) => {
       const dispatchId = nextDispatchId++;
       const startedAt = Date.now();
@@ -166,8 +129,7 @@ export class BatchSessionStore {
           assignment,
           completedOrder,
           surface: '/api/batch/run',
-          override,
-          deferResolver: useAggregatedResolver
+          override
         });
         return {
           index: assignmentIndex,
@@ -180,30 +142,19 @@ export class BatchSessionStore {
       inFlight.set(dispatchId, promise);
       return promise;
     };
-
     const emitCompletion = async (completed: CompletedItem) => {
       const { index, result, durationMs } = completed;
       const assignment = assignments[index]!;
       totalDurationMs += durationMs;
-
       session.results.set(assignment.primaryImage.id, {
         row: result.row,
         assignment
       });
       if (result.report) {
         session.reports.set(result.report.id, result.report);
-        if (useAggregatedResolver && result.intake && result.extraction) {
-          deferredLabels.push({
-            imageId: assignment.primaryImage.id,
-            intake: result.intake,
-            extraction: result.extraction,
-            report: result.report
-          });
-        }
       }
       incrementSummary(session.summary, result.row.status);
       session.totals.done += 1;
-
       await onFrame(
         batchStreamFrameSchema.parse({
           type: 'item',
@@ -217,7 +168,6 @@ export class BatchSessionStore {
           errorMessage: result.row.errorMessage ?? undefined
         })
       );
-
       if (session.totals.done < session.totals.started) {
         const averageMs = totalDurationMs / session.totals.done;
         const remaining = session.totals.started - session.totals.done;
@@ -234,10 +184,8 @@ export class BatchSessionStore {
         );
       }
     };
-
     let nextToDispatch = 0;
     while (nextToDispatch < assignments.length && !session.cancelRequested) {
-      // Fill the in-flight window up to concurrency before awaiting.
       while (
         nextToDispatch < assignments.length &&
         inFlight.size < concurrency &&
@@ -250,96 +198,14 @@ export class BatchSessionStore {
       const completed = await Promise.race(inFlight.values());
       await emitCompletion(completed);
     }
-
-    // Drain remaining in-flight work even if cancellation fired mid-batch;
-    // we want deterministic summaries for the frames still in flight.
     while (inFlight.size > 0) {
       const completed = await Promise.race(inFlight.values());
       await emitCompletion(completed);
     }
-
-    // Opt D post-pass: one aggregated Gemini resolver call across all
-    // non-sealed labels' ambiguous fields. Only runs when
-    // BATCH_RESOLVER_AGGREGATION=enabled AND LLM_RESOLVER=enabled.
-    if (useAggregatedResolver && deferredLabels.length > 0) {
-      const resolverConfig = readResolverConfig();
-      if (resolverConfig.enabled) {
-        const client = createJudgmentLlmClient();
-        if (client) {
-          const aggregated = await resolveAmbiguousFieldChecksBatch({
-            labels: deferredLabels.map((l) => ({
-              id: l.imageId,
-              checks: l.report.checks as VerificationReport['checks'],
-              sealed: l.report.checks.some(
-                (c) => c.status === 'fail' && c.severity === 'blocker'
-              )
-            })),
-            config: { ...resolverConfig, client }
-          });
-          if (aggregated.resolved > 0) {
-            // Patch affected reports, re-derive their verdict, update
-            // the session state, and emit update frames so the UI
-            // shows the post-resolver status.
-            const patchedByImageId = new Map(
-              aggregated.labels.map((entry) => [entry.id, entry.checks])
-            );
-            const priorSummary = { ...session.summary };
-            session.summary = emptySummary();
-            for (const deferred of deferredLabels) {
-              const patchedChecks = patchedByImageId.get(deferred.imageId);
-              const originalReport = deferred.report;
-              let finalReport = originalReport;
-              if (patchedChecks && patchedChecks !== originalReport.checks) {
-                finalReport = rebuildReportWithPatchedChecks({
-                  report: originalReport,
-                  patchedChecks,
-                  intake: deferred.intake,
-                  extraction: deferred.extraction
-                });
-                session.reports.set(finalReport.id, finalReport);
-              }
-              // Rebuild the dashboard row against whichever verdict we
-              // landed on, then re-emit the summary counters.
-              const existing = session.results.get(deferred.imageId);
-              if (existing) {
-                const row = buildDashboardRow({
-                  assignment: existing.assignment,
-                  report: finalReport,
-                  completedOrder: existing.row.completedOrder
-                });
-                session.results.set(deferred.imageId, {
-                  row,
-                  assignment: existing.assignment
-                });
-                incrementSummary(session.summary, row.status);
-                if (row.status !== existing.row.status) {
-                  await onFrame(
-                    batchStreamFrameSchema.parse({
-                      type: 'item',
-                      itemId: `item-${deferred.imageId}-${existing.row.completedOrder}`,
-                      imageId: deferred.imageId,
-                      secondaryImageId: existing.assignment.secondaryImage?.id ?? null,
-                      filename: existing.assignment.primaryImage.filename,
-                      identity: `${existing.assignment.row.brandName} — ${existing.assignment.row.classType}`,
-                      status: row.status,
-                      reportId: row.reportId ?? undefined,
-                      errorMessage: row.errorMessage ?? undefined
-                    })
-                  );
-                }
-              }
-            }
-            void priorSummary;
-          }
-        }
-      }
-    }
-
     session.phase =
       session.cancelRequested && session.totals.done < session.totals.started
         ? 'cancelled-partial'
         : 'complete';
-
     await onFrame(
       batchStreamFrameSchema.parse({
         type: 'summary',
@@ -354,17 +220,14 @@ export class BatchSessionStore {
       })
     );
   }
-
   cancel(sessionId: string) {
     const session = this.requireSession(sessionId);
     session.cancelRequested = true;
   }
-
   getSummary(sessionId: string) {
     const session = this.requireSession(sessionId);
     return this.serializeSummary(session);
   }
-
   getReport(sessionId: string, reportId: string) {
     const session = this.requireSession(sessionId);
     const report = session.reports.get(reportId);
@@ -376,10 +239,8 @@ export class BatchSessionStore {
         retryable: false
       });
     }
-
     return report;
   }
-
   getExport(sessionId: string) {
     const session = this.requireSession(sessionId);
     return batchExportPayloadSchema.parse({
@@ -392,12 +253,10 @@ export class BatchSessionStore {
       noPersistence: true
     });
   }
-
   async retry(sessionId: string, imageId: string, override?: ExtractorOverride) {
     const session = this.requireSession(sessionId);
     const existing = session.results.get(imageId);
     const assignment = session.assignments.get(imageId);
-
     if (!existing || !assignment || existing.row.status !== 'error') {
       throw createReviewExtractionFailure({
         status: 409,
@@ -406,14 +265,12 @@ export class BatchSessionStore {
         retryable: false
       });
     }
-
     const result = await this.processAssignment({
       assignment,
       completedOrder: existing.row.completedOrder,
       surface: '/api/batch/retry',
       override
     });
-
     session.results.set(imageId, {
       row: result.row,
       assignment
@@ -422,23 +279,13 @@ export class BatchSessionStore {
       session.reports.set(result.report.id, result.report);
     }
     session.summary = summarizeRows(this.sortedRows(session));
-
     return this.serializeSummary(session);
   }
-
   private async processAssignment(input: {
     assignment: StoredBatchAssignment;
     completedOrder: number;
     surface: LlmEndpointSurface;
     override?: ExtractorOverride;
-    /**
-     * Skip the per-label LLM resolver so the batch orchestrator can
-     * aggregate ambiguous fields across all labels into one call.
-     * The returned row/report reflect the pre-resolver verdict; the
-     * orchestrator is responsible for patching them after the
-     * aggregated call.
-     */
-    deferResolver?: boolean;
   }) {
     const latencyCapture = createReviewLatencyCapture({
       surface: input.surface,
@@ -450,12 +297,10 @@ export class BatchSessionStore {
       outcome: 'skipped',
       durationMs: 0
     });
-
     const activeExtractor = input.override?.extractor ?? this.extractor;
     const activeExtractionMode =
       input.override?.extractionMode ?? this.extractionMode;
     const activeProviders = input.override?.providers ?? this.providers;
-
     try {
       const normalizationStartedAt = performance.now();
       const parsedFields = buildParsedReviewFields(input.assignment.row);
@@ -476,7 +321,6 @@ export class BatchSessionStore {
         outcome: 'success',
         durationMs: performance.now() - normalizationStartedAt
       });
-
       const report = await runTracedReviewSurface({
         surface: input.surface,
         extractionMode: activeExtractionMode,
@@ -487,12 +331,10 @@ export class BatchSessionStore {
         fixtureId: input.assignment.primaryImage.id,
         reportId: randomUUID(),
         latencyCapture,
-        latencyObserver: this.latencyObserver,
-        deferResolver: input.deferResolver
+        latencyObserver: this.latencyObserver
       });
       const extraction =
         (report as VerificationReport & { __extraction?: ReviewExtraction }).__extraction;
-
       return {
         row: buildDashboardRow({
           assignment: input.assignment,
@@ -508,9 +350,7 @@ export class BatchSessionStore {
         latencyCapture.setOutcomePath('pre-provider-failure');
         emitReviewLatencySummary(latencyCapture, this.latencyObserver);
       }
-
       const reviewError = normalizeProcessingError(error);
-
       return {
         row: buildErroredRow({
           assignment: input.assignment,
@@ -521,7 +361,6 @@ export class BatchSessionStore {
       };
     }
   }
-
   private serializeSummary(session: BatchSession): BatchDashboardResponse {
     return batchDashboardResponseSchema.parse({
       batchSessionId: session.id,
@@ -532,13 +371,11 @@ export class BatchSessionStore {
       rows: this.sortedRows(session)
     });
   }
-
   private sortedRows(session: BatchSession) {
     return [...session.results.values()]
       .map((entry) => entry.row)
       .sort((left, right) => left.completedOrder - right.completedOrder);
   }
-
   private requireSession(sessionId: string) {
     const session = this.sessions.get(sessionId);
     if (!session) {
@@ -549,25 +386,9 @@ export class BatchSessionStore {
         retryable: false
       });
     }
-
     return session;
   }
 }
-
-/**
- * Bounded concurrency for the batch VLM pipeline. Measured on the
- * 28-label cola-cloud-all corpus against Gemini 2.5 Flash-Lite
- * (2026-04-17):
- *
- *   N=1   135.6s  (4.8s/label)  sequential baseline
- *   N=3    50.1s  (1.8s/label)  2.7× speedup
- *   N=5    28.9s  (1.0s/label)  4.7× speedup (sweet spot)
- *   N=8    33.3s  (1.2s/label)  regresses — Gemini starts queuing
- *
- * Default 5 captures most of the achievable throughput without tipping
- * Gemini into rate-limited backoff. Override via BATCH_CONCURRENCY env
- * (clamped to 1-8) if a different tier's rate limits shift the curve.
- */
 function readBatchConcurrency(): number {
   const raw = process.env.BATCH_CONCURRENCY?.trim();
   if (!raw) return 5;
