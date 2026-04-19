@@ -19,6 +19,11 @@ const WARNING_UPPERCASE_BODY_EXTRACTED = `GOVERNMENT WARNING:${CANONICAL_GOVERNM
   .slice('GOVERNMENT WARNING:'.length)
   .toUpperCase()}`;
 
+// Only the "GOVERNMENT WARNING" heading is graded for capitalization in
+// the diff. Body case-only differences ("Surgeon General" vs "surgeon
+// general") now collapse into the surrounding match segment so the UI
+// stops surfacing redundant capitalization flags on top of the heading
+// sub-check.
 const EXPECTED_WARNING_DEFECT_SEGMENTS: DiffSegment[] = [
   {
     kind: 'wrong-case',
@@ -32,20 +37,10 @@ const EXPECTED_WARNING_DEFECT_SEGMENTS: DiffSegment[] = [
   },
   {
     kind: 'match',
-    required: ' (1) According to the ',
-    extracted: ' (1) According to the '
-  },
-  {
-    kind: 'wrong-case',
-    required: 'Surgeon General',
-    extracted: 'surgeon general'
-  },
-  {
-    kind: 'match',
     required:
-      ', women should not drink alcoholic beverages during pregnancy because of the risk of birth defects',
+      ' (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects',
     extracted:
-      ', women should not drink alcoholic beverages during pregnancy because of the risk of birth defects'
+      ' (1) According to the surgeon general, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects'
   },
   {
     kind: 'missing',
@@ -227,6 +222,24 @@ describe('government warning validator', () => {
       { id: 'uppercase-bold-heading', status: 'pass' },
       { id: 'continuous-paragraph', status: 'pass' },
       { id: 'legibility', status: 'pass' }
+    ]);
+    // Body-only case differences must not render as "minor read
+    // differences" — once the heading matches and the wording
+    // case-insensitively matches, the summary should read clean.
+    expect(check.warning?.result).toMatchObject({
+      overall: 'pass',
+      focus: 'verified',
+      label: 'Warning text verified',
+      sublabel: 'All required warning language is present.'
+    });
+    // Diff collapses body case-only differences into a single match
+    // segment (heading match + single body match).
+    expect(check.warning?.segments).toEqual([
+      {
+        kind: 'match',
+        required: CANONICAL_GOVERNMENT_WARNING,
+        extracted: WARNING_UPPERCASE_BODY_EXTRACTED
+      }
     ]);
   });
 

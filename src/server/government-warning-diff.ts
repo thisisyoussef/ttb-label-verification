@@ -12,6 +12,12 @@ type FinalWarningDiffStep = {
   extracted: string;
 };
 
+// Only the "GOVERNMENT WARNING" heading is case-sensitive in the diff.
+// Body case is validated upstream by the heading sub-check, not by the
+// character-level diff — so body case-only differences are collapsed to
+// `match` to avoid redundant "Wrong capitalization" callouts.
+const HEADING_TEXT = 'GOVERNMENT WARNING';
+
 export function normalizeGovernmentWarningText(value: string | undefined) {
   return (value ?? '').replace(/\s+/g, ' ').trim();
 }
@@ -35,9 +41,11 @@ export function diffGovernmentWarningText(input: {
 
   const steps = buildWarningDiffSteps(required, extracted);
   const normalizedSteps = mergeWarningDiffSteps(
-    mergeSeparatedWrongCaseTokens(
-      mergeWarningDiffSteps(
-        absorbMatchedWhitespaceIntoMissing(convertExtrasToWrongCharacters(steps))
+    demoteBodyWrongCaseToMatch(
+      mergeSeparatedWrongCaseTokens(
+        mergeWarningDiffSteps(
+          absorbMatchedWhitespaceIntoMissing(convertExtrasToWrongCharacters(steps))
+        )
       )
     )
   );
@@ -284,4 +292,28 @@ function mergeSeparatedWrongCaseTokens(steps: FinalWarningDiffStep[]) {
 
 function tokenizeWarningDiffText(value: string) {
   return value.match(/\s+|[A-Za-z]+|\d+|[^A-Za-z\d\s]/g) ?? [];
+}
+
+// Only the "GOVERNMENT WARNING" heading is graded for capitalization in
+// the character-level diff. Downstream, the heading sub-check
+// independently enforces uppercase on the prefix, so body-level case
+// flags were redundant and confusing in the UI. Any wrong-case segment
+// that begins at or after the heading's final character is rewritten
+// to `match` so the UI stops highlighting body capitalization as a
+// defect.
+function demoteBodyWrongCaseToMatch(
+  steps: FinalWarningDiffStep[]
+): FinalWarningDiffStep[] {
+  let requiredPos = 0;
+  return steps.map((step) => {
+    const start = requiredPos;
+    requiredPos += step.required.length;
+    if (step.kind !== 'wrong-case') return step;
+    if (start < HEADING_TEXT.length) return step;
+    return {
+      kind: 'match' as const,
+      required: step.required,
+      extracted: step.extracted
+    };
+  });
 }
