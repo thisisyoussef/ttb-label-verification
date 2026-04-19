@@ -43,10 +43,10 @@ Last updated: 2026-04-19 (`TTB-108` is complete with extraction-mode selection, 
 ## Active pointers
 
 - Active Claude story: none in progress (`TTB-108` Claude lane complete and approved 2026-04-14)
-- Active Codex story: `TTB-210` local follow-up in progress on `codex/TTB-210-relevance-recovery`
+- Active Codex story: none in progress; the PR #138 consolidation merge on 2026-04-19 landed the wine-field reveal, refine kickoff from the live report via `useRefineCoordinator`, batch review-first wording plus simplified ETA, Toolbench dual-image sample pack, primary/secondary label rename, OCR no-text short-circuit, and every TTB-204/TTB-210/TTB-304 follow-up that was sitting on isolated publish branches
 - Next ready for Claude: none queued
-- Next preferred for Codex: `TTB-304`, then `TTB-401`
-- Next blocking for Codex: `TTB-304`, then `TTB-401`
+- Next preferred for Codex: `TTB-401` documentation roll-up
+- Next blocking for Codex: `TTB-401` documentation roll-up
 - Current blocker owner: none
 - Current manual user action: none
 
@@ -69,7 +69,7 @@ Last updated: 2026-04-19 (`TTB-108` is complete with extraction-mode selection, 
 | 11 | `TTB-301` | `TTB-003` | batch parser, matcher, orchestration, and session export | Codex | `done` | keep the packet, eval note, and live smoke record as the proof that the approved batch shells now run against the real session-scoped engine | none |
 | 11.5 | `TTB-302` | `TTB-003` | live-first batch runtime, workflow cleanup, and fixture demotion | Codex | `done` | keep the packet, route hardening, and local browser verification record as proof that batch now defaults to the live session path while fixtures stay explicit dev-only support | none |
 | 11.6 | `TTB-303` | `TTB-003` | batch input append and toolbench mode-routing regression fix | Codex | `done` | keep the packet, regression tests, and local browser verification record as proof that repeated live image intake appends and toolbench image loads stay in the active batch workflow | none |
-| 11.7 | `TTB-304` | `TTB-003` | dual-image intake, CSV pairing, and toolbench loading | Codex | `in-progress` | local code is complete with full test, typecheck, and build green; finish manual review handoff and resolve the repo-wide source-size gate before publish | explicit user authorization to execute story-scoped UI plus engineering changes in one pass |
+| 11.7 | `TTB-304` | `TTB-003` | dual-image intake, CSV pairing, and toolbench loading | Codex | `done` | dual-image flow merged via PR #119 on 2026-04-19; batch review-first vocabulary, simplified ETA, primary/secondary rename, and Toolbench dual-image sample pack consolidated via PR #138 on the same day | none |
 | 12 | `TTB-105` | `TTB-004` | accessibility, trust copy, and final UI polish | Codex | `ready-parallel` | preserve the approved polish (single-label Results `Back to Intake` breadcrumb, promoted Processing `Cancel review`) as frozen release-gate input for `TTB-401` | none |
 | 13 | `TTB-106` | `TTB-004` | guided tour, replayable help, and contextual info layer | Codex | `done` | keep the packet, help contract, manifest route, fallback runtime bridge, and enforced action-step gating as the record of the completed help-layer cutover | none |
 | 14 | `TTB-107` | `TTB-004` | mock Treasury auth entry and signed-in shell identity | Codex | `done` | keep the packet, handoff, and auth regression suite as the record of the completed mock-auth shell hardening | none |
