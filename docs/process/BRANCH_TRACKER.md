@@ -1,6 +1,6 @@
 # Branch Tracker
 
-Last updated: 2026-04-19
+Last updated: 2026-04-19.
 
 This file is the checked-in branch registry for normal story work.
 
