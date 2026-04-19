@@ -16,6 +16,8 @@ import type { OcrCrossCheckResult } from './warning-ocr-cross-check';
 import type { WarningOcvResult } from './warning-region-ocv';
 
 export type WarningSignalVote = 'pass' | 'review' | 'fail' | 'abstain';
+export const WARNING_PASS_SIMILARITY = 0.93;
+export const WARNING_REVIEW_SIMILARITY = 0.75;
 
 export type WarningVoteSignal = {
   source: 'vlm' | 'ocv' | 'ocr-cross-check';
@@ -109,14 +111,14 @@ export function collectWarningVoteSignals(input: {
 }
 
 export function similarityToVote(similarity: number): WarningSignalVote {
-  if (similarity >= 0.9) return 'pass';
-  if (similarity >= 0.65) return 'review';
+  if (similarity >= WARNING_PASS_SIMILARITY) return 'pass';
+  if (similarity >= WARNING_REVIEW_SIMILARITY) return 'review';
   return 'fail';
 }
 
 /**
  * Resolve the three-signal vote into a single similarity score that
- * downstream subChecks can use with the existing 0.9 / 0.65 tiers.
+ * downstream subChecks can use with the shared warning similarity tiers.
  *
  * Conservative rules:
  *   - 2+ signals pass (regardless of the third) → treat as pass (1.0)

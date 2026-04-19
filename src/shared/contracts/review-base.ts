@@ -64,6 +64,18 @@ export const diffSegmentKindSchema = z.enum([
   'wrong-character',
   'wrong-case'
 ]);
+export const warningResultOverallSchema = z.enum(['pass', 'review', 'reject']);
+export const warningResultFocusSchema = z.enum([
+  'verified',
+  'verified-minor-noise',
+  'verified-extra-text',
+  'text-unclear',
+  'formatting-check',
+  'not-found',
+  'partial-match',
+  'missing-language',
+  'incorrect-text'
+]);
 
 // Backward-compatible aliases while downstream stories migrate to the richer names.
 export const verificationStatusSchema = checkStatusSchema;
@@ -218,11 +230,29 @@ export const diffSegmentSchema = z.object({
   extracted: z.string()
 });
 
+export const warningSignalScoresSchema = z.object({
+  vlm: z.number().min(0).max(1).nullable(),
+  ocrCropped: z.number().min(0).max(1).nullable(),
+  ocrFull: z.number().min(0).max(1).nullable()
+});
+
+export const warningResultSchema = z.object({
+  overall: warningResultOverallSchema,
+  label: z.string(),
+  sublabel: z.string(),
+  focus: warningResultFocusSchema,
+  confidence: z.number().min(0).max(1),
+  signalScores: warningSignalScoresSchema,
+  extractedText: z.string(),
+  canonicalDiff: z.array(diffSegmentSchema)
+});
+
 export const warningEvidenceSchema = z.object({
   subChecks: warningSubChecksSchema,
   required: z.string(),
   extracted: z.string(),
-  segments: z.array(diffSegmentSchema)
+  segments: z.array(diffSegmentSchema),
+  result: warningResultSchema.optional()
 });
 
 export const checkReviewSchema = z.object({
@@ -333,6 +363,10 @@ export type ReviewExtractionImageQuality = z.infer<typeof reviewExtractionImageQ
 export type WarningSubCheck = z.infer<typeof warningSubCheckSchema>;
 export type DiffSegment = z.infer<typeof diffSegmentSchema>;
 export type WarningEvidence = z.infer<typeof warningEvidenceSchema>;
+export type WarningResult = z.infer<typeof warningResultSchema>;
+export type WarningResultFocus = z.infer<typeof warningResultFocusSchema>;
+export type WarningResultOverall = z.infer<typeof warningResultOverallSchema>;
+export type WarningSignalScores = z.infer<typeof warningSignalScoresSchema>;
 export type CheckReview = z.infer<typeof checkReviewSchema>;
 export type ExtractionQuality = z.infer<typeof extractionQualitySchema>;
 export type VerificationCounts = z.infer<typeof verificationCountsSchema>;

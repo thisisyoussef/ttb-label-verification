@@ -54,6 +54,9 @@ describe('review prompt policy', () => {
     expect(policy.prompt).toContain(
       'If warning evidence is weak, say so explicitly instead of upgrading it into certainty.'
     );
+    expect(policy.prompt).toContain(
+      'For the opening "GOVERNMENT WARNING" heading only, compare boldness against the words immediately after it.'
+    );
   });
 
   it('routes batch traffic through the same review overlay and local-mode caution', () => {
