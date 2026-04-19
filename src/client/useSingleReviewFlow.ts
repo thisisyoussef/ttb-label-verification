@@ -206,7 +206,7 @@ export function useSingleReviewFlow(options: {
       !image.demoScenarioId &&
       hasRefinableRows(report)
     ) {
-      refine.start({ image, secondaryImage, beverage, fields: fieldsState });
+      refine.start({ report, image, secondaryImage, beverage, fields: fieldsState });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, report?.id]);

@@ -41,7 +41,7 @@ function makeReport(checks: CheckReview[]): UIVerificationReport {
   };
 }
 
-describe('mergeRefinedReport — verdictSecondary recompute', () => {
+describe('mergeRefinedReport', () => {
   it('drops "4 fields..." to "A couple of fields need a closer look." when refine resolves 2 of 4 reviews', () => {
     const base = makeReport([
       check({ id: 'brand-name', status: 'review', severity: 'major' }),
@@ -95,5 +95,106 @@ describe('mergeRefinedReport — verdictSecondary recompute', () => {
     expect(merged.verdictSecondary).toBe(
       'All fields match the approved record.'
     );
+  });
+
+  it('keeps approved rows unchanged when refine tries to downgrade them to review', () => {
+    const base = makeReport([
+      check({
+        id: 'brand-name',
+        status: 'pass',
+        severity: 'note',
+        summary: 'Approved brand matches.',
+        details: 'Initial report approved this field.'
+      }),
+      check({ id: 'class-type', status: 'review', severity: 'major' })
+    ]);
+    base.verdictSecondary = 'One field needs a closer look.';
+
+    const refined = makeReport([
+      check({
+        id: 'brand-name',
+        status: 'review',
+        severity: 'major',
+        summary: 'Second pass became uncertain.',
+        details: 'Refine should not pull an approved row back into review.'
+      })
+    ]);
+
+    const merged = mergeRefinedReport(base, refined);
+    const brand = merged.checks.find((row) => row.id === 'brand-name');
+
+    expect(brand).toMatchObject({
+      status: 'pass',
+      summary: 'Approved brand matches.',
+      details: 'Initial report approved this field.'
+    });
+    expect(merged.counts).toEqual({ pass: 1, review: 1, fail: 0 });
+    expect(merged.verdictSecondary).toBe('1 field needs a closer look.');
+  });
+
+  it('keeps review rows unchanged when refine tries to downgrade them to fail', () => {
+    const base = makeReport([
+      check({
+        id: 'government-warning',
+        status: 'review',
+        severity: 'major',
+        summary: 'Need a closer look.',
+        details: 'Initial review was uncertain.'
+      })
+    ]);
+
+    const refined = makeReport([
+      check({
+        id: 'government-warning',
+        status: 'fail',
+        severity: 'blocker',
+        summary: 'Second pass failed.',
+        details: 'Refine is not allowed to escalate review to fail.'
+      })
+    ]);
+
+    const merged = mergeRefinedReport(base, refined);
+
+    expect(merged.checks[0]).toMatchObject({
+      status: 'review',
+      severity: 'major',
+      summary: 'Need a closer look.',
+      details: 'Initial review was uncertain.'
+    });
+    expect(merged.counts).toEqual({ pass: 0, review: 1, fail: 0 });
+  });
+
+  it('accepts review-to-review swaps when the refine adds more specific evidence', () => {
+    const base = makeReport([
+      check({
+        id: 'applicant-address',
+        status: 'review',
+        severity: 'major',
+        summary: 'Address needs review.',
+        details: 'Could not confirm the bottling line.',
+        confidence: 0.41
+      })
+    ]);
+
+    const refined = makeReport([
+      check({
+        id: 'applicant-address',
+        status: 'review',
+        severity: 'major',
+        summary: 'Address still needs review.',
+        details: 'Second pass isolated "Bottled by Trace Distilling, Austin, TX".',
+        confidence: 0.67
+      })
+    ]);
+
+    const merged = mergeRefinedReport(base, refined);
+
+    expect(merged.checks[0]).toMatchObject({
+      status: 'review',
+      summary: 'Address still needs review.',
+      details: 'Second pass isolated "Bottled by Trace Distilling, Austin, TX".',
+      confidence: 0.67
+    });
+    expect(merged.counts).toEqual({ pass: 0, review: 1, fail: 0 });
   });
 });
