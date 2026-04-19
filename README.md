@@ -426,6 +426,8 @@ scripts/                     Eval helpers, bootstrap, stage-timing tools
 ## What To Read Next
 
 - [Architecture And Decisions](docs/ARCHITECTURE_AND_DECISIONS.md): the full system brief
+- [ARCHITECTURE.md](ARCHITECTURE.md): directory map, domain groupings, where each concern lives
+- [CONTRIBUTING.md](CONTRIBUTING.md): on-ramp for new contributors (humans and agents)
 - [Evaluator Guide](docs/EVALUATOR_GUIDE.md): screenshot-backed reviewer test script and Toolbench walkthrough
 - [Government Warning](docs/GOVERNMENT_WARNING.md): the most detailed single-rule deep dive
 - [Regulatory Mapping](docs/REGULATORY_MAPPING.md): CFR-to-code traceability
