@@ -15,7 +15,7 @@ const TARGETS = [
   "src",
   "scripts",
   "vite.config.ts",
-  "ls.vitest.config.ts",
+  "eval.vitest.config.ts",
   "postcss.config.js",
   "tailwind.config.js",
 ];

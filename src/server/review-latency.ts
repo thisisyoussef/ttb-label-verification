@@ -7,6 +7,7 @@ export type ReviewLatencyStage =
   | 'intake-parse'
   | 'intake-normalization'
   | 'provider-selection'
+  | 'relevance-preflight'
   | 'request-assembly'
   | 'provider-wait'
   | 'fallback-handoff'
@@ -36,6 +37,7 @@ export type ReviewLatencyPath =
   | 'late-fail-retryable'
   | 'primary-hard-fail'
   | 'pre-provider-failure'
+  | 'preflight-success'
   | 'fallback-failure';
 
 export type ReviewLatencySpan = {

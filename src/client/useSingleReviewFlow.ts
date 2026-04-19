@@ -13,6 +13,7 @@ import { resolveResultReport } from './review-runtime';
 import type { SeedScenario } from './scenarios';
 import {
   cloneScenarioFields,
+  resolveVerifyIntent,
   REVIEW_VARIANT_OPTIONS,
   type SingleReviewFlow
 } from './singleReviewFlowSupport';
@@ -21,10 +22,12 @@ import type {
   BeverageSelection,
   IntakeFields,
   LabelImage,
-  ResultVariantOverride,
+  ResultVariantOverride
 } from './types';
-import type { ReviewPipelineEvent } from './reviewPipelineEvents';
-import { useSingleReviewPipeline } from './useSingleReviewPipeline';
+import {
+  type ReviewPipelineEvent,
+  useSingleReviewPipeline
+} from './useSingleReviewPipeline';
 import { useSpeculativePrefetch } from './useSpeculativePrefetch';
 import { useOcrPreview } from './useOcrPreview';
 import { useExtractionPrefetch } from './useExtractionPrefetch';
@@ -83,10 +86,7 @@ export function useSingleReviewFlow(options: {
     logReviewClientEvent(type, payload);
   }, []);
 
-  // Speculative prefetch is hardcoded on: image upload triggers a background
-  // /api/review call immediately, so clicking "Verify" returns a cached result
-  // in ~0ms instead of waiting 6-8s. The env var override is kept only as an
-  // explicit opt-out ("false" disables it for debugging/testing).
+  // Hardcoded-on background prefetch. The env var is only an explicit opt-out.
   const speculativePrefetchEnabled =
     import.meta.env.VITE_ENABLE_SPECULATIVE_PREFETCH !== 'false';
 
@@ -132,28 +132,55 @@ export function useSingleReviewFlow(options: {
     forceFailure
   });
 
-  // OCR-only preview runs alongside the canonical review so Processing
-  // screen can show partial field values (ABV, net contents, class,
-  // country, warning-present) in ~500ms instead of waiting the full
-  // 5-7s for the VLM. Disabled for fixture/tour scenarios since those
-  // bypass the live server.
+  // OCR-only preview populates Processing with partial fields before the full review lands.
   const ocrPreviewEnabled = speculativePrefetchEnabled;
   const ocrPreview = useOcrPreview({ enabled: ocrPreviewEnabled });
 
-  // Image-first prefetch: on image select, fire the server-side
-  // extract-only call so VLM extraction completes during form-filling
-  // time. The cache key is passed on Verify so /api/review skips
-  // re-extraction and runs only judgment + report.
+  // Image selection may start extract-only in the background; Verify reuses the cache key.
   const extractionPrefetch = useExtractionPrefetch({
     enabled: speculativePrefetchEnabled
   });
-  // Ref pattern: useSingleReviewPipeline is initialized BEFORE
-  // extractionPrefetch state lands, so the pipeline receives a getter
-  // that reads the current cacheKey at submit time.
+  // The pipeline reads the latest cache key lazily at submit time.
   const extractionPrefetchRef = useRef<string | null>(null);
   useEffect(() => {
     extractionPrefetchRef.current = extractionPrefetch.cacheKey;
   }, [extractionPrefetch.cacheKey]);
+
+  const runLiveReview = useCallback(() => {
+    if (speculativePrefetchEnabled && image && !forceFailure) {
+      const hit = prefetch.consumeCacheHit(
+        image,
+        secondaryImage,
+        beverage,
+        fieldsState
+      );
+      if (hit) {
+        startReviewFromPrefetch(hit.report);
+        return;
+      }
+    }
+    if (ocrPreviewEnabled && image && !forceFailure) {
+      ocrPreview.start({
+        image,
+        secondaryImage,
+        beverage,
+        fields: fieldsState
+      });
+    }
+    void startReview(forceFailure);
+  }, [
+    beverage,
+    fieldsState,
+    forceFailure,
+    image,
+    ocrPreview,
+    ocrPreviewEnabled,
+    prefetch,
+    secondaryImage,
+    speculativePrefetchEnabled,
+    startReview,
+    startReviewFromPrefetch
+  ]);
 
   const refreshImagePrefetch = useCallback(
     (primary: LabelImage | null, secondary: LabelImage | null) => {
@@ -168,17 +195,7 @@ export function useSingleReviewFlow(options: {
     [beverage, extractionPrefetch, prefetch]
   );
 
-  // Row-level refine (Option C). Fires after Results render when any
-  // identifier row is in 'review' status on a LIVE review (not a tour
-  // demo, not a fixture). Runs the pipeline again with
-  // VERIFICATION_MODE=on and merges refined identifier checks back
-  // into the displayed report.
-  //
-  // Guards against the tour "See failing example" path: the demo
-  // report reaches phase=terminal via showTourResults(), and the demo
-  // image is a synthetic blob that the server can't extract. The
-  // image.demoScenarioId marker is set on any tour-built image —
-  // we skip the refine call for those so the tour flow stays offline.
+  // Row-level refine runs after live Results render and skips offline tour images.
   const refine = useRefineReview();
   useEffect(() => {
     if (
@@ -191,10 +208,8 @@ export function useSingleReviewFlow(options: {
     ) {
       refine.start({ image, secondaryImage, beverage, fields: fieldsState });
     }
-    // Fire once per (report, image) pair. refine identity is stable via useRefineReview.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, report?.id]);
-  // When refine completes, merge identifier rows back into the report.
   useEffect(() => {
     if (refine.refinedReport && report) {
       const merged = mergeRefinedReport(report, refine.refinedReport);
@@ -330,6 +345,8 @@ export function useSingleReviewFlow(options: {
     failureMessage,
     report,
     ocrPreview: ocrPreview.preview,
+    reviewRelevance: extractionPrefetch.relevance,
+    reviewRelevancePending: extractionPrefetch.relevancePending,
     refineStatus: refine.status,
     variantOptions: REVIEW_VARIANT_OPTIONS,
     setBeverage,
@@ -337,30 +354,23 @@ export function useSingleReviewFlow(options: {
     setForceFailure,
     setVariantOverride,
     onVerify: () => {
-      if (speculativePrefetchEnabled && image && !forceFailure) {
-        const hit = prefetch.consumeCacheHit(
-          image,
-          secondaryImage,
-          beverage,
-          fieldsState
-        );
-        if (hit) {
-          startReviewFromPrefetch(hit.report);
-          return;
-        }
-      }
-      // Fire the OCR-only preview in parallel with the canonical review
-      // so Processing screen gets partial fields in ~500ms. Preview
-      // failures are silent — the canonical pipeline still runs.
-      if (ocrPreviewEnabled && image && !forceFailure) {
-        ocrPreview.start({
-          image,
-          secondaryImage,
-          beverage,
-          fields: fieldsState
+      const verifyIntent = resolveVerifyIntent({
+        hasImage: Boolean(image),
+        relevance: extractionPrefetch.relevance
+      });
+      if (verifyIntent === 'confirm-unlikely') {
+        logReviewClientEvent('review.relevance.gated', {
+          decision: extractionPrefetch.relevance?.decision
         });
+        return;
       }
-      void startReview(forceFailure);
+      runLiveReview();
+    },
+    onContinueAfterRelevanceWarning: () => {
+      logReviewClientEvent('review.relevance.override', {
+        decision: extractionPrefetch.relevance?.decision
+      });
+      runLiveReview();
     },
     onCancel: () => {
       abandonInFlightReview();

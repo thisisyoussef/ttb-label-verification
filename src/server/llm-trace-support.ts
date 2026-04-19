@@ -1,4 +1,4 @@
-import { getCurrentRunTree } from 'langsmith/traceable';
+import { getCurrentRunTree } from './trace-runtime';
 
 import type {
   CheckReview,

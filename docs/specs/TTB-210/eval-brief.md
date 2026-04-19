@@ -8,6 +8,7 @@
 ## AI behavior being changed
 
 This story changes prompt wording, endpoint-specific extraction intent, and post-parse guardrail behavior across every current model-backed route.
+The current follow-up slice also changes upload-time behavior by adding an OCR-backed relevance preflight before the extract-only prefetch.
 
 ## Expected gain
 
@@ -24,6 +25,8 @@ This story changes prompt wording, endpoint-specific extraction intent, and post
 - guardrails incorrectly convert valid missing-warning evidence into adapter failure
 - batch items drift inconsistently between repeated runs or endpoint contexts
 - prompt bloat creates measurable latency regression
+- the quick relevance preflight overcalls `unlikely-label` on real but weak labels
+- irrelevant uploads still trigger extract-only prefetch and waste the latency budget
 
 ## Eval inputs or dataset slice
 
@@ -47,6 +50,7 @@ This story changes prompt wording, endpoint-specific extraction intent, and post
 ## Pass criteria
 
 - route tests prove centralized prompt-policy usage across all current LLM endpoints
-- traces identify a winning prompt-profile and guardrail policy with no user-hostile regressions on the approved slice
+- quick-scan tests prove likely, uncertain, unlikely, OCR-unavailable, and dual-image merge behavior
+- local tuning evidence identifies a winning prompt-profile and guardrail policy with no user-hostile regressions on the approved slice
 - latency measurements stay within the active single-label budget
 - eval notes explicitly call out any persona tradeoff that remains open

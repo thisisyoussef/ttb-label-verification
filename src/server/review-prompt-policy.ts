@@ -132,6 +132,7 @@ export function resolveReviewPromptSurface(
 ): ReviewPromptSurface {
   switch (surface) {
     case '/api/review':
+    case '/api/review/relevance':
     case 'review':
       return 'review';
     case '/api/review/extraction':

@@ -17,10 +17,12 @@ function buildIntake(
     bytes: 4,
     buffer: Buffer.from([1, 2, 3, 4])
   };
+  const primaryLabel = overrides.label ?? label;
+  const labels = overrides.labels ?? [primaryLabel];
 
   return {
-    label,
-    labels: [label],
+    label: primaryLabel,
+    labels,
     fields: {
       beverageTypeHint: 'auto',
       origin: 'domestic',

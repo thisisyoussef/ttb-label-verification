@@ -17,7 +17,7 @@
 - Command or entrypoint:
 - Fixture set:
 - Inputs are approved local fixtures or sanitized inputs: `yes` / `no`
-- LangSmith project:
+- Local evidence source:
 
 ## Review focus
 
@@ -35,7 +35,7 @@
 
 ## Iteration log
 
-| Iteration | Change made | Trace ids | Result |
+| Iteration | Change made | Evidence | Result |
 | --- | --- | --- | --- |
 | 1 |  |  |  |
 

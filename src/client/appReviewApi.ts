@@ -3,6 +3,7 @@ import {
   batchPreflightResponseSchema,
   batchStreamFrameSchema,
   reviewErrorSchema,
+  reviewRelevanceResultSchema,
   reviewStreamFrameSchema,
   verificationReportSchema,
   type ReviewIntakeFields,
@@ -160,6 +161,55 @@ export async function prefetchExtraction(options: {
   const payload = (await response.json()) as { cacheKey?: string; ocrText?: string };
   if (!payload.cacheKey) return null;
   return { cacheKey: payload.cacheKey, ocrText: payload.ocrText ?? '' };
+}
+
+export async function checkReviewRelevance(options: {
+  image: LabelImage;
+  secondaryImage?: LabelImage | null;
+  beverage: BeverageSelection;
+  signal: AbortSignal;
+  clientRequestId?: string;
+}) {
+  const formData = new FormData();
+  appendReviewImages(formData, options.image, options.secondaryImage);
+  formData.append(
+    'fields',
+    JSON.stringify(
+      buildReviewFields(options.beverage, {
+        brandName: '',
+        fancifulName: '',
+        classType: '',
+        alcoholContent: '',
+        netContents: '',
+        applicantAddress: '',
+        origin: 'domestic',
+        country: '',
+        formulaId: '',
+        appellation: '',
+        vintage: '',
+        varietals: []
+      })
+    )
+  );
+
+  const response = await fetch('/api/review/relevance', {
+    method: 'POST',
+    headers: withProviderOverrideHeader(
+      options.clientRequestId
+        ? { 'x-review-client-id': options.clientRequestId }
+        : undefined
+    ),
+    body: formData,
+    signal: options.signal
+  });
+
+  if (!response.ok) return null;
+
+  try {
+    return reviewRelevanceResultSchema.parse(await response.json());
+  } catch {
+    return null;
+  }
 }
 
 /**

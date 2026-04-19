@@ -327,15 +327,12 @@ The exhaustive checked-in example is [`.env.example`](.env.example). The tables 
 | `ANCHOR_MERGE` | enable anchor merge path | unset |
 | `VERIFICATION_MODE` | identifier-first verification experiment | `off` |
 
-### Batch, tracing, and tooling
+### Batch, eval, and tooling
 
 | Variable | Purpose | Default / Notes |
 | --- | --- | --- |
 | `BATCH_CONCURRENCY` | concurrent labels in batch mode | `5`, clamped to `8` |
 | `BATCH_RESOLVER_AGGREGATION` | aggregate resolver work across batch labels | `disabled` |
-| `LANGSMITH_API_KEY` | LangSmith tracing key | dev/eval only |
-| `LANGSMITH_PROJECT` | LangSmith project name | `ttb-label-verification-dev` |
-| `LANGSMITH_TRACING` | enable tracing | `false` by default |
 | `BASE_URL` | target API URL for eval scripts | `http://127.0.0.1:8787` |
 | `EVAL_OUTPUT_PATH` | helper-script output path | optional |
 | `EVAL_SETS` | eval-slice selector | optional |
@@ -378,12 +375,6 @@ Eval-specific checks:
 ```bash
 npm run evals:validate
 npm run eval:golden
-```
-
-Tracing / provider smoke:
-
-```bash
-npm run langsmith:smoke
 ```
 
 Useful supporting docs:

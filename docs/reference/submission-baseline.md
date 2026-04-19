@@ -65,7 +65,7 @@ Use staging as the external review URL for now. The repo and Railway docs also t
 
 - Uploads, application data, batch sessions, and reports stay in memory for the lifetime of the request/session only.
 - The OpenAI Responses API is configured with `store: false`.
-- LangSmith support is development-only and off by default.
+- Trace instrumentation is development-only and off by default.
 
 ## Tools Used
 
@@ -79,7 +79,7 @@ Use staging as the external review URL for now. The repo and Railway docs also t
 - Stryker
 - Railway
 - GitHub Actions
-- LangSmith (development-only traces)
+- Local fixture-backed eval tuning (development-only)
 
 ## Assumptions Made
 

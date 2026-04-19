@@ -24,20 +24,18 @@ Do not use this as a substitute for deterministic tests on validator logic, sche
 
 ## Privacy rule
 
-LangSmith tracing is development-only in this repo.
+Trace-driven tuning is local-only in this repo.
 
-- Keep `LANGSMITH_TRACING=false` by default.
-- Turn tracing on only for the exact local command you are about to run.
 - Use only approved local fixtures or sanitized inputs.
-- Do not trace staging or production user submissions.
-- Do not treat external trace storage as compatible with the product's no-persistence runtime guarantee.
+- Do not send trace data to an external service.
+- Do not treat local debug metadata as compatible with the product's no-persistence runtime guarantee.
+- Do not run trace-driven tuning on staging or production user submissions.
 
 ## Required setup
 
 1. Run `npm run env:bootstrap`.
-2. Run `npm run langsmith:smoke`.
-3. Confirm the story packet includes `eval-brief.md` when the change affects AI behavior.
-4. Add `trace-brief.md` when the story needs real trace-driven tuning work.
+2. Confirm the story packet includes `eval-brief.md` when the change affects AI behavior.
+3. Add `trace-brief.md` when the story needs real trace-driven tuning work.
 
 ## Recommended packet additions
 
@@ -51,18 +49,18 @@ For trace-driven stories, add or update:
 
 - the hypothesis being tested
 - the fixture slice or commands being run
-- the exact review focus in LangSmith
+- the exact local evidence to inspect
 - the failure taxonomy
-- the winning traces and what changed
+- the winning command/evidence and what changed
 
 ## Loop
 
 1. Start from the packet
 
 - Read acceptance criteria, `technical-plan.md`, `eval-brief.md`, and `trace-brief.md`.
-- Decide what "better" means before you run traces.
+- Decide what "better" means before you run anything.
 
-2. Choose the smallest traced slice
+2. Choose the smallest reproducible slice
 
 - Use the narrowest fixture set that can reveal the failure.
 - Prefer repeatable local runs over broad manual exploration.
@@ -72,29 +70,26 @@ For trace-driven stories, add or update:
 - Add or strengthen deterministic tests first where possible, using `docs/process/TEST_QUALITY_STANDARD.md` for layer choice, contract seams, property tests, and flake control.
 - Force a RED state before implementation for behavior that should be testable.
 
-4. Run one traced pass
+4. Run one local tuning pass
 
-- Enable tracing only for that command.
-- Example:
-
-```bash
-LANGSMITH_TRACING=true npm run <story-specific-command>
-```
-
-5. Inspect LangSmith
-
-Useful CLI commands:
+- Use the smallest local command that exercises the behavior.
+- Examples:
 
 ```bash
-langsmith project list --format pretty
-langsmith trace list --project "$LANGSMITH_PROJECT" --limit 10 --format pretty
-langsmith trace get <trace-id> --project "$LANGSMITH_PROJECT" --full --format pretty
-langsmith run list --project "$LANGSMITH_PROJECT" --run-type llm --limit 20 --format pretty
-langsmith experiment list --limit 10 --format pretty
-langsmith experiment get <experiment-id> --format pretty
+npm run eval:golden
+npx vitest run src/server/review-relevance.test.ts
+npx tsx scripts/stage-timings.ts --route review --fixture perfect-spirit-label
 ```
 
-For `langsmith/vitest` eval suites, do not stop at the experiment summary or the eval root run. Start from the experiment session id, inspect the example root runs under that experiment, then drill into the nested route-surface span whose name matches the surface under test (for example `ttb.review_surface.execution`, `ttb.extraction_surface.execution`, or `ttb.warning_surface.execution`).
+5. Inspect local evidence
+
+Look at:
+
+- fixture-backed eval failures or diff output
+- stage timing summaries and `X-Stage-Timings` headers
+- provider/model metadata returned by the route or packeted test output
+- retry and fallback behavior visible in local logs or test assertions
+- consistency across repeated runs on the same fixture
 
 Look for:
 
@@ -104,7 +99,6 @@ Look for:
 - retry loops
 - brittle reasoning paths
 - inconsistent extraction on the same fixture
-- missing root surface spans that force you to infer route behavior from child LLM calls
 - missing stage timing summaries that hide where latency actually moved
 
 6. Change one variable at a time
@@ -116,7 +110,7 @@ Look for:
 - fallback logic
 - retry policy
 
-Do not mix unrelated changes into the same trace iteration.
+Do not mix unrelated changes into the same tuning iteration.
 
 7. Re-run until stable
 
@@ -127,27 +121,20 @@ Do not mix unrelated changes into the same trace iteration.
 
 Update the packet and eval result with:
 
-- LangSmith project name
 - endpoint surface
 - extraction mode
 - provider
 - prompt profile or prompt-policy version
 - guardrail policy version
-- key trace ids
+- exact commands run
+- timing evidence or comparable local diagnostics
 - what changed between iterations
 - final decision and why it won
 - remaining failure modes or open questions
 
-When traces support an endpoint-aware eval or scorecard review, also record:
-
-- the endpoint slice that was exercised
-- the personas being judged in that run
-- whether the run was tracked or dry-run only
-
 ## Exit criteria
 
-- The trace goal in `trace-brief.md` is resolved or explicitly deferred.
+- The tuning goal in `trace-brief.md` is resolved or explicitly deferred.
 - The winning behavior is backed by deterministic tests where possible.
 - Relevant eval results are recorded in `evals/results/`.
-- The packet documents the winning traces and remaining risk.
-- Tracing is no longer left enabled by default after the run.
+- The packet documents the winning local evidence and remaining risk.

@@ -1,4 +1,4 @@
-import { traceable } from 'langsmith/traceable';
+import { traceable } from '../../../src/server/trace-runtime';
 
 import {
   REVIEW_EXTRACTION_PROVIDER

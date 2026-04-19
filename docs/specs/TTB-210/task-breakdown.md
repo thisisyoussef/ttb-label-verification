@@ -20,12 +20,24 @@
 
 ## Task 4
 
-- Objective: run trace-driven tuning on the smallest approved fixture slice and record the winning prompt-profile decisions
+- Objective: run local trace-driven tuning on the smallest approved fixture slice and record the winning prompt-profile decisions
 - Dependency: `must-have`
-- Validation: `trace-brief.md` and `evals/results/` record the winning traces or explicit blockers
+- Validation: `trace-brief.md` and `evals/results/` record the winning local evidence and any remaining tradeoffs
 
 ## Task 5
 
 - Objective: verify privacy and latency after prompt hardening
 - Dependency: `must-have`
 - Validation: `privacy-checklist.md` and `performance-budget.md` are completed with measured evidence
+
+## Task 6
+
+- Objective: add an OCR-backed relevance preflight that fast-breaks obviously irrelevant uploads before the expensive extract-only prefetch
+- Dependency: `must-have`
+- Validation: quick-scan unit tests and `/api/review/relevance` route tests prove likely, uncertain, unlikely, OCR-unavailable, and dual-image merge behavior
+
+## Task 7
+
+- Objective: wire the intake flow so only likely-relevant uploads auto-start extract-only, while unlikely uploads pause with an explicit continue-anyway branch
+- Dependency: `must-have`
+- Validation: intake support tests prove Verify pauses on `unlikely-label` and the quick-break warning renders the continue/replace choices

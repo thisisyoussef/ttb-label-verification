@@ -16,9 +16,8 @@
 - Provider:
 - Prompt profile:
 - Guardrail policy:
-- Trace mode: tracked / dry-run
-- LangSmith project:
-- Trace ids:
+- Trace mode: local tuning / none
+- Local evidence:
 - Latency notes:
 - Persona-specific observations:
 

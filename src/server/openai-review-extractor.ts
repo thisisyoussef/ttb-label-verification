@@ -1,6 +1,5 @@
 import OpenAI from 'openai';
 import { zodTextFormat } from 'openai/helpers/zod';
-import { wrapOpenAI } from 'langsmith/wrappers';
 
 import type { ReviewError } from '../shared/contracts/review';
 import type { ExtractionMode } from './ai-provider-policy';
@@ -195,11 +194,9 @@ export function createOpenAIReviewExtractor(input: {
   const client =
     input.client ??
     (() => {
-      const liveClient = wrapOpenAI(
-        new OpenAI({
-          apiKey: input.config.apiKey
-        })
-      ) as OpenAI;
+      const liveClient = new OpenAI({
+        apiKey: input.config.apiKey
+      });
       const responses = liveClient.responses;
 
       return {

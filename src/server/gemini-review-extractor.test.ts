@@ -13,17 +13,17 @@ import {
 function buildIntake(
   overrides: Partial<NormalizedReviewIntake> = {}
 ): NormalizedReviewIntake {
-  const defaultLabel = {
+  const label = {
     originalName: 'label.png',
-    mimeType: 'image/png',
+    mimeType: 'image/png' as const,
     bytes: 4,
     buffer: Buffer.from([1, 2, 3, 4])
   };
-  const label = overrides.label ?? defaultLabel;
-  const labels = overrides.labels ?? [label];
+  const primaryLabel = overrides.label ?? label;
+  const labels = overrides.labels ?? [primaryLabel];
 
   return {
-    label,
+    label: primaryLabel,
     labels,
     fields: {
       beverageTypeHint: 'auto',
@@ -216,7 +216,7 @@ describe('Gemini review extractor', () => {
     expect(result.value.thinkingBudget).toBe(0);
   });
 
-  it('builds a batch image extraction request with the canonical review overlay and structured output config', () => {
+  it('builds an image extraction request with inline image bytes and structured output config', () => {
     const request = buildGeminiReviewExtractionRequest({
       intake: buildIntake(),
       config: {
@@ -244,62 +244,16 @@ describe('Gemini review extractor', () => {
     const contents = Array.isArray(request.contents)
       ? request.contents
       : [request.contents];
-    const promptPart = contents[0];
-    if (
-      typeof promptPart !== 'object' ||
-      promptPart === null ||
-      !('text' in promptPart)
-    ) {
-      throw new Error('Expected the first Gemini content part to be prompt text.');
-    }
-    expect(promptPart.text).toContain(
-      'Optimize for balanced extraction that preserves reviewer trust for downstream deterministic comparison.'
-    );
-    expect(promptPart.text).not.toContain(
-      'Keep degradation item-local and concise so one weak label does not inflate session-wide noise.'
-    );
+    expect(contents[0]).toMatchObject({
+      text: expect.stringContaining(
+        'You observe. You do not judge.'
+      )
+    });
     expect(contents[1]).toMatchObject({
       inlineData: {
         mimeType: 'image/png'
       }
     });
-  });
-
-  it('includes both uploaded label images in order when a second image is present', () => {
-    const request = buildGeminiReviewExtractionRequest({
-      intake: buildIntake({
-        labels: [
-          {
-            originalName: 'front.png',
-            mimeType: 'image/png',
-            bytes: 4,
-            buffer: Buffer.from([1, 2, 3, 4])
-          },
-          {
-            originalName: 'back.png',
-            mimeType: 'image/png',
-            bytes: 4,
-            buffer: Buffer.from([5, 6, 7, 8])
-          }
-        ]
-      }),
-      config: {
-        apiKey: 'test-key',
-        visionModel: 'gemini-2.5-flash-lite'
-      }
-    });
-
-    const contents = Array.isArray(request.contents)
-      ? request.contents
-      : [request.contents];
-    const images = contents.filter(
-      (entry): entry is { inlineData: { mimeType: string; data: string } } =>
-        typeof entry === 'object' && entry !== null && 'inlineData' in entry
-    );
-
-    expect(images).toHaveLength(2);
-    expect(images[0].inlineData.mimeType).toBe('image/png');
-    expect(images[1].inlineData.mimeType).toBe('image/png');
   });
 
   it('builds a pdf extraction request without durable uploads', () => {

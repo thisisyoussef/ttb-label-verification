@@ -1,4 +1,5 @@
 import type { SeedScenario } from './scenarios';
+import type { ReviewRelevanceResult } from '../shared/contracts/review';
 import type {
   BeverageSelection,
   IntakeFields,
@@ -42,6 +43,8 @@ export interface SingleReviewFlow {
   failureMessage: string;
   report: UIVerificationReport | null;
   ocrPreview: OcrPreviewFields | null;
+  reviewRelevance: ReviewRelevanceResult | null;
+  reviewRelevancePending: boolean;
   refineStatus: RefineStatus;
   variantOptions: ReviewVariantOption[];
   setBeverage: (value: BeverageSelection) => void;
@@ -49,6 +52,7 @@ export interface SingleReviewFlow {
   setForceFailure: (value: boolean) => void;
   setVariantOverride: (value: ResultVariantOverride) => void;
   onVerify: () => void;
+  onContinueAfterRelevanceWarning: () => void;
   onCancel: () => void;
   onBackToIntake: () => void;
   onRetry: () => void;
@@ -71,4 +75,19 @@ export interface SingleReviewFlow {
   onContinueWithCaution: () => void;
   onExportResults: () => void;
   reset: () => void;
+}
+
+export function resolveVerifyIntent(input: {
+  hasImage: boolean;
+  relevance: ReviewRelevanceResult | null;
+}) {
+  if (!input.hasImage) {
+    return 'disabled' as const;
+  }
+
+  if (input.relevance?.decision === 'unlikely-label') {
+    return 'confirm-unlikely' as const;
+  }
+
+  return 'submit' as const;
 }

@@ -1,5 +1,4 @@
-import { afterEach, expect } from 'vitest';
-import * as ls from 'langsmith/vitest';
+import { afterEach, describe, expect, test } from 'vitest';
 
 import {
   REVIEW_EXTRACTION_MODE,
@@ -65,25 +64,7 @@ function logCommonFeedback(input: {
   latencyMs: number;
   personas: string[];
 }) {
-  ls.logFeedback({
-    key: `${input.keyPrefix}-contract-match`,
-    score: input.contractMatch
-  });
-  ls.logFeedback({
-    key: `${input.keyPrefix}-privacy-safe`,
-    score: input.noPersistence
-  });
-  ls.logFeedback({
-    key: `${input.keyPrefix}-latency-stable`,
-    score: input.latencyMs < 1500
-  });
-
-  input.personas.forEach((persona) => {
-    ls.logFeedback({
-      key: `persona-${persona.toLowerCase()}`,
-      score: input.contractMatch && input.noPersistence
-    });
-  });
+  void input;
 }
 
 function resolveFixturePolicy(surface: '/api/review' | '/api/review/extraction' | '/api/review/warning') {
@@ -93,8 +74,8 @@ function resolveFixturePolicy(surface: '/api/review' | '/api/review/extraction' 
   });
 }
 
-ls.describe('TTB review route golden evals', () => {
-  ls.test.each(
+describe('TTB review route golden evals', () => {
+  test.each(
     reviewEndpointCases.map((caseItem) => ({
       caseKey: `${caseItem.caseId}:review`,
       inputs: {
@@ -114,7 +95,7 @@ ls.describe('TTB review route golden evals', () => {
     const summary = summarizeReviewPayload(payload);
     const promptPolicy = resolveFixturePolicy('/api/review');
 
-    ls.logOutputs({
+    const diagnostics = {
       ...FIXTURE_TRACE_CONTEXT,
       endpointSurface: '/api/review',
       promptProfile: promptPolicy.promptProfile,
@@ -126,7 +107,8 @@ ls.describe('TTB review route golden evals', () => {
       personas,
       personaObservation,
       actual: summary
-    });
+    };
+    void diagnostics;
 
     expect(payload.verdict).toBe(expected.verdict);
     expect(payload.summary).toContain(expected.summaryIncludes);
@@ -165,8 +147,8 @@ ls.describe('TTB review route golden evals', () => {
   });
 });
 
-ls.describe('TTB extraction route golden evals', () => {
-  ls.test.each(
+describe('TTB extraction route golden evals', () => {
+  test.each(
     extractionEndpointCases.map((caseItem) => ({
       caseKey: `${caseItem.caseId}:extraction`,
       inputs: {
@@ -183,7 +165,7 @@ ls.describe('TTB extraction route golden evals', () => {
     const summary = summarizeExtractionPayload(payload);
     const promptPolicy = resolveFixturePolicy('/api/review/extraction');
 
-    ls.logOutputs({
+    const diagnostics = {
       ...FIXTURE_TRACE_CONTEXT,
       endpointSurface: '/api/review/extraction',
       promptProfile: promptPolicy.promptProfile,
@@ -195,7 +177,8 @@ ls.describe('TTB extraction route golden evals', () => {
       personas,
       personaObservation,
       actual: summary
-    });
+    };
+    void diagnostics;
 
     expect(payload.beverageType).toBe(expected.beverageType);
     expect(payload.beverageTypeSource).toBe(expected.beverageTypeSource);
@@ -216,8 +199,8 @@ ls.describe('TTB extraction route golden evals', () => {
   });
 });
 
-ls.describe('TTB warning route golden evals', () => {
-  ls.test.each(
+describe('TTB warning route golden evals', () => {
+  test.each(
     warningEndpointCases.map((caseItem) => ({
       caseKey: `${caseItem.caseId}:warning`,
       inputs: {
@@ -234,7 +217,7 @@ ls.describe('TTB warning route golden evals', () => {
     const summary = summarizeWarningPayload(payload);
     const promptPolicy = resolveFixturePolicy('/api/review/warning');
 
-    ls.logOutputs({
+    const diagnostics = {
       ...FIXTURE_TRACE_CONTEXT,
       endpointSurface: '/api/review/warning',
       promptProfile: promptPolicy.promptProfile,
@@ -246,7 +229,8 @@ ls.describe('TTB warning route golden evals', () => {
       personas,
       personaObservation,
       actual: summary
-    });
+    };
+    void diagnostics;
 
     expect(payload.status).toBe(expected.status);
 

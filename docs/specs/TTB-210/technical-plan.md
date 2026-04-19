@@ -14,14 +14,32 @@ Harden the shared extraction path with endpoint-aware and mode-aware prompt poli
   - structural output checks, suspicious-output classification, and route-aware degradation helpers
 - `src/server/review-extractor-guardrails.test.ts`
   - unit coverage for sparse output, hallucination patterns, warning-block completeness, and safe degradation
+- `src/server/review-relevance.ts`
+  - OCR-backed relevance preflight that scores label-specific signals before the expensive extract-only path
+- `src/server/review-relevance.test.ts`
+  - unit coverage for likely, uncertain, unlikely, multi-image, and OCR-unavailable quick-scan decisions
+- `src/server/review-relevance-route.test.ts`
+  - route coverage proving `/api/review/relevance` stays extractor-free and merges dual-image OCR signals
+- `src/server/trace-runtime.ts`
+  - local no-op trace wrapper that keeps metadata flow and timing helpers intact without depending on an external tracing service
 - `src/server/openai-review-extractor.ts`
-  - consume the prompt-policy and guardrail modules instead of embedding a route-agnostic prompt string
+  - consume the prompt-policy and guardrail modules instead of embedding a route-agnostic prompt string, without wrapping the client in an external trace adapter
 - `src/server/gemini-review-extractor.ts`
   - consume the same prompt-policy and guardrail modules once the Gemini path exists
 - `src/server/review-extractor-factory.ts`
   - pass endpoint intent through the shared extraction entry point
+- `eval.vitest.config.ts`
+  - dedicated local eval config for the fixture-backed endpoint gate after the external trace-specific harness removal
+- `scripts/bootstrap-local-env.ts`
+  - keep repo-local env bootstrap focused on runtime model configuration instead of external tracing credentials
 - `src/server/index.ts`
   - route `/api/review`, `/api/review/extraction`, and `/api/review/warning` through explicit endpoint intents
+- `src/client/ReviewRelevanceBanner.tsx`
+  - intake-only quick-break warning state for unlikely uploads
+- `src/client/useExtractionPrefetch.ts`
+  - call the relevance preflight first, then start extract-only only when the quick scan says the upload is likely relevant
+- `src/client/useSingleReviewFlow.ts`
+  - gate Verify on `unlikely-label` quick-scan results unless the reviewer explicitly continues anyway
 - `src/server/batch-session.ts`
   - route item processing through the same canonical `review` extraction overlay and inline report pipeline used by single review while keeping batch session orchestration intact
 
@@ -46,6 +64,26 @@ Use one shared prompt-policy contract:
   - OpenAI and Gemini consume the same policy intent on the shipped path
 
 This keeps the repo from growing separate prompt strings per route or per execution mode while still acknowledging that route goals and model limits differ.
+
+## Relevance-preflight model
+
+Add one deterministic pre-provider branch before the existing extract-only prefetch:
+
+- upload normalize
+- OCR prepass on the selected image set
+- derive label-specific relevance signals:
+  - alcohol content
+  - net contents
+  - government warning
+  - beverage class/type
+  - applicant or country cues
+- classify:
+  - `likely-label`
+  - `uncertain`
+  - `unlikely-label`
+- only `likely-label` starts the background extract-only prefetch automatically
+
+The canonical `/api/review` route remains unchanged. The preflight is a speed and UX gate, not a hard validator.
 
 ## Guardrail model
 
@@ -85,6 +123,8 @@ Examples:
   - Fallback: guardrail only on structural inconsistency and suspicious certainty, not on deterministic compliance outcomes.
 - Risk: prompt growth pushes latency upward.
   - Fallback: keep overlays short, measure prompt/guardrail overhead explicitly, and trim wording before touching the provider/model choice.
+- Risk: the quick relevance preflight becomes overconfident and blocks real labels with weak OCR.
+  - Fallback: keep the preflight advisory only, preserve `Continue anyway`, and bias ambiguous reads to `uncertain` rather than `unlikely-label`.
 
 ## Testing strategy
 
@@ -100,6 +140,7 @@ Examples:
   - `/api/review/warning`
   - batch item execution through the shared extractor
 - trace and eval:
-  - run the smallest approved slice that exercises clean, warning-defect, cosmetic-mismatch, low-quality, standalone, and batch-consistency behavior
+  - run the smallest approved local slice that exercises clean, warning-defect, cosmetic-mismatch, low-quality, standalone, and batch-consistency behavior
+  - preserve timing and metadata flow locally without requiring external trace auth or storage
 - mutation-worthy modules:
   - guardrail classifier and any new pure prompt-policy branching helpers

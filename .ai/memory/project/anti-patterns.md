@@ -2,29 +2,58 @@
 
 ## Avoid these failures
 
-- Reintroducing a standing Claude-vs-Codex lane split or treating `ready-for-codex` as a default blocker for new work
-- Letting workflow rules sprawl across many docs until the agent spends more time reading process than touching code
-- Turning simple implementation work into mandatory spec-writing before any code moves
-- Creating linked worktrees inside the repo root or tracking `.claude/worktrees/**` in git
-- Letting an isolated worktree depend on `.env` values that only exist in a different checkout, or surfacing missing-provider chatter before repo-local env bootstrap has run
-- Starting new story work on `main`, `production`, or an unrelated story branch
-- Treating draft PRs, ready-for-review transitions, or background check waits as something the user needs to hear about on normal story work
-- Hiding normal story completion behind auto-merge or auto-update workflows instead of pushing, opening the PR, and merging directly
-- Choosing the next story from chat memory instead of SSOT
-- Treating Stitch as mandatory, or continuing to teach `claude-direct` as the current mode name instead of `direct`
-- Narrating minor tracker inconsistencies or speculative continuity clues to the user instead of just fixing the checked-in docs
-- Disabling the source-size guard entirely just because `main` already drifted past the cap
 - Treating `.ai/` as runtime code instead of harness scaffolding
-- Asking the model for a holistic compliance pass or fail verdict
+- Asking the model for a holistic compliance pass/fail verdict
 - Converting low-confidence visual judgments into hard `pass`
 - Recreating validator logic in client components
-- Claiming staging or production deployment happened when the GitHub or Railway step has not actually completed
+- Letting Codex thrash `src/client/**` without an initial Claude-created starting point, without respecting handoff hard constraints, or without keeping the result aligned to the story intent and design system
+- Letting Claude change shared contracts, validators, or backend code instead of handing requirements to Codex
+- Letting either agent keep going after it knows the work belongs in the other lane
+- Letting either agent skip the checked-in tracker and choose the next story from memory
+- Letting a later `ready-for-codex` UI handoff bypass an earlier unfinished workflow, eval, or other foundation story
+- Preferring later blocking `TTB-2xx+` engineering work when a ready approved `TTB-1xx` handoff is still waiting after foundations clear
+- Starting Codex engineering for a UI-first story before a `ready-for-codex` backlog handoff exists
+- Claiming staging or production deployment happened when the GitHub or Railway bootstrap has not actually been configured yet
 - Changing extraction or validator behavior without updating eval artifacts
 - Shipping compliance logic without an updated rule-source trail
 - Treating no-persistence as a policy statement without negative verification
 - Claiming the active single-label latency target without measured timings
+- Creating a parallel per-story `design.md` instead of writing the feature design into `ui-component-spec.md`
+- Leaving durable workflow corrections only in chat instead of promoting them into checked-in docs
+- Treating automated Stitch as mandatory after `claude-direct` became the default UI flow
+- Starting standard feature work without a spec packet or behavior changes without a RED test
+- Leaving a leaf story as `story-packet.md` only after active implementation has already started and deeper working docs are clearly needed
+- Treating production promotion as automatic per story instead of an explicit release action
+- Adding multipart upload middleware globally instead of constraining it to the route that actually handles uploads
+- Letting `src/client/**` keep a parallel report model after `src/shared/contracts/review.ts` has already been expanded for the same UI state
+- Re-parsing optional multipart `fields` ad hoc inside route handlers instead of using the shared intake normalizer
+- Treating standalone review requests as invalid just because the multipart `fields` part is omitted
+- Treating a front/back label pair as two separate applications or allowing more than two label files through one review row
+- Leaving dev-only fixture controls visible in normal runtime mode so seeded behavior silently overrides the live path
+- Letting the batch dashboard, retry, export, or processing path branch directly on `fixtureControlsEnabled` instead of the active batch source, so dev mode silently falls back to seeded data even during a live session
+- Replacing the current live batch image list when the reviewer clicks `Add more` instead of appending the newly selected files
+- Routing toolbench direct image loads through the single-review loader unconditionally, which silently flips a batch reviewer back into the single intake flow
+- Treating a seed or staging adapter as “wired” because the schema parses, while non-default submitted values are still dropped before they reach the visible result
+- Leaving the main `POST /api/review` route on a seed fixture after extraction and validator slices already exist, instead of composing those live modules into the real report path
+- Rebuilding batch matching or dashboard shaping separately in the client after the server has already produced a typed canonical payload
+- Turning batch execution into hidden durable state or a background queue when the checked-in product contract still requires ephemeral in-memory sessions only
+- Reusing shared optional-field Zod schemas directly for Responses structured outputs instead of adapting them into required-plus-nullable API schemas
+- Letting the warning diff collapse into overly broad case-mismatch spans that stop matching the approved UI evidence semantics
+- Double-counting government-warning defects by failing exact wording and then adding a second warning-only downgrade for the same missing or case-only body text
 - Adding Gemini through the Files API or any other provider-managed durable upload surface inside a no-persistence product
-- Treating the Gemini Batch runner as a replacement for `npm run eval:golden`, or widening it from the approved checked-in live corpus to reviewer submissions or arbitrary local files
-- Declaring the Gemini default production-ready without recorded live or sanitized trace evidence, timeout behavior, and a manual verification note for AI Studio logging and dataset-sharing settings
-- Letting auto-detect default sparse or no-text non-label uploads to `distilled-spirits` just because that is the strictest downstream rule path
-- Do not lift a mixed dirty worktree into a publish branch wholesale; isolate the story on a clean worktree and port only the story-owned files when parallel stories are interleaved.
+- Declaring the Gemini default production-ready without recorded live or sanitized trace evidence, timeout behavior, and a manual verification note for AI Studio logging/dataset-sharing settings
+- Treating provider fallback as a route-local try/catch instead of a typed capability policy with explicit retry and privacy classification
+- Instantiating the OpenAI extractor directly in routes or batch orchestration instead of going through the shared extractor factory
+- Letting an explicit `local` mode selection silently hop back to Gemini or OpenAI after a failure
+- Spending another model/provider round-trip just to decide whether an upload looks like a label before extraction starts, instead of using the existing OCR/local signal seam
+- Treating a fast relevance scan as a hard blocker that prevents the reviewer from continuing into the canonical review path
+- Flipping `latencyBudgetMs` from `5000` to `4000` before the optimized path is actually measured against the approved fixture slice
+- Treating explicit provider caching or raw timing logs as acceptable shortcuts to a faster path
+- Exposing internal latency summaries as a stable public route contract or including user-bearing content in those summaries
+- Embedding route-specific prompt strings directly in `/api/review`, `/api/review/extraction`, `/api/review/warning`, or batch code instead of routing through one shared prompt-policy module
+- Letting auto-detect default sparse or no-text non-label uploads to `distilled-spirits` just because spirits is the strictest downstream rule path
+- Treating local mode as just another reviewer default instead of an explicit deployment-readiness path with a slower, more conservative posture
+- Treating a generic corpus pass as enough proof for all model-backed endpoints without checking the distinct promises made to Sarah, Dave, Jenny, Marcus, and Janet
+- Recording raw label content, prompt bodies, or unsanitized model outputs in any debug or tuning artifact when fixture ids and bounded summaries are enough for comparison
+- Treating Gemini-generated synthetic label fixtures as authoritative legal or production-eval evidence instead of bounded internal smoke media
+- Letting the staging deploy run on CI success without first passing the fixture-backed endpoint eval gate
