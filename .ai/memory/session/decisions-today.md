@@ -18,5 +18,5 @@
 - For `TTB-210`, keep batch-specific behavior in orchestration and telemetry only; item execution must reuse the canonical single-review prompt, resolver, and report path so single mode stays the source of truth.
 - For `TTB-210`, keep route-specific prompt provenance dynamic in trace and eval metadata, with batch run/retry item execution reusing `review-cloud-v1` instead of a separate batch profile.
 - Publish `TTB-304` from a clean sibling worktree and port only the dual-image story files, because the root checkout also contains unrelated `TTB-210` warning-refine edits.
-- For the `TTB-401` docs follow-up, keep Mermaid as the editable source of truth but ship committed SVG diagrams in the public docs so architecture rendering does not depend on the Markdown viewer.
-- Use the repo-local `docs:diagrams` script plus `scripts/render-doc-diagrams.mjs` instead of Mermaid CLI, because the clean-worktree path should not require extra package installs and the local environment already hit `npx` disk-pressure issues.
+- For the `TTB-401` docs follow-up, keep the docs packet on native Mermaid blocks; the SVG asset detour was merged once, but the better fit for this repo is direct Mermaid rendering plus stronger README framing for assessors.
+- In the README, explain `/api/review/refine` as a silent second-pass verifier and separate perceived-latency tactics from actual-latency tactics, because the assignment brief makes time-to-first-answer a product requirement, not just an implementation metric.

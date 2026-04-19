@@ -1,8 +1,38 @@
 # TTB Label Verification
 
-TTB Label Verification is a proof-of-concept review system for comparing COLA Form 5100.31 application data against alcohol beverage label images. The architecture is intentionally narrow: AI extracts structured facts from the label, deterministic code validates those facts against application data and regulatory rules, and the product surfaces `approve`, `review`, or `reject` without pretending the model made the compliance decision.
+TTB Label Verification is a standalone proof-of-concept for the take-home brief: compare COLA application data against alcohol-beverage label imagery quickly enough to be usable in a real compliance queue, while keeping the final compliance decision deterministic and reviewer-owned.
 
 Live demo: [Production](https://ttb-label-verification-production-f17b.up.railway.app) | [Staging](https://ttb-label-verification-staging.up.railway.app)
+
+## Why This Prototype Looks The Way It Does
+
+The assignment pressure is not generic “build an AI app” pressure. It is a very specific operational shape:
+
+- agents are spending time on repetitive visual matching work
+- the tool loses credibility if a label takes 30 to 40 seconds to process
+- veteran reviewers want evidence, not automation theater
+- junior reviewers need guidance on what to inspect
+- peak-season importers need batch handling, not just one-label demos
+
+That is why the system is built around four product bets:
+
+1. **AI extracts; deterministic rules judge.**
+2. **Time-to-first-answer matters more than clever orchestration.**
+3. **The UI should feel trustworthy to both Dave and Jenny.**
+4. **The deployment story has to make sense in a government-style environment.**
+
+## What An Assessor Should Look At
+
+If you only have a few minutes, these are the highest-signal things to test:
+
+1. **Single-label review**
+   Upload a label, watch the OCR preview arrive before the final report, and note that the output is evidence-rich instead of a black-box score.
+2. **The refine pass**
+   Leave a few ambiguous rows in `review` and watch the client quietly run a second verification pass without blocking the first answer.
+3. **Batch mode**
+   Upload a CSV plus many images and inspect the queue, drill-in, retry, and export path.
+4. **Local / air-gapped mode**
+   Read the local setup section and confirm the prototype can run without external API calls when configured that way.
 
 ## Architecture Summary
 
@@ -16,11 +46,100 @@ The central invariant is:
 - reviewer-facing UI deliberately collapses internal `reject` into `Needs review` so the human remains accountable
 - no upload or verification report is intended to be persisted; contracts carry `noPersistence: true`, and the OpenAI adapter enforces `store: false`
 
-![Architecture pipeline](docs/diagrams/readme-architecture-pipeline.svg)
+```mermaid
+flowchart LR
+    A["Label image(s) + COLA data"] --> B1["Tesseract OCR prepass"]
+    A --> B2["Warning OCV"]
+    A --> B3["Gemini / OpenAI / Ollama extraction"]
+    B1 --> C["Reconcile extracted fields"]
+    B2 --> C
+    B3 --> C
+    C --> D["Deterministic field judges"]
+    D --> E["Cross-field checks"]
+    E --> F["One-directional resolver<br/>review -> pass only"]
+    F --> G["Weighted verdict rollup"]
+    G --> H["VerificationReport"]
+```
 
-_Diagram source: [Mermaid source](docs/diagrams/src/readme-architecture-pipeline.mmd)._
+## The Refine Pass
 
-The full architectural narrative, regulatory mapping, warning deep dive, and eval history live here:
+The prototype does not stop at a single “best guess” result. After the initial `POST /api/review` response lands, the client can automatically fire a second-pass verification call to `/api/review/refine` when the rendered report still has rows in `review`.
+
+This is deliberately **not** a replacement for the first answer:
+
+- the first report stays on screen
+- the refine pass is failure-tolerant and silent
+- only the touched rows are merged back into the visible report
+- the point is to improve trust on borderline rows without making the reviewer wait longer for the first answer
+
+Mechanically, the refine pass works like this:
+
+1. the initial review returns a normal `VerificationReport`
+2. if the client sees refinable rows in `review`, it calls `/api/review/refine`
+3. the server temporarily forces `VERIFICATION_MODE=on`
+4. the review pipeline re-runs with the applicant-declared identifiers visible to the VLM
+5. the refined report comes back and the client merges updated rows in place
+
+That is useful because some of the hardest cases are not “the label is wrong,” but “the first pass could not confidently tell whether the declared brand / class / origin is actually visible on the label.”
+
+```mermaid
+sequenceDiagram
+    participant U as Reviewer
+    participant C as Client
+    participant S as API
+    U->>C: Upload label image(s)
+    C->>S: POST /api/review/extract-only
+    C->>S: POST /api/review/stream?only=ocr
+    S-->>C: OCR preview frame
+    Note over U,C: Reviewer can keep filling the form
+    U->>C: Click Verify
+    C->>S: POST /api/review<br/>optional x-extraction-cache-key
+    S-->>C: Initial VerificationReport
+    C->>S: POST /api/review/refine<br/>only if rows remain in review
+    S-->>C: Refined VerificationReport
+    C-->>U: Merge improved rows in place
+```
+
+Implementation seams:
+
+- server route: [`src/server/register-review-routes.ts`](src/server/register-review-routes.ts)
+- client request helper: [`src/client/appReviewApi.ts`](src/client/appReviewApi.ts)
+- client orchestration: [`src/client/useSingleReviewFlow.ts`](src/client/useSingleReviewFlow.ts)
+- row merge logic: [`src/client/useRefineReview.ts`](src/client/useRefineReview.ts)
+
+## Perceived Latency vs Actual Latency
+
+Latency is the adoption gate in the stakeholder interviews, so the prototype treats it as both a systems problem and a product problem.
+
+- the runtime contract currently advertises `latencyBudgetMs: 4000`
+- the dominant cost is still provider wait time, not deterministic validation
+- the app therefore tackles both **actual latency** and **perceived latency**
+
+### How the app tackles perceived latency
+
+| Tactic | What the reviewer experiences | Where it lives |
+| --- | --- | --- |
+| OCR preview | partial fields such as ABV, net contents, class, country, and warning presence appear while the full review is still running | [`src/client/useOcrPreview.ts`](src/client/useOcrPreview.ts), [`/api/review/stream?only=ocr`](src/client/appReviewApi.ts) |
+| Extraction prefetch | image upload starts extraction during form-fill time, so Verify can skip the expensive extract step later | [`src/client/useExtractionPrefetch.ts`](src/client/useExtractionPrefetch.ts), [`/api/review/extract-only`](src/server/register-review-routes.ts) |
+| Speculative full prefetch | when the user pauses on a stable input, the client can pre-run the full review in the background and consume a cache hit at Verify time | [`src/client/useSpeculativePrefetch.ts`](src/client/useSpeculativePrefetch.ts) |
+| Silent refine | the second-pass verification happens after the first answer lands, so borderline rows can improve without delaying the first render | [`src/client/useRefineReview.ts`](src/client/useRefineReview.ts), [`/api/review/refine`](src/server/register-review-routes.ts) |
+
+### How the app tackles actual latency
+
+| Tactic | Why it helps | Where it lives |
+| --- | --- | --- |
+| Parallel fanout | OCR prepass, warning OCV, VLM extraction, and anchor search run together instead of serially | [`src/server/llm-trace.ts`](src/server/llm-trace.ts) |
+| Boot warmup | primes Tesseract, sharp, OCR pipeline, and optional model/network connections before traffic starts | [`src/server/boot-warmup.ts`](src/server/boot-warmup.ts), [`src/server/index.ts`](src/server/index.ts) |
+| Fast-fail fallback window | provider fallback is only attempted if the primary path fails quickly enough to still be worth it | [`src/server/review-latency.ts`](src/server/review-latency.ts), [`src/server/review-fallback-executor.ts`](src/server/review-fallback-executor.ts) |
+| Stage-level timing | every request can emit a structured latency summary for diagnosis instead of anecdotal “it felt slow” reports | [`src/server/review-latency.ts`](src/server/review-latency.ts) |
+
+### Latency decisions the prototype deliberately rejected
+
+- Gemini streaming is implemented but **off by default** because the measured p95 tail was worse for the current single-label flow
+- region detection is **off by default** because it added seconds of latency without enough accuracy gain
+- the refine pass is **post-result**, not inline, because trust gains are not worth delaying the first answer
+
+Detailed architectural writeups and eval evidence live here:
 
 - [Architecture And Decisions](docs/ARCHITECTURE_AND_DECISIONS.md)
 - [Government Warning](docs/GOVERNMENT_WARNING.md)

@@ -1,7 +1,0 @@
-flowchart LR
-    A["Provider adapters"] --> B["ReviewExtraction"]
-    B --> C["Field checks + warning validator"]
-    C --> D["Cross-field checks"]
-    D --> E["Weighted verdict rollup"]
-    E --> F["VerificationReport"]
-    A -. "cannot emit verdict" .-> F
