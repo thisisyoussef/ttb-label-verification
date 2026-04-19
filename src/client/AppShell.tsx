@@ -149,7 +149,6 @@ export function AppShell({
               active={help.tourOpen}
               showNudge={!help.helpNudgeDismissed && !help.tourOpen}
               onLaunch={help.onLaunchTour}
-              onDismissNudge={help.onDismissNudge}
             />
             <SignedInIdentity onSignOut={onSignOut} />
           </div>

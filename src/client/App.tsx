@@ -414,6 +414,7 @@ export function App() {
           onSwitchMode={handleToolbenchSwitchMode}
           onToggleExtraction={(next) => setExtractionMode(next)}
           onLaunchTour={help.onLaunchTour}
+          tourActive={help.tourOpen}
         />
       )}
     </>

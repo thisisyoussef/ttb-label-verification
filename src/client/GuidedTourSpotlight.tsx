@@ -93,27 +93,39 @@ function DimLayer({ rect }: { rect: GuidedTourRect | null }) {
       />
     );
   }
+
+  const segments = resolveDimLayerSegments(rect);
+
   return (
-    <div
-      aria-hidden="true"
-      className="absolute inset-0 pointer-events-none"
-      style={{
-        background: 'rgba(45, 52, 51, 0.55)',
-        clipPath: `polygon(
-          0% 0%,
-          0% 100%,
-          ${rect.left}px 100%,
-          ${rect.left}px ${rect.top}px,
-          ${rect.left + rect.width}px ${rect.top}px,
-          ${rect.left + rect.width}px ${rect.top + rect.height}px,
-          ${rect.left}px ${rect.top + rect.height}px,
-          ${rect.left}px 100%,
-          100% 100%,
-          100% 0%
-        )`
-      }}
-    />
+    <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+      {segments.map((segment, index) => (
+        <div
+          key={index}
+          className="absolute transition-all duration-200 motion-reduce:transition-none"
+          style={{
+            ...segment,
+            background: 'rgba(45, 52, 51, 0.55)'
+          }}
+        />
+      ))}
+    </div>
   );
+}
+
+function resolveDimLayerSegments(rect: GuidedTourRect) {
+  const top = Math.max(rect.top, 0);
+  const left = Math.max(rect.left, 0);
+  const width = Math.max(rect.width, 0);
+  const height = Math.max(rect.height, 0);
+  const rightEdge = Math.max(left + width, 0);
+  const bottomEdge = Math.max(top + height, 0);
+
+  return [
+    { top: 0, left: 0, right: 0, height: top },
+    { top, left: 0, width: left, height },
+    { top, left: rightEdge, right: 0, height },
+    { top: bottomEdge, left: 0, right: 0, bottom: 0 }
+  ];
 }
 
 function HighlightRing({

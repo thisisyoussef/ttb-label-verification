@@ -1,31 +1,14 @@
-import { useEffect } from 'react';
-
 interface HelpLauncherProps {
   active: boolean;
   showNudge: boolean;
   onLaunch: () => void;
-  onDismissNudge: () => void;
 }
-
-// Auto-dismiss the first-run nudge after this many ms if the user hasn't
-// clicked or dismissed it. The goal is to suggest the tour without ever
-// blocking the user's view of the intake form column. 8s is long enough
-// for a human to notice and short enough that an idle session with the
-// popup open doesn't leave it stuck there.
-const NUDGE_AUTO_DISMISS_MS = 8000;
 
 export function HelpLauncher({
   active,
   showNudge,
-  onLaunch,
-  onDismissNudge
+  onLaunch
 }: HelpLauncherProps) {
-  useEffect(() => {
-    if (!showNudge) return;
-    const timer = setTimeout(onDismissNudge, NUDGE_AUTO_DISMISS_MS);
-    return () => clearTimeout(timer);
-  }, [showNudge, onDismissNudge]);
-
   return (
     <div className="relative">
       <button
@@ -41,62 +24,24 @@ export function HelpLauncher({
             : 'bg-surface-container-lowest text-on-surface border-outline-variant/30 shadow-ambient hover:bg-gradient-to-b hover:from-primary hover:to-primary-dim hover:text-on-primary hover:border-transparent'
         ].join(' ')}
       >
+        {showNudge ? (
+          <>
+            <span
+              aria-hidden="true"
+              data-help-indicator="true"
+              className="absolute right-2 top-2 flex h-2.5 w-2.5"
+            >
+              <span className="absolute inline-flex h-full w-full rounded-full bg-primary/35" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
+            </span>
+            <span className="sr-only">Tour available</span>
+          </>
+        ) : null}
         <span aria-hidden="true" className="material-symbols-outlined text-[18px]">
           school
         </span>
         Guided tour
       </button>
-      {showNudge ? (
-        <div
-          role="dialog"
-          aria-modal="false"
-          aria-label="Guided tour introduction"
-          className="absolute top-[calc(100%+12px)] right-0 z-30 w-[min(20rem,calc(100vw-2rem))] bg-surface-container-lowest border border-outline-variant/30 rounded-lg shadow-ambient p-4 flex flex-col gap-3"
-        >
-          <span
-            aria-hidden="true"
-            className="absolute -top-1.5 right-6 w-3 h-3 bg-surface-container-lowest border-l border-t border-outline-variant/30 rotate-45"
-          />
-          <div className="flex items-start gap-3">
-            <span
-              aria-hidden="true"
-              className="material-symbols-outlined text-primary text-[18px] mt-0.5"
-            >
-              school
-            </span>
-            <div className="flex flex-col gap-2">
-              <p className="text-sm font-label font-semibold text-on-surface">
-                How this works
-              </p>
-              <p className="text-sm text-on-surface font-body leading-relaxed">
-                AI reads the label. Deterministic rules make every decision. You review the evidence and have the final word.
-              </p>
-              <p className="text-sm text-on-surface-variant font-body">
-                Nothing is stored. Inputs and results are discarded when you close the tab.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center justify-end gap-2 border-t border-outline-variant/10 pt-3">
-            <button
-              type="button"
-              onClick={onDismissNudge}
-              className="px-3 py-2 rounded-lg text-sm font-label font-semibold text-on-surface-variant hover:text-on-surface transition-colors min-h-[40px]"
-            >
-              Got it
-            </button>
-            <button
-              type="button"
-              onClick={onLaunch}
-              className="inline-flex items-center gap-1 px-4 py-2.5 rounded-lg text-sm font-label font-semibold bg-gradient-to-b from-primary to-primary-dim text-on-primary shadow-ambient hover:brightness-110 transition-all min-h-[40px]"
-            >
-              Take the tour
-              <span aria-hidden="true" className="material-symbols-outlined text-[16px]">
-                chevron_right
-              </span>
-            </button>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }

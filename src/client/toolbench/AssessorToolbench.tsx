@@ -16,6 +16,7 @@ interface AssessorToolbenchProps {
   onSwitchMode: (next: Mode) => void;
   onToggleExtraction: (next: ExtractionMode) => void;
   onLaunchTour: () => void;
+  tourActive: boolean;
 }
 
 const TABS: { id: ToolbenchTab; label: string }[] = [
@@ -34,24 +35,31 @@ export function AssessorToolbench({
   onSwitchMode,
   onToggleExtraction,
   onLaunchTour,
+  tourActive
 }: AssessorToolbenchProps) {
   const { open, tab, setTab, toggle, close } = useToolbenchState();
   const containerRef = useRef<HTMLDivElement>(null);
+  const panelOpen = open && !tourActive;
 
   // Escape to close
   useEffect(() => {
-    if (!open) return;
+    if (!panelOpen) return;
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') close();
     }
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [open, close]);
+  }, [panelOpen, close]);
+
+  useEffect(() => {
+    if (!tourActive || !open) return;
+    close();
+  }, [close, open, tourActive]);
 
   return (
     <div ref={containerRef} className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2">
       {/* Panel — renders above FAB in flex-col so it grows upward */}
-      {open && (
+      {panelOpen && (
         <div className="flex h-[min(520px,calc(100vh-96px))] w-[400px] min-h-0 flex-col overflow-hidden rounded-xl border border-dashed border-outline-variant/60 bg-surface-container shadow-ambient">
           {/* Header */}
           <div className="flex items-center justify-between px-3 py-2 border-b border-outline-variant/40 shrink-0">
@@ -132,12 +140,16 @@ export function AssessorToolbench({
       {/* FAB */}
       <button
         onClick={toggle}
-        aria-expanded={open}
+        aria-expanded={panelOpen}
         aria-label="Toggle assessor toolbench"
+        disabled={tourActive}
+        title={tourActive ? 'Close the guided tour to reopen the toolbench.' : undefined}
         className={`flex items-center gap-1.5 rounded-full px-4 py-2 border border-dashed font-label text-xs font-semibold transition-colors ${
-          open
+          panelOpen
             ? 'border-primary/50 bg-primary/10 text-primary'
-            : 'border-outline-variant/60 bg-surface-container text-on-surface-variant hover:border-primary/40 hover:text-primary'
+            : tourActive
+              ? 'border-outline-variant/40 bg-surface-container-low text-outline-variant/80 cursor-not-allowed'
+              : 'border-outline-variant/60 bg-surface-container text-on-surface-variant hover:border-primary/40 hover:text-primary'
         }`}
       >
         <span className="material-symbols-outlined text-[16px]">science</span>
