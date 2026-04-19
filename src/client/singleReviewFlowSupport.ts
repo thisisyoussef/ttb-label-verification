@@ -10,6 +10,7 @@ import type {
 } from './types';
 import type { OcrPreviewFields } from './useOcrPreview';
 import type { RefineStatus } from './useRefineReview';
+import type { ToolbenchSampleLoadState } from './toolbench/toolbenchSingleSample';
 
 export type ReviewVariantOption = {
   value: ResultVariantOverride;
@@ -57,6 +58,11 @@ export interface SingleReviewFlow {
   onImagesChange: (
     primary: LabelImage | null,
     secondary?: LabelImage | null
+  ) => void;
+  onLoadToolbenchSample: (
+    primary: LabelImage,
+    secondary: LabelImage | null,
+    nextState: ToolbenchSampleLoadState
   ) => void;
   onClear: () => void;
   onSelectScenario: (scenario: SeedScenario) => void;

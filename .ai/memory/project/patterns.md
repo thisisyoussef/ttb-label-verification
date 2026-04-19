@@ -71,6 +71,8 @@
 - For established UI shells that need live wiring, add a pure client runtime adapter (`src/client/batch-runtime.ts`) so API-to-view-model mapping stays testable outside React components.
 - Repeated live batch image intake should append new files to the current live batch set and preserve existing object URLs until the reviewer explicitly clears or resets the batch.
 - Toolbench direct asset loads should resolve through a mode-aware helper: image loads follow the active review mode, while CSV loads remain batch-only.
+- Toolbench single-sample loads should reset single-review session state before hydrating the new sample. Do not layer new sample images and fields on top of a previous report, OCR preview, or forced-failure state.
+- When a Toolbench panel reveals capability-dependent actions from async probes, reserve that slot with a deterministic placeholder until the probes settle so the visible control stack does not jump.
 - The golden eval set is part of the product contract, not optional test garnish. The core-six live subset is only the first slice, not the whole corpus.
 - Trace-driven tuning is a local engineering loop, not runtime product behavior; it should only use approved fixtures or sanitized inputs and should never run on staging or production traffic.
 - When the live core-six assets are missing, use sanitized locally generated media with traced extraction surfaces as the temporary provider-comparison seam, and record an explicit rollback condition instead of guessing production readiness.

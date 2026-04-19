@@ -43,7 +43,7 @@ Last updated: 2026-04-19 (`TTB-108` is complete with extraction-mode selection, 
 ## Active pointers
 
 - Active Claude story: none in progress (`TTB-108` Claude lane complete and approved 2026-04-14)
-- Active Codex story: none in progress; the PR #138 consolidation merge on 2026-04-19 landed the wine-field reveal, refine kickoff from the live report via `useRefineCoordinator`, batch review-first wording plus simplified ETA, Toolbench dual-image sample pack, primary/secondary label rename, OCR no-text short-circuit, and every TTB-204/TTB-210/TTB-304 follow-up that was sitting on isolated publish branches
+- Active Codex story: `TTB-304` follow-up in progress on `codex/TTB-304-toolbench-sample-reset` to stabilize the Toolbench Samples tab while capability probes resolve and to clear stale single-review state when loading a new Toolbench sample
 - Next ready for Claude: none queued
 - Next preferred for Codex: `TTB-401` documentation roll-up
 - Next blocking for Codex: `TTB-401` documentation roll-up
