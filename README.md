@@ -26,13 +26,24 @@ That is why the system is built around four product bets:
 If you only have a few minutes, these are the highest-signal things to test:
 
 1. **Single-label review**
-   Upload a label, watch the OCR preview arrive before the final report, and note that the output is evidence-rich instead of a black-box score.
+   Open the lower-right `Toolbench`, load a sample label, watch the OCR preview arrive before the final report, and note that the output is evidence-rich instead of a black-box score.
 2. **The refine pass**
-   Leave a few ambiguous rows in `review` and watch the client quietly run a second verification pass without blocking the first answer.
+   Leave a few ambiguous rows in `review` and watch the client quietly call `/api/review/refine` without blocking the first answer.
 3. **Batch mode**
-   Upload a CSV plus many images and inspect the queue, drill-in, retry, and export path.
+   Use `Toolbench -> Actions -> Open batch review`, then inspect the CSV-plus-many-images intake and the queue/drill-in path.
 4. **Local / air-gapped mode**
    Read the local setup section and confirm the prototype can run without external API calls when configured that way.
+
+## Evaluator Walkthrough
+
+The fastest way to exercise the prototype is the built-in Toolbench in the lower-right corner. It is the evaluator harness for this repo: it loads known label samples, opens batch mode, resets the app, checks API health, and exposes dev-only provider overrides without forcing you to prepare files by hand.
+
+The full screenshot-backed walkthrough lives in [docs/EVALUATOR_GUIDE.md](docs/EVALUATOR_GUIDE.md). Use that guide if you want a clean 5-minute test script for single review, refine behavior, Toolbench actions, and batch intake.
+
+<p align="center">
+  <img src="docs/screenshots/toolbench-intake.png" alt="Toolbench loading a sample into the single-review intake" width="48%" />
+  <img src="docs/screenshots/results-review.png" alt="Results screen with evidence rows and refine activity" width="48%" />
+</p>
 
 ## Architecture Summary
 
@@ -380,6 +391,7 @@ npm run eval:golden
 Useful supporting docs:
 
 - [Eval Results](docs/EVAL_RESULTS.md)
+- [Evaluator Guide](docs/EVALUATOR_GUIDE.md)
 - [Trace-Driven Development](docs/process/TRACE_DRIVEN_DEVELOPMENT.md)
 - [Test Quality Standard](docs/process/TEST_QUALITY_STANDARD.md)
 
@@ -414,6 +426,7 @@ scripts/                     Eval helpers, bootstrap, stage-timing tools
 ## What To Read Next
 
 - [Architecture And Decisions](docs/ARCHITECTURE_AND_DECISIONS.md): the full system brief
+- [Evaluator Guide](docs/EVALUATOR_GUIDE.md): screenshot-backed reviewer test script and Toolbench walkthrough
 - [Government Warning](docs/GOVERNMENT_WARNING.md): the most detailed single-rule deep dive
 - [Regulatory Mapping](docs/REGULATORY_MAPPING.md): CFR-to-code traceability
 - [Eval Results](docs/EVAL_RESULTS.md): model and pipeline evidence
