@@ -24,6 +24,7 @@ This file is the checked-in branch registry for normal story work.
 <!-- ACTIVE_BRANCHES:START -->
 | Branch | Story | Lane | Status | Description | PR | Opened | Updated | Base | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `chore/TTB-WF-002-source-size-baseline` | `TTB-WF-002` | `chore` | `draft-local` | baseline inherited source-size debt so the guard blocks new oversized files and regressions without preventing unrelated story publishes | - | `2026-04-19` | `2026-04-19` | `origin/main` | isolated worktree for source-size baseline follow-up |
 | `codex/TTB-000-dynamic-verdict-banner` | `TTB-000` | `codex` | `draft-local` | make the verdict banner follow the live matched/review state and remove overly optimistic review copy | - | `2026-04-18` | `2026-04-18` | `origin/main` | isolated merge worktree for verdict banner fix |
 | `codex/TTB-000-verify-tour-boundary` | `TTB-000` | `codex` | `ready-pr` | fix the guided-tour spotlight boundary, collapse toolbench during tours, and replace the loud first-run help popup with a subtle launcher indicator | #123 | `2026-04-19` | `2026-04-19` | `origin/main` | opened from origin/main |
 | `codex/TTB-210-batch-single-source` | `TTB-210` | `codex` | `draft-local` | align batch run and retry item processing to the canonical single-review prompt and inline report pipeline | - | `2026-04-19` | `2026-04-19` | `origin/main` | isolated clean publish worktree at `/Users/youss/Development/gauntlet/ttb-label-verification-210-merge` |
