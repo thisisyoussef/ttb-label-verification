@@ -27,8 +27,12 @@ export interface BuiltinSample {
   filename: string;
   beverageType: string;
   fields: SampleFields;
-  /** URL the client can fetch the image bytes from. Dev-only. */
-  imageUrl: string;
+  /** URLs the client can fetch the image bytes from. Dev-only. */
+  images: Array<{
+    id: string;
+    url: string;
+    filename: string;
+  }>;
 }
 
 export interface BuiltinPack {
@@ -89,6 +93,7 @@ function deriveIdFromFilename(filename: string): string {
 function buildSample(row: Record<string, string>): BuiltinSample | null {
   const filename = row.filename;
   if (!filename) return null;
+  const secondaryFilename = row.secondary_filename;
   return {
     id: deriveIdFromFilename(filename),
     filename,
@@ -106,7 +111,22 @@ function buildSample(row: Record<string, string>): BuiltinSample | null {
       appellation: row.appellation ?? '',
       vintage: row.vintage ?? ''
     },
-    imageUrl: `/toolbench/labels/cola-cloud/${filename}`
+    images: [
+      {
+        id: deriveIdFromFilename(filename),
+        url: `/toolbench/labels/cola-cloud/${filename}`,
+        filename
+      },
+      ...(secondaryFilename
+        ? [
+            {
+              id: deriveIdFromFilename(secondaryFilename),
+              url: `/toolbench/labels/cola-cloud/${secondaryFilename}`,
+              filename: secondaryFilename
+            }
+          ]
+        : [])
+    ]
   };
 }
 
@@ -125,7 +145,7 @@ export const BUILTIN_PACKS: BuiltinPack[] = [
     id: 'cola-cloud-all',
     title: 'COLA Cloud All',
     description: 'All real approved labels, bundled offline.',
-    imageCount: BUILTIN_SAMPLES.length,
+    imageCount: BUILTIN_SAMPLES.reduce((sum, sample) => sum + sample.images.length, 0),
     images: BUILTIN_SAMPLES.map((s) => ({
       id: s.id,
       beverageType: s.beverageType,

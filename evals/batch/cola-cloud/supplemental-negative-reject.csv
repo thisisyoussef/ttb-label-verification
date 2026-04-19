@@ -1,6 +1,6 @@
-filename,beverage_type,brand_name,fanciful_name,class_type,alcohol_content,net_contents,applicant_address,origin,country,formula_id,appellation,vintage
-lake-placid-shredder-abv-negative.webp,malt-beverage,Lake Placid,Shredder,IPA,5% Alc./Vol.,12 FL OZ,,domestic,,,,
-simply-elegant-warning-occluded-negative.webp,distilled-spirits,Simply Elegant,Simply Elegant Spirits,straight bourbon whisky,67% Alc./Vol.,750 mL,,domestic,,,,
-leitz-rottland-warning-crop-negative.webp,wine,Leitz,Rottland,table white wine,12.5% Alc./Vol.,750 mL,,imported,germany,,Rheingau,2023
-lake-placid-ridge-runner-warning-occluded-negative.webp,malt-beverage,Lake Placid,Ridge Runner,ale,,12 FL OZ,,domestic,,,,
-recluse-brew-works-shy-guy-overprint-negative.webp,malt-beverage,Recluse Brew Works,Shy Guy,beer,6.5% Alc./Vol.,12 FL OZ,,domestic,,,,
+filename,secondary_filename,beverage_type,brand_name,fanciful_name,class_type,alcohol_content,net_contents,applicant_address,origin,country,formula_id,appellation,vintage
+lake-placid-shredder-abv-negative.webp,,malt-beverage,Lake Placid,Shredder,IPA,5% Alc./Vol.,12 FL OZ,,domestic,,,,
+simply-elegant-warning-occluded-negative.webp,,distilled-spirits,Simply Elegant,Simply Elegant Spirits,straight bourbon whisky,67% Alc./Vol.,750 mL,,domestic,,,,
+leitz-rottland-warning-crop-negative.webp,,wine,Leitz,Rottland,table white wine,12.5% Alc./Vol.,750 mL,,imported,germany,,Rheingau,2023
+lake-placid-ridge-runner-warning-occluded-negative.webp,,malt-beverage,Lake Placid,Ridge Runner,ale,,12 FL OZ,,domestic,,,,
+recluse-brew-works-shy-guy-overprint-negative.webp,,malt-beverage,Recluse Brew Works,Shy Guy,beer,6.5% Alc./Vol.,12 FL OZ,,domestic,,,,

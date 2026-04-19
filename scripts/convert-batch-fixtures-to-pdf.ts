@@ -40,6 +40,36 @@ function rewriteFilename(originalFilename: string): string {
   return originalFilename.replace(/\.(webp|png|jpe?g)$/i, '.pdf');
 }
 
+function splitCsvRow(line: string): string[] {
+  const out: string[] = [];
+  let cell = '';
+  let inQuote = false;
+
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i]!;
+    if (ch === '"') {
+      inQuote = !inQuote;
+      continue;
+    }
+    if (ch === ',' && !inQuote) {
+      out.push(cell);
+      cell = '';
+      continue;
+    }
+    cell += ch;
+  }
+
+  out.push(cell);
+  return out;
+}
+
+function csvEscape(value: string) {
+  if (value.includes('"') || value.includes(',') || value.includes('\n')) {
+    return `"${value.replaceAll('"', '""')}"`;
+  }
+  return value;
+}
+
 async function processManifest(repoRoot: string) {
   const manifestPath = path.join(repoRoot, SRC_DIR, 'manifest.json');
   const manifestRaw = await readFile(manifestPath, 'utf8');
@@ -70,17 +100,26 @@ async function processCsvs(repoRoot: string) {
   for (const name of entries) {
     if (!name.endsWith('.csv')) continue;
     const raw = await readFile(path.join(srcAbs, name), 'utf8');
-    const rewritten = raw
-      .split('\n')
+    const lines = raw.split('\n');
+    const header = lines[0] ? splitCsvRow(lines[0]) : [];
+    const filenameIndex = header.indexOf('filename');
+    const secondaryFilenameIndex = header.indexOf('secondary_filename');
+    const rewritten = lines
       .map((line, idx) => {
-        // Header line — preserve verbatim.
-        if (idx === 0) return line;
-        // Each body line starts with `filename,...` — rewrite the first cell.
-        const comma = line.indexOf(',');
-        if (comma < 0) return line;
-        const filename = line.slice(0, comma);
-        const rest = line.slice(comma);
-        return rewriteFilename(filename) + rest;
+        if (idx === 0 || line.trim().length === 0) {
+          return line;
+        }
+
+        const cells = splitCsvRow(line);
+        if (filenameIndex !== -1 && cells[filenameIndex]) {
+          cells[filenameIndex] = rewriteFilename(cells[filenameIndex]!);
+        }
+        if (secondaryFilenameIndex !== -1 && cells[secondaryFilenameIndex]) {
+          cells[secondaryFilenameIndex] = rewriteFilename(
+            cells[secondaryFilenameIndex]!
+          );
+        }
+        return cells.map(csvEscape).join(',');
       })
       .join('\n');
     const destPath = path.join(destAbs, name);

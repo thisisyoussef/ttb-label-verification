@@ -7,6 +7,7 @@ type ColaCloudCase = {
   goldenCaseId: string;
   title: string;
   assetPath: string;
+  secondaryAssetPath?: string | null;
   beverageType: 'distilled-spirits' | 'wine' | 'malt-beverage';
   expectedRecommendation: 'approve' | 'review' | 'reject';
   colaCloudMeta: {
@@ -74,6 +75,8 @@ type BatchFixtureSet = {
   csvFile: string;
   imageCases: Array<{
     id: string;
+    sampleId?: string;
+    isSecondary?: boolean;
     assetPath: string;
     beverageType: string;
     expectedRecommendation: string;
@@ -90,6 +93,7 @@ type BatchFixtureManifest = {
 
 const CSV_HEADERS = [
   'filename',
+  'secondary_filename',
   'beverage_type',
   'brand_name',
   'fanciful_name',
@@ -141,6 +145,7 @@ function buildCsvRow(testCase: ColaCloudCase) {
 
   return [
     path.basename(testCase.assetPath),
+    path.basename(testCase.secondaryAssetPath ?? ''),
     testCase.beverageType,
     meta.brandName,
     meta.productName,
@@ -158,6 +163,33 @@ function buildCsvRow(testCase: ColaCloudCase) {
     meta.wineAppellation ?? '',
     meta.wineVintageYear === null ? '' : String(meta.wineVintageYear)
   ].map(csvEscape);
+}
+
+function expandColaCloudImageCases(testCase: ColaCloudCase) {
+  return [
+    {
+      id: testCase.id,
+      sampleId: testCase.id,
+      isSecondary: false,
+      assetPath: path.posix.join('evals/labels', testCase.assetPath),
+      beverageType: testCase.beverageType,
+      expectedRecommendation: testCase.expectedRecommendation,
+      source: 'cola-cloud' as const
+    },
+    ...(testCase.secondaryAssetPath
+      ? [
+          {
+            id: `${testCase.id}--secondary`,
+            sampleId: testCase.id,
+            isSecondary: true,
+            assetPath: path.posix.join('evals/labels', testCase.secondaryAssetPath),
+            beverageType: testCase.beverageType,
+            expectedRecommendation: testCase.expectedRecommendation,
+            source: 'cola-cloud' as const
+          }
+        ]
+      : [])
+  ];
 }
 
 async function writeCsv(outputPath: string, cases: ColaCloudCase[]) {
@@ -233,6 +265,7 @@ async function main() {
     path.join(outputDir, negativeCsv),
     supplementalManifest.cases.map((testCase) => [
       path.basename(testCase.assetPath),
+      '',
       testCase.beverageType,
       testCase.batchCsv.brandName,
       testCase.batchCsv.fancifulName,
@@ -253,6 +286,7 @@ async function main() {
       .filter((testCase) => testCase.expectedRecommendation === 'reject')
       .map((testCase) => [
         path.basename(testCase.assetPath),
+        '',
         testCase.beverageType,
         testCase.batchCsv.brandName,
         testCase.batchCsv.fancifulName,
@@ -273,6 +307,7 @@ async function main() {
       ...mixedCases.map((testCase) => buildCsvRow(testCase)),
       ...supplementalManifest.cases.slice(0, 3).map((testCase) => [
         path.basename(testCase.assetPath),
+        '',
         testCase.beverageType,
         testCase.batchCsv.brandName,
         testCase.batchCsv.fancifulName,
@@ -304,65 +339,35 @@ async function main() {
         title: 'COLA Cloud All',
         description: `All ${allCases.length} real approved labels in one batch.`,
         csvFile: allCsv,
-        imageCases: allCases.map((testCase) => ({
-          id: testCase.id,
-          assetPath: path.posix.join('evals/labels', testCase.assetPath),
-          beverageType: testCase.beverageType,
-          expectedRecommendation: testCase.expectedRecommendation,
-          source: 'cola-cloud'
-        }))
+        imageCases: allCases.flatMap(expandColaCloudImageCases)
       },
       {
         id: 'cola-cloud-spirits',
         title: 'COLA Cloud Spirits',
         description: `${byType['distilled-spirits'].length} distilled spirits labels.`,
         csvFile: spiritsCsv,
-        imageCases: byType['distilled-spirits'].map((testCase) => ({
-          id: testCase.id,
-          assetPath: path.posix.join('evals/labels', testCase.assetPath),
-          beverageType: testCase.beverageType,
-          expectedRecommendation: testCase.expectedRecommendation,
-          source: 'cola-cloud'
-        }))
+        imageCases: byType['distilled-spirits'].flatMap(expandColaCloudImageCases)
       },
       {
         id: 'cola-cloud-wine',
         title: 'COLA Cloud Wine',
         description: `${byType.wine.length} wine labels.`,
         csvFile: wineCsv,
-        imageCases: byType.wine.map((testCase) => ({
-          id: testCase.id,
-          assetPath: path.posix.join('evals/labels', testCase.assetPath),
-          beverageType: testCase.beverageType,
-          expectedRecommendation: testCase.expectedRecommendation,
-          source: 'cola-cloud'
-        }))
+        imageCases: byType.wine.flatMap(expandColaCloudImageCases)
       },
       {
         id: 'cola-cloud-malt',
         title: 'COLA Cloud Malt Beverage',
         description: `${byType['malt-beverage'].length} malt beverage labels.`,
         csvFile: maltCsv,
-        imageCases: byType['malt-beverage'].map((testCase) => ({
-          id: testCase.id,
-          assetPath: path.posix.join('evals/labels', testCase.assetPath),
-          beverageType: testCase.beverageType,
-          expectedRecommendation: testCase.expectedRecommendation,
-          source: 'cola-cloud'
-        }))
+        imageCases: byType['malt-beverage'].flatMap(expandColaCloudImageCases)
       },
       {
         id: 'cola-cloud-mixed',
         title: 'COLA Cloud Mixed',
         description: 'Mixed real-label sample across all three beverage types.',
         csvFile: mixedCsv,
-        imageCases: mixedCases.map((testCase) => ({
-          id: testCase.id,
-          assetPath: path.posix.join('evals/labels', testCase.assetPath),
-          beverageType: testCase.beverageType,
-          expectedRecommendation: testCase.expectedRecommendation,
-          source: 'cola-cloud'
-        }))
+        imageCases: mixedCases.flatMap(expandColaCloudImageCases)
       },
       {
         id: 'supplemental-negative',
@@ -431,4 +436,3 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 }
 
 export const _unused_defaultNetContents = _defaultNetContents;
-

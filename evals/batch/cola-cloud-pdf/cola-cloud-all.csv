@@ -1,29 +1,29 @@
-filename,beverage_type,brand_name,fanciful_name,class_type,alcohol_content,net_contents,applicant_address,origin,country,formula_id,appellation,vintage
-persian-empire-black-widow-distilled-spirits.pdf,distilled-spirits,Persian Empire,Black Widow,other specialties & proprietaries,40% Alc./Vol.,,,imported,canada,,,
-persian-empire-arak-distilled-spirits.pdf,distilled-spirits,Persian Empire,Arak ,arack/raki,40% Alc./Vol.,,,imported,canada,,,
-simply-elegant-simply-elegant-spirits-distilled-spirits.pdf,distilled-spirits,Simply Elegant,Simply Elegant Spirits,straight bourbon whisky,67% Alc./Vol.,,,domestic,,,,
-crafy-elk-cranberry-blueberry-acai-distilled-spirits.pdf,distilled-spirits,Crafy Elk,"Cranberry, Blueberry, & Acai",vodka specialties,4.5% Alc./Vol.,,,domestic,,,,
-leitz-rottland-wine.pdf,wine,Leitz,Rottland,table white wine,12.5% Alc./Vol.,,,imported,germany,,Rheingau,2023
-leitz-magdalenenkreuz-wine.pdf,wine,Leitz,Magdalenenkreuz,table white wine,8% Alc./Vol.,,,imported,germany,,Rheingau,2025
-leitz-klosterlay-wine.pdf,wine,Leitz,Klosterlay,table white wine,8.5% Alc./Vol.,,,imported,germany,,Rheingau,2025
-uncorked-in-mayberry-otis-own-wine.pdf,wine,Uncorked In Mayberry,Otis' Own,table white wine,12.5% Alc./Vol.,,,domestic,,,North Carolina,
-lake-placid-shredder-malt-beverage.pdf,malt-beverage,Lake Placid,Shredder,ale,,,,domestic,,,,
-lake-placid-ridge-runner-malt-beverage.pdf,malt-beverage,Lake Placid,Ridge Runner,ale,4% Alc./Vol.,,,domestic,,,,
-recluse-brew-works-shy-guy-malt-beverage.pdf,malt-beverage,Recluse Brew Works,Shy Guy,beer,6.5% Alc./Vol.,,,domestic,,,,
-pleasant-prairie-brewing-peach-sour-ale-malt-beverage.pdf,malt-beverage,Pleasant Prairie Brewing,Peach Sour Ale,malt beverages specialities - flavored,5.9% Alc./Vol.,,,domestic,,,,
-crafty-elk-mango-honey-distilled-spirits.pdf,distilled-spirits,Crafty Elk,Mango & Honey,vodka specialties,4.5% Alc./Vol.,,,domestic,,,,
-the-wine-trust-rum-distilled-spirits.pdf,distilled-spirits,The Wine Trust,Rum,other rum gold fb,60% Alc./Vol.,,,imported,trinidad/tobago,,,
-flaviar-columbia-creek-tennessee-whiskey-distilled-spirits.pdf,distilled-spirits,Flaviar,Columbia Creek Tennessee Whiskey,whisky,47.8% Alc./Vol.,,,domestic,,,,
-old-station-31-orange-distilled-spirits.pdf,distilled-spirits,Old Station 31,Orange,vodka - orange flavored,40% Alc./Vol.,,,domestic,,,,
-west-peak-tequila-paloma-distilled-spirits.pdf,distilled-spirits,West Peak,Tequila Paloma,other specialties & proprietaries,6% Alc./Vol.,,,domestic,,,,
-stormwood-wines-semillon-wine.pdf,wine,Stormwood Wines,Semillon,table white wine,13% Alc./Vol.,,,imported,new zealand,,Waiheke Island,2025
-forlorn-hope-san-hercurmer-delle-frecce-wine.pdf,wine,Forlorn Hope,San Hercurmer Delle Frecce,table red wine,12.5% Alc./Vol.,,,domestic,,,Sierra Foothills,2020
-manzone-giovanni-barolo-perno-wine.pdf,wine,Manzone Giovanni,Barolo Perno,table red wine,13.5% Alc./Vol.,,,imported,italy,,Barolo,1998
-ana-luisa-gran-reserva-parcelas-blend-wine.pdf,wine,Ana Luisa,Gran Reserva Parcelas Blend,table red wine,14% Alc./Vol.,,,imported,chile,,Valle De Curico,2023
-carousel-winery-fairy-floss-cotton-candy-wine.pdf,wine,Carousel Winery,Fairy Floss Cotton Candy,table flavored wine,9% Alc./Vol.,,,domestic,,,American,
-venture-studios-null-wine.pdf,wine,Venture Studios,,table white wine,14% Alc./Vol.,,,imported,france,,,
-sapwood-cellars-albura-lager-malt-beverage.pdf,malt-beverage,Sapwood Cellars,Albura Lager,beer,4.6% Alc./Vol.,,,domestic,,,,
-drekker-brewing-company-piano-necktie-malt-beverage.pdf,malt-beverage,Drekker Brewing Company,Piano Necktie,ale,6.5% Alc./Vol.,,,domestic,,,,
-pilok-broumy-malt-beverage.pdf,malt-beverage,Pilok,Broumy,beer,4.8% Alc./Vol.,,,imported,czech republic,,,
-1840-original-lager-1840-original-lager-malt-beverage.pdf,malt-beverage,1840 Original Lager,1840 Original Lager,beer,,,,domestic,,,,
-harpoon-ale-malt-beverage.pdf,malt-beverage,Harpoon,Ale,ale,5% Alc./Vol.,,,domestic,,,,
+filename,secondary_filename,beverage_type,brand_name,fanciful_name,class_type,alcohol_content,net_contents,applicant_address,origin,country,formula_id,appellation,vintage
+persian-empire-black-widow-distilled-spirits.pdf,persian-empire-black-widow-distilled-spirits-back.pdf,distilled-spirits,Persian Empire,Black Widow,other specialties & proprietaries,40% Alc./Vol.,,,imported,canada,,,
+persian-empire-arak-distilled-spirits.pdf,persian-empire-arak-distilled-spirits-back.pdf,distilled-spirits,Persian Empire,Arak ,arack/raki,40% Alc./Vol.,,,imported,canada,,,
+simply-elegant-simply-elegant-spirits-distilled-spirits.pdf,simply-elegant-simply-elegant-spirits-distilled-spirits-back.pdf,distilled-spirits,Simply Elegant,Simply Elegant Spirits,straight bourbon whisky,67% Alc./Vol.,,,domestic,,,,
+crafy-elk-cranberry-blueberry-acai-distilled-spirits.pdf,,distilled-spirits,Crafy Elk,"Cranberry, Blueberry, & Acai",vodka specialties,4.5% Alc./Vol.,,,domestic,,,,
+leitz-rottland-wine.pdf,leitz-rottland-wine-back.pdf,wine,Leitz,Rottland,table white wine,12.5% Alc./Vol.,,,imported,germany,,Rheingau,2023
+leitz-magdalenenkreuz-wine.pdf,leitz-magdalenenkreuz-wine-back.pdf,wine,Leitz,Magdalenenkreuz,table white wine,8% Alc./Vol.,,,imported,germany,,Rheingau,2025
+leitz-klosterlay-wine.pdf,leitz-klosterlay-wine-back.pdf,wine,Leitz,Klosterlay,table white wine,8.5% Alc./Vol.,,,imported,germany,,Rheingau,2025
+uncorked-in-mayberry-otis-own-wine.pdf,uncorked-in-mayberry-otis-own-wine-back.pdf,wine,Uncorked In Mayberry,Otis' Own,table white wine,12.5% Alc./Vol.,,,domestic,,,North Carolina,
+lake-placid-shredder-malt-beverage.pdf,,malt-beverage,Lake Placid,Shredder,ale,,,,domestic,,,,
+lake-placid-ridge-runner-malt-beverage.pdf,,malt-beverage,Lake Placid,Ridge Runner,ale,4% Alc./Vol.,,,domestic,,,,
+recluse-brew-works-shy-guy-malt-beverage.pdf,,malt-beverage,Recluse Brew Works,Shy Guy,beer,6.5% Alc./Vol.,,,domestic,,,,
+pleasant-prairie-brewing-peach-sour-ale-malt-beverage.pdf,,malt-beverage,Pleasant Prairie Brewing,Peach Sour Ale,malt beverages specialities - flavored,5.9% Alc./Vol.,,,domestic,,,,
+crafty-elk-mango-honey-distilled-spirits.pdf,,distilled-spirits,Crafty Elk,Mango & Honey,vodka specialties,4.5% Alc./Vol.,,,domestic,,,,
+the-wine-trust-rum-distilled-spirits.pdf,,distilled-spirits,The Wine Trust,Rum,other rum gold fb,60% Alc./Vol.,,,imported,trinidad/tobago,,,
+flaviar-columbia-creek-tennessee-whiskey-distilled-spirits.pdf,,distilled-spirits,Flaviar,Columbia Creek Tennessee Whiskey,whisky,47.8% Alc./Vol.,,,domestic,,,,
+old-station-31-orange-distilled-spirits.pdf,old-station-31-orange-distilled-spirits-back.pdf,distilled-spirits,Old Station 31,Orange,vodka - orange flavored,40% Alc./Vol.,,,domestic,,,,
+west-peak-tequila-paloma-distilled-spirits.pdf,,distilled-spirits,West Peak,Tequila Paloma,other specialties & proprietaries,6% Alc./Vol.,,,domestic,,,,
+stormwood-wines-semillon-wine.pdf,stormwood-wines-semillon-wine-strip.pdf,wine,Stormwood Wines,Semillon,table white wine,13% Alc./Vol.,,,imported,new zealand,,Waiheke Island,2025
+forlorn-hope-san-hercurmer-delle-frecce-wine.pdf,,wine,Forlorn Hope,San Hercurmer Delle Frecce,table red wine,12.5% Alc./Vol.,,,domestic,,,Sierra Foothills,2020
+manzone-giovanni-barolo-perno-wine.pdf,manzone-giovanni-barolo-perno-wine-back.pdf,wine,Manzone Giovanni,Barolo Perno,table red wine,13.5% Alc./Vol.,,,imported,italy,,Barolo,1998
+ana-luisa-gran-reserva-parcelas-blend-wine.pdf,ana-luisa-gran-reserva-parcelas-blend-wine-back.pdf,wine,Ana Luisa,Gran Reserva Parcelas Blend,table red wine,14% Alc./Vol.,,,imported,chile,,Valle De Curico,2023
+carousel-winery-fairy-floss-cotton-candy-wine.pdf,carousel-winery-fairy-floss-cotton-candy-wine-back.pdf,wine,Carousel Winery,Fairy Floss Cotton Candy,table flavored wine,9% Alc./Vol.,,,domestic,,,American,
+venture-studios-null-wine.pdf,venture-studios-null-wine-back.pdf,wine,Venture Studios,,table white wine,14% Alc./Vol.,,,imported,france,,,
+sapwood-cellars-albura-lager-malt-beverage.pdf,,malt-beverage,Sapwood Cellars,Albura Lager,beer,4.6% Alc./Vol.,,,domestic,,,,
+drekker-brewing-company-piano-necktie-malt-beverage.pdf,,malt-beverage,Drekker Brewing Company,Piano Necktie,ale,6.5% Alc./Vol.,,,domestic,,,,
+pilok-broumy-malt-beverage.pdf,,malt-beverage,Pilok,Broumy,beer,4.8% Alc./Vol.,,,imported,czech republic,,,
+1840-original-lager-1840-original-lager-malt-beverage.pdf,,malt-beverage,1840 Original Lager,1840 Original Lager,beer,,,,domestic,,,,
+harpoon-ale-malt-beverage.pdf,,malt-beverage,Harpoon,Ale,ale,5% Alc./Vol.,,,domestic,,,,

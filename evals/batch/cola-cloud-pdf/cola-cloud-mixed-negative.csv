@@ -1,7 +1,7 @@
-filename,beverage_type,brand_name,fanciful_name,class_type,alcohol_content,net_contents,applicant_address,origin,country,formula_id,appellation,vintage
-simply-elegant-simply-elegant-spirits-distilled-spirits.pdf,distilled-spirits,Simply Elegant,Simply Elegant Spirits,straight bourbon whisky,67% Alc./Vol.,,,domestic,,,,
-leitz-rottland-wine.pdf,wine,Leitz,Rottland,table white wine,12.5% Alc./Vol.,,,imported,germany,,Rheingau,2023
-lake-placid-shredder-malt-beverage.pdf,malt-beverage,Lake Placid,Shredder,ale,,,,domestic,,,,
-lake-placid-shredder-abv-negative.pdf,malt-beverage,Lake Placid,Shredder,IPA,5% Alc./Vol.,12 FL OZ,,domestic,,,,
-simply-elegant-warning-occluded-negative.pdf,distilled-spirits,Simply Elegant,Simply Elegant Spirits,straight bourbon whisky,67% Alc./Vol.,750 mL,,domestic,,,,
-leitz-rottland-warning-crop-negative.pdf,wine,Leitz,Rottland,table white wine,12.5% Alc./Vol.,750 mL,,imported,germany,,Rheingau,2023
+filename,secondary_filename,beverage_type,brand_name,fanciful_name,class_type,alcohol_content,net_contents,applicant_address,origin,country,formula_id,appellation,vintage
+simply-elegant-simply-elegant-spirits-distilled-spirits.pdf,simply-elegant-simply-elegant-spirits-distilled-spirits-back.pdf,distilled-spirits,Simply Elegant,Simply Elegant Spirits,straight bourbon whisky,67% Alc./Vol.,,,domestic,,,,
+leitz-rottland-wine.pdf,leitz-rottland-wine-back.pdf,wine,Leitz,Rottland,table white wine,12.5% Alc./Vol.,,,imported,germany,,Rheingau,2023
+lake-placid-shredder-malt-beverage.pdf,,malt-beverage,Lake Placid,Shredder,ale,,,,domestic,,,,
+lake-placid-shredder-abv-negative.pdf,,malt-beverage,Lake Placid,Shredder,IPA,5% Alc./Vol.,12 FL OZ,,domestic,,,,
+simply-elegant-warning-occluded-negative.pdf,,distilled-spirits,Simply Elegant,Simply Elegant Spirits,straight bourbon whisky,67% Alc./Vol.,750 mL,,domestic,,,,
+leitz-rottland-warning-crop-negative.pdf,,wine,Leitz,Rottland,table white wine,12.5% Alc./Vol.,750 mL,,imported,germany,,Rheingau,2023

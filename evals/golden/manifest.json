@@ -151,7 +151,7 @@
       ]
     },
     "cola-cloud-real": {
-      "description": "Real TTB-approved label images fetched from COLA Cloud API. Covers distilled spirits, wine, and malt beverages.",
+      "description": "Real TTB-approved labels from COLA Cloud API covering spirits, wine, and malt beverages.",
       "caseIds": [
         "G-41",
         "G-42",

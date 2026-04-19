@@ -19,33 +19,9 @@ import {
 } from './toolbenchSampleSupport';
 export type { SampleFields } from './toolbenchSampleSupport';
 
-/**
- * Loads one real COLA Cloud label — image + matching application fields —
- * into the intake form with a single click. Replaces the older hand-
- * curated "scenarios" panel which was useful for story-packet demos
- * but drifted away from the actual eval corpus.
- *
- * The server's /api/eval/sample endpoint joins the 28-label cola-cloud
- * batch CSV to the manifest to return { image: {url, filename, ...},
- * fields: {...} }. We then fetch the image bytes, turn them into a
- * File, and hand both up to the App so single-label intake fires
- * through the normal selection paths — no parallel codepath.
- */
 interface ToolbenchSamplesProps {
   onLoadSample: (files: File[], fields: SampleFields, imageId: string) => void;
-  /**
-   * Load a batch of sample labels + their CSV into the batch intake.
-   * Used by the "Load test batch" button so assessors can evaluate the
-   * batch review flow without having to prepare their own fixtures.
-   */
   onLoadBatch: (images: File[], csv: File) => void;
-  /**
-   * Like `onLoadSample`, but does NOT close the toolbench after the
-   * intake is populated. The synthetic-label flow needs the toolbench
-   * to stay open so the dev can see the "expected verdict" chip
-   * before clicking Verify. Falls back to `onLoadSample` if not
-   * supplied.
-   */
   onLoadSyntheticSample?: (
     files: File[],
     fields: SampleFields,
@@ -80,15 +56,6 @@ export function ToolbenchSamples({
     synthAvailability
   });
 
-  // Fetch the list once on mount so the panel can show what's available.
-  // Falls back to the built-in sample list (bundled from the
-  // checked-in CSV via `?raw` import) when /api/eval/packs is
-  // unreachable — typical when the user is running only Vite and not
-  // the API process. Ensures the toolbench always has something to
-  // pick from locally.
-  //
-  // Also probes the COLA Cloud live status so we only render the
-  // "Fetch live" button when an API key is wired up server-side.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -98,25 +65,29 @@ export function ToolbenchSamples({
         const data = (await res.json()) as {
           packs: Array<{
             id: string;
-            images: Array<{ id: string; beverageType: string; filename: string }>;
+            images: Array<{
+              id: string;
+              beverageType: string;
+              filename: string;
+              isSecondary?: boolean;
+            }>;
           }>;
         };
         if (cancelled) return;
         const pack = data.packs.find((p) => p.id === 'cola-cloud-all');
         if (!pack) throw new Error('cola-cloud-all pack missing');
         setSamples(
-          pack.images.map((img) => ({
-            id: img.id,
-            beverageType: img.beverageType,
-            filename: img.filename
-          }))
+          pack.images
+            .filter((img) => !img.isSecondary)
+            .map((img) => ({
+              id: img.id,
+              beverageType: img.beverageType,
+              filename: img.filename
+            }))
         );
         setLastError(null);
       } catch {
         if (cancelled) return;
-        // Silent fallback to built-ins. Surfacing the fetch error here
-        // would hide the (working) built-in list behind a scary
-        // "Failed to fetch" message.
         setSamples(
           BUILTIN_SAMPLES.map((s) => ({
             id: s.id,
@@ -129,7 +100,6 @@ export function ToolbenchSamples({
       }
     })();
 
-    // COLA Cloud live availability probe — non-blocking.
     (async () => {
       try {
         const res = await fetch('/api/eval/cola-cloud/status');
@@ -146,8 +116,6 @@ export function ToolbenchSamples({
       }
     })();
 
-    // Synthetic generator availability probe — non-blocking. The
-    // section hides entirely when the server has no GEMINI_API_KEY.
     (async () => {
       try {
         const res = await fetch('/api/eval/synthetic/status');
@@ -203,15 +171,26 @@ export function ToolbenchSamples({
           return;
         }
         try {
-          const imgRes = await fetch(builtin.imageUrl);
-          if (!imgRes.ok) throw new Error(`offline image HTTP ${imgRes.status}`);
-          const blob = await imgRes.blob();
-          // The Vite middleware sets content-type to image/png even
-          // for .webp, so rely on the filename extension to hint
-          // Multer correctly when the file lands on the server.
-          const mime = guessMimeFromFilename(builtin.filename) ?? blob.type;
-          const file = new File([blob], builtin.filename, { type: mime });
-          onLoadSample([file], builtin.fields, builtin.id);
+          const files = await fetchSampleFiles(
+            builtin.images.map((image) => ({
+              ...image,
+              url: image.url,
+              filename: image.filename
+            }))
+          );
+
+          // Keep the primary image MIME hint aligned with the filename
+          // extension when the dev server reports a generic type.
+          if (files[0]) {
+            const primaryMime = guessMimeFromFilename(builtin.filename);
+            if (primaryMime && files[0].type !== primaryMime) {
+              files[0] = new File([files[0]], files[0].name, {
+                type: primaryMime
+              });
+            }
+          }
+
+          onLoadSample(files, builtin.fields, builtin.id);
         } catch (err) {
           setLastError((err as Error).message);
         }
@@ -222,8 +201,6 @@ export function ToolbenchSamples({
     [onLoadSample]
   );
 
-  // Live COLA Cloud fetch — hits the federal API server-side (the key
-  // lives on the server), returns a fresh record each click.
   const loadLiveSample = useCallback(async () => {
     setLoadingLive(true);
     setLastError(null);
@@ -244,11 +221,6 @@ export function ToolbenchSamples({
     }
   }, [onLoadSample]);
 
-  // Synthetic loader — generates a fresh label end-to-end via Imagen 4
-  // (image bytes + matching declared fields). Sometimes the server
-  // bakes in a defect (ABV mismatch, missing warning, brand swap, etc.)
-  // so the verification pipeline's reject/review paths get exercised.
-  // The expected verdict is shown as an inline chip after load.
   const loadSyntheticSample = useCallback(async () => {
     setLoadingSynth(true);
     setLastError(null);
@@ -266,10 +238,6 @@ export function ToolbenchSamples({
       const parsed = syntheticLabelGenerateResponseSchema.parse(await res.json());
       const images = parsed.images ?? [parsed.image];
       const files = await fetchSampleFiles(images);
-      // Use the synthetic-specific callback if provided so the
-      // toolbench stays open and the expected-verdict chip remains
-      // visible. Falls back to the regular onLoadSample (which closes
-      // the drawer) if a parent didn't wire the synthetic variant.
       const fill = onLoadSyntheticSample ?? onLoadSample;
       fill(files, parsed.fields, parsed.image.id);
       setLastSynthExpected(parsed.expected);
@@ -280,9 +248,6 @@ export function ToolbenchSamples({
     }
   }, [onLoadSample, onLoadSyntheticSample]);
 
-  // Batch loader — pulls 10 images + the CSV from the local pack and
-  // populates batch intake. Local only for now; live batch would hit
-  // the COLA Cloud rate limit hard (7s per call × 10 = 70s).
   const loadBatchPack = useCallback(async () => {
     setLoadingBatch(true);
     setLastError(null);
@@ -304,10 +269,6 @@ export function ToolbenchSamples({
       const csvBlob = await csvRes.blob();
       const csvFile = new File([csvBlob], pack.csvFile, { type: 'text/csv' });
 
-      // Pull ALL images in the pack so the CSV row count matches the
-      // image count — otherwise the batch-intake "unmatched rows"
-      // section fills up with every CSV row we didn't upload an image
-      // for, and the user has to match them manually.
       const imageFiles: File[] = [];
       for (const img of pack.images) {
         const source = img.assetPath.split('/')[3] ?? 'cola-cloud';
