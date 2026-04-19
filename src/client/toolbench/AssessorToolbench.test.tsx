@@ -10,6 +10,7 @@ vi.mock('./useToolbenchState', () => ({
     setTab: vi.fn(),
     toggle: vi.fn(),
     close: vi.fn(),
+    hasOpenedOnce: true,
   }),
 }));
 
