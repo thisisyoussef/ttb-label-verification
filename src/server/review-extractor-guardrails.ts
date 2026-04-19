@@ -36,6 +36,7 @@ export function applyReviewExtractorGuardrails(input: {
 
   guarded = downgradeWarningSignalsWithoutWarningText(guarded);
   guarded = scrubUrlFromApplicantAddress(guarded);
+  guarded = scrubLocationOnlyApplicantAddress(guarded);
 
   if (input.extractionMode === 'local') {
     guarded = downgradeLocalOnlyVisualClaims(guarded);
@@ -210,6 +211,60 @@ function scrubUrlFromApplicantAddress(output: GuardrailOutput): GuardrailOutput 
 }
 
 /**
+ * Guardrail: if the extractor assigns applicantAddress to the exact same
+ * bare geography it already assigned to countryOfOrigin or appellation,
+ * treat that as a location overcall rather than a real bottler/importer
+ * line. This protects dark or low-contrast labels where the model can
+ * correctly see a place name but mis-slot it as an address.
+ */
+function scrubLocationOnlyApplicantAddress(
+  output: GuardrailOutput
+): GuardrailOutput {
+  const addr = output.fields.applicantAddress;
+  if (!addr.present || !addr.value) return output;
+
+  const normalizedAddress = normalizeComparableLocation(addr.value);
+  if (!normalizedAddress) return output;
+
+  const locationCandidates = [
+    output.fields.countryOfOrigin,
+    output.fields.appellation
+  ]
+    .map((field) => {
+      if (!field.present || typeof field.value !== 'string') {
+        return '';
+      }
+
+      if (field.value.trim().length === 0) {
+        return '';
+      }
+
+      return normalizeComparableLocation(field.value);
+    })
+    .filter((value): value is string => value.length > 0);
+
+  if (!locationCandidates.includes(normalizedAddress)) {
+    return output;
+  }
+
+  return {
+    ...output,
+    fields: {
+      ...output.fields,
+      applicantAddress: {
+        present: false,
+        value: null,
+        confidence: Math.min(addr.confidence, 0.2),
+        note: appendNote(
+          addr.note,
+          'Rejected: extracted value matched a geography/appellation field rather than a bottler/importer name or postal address.'
+        )
+      }
+    }
+  };
+}
+
+/**
  * True when the input is recognizably a URL / web address with no
  * co-located postal information. Intentionally strict so we don't
  * discard real addresses that happen to end with a marketing URL.
@@ -241,6 +296,15 @@ export function isUrlOnlyAddress(raw: string): boolean {
   if (/^[a-z0-9._-]+@[a-z0-9-]+(\.[a-z]{2,})+$/i.test(trimmed)) return true;
 
   return false;
+}
+
+function normalizeComparableLocation(raw: string): string {
+  return raw
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function appendNote(note: string | null, suffix: string) {

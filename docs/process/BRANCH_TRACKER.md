@@ -32,6 +32,7 @@ This file is the checked-in branch registry for normal story work.
 | `claude/TTB-000-review-animations` | `TTB-000` | `claude` | `draft-local` | review-page micro-animations: FLIP row reorder when a refine pass upgrades a status, grid-rows evidence expand/collapse, keyed value crossfade, and auto-collapse of an expanded row when its status rank improves | - | `2026-04-19` | `2026-04-19` | `origin/main` | animations are CSS/DOM only; respects prefers-reduced-motion |
 | `claude/TTB-000-toolbench-first-open-nudge` | `TTB-000` | `claude` | `draft-local` | default toolbench FAB closed; pulsing corner dot and "(new)" aria-label nudge first-time users until they open it once (lifetime flag in localStorage, suppressed while guided tour is active) | - | `2026-04-19` | `2026-04-19` | `main` | - |
 | `claude/TTB-000-warning-body-case-insensitive` | `TTB-000` | `claude` | `draft-local` | stop firing the "minor read differences" banner when only government warning body text casing differs; body capitalization is already policed by the dedicated heading sub-check | - | `2026-04-19` | `2026-04-19` | `origin/main` | salvaged from stash on worktree-agent-ad9666b3; preserves lexical insertion/deletion check |
+| `codex/TTB-203-inverse-contrast-ocr` | `TTB-203` | `codex` | `ready-pr` | harden OCR prepass for inverse-contrast black-label white-text samples without regressing normal-label reads | #151 | `2026-04-19` | `2026-04-19` | `origin/main` | linked worktree: /Users/youss/Development/gauntlet/ttb-label-verification-ttb203-inverse-contrast-ocr |
 | `codex/TTB-WF-003-tracker-sync` | `TTB-WF-003` | `codex` | `draft-local` | sync branch tracker and SSOT with the state of main after the PR #138 consolidation: close every TTB-204/TTB-210/TTB-304/TTB-401/TTB-WF-003/TTB-EVAL-002 branch that is on main, and mark TTB-304 done | - | `2026-04-19` | `2026-04-19` | `origin/main` | isolated tracker-sync worktree at `/private/tmp/ttb-tracker-cleanup` |
 <!-- ACTIVE_BRANCHES:END -->
 
@@ -75,4 +76,3 @@ This file is the checked-in branch registry for normal story work.
 | `codex/TTB-210-non-label-fallback` | `TTB-210` | `codex` | `merged` | keep non-label and no-text auto-detect uploads at `unknown` unless the extraction still carries trustworthy alcohol-label evidence | `2026-04-18` | merged via PR #112 |
 | `codex/TTB-EVAL-001-corpus-accuracy-merge` | `TTB-EVAL-001` | `codex` | `merged` | expand the real eval corpus and add report-level plus raw extraction benchmark harnesses | `2026-04-18` | merged via PR #47 |
 <!-- CLOSED_BRANCHES:END -->
-
