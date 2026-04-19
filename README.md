@@ -4,6 +4,18 @@ TTB Label Verification is a standalone proof-of-concept for the take-home brief:
 
 Live demo: [Production](https://ttb-label-verification-production-f17b.up.railway.app) | [Staging](https://ttb-label-verification-staging.up.railway.app)
 
+## Abstract
+
+This prototype was built around one hard line: models are allowed to read, extract, and summarize label evidence, but they do not get to decide compliance. The live system uses typed extraction contracts, deterministic warning and field validators, cross-field rules, and a reviewer-facing UI that prefers explicit uncertainty over false confidence. That choice shapes everything else in the repo: the evidence-first results screen, the no-persistence posture, the latency work, the evaluator harness, the dataset strategy, and the cloud-versus-restricted-network tradeoff.
+
+The most important technical choices are deliberate rather than flashy:
+
+- **AI extracts; deterministic code judges.** Gemini, OpenAI Responses, and workstation-local paths normalize into one extraction contract, and the final verdict is computed in TypeScript rules.
+- **Evidence beats automation theater.** The UI shows row-by-row evidence, warning sub-checks, citations, confidence, and reviewer-owned outcomes instead of a single opaque AI score.
+- **Latency is treated as both systems work and product work.** OCR preview, extraction prefetch, silent refine, warmup, fallback budgeting, and stage timings all exist to improve both actual latency and perceived time-to-first-answer.
+- **The evaluation corpus is part of the product.** Real approved labels, the checked-in golden set, the live core-six subset, the synthetic latency-twenty slice, and targeted benchmark artifacts are all first-class repo assets.
+- **The deployment story is honest.** Cloud extraction is the strongest demonstrated path today; restricted-network/local mode exists because government firewalls and no-egress policies are real, but it is intentionally treated as a constrained operating posture with explicit tradeoffs.
+
 ## Why This Prototype Looks The Way It Does
 
 The assignment pressure is not generic “build an AI app” pressure. It is a very specific operational shape:
@@ -21,18 +33,80 @@ That is why the system is built around four product bets:
 3. **The UI should feel trustworthy to both Dave and Jenny.**
 4. **The deployment story has to make sense in a government-style environment.**
 
+## What Makes This Build Credible
+
+The strongest parts of the prototype are the parts that stay grounded when the AI is imperfect:
+
+1. **Deterministic compliance core**
+   Government warning validation, field matching, beverage-specific rules, cross-field checks, and verdict rollup all live outside the model path.
+2. **A reviewer UI that protects trust**
+   The results surface is structured for both expert and junior reviewers: severity ordering, expandable evidence, contextual help, and a reviewer-facing `Needs review` state instead of overclaiming rejection certainty.
+3. **A realistic sample and benchmark strategy**
+   Toolbench can load real approved labels, fetch fresh records through the COLA Cloud API, and drive the same checked-in evaluator scenarios used by the repo's golden-set workflow.
+4. **A serious engineering workflow**
+   The repo is not just code plus docs. It has a checked-in single source of truth, story packets, spec-driven delivery, test-driven development, trace-driven tuning, release-gate docs, and explicit Claude/Codex lane ownership.
+5. **Honest tradeoffs**
+   The cloud path is faster and better evidenced. The restricted-network/local posture exists because government deployments often block public model APIs, but it is presented as a bounded operating mode rather than a hand-waved checkbox.
+
+## How We Turned The Brief Into An Execution Plan
+
+The brief had explicit asks and a lot of implicit ones. We handled both in checked-in docs rather than leaving them as chat-only assumptions.
+
+### Explicit requirements we implemented directly
+
+- compare label imagery against optional COLA application fields
+- keep the single-label path fast enough to feel usable in review work
+- support batch review instead of only a one-label demo
+- avoid persistence of uploads, application data, and results
+- produce evaluator-facing documentation and a runnable deployed demo
+
+### Implicit requirements we surfaced and treated as deliverables
+
+- **Trust posture:** veteran reviewers need evidence, not AI bravado
+- **Training posture:** junior reviewers need citations, sub-checks, and guidance
+- **Operator posture:** government evaluators care about outbound calls, `store: false`, deployment realism, and firewalls
+- **Dataset realism:** a demo-only happy-path corpus is not convincing, so the repo includes real-label samples, a golden-set manifest, a live core-six subset, and latency slices
+- **Process rigor:** the repo needed to show how requirements became code, tests, evals, and release notes, not just the final UI
+
+That execution contract now lives in the repo itself:
+
+- `AGENTS.md` and `docs/process/SINGLE_SOURCE_OF_TRUTH.md` define the working model and story order
+- `docs/specs/` records the product blueprint and story packets
+- `docs/process/TEST_QUALITY_STANDARD.md` and `docs/process/TRACE_DRIVEN_DEVELOPMENT.md` document how we tuned accuracy and reliability
+- `evals/` captures the canonical golden set, live subsets, and checked-in result artifacts
+- `docs/reference/product-docs/` preserves the original source material that informed the implementation
+
+## Documentation Map
+
+If you are evaluating the repo rather than just the UI, start here:
+
+- [Evaluator Guide](docs/EVALUATOR_GUIDE.md): fastest hands-on walkthrough of the running product
+- [Architecture And Decisions](docs/ARCHITECTURE_AND_DECISIONS.md): architectural choices, tradeoffs, personas, and runtime seams
+- [Eval Results](docs/EVAL_RESULTS.md): benchmark evidence, accuracy spread, latency artifacts, and model-path comparisons
+- [Government Warning](docs/GOVERNMENT_WARNING.md): deepest single-rule implementation writeup
+- [Regulatory Mapping](docs/REGULATORY_MAPPING.md): CFR-to-code traceability
+- [Submission Baseline](docs/reference/submission-baseline.md): deliverables, assumptions, evaluation framing, and release posture
+- [Full Product Spec](docs/specs/FULL_PRODUCT_SPEC.md): the checked-in product blueprint and story decomposition
+- [Trace-Driven Development](docs/process/TRACE_DRIVEN_DEVELOPMENT.md): local-only prompt/model tuning loop
+- [Test Quality Standard](docs/process/TEST_QUALITY_STANDARD.md): TDD, contract, property, and mutation expectations
+- [Deployment Flow](docs/process/DEPLOYMENT_FLOW.md): GitHub/Railway delivery path and release gates
+
 ## What An Assessor Should Look At
 
 If you only have a few minutes, these are the highest-signal things to test:
 
-1. **Single-label review**
-   Open the lower-right `Toolbench`, load a sample label, watch the OCR preview arrive before the final report, and note that the output is evidence-rich instead of a black-box score.
-2. **The refine pass**
-   Leave a few ambiguous rows in `review` and watch the client quietly call `/api/review/refine` without blocking the first answer.
-3. **Batch mode**
-   Use `Toolbench -> Actions -> Open batch review`, then inspect the CSV-plus-many-images intake and the queue/drill-in path.
-4. **Local / air-gapped mode**
-   Read the local setup section and confirm the prototype can run without external API calls when configured that way.
+1. **Single-label review with a tricky sample**
+   Open the lower-right `Toolbench`, load `Pleasant Prairie Brewing Peach Sour Ale`, and verify that the result lands as evidence-rich `Needs review`, not as an overconfident pass/fail.
+2. **Expanded warning evidence**
+   Open the Government warning row and inspect the sub-checks, text comparison, and citations. This is the clearest example of the repo's “AI extracts, deterministic rules judge” stance.
+3. **Dataset realism and sample sourcing**
+   In Toolbench, use `Fetch live sample` to hit the COLA Cloud API or load a checked-in label from the curated corpus. The project was intentionally built around real approved labels, not only synthetic demos.
+4. **Batch mode**
+   Use `Toolbench -> Actions -> Open batch review`, then inspect the CSV-plus-many-images intake, queue filtering, drill-in, and export path.
+5. **Restricted-network posture**
+   Read the local/restricted-network section below and confirm the repo treats outbound cloud restrictions and firewall policy as first-class deployment constraints rather than afterthoughts.
+6. **The docs themselves**
+   Open the architecture and eval docs. Part of the submission value is that the repo explains the decisions, tradeoffs, datasets, and validation strategy in checked-in artifacts instead of asking the evaluator to infer them.
 
 ## Evaluator Walkthrough
 
@@ -42,8 +116,32 @@ The full screenshot-backed walkthrough lives in [docs/EVALUATOR_GUIDE.md](docs/E
 
 <p align="center">
   <img src="docs/screenshots/toolbench-intake.png" alt="Toolbench loading a sample into the single-review intake" width="48%" />
-  <img src="docs/screenshots/results-review.png" alt="Results screen with evidence rows and refine activity" width="48%" />
+  <img src="docs/screenshots/results-review.png" alt="Results screen showing expanded warning evidence and review rows" width="48%" />
 </p>
+
+## Datasets, Benchmarks, And Accuracy Strategy
+
+Accuracy in this repo is not “trust the model and hope.” It is a layered evidence strategy:
+
+- **Real label samples for evaluator realism** via Toolbench and the COLA Cloud API
+- **A checked-in golden set** in [`evals/golden/manifest.json`](evals/golden/manifest.json) for canonical scenario coverage
+- **A live core-six subset** in [`evals/labels/manifest.json`](evals/labels/manifest.json) for fast, repeatable single-label checks
+- **A synthetic latency-twenty slice** for broader hot-path timing and benchmark comparison
+- **Structured eval artifacts** in [`evals/results/`](evals/results/) and [Eval Results](docs/EVAL_RESULTS.md) so accuracy and latency claims are inspectable
+
+This matters because the project had to solve more than OCR. We had to find datasets that were credible, benchmark against the golden set, document the spread between runs, and make sure improvements were reflected in checked-in evidence instead of anecdotal screenshots.
+
+## Engineering Process
+
+This repo was built with a deliberately heavy process spine because the brief had both product and evaluation weight.
+
+- **Spec-driven delivery:** the product blueprint and story packets under `docs/specs/` make requirements executable instead of implicit
+- **Test-driven development:** deterministic rules, shared contracts, and route boundaries are protected with repo-standard TDD expectations
+- **Trace-driven tuning:** model and prompt changes are tuned locally against approved fixtures, not with external trace storage
+- **Claude/Codex workflow split:** checked-in lane ownership keeps UI direction, engineering, validators, orchestration, and docs synchronized without hand-wavy ownership
+- **Cloud + local workflow separation:** cloud extraction is the benchmarked primary path; restricted-network mode exists to answer government firewall realities without pretending the tradeoffs disappear
+
+The result is that the repo explains not only **what** was built, but **how** requirements moved from source material to specs, from specs to tests, and from tests/evals into release-facing docs.
 
 ## Architecture Summary
 
@@ -217,9 +315,16 @@ What you should expect:
 - `/api/health` reports liveness and whether the Responses API path is configured
 - `/api/capabilities` reports whether local mode is allowed and what the default extraction mode is
 
-## Local / Air-Gapped Mode
+## Local / Restricted-Network Mode
 
-Local mode matters because the product docs target government deployment paths where public AI APIs may be disallowed or impractical inside a FedRAMP boundary. The deterministic validator is already local; this mode moves extraction local too.
+This mode exists because the product docs explicitly point to government deployment paths where public cloud model calls may be blocked by firewall policy, procurement rules, or no-egress requirements. The important point is architectural, not marketing: the deterministic validator is already local, so the extraction path can be swapped when the operating environment requires it.
+
+Two cautions matter:
+
+- the **best-evidenced reviewer path today is still cloud mode**
+- restricted-network/local operation should be treated as a **bounded operating posture with lower-confidence visual claims and stricter operator setup**
+
+That is why the prototype discusses local mode prominently while still keeping the benchmark and evaluator narrative anchored to the cloud path.
 
 ### 1. Install local dependencies
 

@@ -1,5 +1,10 @@
 # Decisions Today
 
+- For `TTB-401`, rewrite the README as a submission artifact rather than a setup-first readme: put the abstract, architecture decisions, process, datasets, benchmarks, and tradeoffs before the install steps.
+- For `TTB-401`, lead evaluators through a warning-heavy review sample (`Pleasant Prairie Brewing Peach Sour Ale`) because the review/evidence path demonstrates the product's trust posture better than a perfect all-green result.
+- Refresh `docs/screenshots/results-review.png` from the live deployed app with expanded warning evidence visible, so the screenshot reflects the current product rather than an older results state.
+- Keep the docs explicit that COLA Cloud API usage is part of the evaluator/sample story, not the deterministic compliance engine.
+- Keep local/restricted-network mode visible in the docs because government firewall constraints are part of the brief, but describe it as a bounded operating posture rather than the default benchmarked path.
 - Keep non-warning capitalization differences as normal matches. Only the government warning diff keeps a dedicated wrong-capitalization surface.
 - Diagnose warning-field reliability against the real approved `cola-cloud-real` slice with the actual OCR/VLM/OCV/cross-check stages, not just final verdicts.
 - Treat the `cola-cloud-real` warning results in two buckets: front-only / no-warning-visible assets versus visible-warning false negatives (heading-bold false fails, voted exact-text reviews/fails, and a misleading `100% aligned` review state when exact wording is still strict but the vote saturates to pass).

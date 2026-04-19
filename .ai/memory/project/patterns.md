@@ -20,6 +20,7 @@
 - Validator and extraction stories also produce evidence, rule-source, privacy, performance, and eval artifacts when relevant.
 - Behavior changes use RED -> GREEN -> REFACTOR through `.ai/workflows/tdd-pipeline.md`.
 - Prompt, model, tool-call, and agentic LLM stories use trace-driven development through `docs/process/TRACE_DRIVEN_DEVELOPMENT.md` and `.ai/workflows/trace-driven-development.md`, with local fixture-backed runs and timing evidence instead of an external trace service.
+- Submission-facing docs should read like release evidence, not only setup notes: foreground the architecture invariant, benchmark strategy, datasets, process docs, and bounded cloud/local tradeoffs before basic install instructions.
 
 ## Product pattern
 
