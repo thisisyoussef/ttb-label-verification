@@ -36,6 +36,7 @@ export interface RefineHandle {
   refinedReport: UIVerificationReport | null;
   /** Fire the refine call. Silently drops if no review rows to refine. */
   start: (input: {
+    report: UIVerificationReport | null;
     image: LabelImage;
     secondaryImage?: LabelImage | null;
     beverage: BeverageSelection;
@@ -46,11 +47,11 @@ export interface RefineHandle {
 
 /**
  * Which rows the "Verifying" indicator lights up on. The refine
- * server call runs the full pipeline under VERIFICATION_MODE=on and
- * returns EVERY field refreshed, so we merge every row regardless of
- * id — but we still surface the pulsing pill on the same identifier
- * + numeric fields that benefit from the second pass (brand, class,
- * country, address, ABV, net contents, warning).
+ * server call re-runs the full pipeline under VERIFICATION_MODE=on,
+ * but the client only accepts updates for rows that were already in
+ * `review`. The pulsing pill stays scoped to the fields that benefit
+ * from a second look (brand, class, country, address, ABV, net
+ * contents, warning).
  */
 export const REFINABLE_FIELD_IDS = new Set([
   'brand-name',
@@ -66,11 +67,9 @@ export const REFINABLE_FIELD_IDS = new Set([
 export const IDENTIFIER_FIELD_IDS = REFINABLE_FIELD_IDS;
 
 /**
- * Pure: returns true when the report has ANY field in 'review'
- * status. Refine runs the full pipeline with verification-mode on
- * and refreshes every row — not just identifiers — so the "one more
- * look" pass applies to ABV, net contents, warning, and address the
- * same way it does to brand / class / country.
+ * Pure: returns true when the report still has at least one row in
+ * `review` status. That is the only state where the refine POST is
+ * allowed to fire.
  */
 export function hasRefinableRows(report: UIVerificationReport | null): boolean {
   if (!report) return false;
@@ -97,6 +96,14 @@ export function useRefineReview(): RefineHandle {
 
   const start = useCallback<RefineHandle['start']>(
     (input) => {
+      if (!hasRefinableRows(input.report)) {
+        abortRef.current?.abort();
+        abortRef.current = null;
+        setStatus('idle');
+        setRefinedReport(null);
+        return;
+      }
+
       abortRef.current?.abort();
       const controller = new AbortController();
       abortRef.current = controller;
@@ -131,10 +138,12 @@ export function useRefineReview(): RefineHandle {
 }
 
 /**
- * Merge refined identifier rows back into the original report. Only
- * identifier rows are swapped; numeric / canonical rows (ABV, net
- * contents, warning, etc.) stay from the original report because
- * verification-mode doesn't touch them.
+ * Merge accepted refine updates back into the original report.
+ * Refinement is intentionally one-way: only rows that STARTED in
+ * `review` may change, and only when the second pass either upgrades
+ * them to `pass` or keeps them at `review` with changed evidence.
+ * Any downgrade, or any attempt to touch rows that were already
+ * `pass`/`fail`, is ignored.
  *
  * Returns a new report object — safe to pass straight to useState.
  */
@@ -143,14 +152,9 @@ export function mergeRefinedReport(
   refined: UIVerificationReport
 ): UIVerificationReport {
   const refinedById = new Map(refined.checks.map((check) => [check.id, check]));
-  // Merge every row the refined report touched, not just identifiers.
-  // The refine call re-runs the full pipeline so ABV / net contents /
-  // warning / address all come back refreshed too; dropping the
-  // identifier-only filter means the second pass actually resolves
-  // what the user sees in `review` status.
   const nextChecks = base.checks.map((check) => {
     const swap = refinedById.get(check.id);
-    return swap ?? check;
+    return shouldApplyRefinedCheck(check, swap) ? swap : check;
   });
   // Recount statuses after the swap so the summary stays accurate.
   const counts = { pass: 0, review: 0, fail: 0 };
@@ -179,4 +183,15 @@ export function mergeRefinedReport(
     counts,
     verdictSecondary
   };
+}
+
+function shouldApplyRefinedCheck(
+  baseCheck: UIVerificationReport['checks'][number],
+  refinedCheck: UIVerificationReport['checks'][number] | undefined
+): refinedCheck is UIVerificationReport['checks'][number] {
+  if (!refinedCheck) return false;
+  if (baseCheck.status !== 'review') return false;
+  if (refinedCheck.status === 'pass') return true;
+  if (refinedCheck.status !== 'review') return false;
+  return JSON.stringify(refinedCheck) !== JSON.stringify(baseCheck);
 }
