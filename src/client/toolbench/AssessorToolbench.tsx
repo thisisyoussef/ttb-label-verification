@@ -37,9 +37,10 @@ export function AssessorToolbench({
   onLaunchTour,
   tourActive
 }: AssessorToolbenchProps) {
-  const { open, tab, setTab, toggle, close } = useToolbenchState();
+  const { open, tab, setTab, toggle, close, hasOpenedOnce } = useToolbenchState();
   const containerRef = useRef<HTMLDivElement>(null);
   const panelOpen = open && !tourActive;
+  const showNudge = !panelOpen && !hasOpenedOnce && !tourActive;
 
   // Escape to close
   useEffect(() => {
@@ -141,17 +142,28 @@ export function AssessorToolbench({
       <button
         onClick={toggle}
         aria-expanded={panelOpen}
-        aria-label="Toggle assessor toolbench"
+        aria-label={showNudge ? 'Open assessor toolbench (new)' : 'Toggle assessor toolbench'}
         disabled={tourActive}
         title={tourActive ? 'Close the guided tour to reopen the toolbench.' : undefined}
-        className={`flex items-center gap-1.5 rounded-full px-4 py-2 border border-dashed font-label text-xs font-semibold transition-colors ${
+        className={`relative flex items-center gap-1.5 rounded-full px-4 py-2 border border-dashed font-label text-xs font-semibold transition-colors ${
           panelOpen
             ? 'border-primary/50 bg-primary/10 text-primary'
             : tourActive
               ? 'border-outline-variant/40 bg-surface-container-low text-outline-variant/80 cursor-not-allowed'
-              : 'border-outline-variant/60 bg-surface-container text-on-surface-variant hover:border-primary/40 hover:text-primary'
+              : showNudge
+                ? 'border-primary/60 bg-primary/10 text-primary shadow-ambient'
+                : 'border-outline-variant/60 bg-surface-container text-on-surface-variant hover:border-primary/40 hover:text-primary'
         }`}
       >
+        {showNudge && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-1 -right-1 flex h-2.5 w-2.5"
+          >
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
+          </span>
+        )}
         <span className="material-symbols-outlined text-[16px]">science</span>
         Toolbench
       </button>
