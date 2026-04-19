@@ -17,11 +17,11 @@ const secondaryImage = {
 };
 
 const steps: ProcessingStep[] = [
-  { id: 'ocr', label: 'Reading label image', status: 'active' },
-  { id: 'fields', label: 'Identifying label fields', status: 'pending' },
-  { id: 'beverage', label: 'Detecting beverage type', status: 'pending' },
-  { id: 'rules', label: 'Running compliance checks', status: 'pending' },
-  { id: 'report', label: 'Preparing evidence', status: 'pending' }
+  { id: 'reading-image', label: 'Reading label image', status: 'active' },
+  { id: 'extracting-fields', label: 'Identifying label fields', status: 'pending' },
+  { id: 'detecting-beverage', label: 'Detecting beverage type', status: 'pending' },
+  { id: 'running-checks', label: 'Running compliance checks', status: 'pending' },
+  { id: 'preparing-evidence', label: 'Preparing evidence', status: 'pending' }
 ];
 
 describe('Processing', () => {
