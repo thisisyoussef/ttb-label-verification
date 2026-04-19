@@ -7,6 +7,7 @@ import { NoTextState } from './NoTextState';
 import { ResultsPinnedColumn } from './ResultsPinnedColumn';
 import { StandaloneBanner } from './StandaloneBanner';
 import { VerdictBanner } from './VerdictBanner';
+import { useFlipLayout } from './useFlipLayout';
 import { REFINABLE_FIELD_IDS } from './useRefineReview';
 import {
   resolveDynamicReviewPhrase,
@@ -108,6 +109,10 @@ export function Results({
   const rowRefs = useMemo(() => new Map<string, HTMLButtonElement>(), []);
   const workingAreaRef = useRef<HTMLElement | null>(null);
   const tourExpandTimeoutRef = useRef<number | null>(null);
+  // FLIP hook — measures each field row's position before/after each
+  // render and animates any deltas. Drives the "review → matches" row
+  // slide that happens when a refine pass clears a row to pass.
+  const registerFlipRow = useFlipLayout();
 
   const sortedChecks = useMemo(
     () =>
@@ -140,6 +145,34 @@ export function Results({
       }
     };
   }, []);
+
+  // Auto-collapse an expanded row when its status improves (lower
+  // actionable rank → higher rank, e.g. review → pass). Two reasons:
+  // (1) the row is about to be re-sorted past the actionable divider,
+  // and a huge expanded panel traveling across the list is visually
+  // chaotic. (2) "it's resolved" is the signal that evidence is no
+  // longer worth keeping open by default. The FLIP animation then
+  // moves the collapsed row smoothly to its new position.
+  const prevExpandedStatusRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!expandedId) {
+      prevExpandedStatusRef.current = null;
+      return;
+    }
+    const check =
+      report.checks.find((c) => c.id === expandedId) ??
+      report.crossFieldChecks.find((c) => c.id === expandedId);
+    if (!check) return;
+    const prev = prevExpandedStatusRef.current;
+    if (prev && prev !== check.status) {
+      const prevRank = STATUS_RANK[prev as CheckStatus] ?? 0;
+      const nextRank = STATUS_RANK[check.status] ?? 0;
+      if (nextRank > prevRank) {
+        setExpandedId(null);
+      }
+    }
+    prevExpandedStatusRef.current = check.status;
+  }, [expandedId, report.checks, report.crossFieldChecks]);
 
   useEffect(() => {
     if (tourExpandTimeoutRef.current !== null) {
@@ -354,6 +387,7 @@ export function Results({
                       if (node) rowRefs.set(check.id, node);
                       else rowRefs.delete(check.id);
                     }}
+                    articleRef={registerFlipRow(check.id)}
                     onKeyNav={(event) => handleKeyNav(event, check.id)}
                   />
                 </Fragment>

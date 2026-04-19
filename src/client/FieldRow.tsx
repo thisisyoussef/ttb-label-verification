@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Collapse } from './Collapse';
 import { FieldEvidencePanel } from './FieldEvidence';
 import { LabelEvidenceBadge } from './LabelEvidenceBadge';
 import { StatusBadge } from './StatusBadge';
@@ -25,6 +26,7 @@ interface FieldRowProps {
    */
   totalImages?: number;
   rowRef?: (node: HTMLButtonElement | null) => void;
+  articleRef?: (node: HTMLElement | null) => void;
   onKeyNav?: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
 }
 
@@ -43,6 +45,7 @@ export function FieldRow({
   refining = false,
   totalImages = 1,
   rowRef,
+  articleRef,
   onKeyNav
 }: FieldRowProps) {
   const isWarning = check.id === 'government-warning';
@@ -80,10 +83,11 @@ export function FieldRow({
 
   return (
     <article
+      ref={articleRef}
       aria-busy={refining ? true : undefined}
       className={[
         'bg-surface-container-lowest rounded-lg shadow-sm overflow-hidden ring-1 ring-outline-variant/15 border-l-4',
-        'transition-all duration-500 motion-reduce:transition-none',
+        'transition-[background-color,box-shadow,border-color] duration-500 motion-reduce:transition-none',
         STATUS_BORDER[check.status],
         justUpdated ? 'ring-2 ring-primary/40' : '',
         refining ? 'bg-primary/[0.02]' : ''
@@ -110,7 +114,12 @@ export function FieldRow({
             </span>
           ) : null}
           <span className="flex-1 font-mono text-sm text-on-surface truncate min-w-0">
-            {check.extractedValue || '—'}
+            <span
+              key={check.extractedValue ?? 'empty'}
+              className="inline-block w-full truncate align-bottom animate-fade-in motion-reduce:animate-none"
+            >
+              {check.extractedValue || '—'}
+            </span>
           </span>
           <span className="shrink-0 flex items-center gap-2 md:justify-end">
             <LabelEvidenceBadge
@@ -158,7 +167,7 @@ export function FieldRow({
           </span>
         </span>
       </button>
-      {expanded ? (
+      <Collapse open={expanded}>
         <div id={panelId} className="border-t border-outline-variant/15 bg-surface-container-low/40">
           {isWarning && check.warning ? (
             <WarningEvidencePanel check={check} />
@@ -166,7 +175,7 @@ export function FieldRow({
             <FieldEvidencePanel check={check} standalone={standalone} />
           )}
         </div>
-      ) : null}
+      </Collapse>
     </article>
   );
 }
