@@ -30,6 +30,7 @@ This file is the checked-in branch registry for normal story work.
 | `codex/TTB-WF-003-tracker-sync` | `TTB-WF-003` | `codex` | `draft-local` | sync branch tracker and SSOT with the state of main after the PR #138 consolidation: close every TTB-204/TTB-210/TTB-304/TTB-401/TTB-WF-003/TTB-EVAL-002 branch that is on main, and mark TTB-304 done | - | `2026-04-19` | `2026-04-19` | `origin/main` | isolated tracker-sync worktree at `/private/tmp/ttb-tracker-cleanup` |
 | `claude/TTB-000-dual-image-fix` | `TTB-000` | `claude` | `draft-local` | pass single.secondaryImage through AppShell into the Processing and Results renders so the sidebar gallery actually shows both label images when two were loaded at intake | - | `2026-04-19` | `2026-04-19` | `origin/main` | isolated worktree at `.claude/worktrees/dual-image-fix` |
 | `claude/TTB-000-toolbench-first-open-nudge` | `TTB-000` | `claude` | `draft-local` | default toolbench FAB closed; pulsing corner dot and "(new)" aria-label nudge first-time users until they open it once (lifetime flag in localStorage, suppressed while guided tour is active) | - | `2026-04-19` | `2026-04-19` | `main` | - |
+| `claude/TTB-000-auth-boot-splash` | `TTB-000` | `claude` | `draft-local` | show a minimal loading splash before AuthScreen while the Material Symbols icon font streams in, so PIV/SSO buttons don't flash their raw ligature text (badge, key, info, arrow_forward) | - | `2026-04-19` | `2026-04-19` | `main` | - |
 <!-- ACTIVE_BRANCHES:END -->
 
 ## Closed branches
