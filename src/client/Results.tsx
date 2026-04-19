@@ -7,7 +7,6 @@ import { NoTextState } from './NoTextState';
 import { ResultsPinnedColumn } from './ResultsPinnedColumn';
 import { StandaloneBanner } from './StandaloneBanner';
 import { VerdictBanner } from './VerdictBanner';
-import { useFlipLayout } from './useFlipLayout';
 import { REFINABLE_FIELD_IDS } from './useRefineReview';
 import {
   resolveDynamicReviewPhrase,
@@ -109,10 +108,6 @@ export function Results({
   const rowRefs = useMemo(() => new Map<string, HTMLButtonElement>(), []);
   const workingAreaRef = useRef<HTMLElement | null>(null);
   const tourExpandTimeoutRef = useRef<number | null>(null);
-  // FLIP hook — measures each field row's position before/after each
-  // render and animates any deltas. Drives the "review → matches" row
-  // slide that happens when a refine pass clears a row to pass.
-  const registerFlipRow = useFlipLayout();
 
   const sortedChecks = useMemo(
     () =>
@@ -387,7 +382,6 @@ export function Results({
                       if (node) rowRefs.set(check.id, node);
                       else rowRefs.delete(check.id);
                     }}
-                    articleRef={registerFlipRow(check.id)}
                     onKeyNav={(event) => handleKeyNav(event, check.id)}
                   />
                 </Fragment>
