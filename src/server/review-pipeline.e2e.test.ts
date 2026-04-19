@@ -149,6 +149,48 @@ describeE2E('review pipeline — real-label end-to-end', () => {
   );
 
   it(
+    'ANCHOR_MERGE=enabled: literal ABV anchor beats a contradictory VLM read on a real label',
+    async () => {
+      const intake = intakeFromRealLabel('harpoon-ale-malt-beverage.webp', {
+        brandName: 'Harpoon',
+        classType: 'India Pale Ale',
+        alcoholContent: '5.9% Alc./Vol.'
+      });
+      const prev = process.env.ANCHOR_MERGE;
+      process.env.ANCHOR_MERGE = 'enabled';
+      try {
+        const report = await runTracedReviewSurface({
+          surface: '/api/review',
+          extractionMode: 'cloud',
+          clientTraceId: 'e2e-harpoon-abv-literal-anchor',
+          intake,
+          extractor: stubExtractor({
+            ...ABSENT_PAYLOAD,
+            fields: {
+              ...ABSENT_PAYLOAD.fields,
+              alcoholContent: {
+                present: true,
+                value: '6.9% Alc./Vol.',
+                confidence: 0.94
+              } as any
+            }
+          })
+        });
+        const abvCheck = report.checks.find((c) => c.id === 'alcohol-content');
+
+        expect(abvCheck?.status).toBe('pass');
+        expect(abvCheck?.summary?.toLowerCase()).not.toContain('anchor');
+        expect(abvCheck?.details?.toLowerCase()).not.toContain('anchor');
+        expect(report.verdict).toBe('approve');
+      } finally {
+        if (prev === undefined) delete process.env.ANCHOR_MERGE;
+        else process.env.ANCHOR_MERGE = prev;
+      }
+    },
+    60_000
+  );
+
+  it(
     'ANCHOR_MERGE=disabled: same scenario stays review (legacy behavior preserved)',
     async () => {
       const intake = intakeFromRealLabel('harpoon-ale-malt-beverage.webp', {

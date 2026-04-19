@@ -5,7 +5,10 @@ import {
   type ReviewExtractionField
 } from '../shared/contracts/review';
 import type { NormalizedReviewIntake } from './review-intake';
-import { maybeUpgradeChecksWithAnchors } from './review-report-anchor-upgrade';
+import {
+  findPriorityLiteralAnchorForCheck,
+  maybeUpgradeChecksWithAnchors
+} from './review-report-anchor-upgrade';
 import {
   citationsFor,
   compareFieldValues,
@@ -65,6 +68,7 @@ function buildFieldCheck(input: {
   intake: NormalizedReviewIntake;
   extraction: ReviewExtraction;
   spec: FieldSpec;
+  anchorTrack?: AnchorTrackResult | null;
 }): CheckReview | null {
   const applicationValue = input.intake.fields[input.spec.intakeKey];
   const extractedField = input.extraction.fields[input.spec.extractionKey];
@@ -100,6 +104,21 @@ function buildFieldCheck(input: {
       id: input.spec.id,
       label: input.spec.label,
       ocrFallback: extractedField.present ? null : tryOcrFallbackValue(input.spec, input.intake.ocrText)
+    });
+  }
+
+  const priorityLiteralAnchor = findPriorityLiteralAnchorForCheck(
+    input.spec.id,
+    input.anchorTrack ?? null
+  );
+
+  if (priorityLiteralAnchor) {
+    return buildLiteralAnchorPriorityCheck({
+      id: input.spec.id,
+      label: input.spec.label,
+      beverageType: input.extraction.beverageType,
+      applicationValue,
+      extractedField
     });
   }
 
@@ -237,6 +256,33 @@ function buildFieldCheck(input: {
       applicationValue,
       extractedValue,
       note: comparison.note
+    }
+  };
+}
+
+function buildLiteralAnchorPriorityCheck(input: {
+  id: string;
+  label: string;
+  beverageType: ReviewExtraction['beverageType'];
+  applicationValue: string;
+  extractedField: ReviewExtractionField;
+}): CheckReview {
+  return {
+    id: input.id,
+    label: input.label,
+    status: 'pass',
+    severity: 'note',
+    summary: 'Label matches the approved record.',
+    details: 'The approved value is clearly printed on the label.',
+    confidence: Math.max(input.extractedField.confidence, 0.9),
+    citations: citationsFor(input.beverageType),
+    applicationValue: input.applicationValue,
+    extractedValue: input.applicationValue,
+    comparison: {
+      status: 'match',
+      applicationValue: input.applicationValue,
+      extractedValue: input.applicationValue,
+      note: 'The approved value is clearly printed on the label.'
     }
   };
 }

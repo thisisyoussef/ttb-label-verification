@@ -4,6 +4,24 @@
 
 Harden the shared extraction path with endpoint-aware and mode-aware prompt policy plus structural guardrails so every current model-backed route serves the user promise of that route without forking the contract surface.
 
+## Follow-up slice: literal anchor field priority
+
+This follow-up keeps the original `TTB-210` top-down vs bottom-up split but
+applies it more directly at the field row:
+
+- strong literal anchors on app-backed text fields should beat a contradictory
+  bottom-up read for that field
+- whole-label verdicts must still flow through the existing deterministic
+  blocker and weighted-verdict path
+- warning text, warning visual signals, and other layout/spatial judgments stay
+  bottom-up only
+- sparse, partial, and equivalent-only anchor signals stay advisory rather than
+  taking priority over the row on their own
+
+This preserves the speed and precision of the "does the label contain the
+approved text?" path without letting anchor-only evidence wash out unrelated
+defects elsewhere on the label.
+
 ## Planned modules and files
 
 - `src/server/review-prompt-policy.ts`

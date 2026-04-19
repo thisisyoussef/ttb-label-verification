@@ -9,6 +9,10 @@
 
 This story changes prompt wording, endpoint-specific extraction intent, and post-parse guardrail behavior across every current model-backed route.
 The current follow-up slice also changes upload-time behavior by adding an OCR-backed relevance preflight before the extract-only prefetch.
+The current literal-anchor follow-up also changes field-row precedence for
+app-backed text fields: a strong literal anchor may now beat a contradictory
+bottom-up read for that row, while the whole-label verdict still depends on the
+existing blocker and weighted-verdict checks.
 
 ## Expected gain
 
@@ -16,6 +20,8 @@ The current follow-up slice also changes upload-time behavior by adding an OCR-b
 - stronger warning-text fidelity for the showcase warning path
 - more stable extraction behavior between `/api/review`, `/api/review/extraction`, `/api/review/warning`, and batch item execution
 - user-centered extraction behavior that can be explained in terms of reviewer trust, not just schema compliance
+- fewer field-level false rejects and false reviews when the approved text is
+  literally present on the label but the VLM reads that row incorrectly
 
 ## Failure modes to catch
 
@@ -27,6 +33,8 @@ The current follow-up slice also changes upload-time behavior by adding an OCR-b
 - prompt bloat creates measurable latency regression
 - the quick relevance preflight overcalls `unlikely-label` on real but weak labels
 - irrelevant uploads still trigger extract-only prefetch and waste the latency budget
+- field-level anchor priority accidentally clears unrelated blockers and turns a
+  whole-label reject into an approve
 
 ## Eval inputs or dataset slice
 
