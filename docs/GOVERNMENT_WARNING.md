@@ -36,9 +36,18 @@ The warning fails differently from other fields.
 
 That is why the warning path is not "just another field judge." It has its own signal stack and its own verdict logic.
 
-![Government warning signal stack](./diagrams/government-warning-signal-stack.svg)
-
-_Diagram source: [Mermaid source](./diagrams/src/government-warning-signal-stack.mmd)._
+```mermaid
+flowchart LR
+    A["Label image"] --> B1["VLM extraction"]
+    A --> B2["Warning OCV on cropped region"]
+    A --> B3["Full-image OCR cross-check"]
+    B1 --> C["2-of-3 vote"]
+    B2 --> C
+    B3 --> C
+    C --> D["Five rendered sub-checks"]
+    D --> E["Critical-word gate"]
+    E --> F["Warning result + focus state"]
+```
 
 ## 3. The Three-Signal Vote
 
@@ -189,9 +198,17 @@ That is a much better fit for Jenny and Dave than a single flat `warning: fail`.
 
 At a high level:
 
-![Government warning decision flow](./diagrams/government-warning-decision-flow.svg)
-
-_Diagram source: [Mermaid source](./diagrams/src/government-warning-decision-flow.mmd)._
+```mermaid
+flowchart TD
+    A["Three warning signals"] --> B["Vote result"]
+    B --> C["Five sub-checks"]
+    C --> D{"Critical words present?"}
+    D -->|No, low confidence| E["Review"]
+    D -->|No, strong fail| F["Reject"]
+    D -->|Yes| G{"Visual / text confidence high enough?"}
+    G -->|No| H["Review"]
+    G -->|Yes| I["Pass"]
+```
 
 In practice the repo is slightly more conservative than that diagram:
 

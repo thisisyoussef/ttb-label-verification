@@ -10,7 +10,6 @@
     "dev:api": "tsx watch src/server/index.ts",
     "env:bootstrap": "tsx scripts/bootstrap-local-env.ts",
     "hooks:install": "tsx scripts/install-git-hooks.ts",
-    "docs:diagrams": "node scripts/render-doc-diagrams.mjs",
     "evals:validate": "tsx scripts/validate-evals.ts",
     "eval:llm": "vitest run --config ls.vitest.config.ts",
     "eval:golden": "npm run evals:validate && npm run eval:llm",
