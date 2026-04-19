@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   syntheticLabelDefectKindSchema,
@@ -39,6 +39,35 @@ describe('generateSyntheticLabel', () => {
     expect(parsed.expected.defectKind).toBeOneOf([...SYNTHETIC_LABEL_DEFECT_KINDS]);
     if (parsed.expected.defectKind === 'none') {
       expect(parsed.expected.verdict).toBe('approve');
+    }
+  });
+
+  it('populates images[] with distinct front + back entries when Math.random forces the back path', async () => {
+    // Force every Math.random() call to return 0 so:
+    //   - `pickDefectPlan` takes the "none" branch (random < 0.4)
+    //   - `wantsBack` takes the back-label branch (random < 0.35)
+    // Keeps the test deterministic regardless of RNG drift.
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0);
+    try {
+      const fakeBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
+      const generateImage = vi
+        .fn<
+          (prompt: string) => Promise<{ bytes: Buffer; mime: string }>
+        >()
+        .mockResolvedValue({ bytes: fakeBytes, mime: 'image/png' });
+
+      const result = await generateSyntheticLabel({ generateImage });
+      const parsed = syntheticLabelGenerateResponseSchema.parse(result);
+
+      expect(generateImage).toHaveBeenCalledTimes(2);
+      expect(parsed.images).toBeDefined();
+      expect(parsed.images).toHaveLength(2);
+      expect(parsed.images![0]!.id).toBe(parsed.image.id);
+      expect(parsed.images![0]!.filename).toMatch(/-front\.png$/);
+      expect(parsed.images![1]!.filename).toMatch(/-back\.png$/);
+      expect(parsed.images![0]!.id).not.toBe(parsed.images![1]!.id);
+    } finally {
+      randomSpy.mockRestore();
     }
   });
 });

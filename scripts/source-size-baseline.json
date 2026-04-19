@@ -6,7 +6,7 @@
   "scripts/run-cola-cloud-batch-fixtures-local.ts": 617,
   "src/server/review-extractor-factory.ts": 585,
   "src/server/llm-trace.ts": 595,
-  "src/client/useSingleReviewPipeline.ts": 556,
+  "src/client/useSingleReviewPipeline.ts": 559,
   "src/client/useBatchWorkflow.ts": 526,
   "src/server/ollama-vlm-review-extractor.ts": 505
 }

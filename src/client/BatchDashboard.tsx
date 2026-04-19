@@ -18,6 +18,7 @@ import {
   SummaryCards,
   filterRows
 } from './BatchDashboardControls';
+import { countBatchNeedsReview } from './batchStatusDisplay';
 import { EmptyFilter, TriageTable } from './BatchDashboardTable';
 import { TriageGuidance } from './TriageGuidance';
 
@@ -62,8 +63,11 @@ export function BatchDashboard(props: BatchDashboardProps) {
     if (seed.summary.pass === seed.totals.done && seed.totals.done > 0) {
       return 'Every label in this batch was approved.';
     }
-    if (seed.summary.fail === seed.totals.done && seed.totals.done > 0) {
-      return 'Every label in this batch was rejected.';
+    if (
+      countBatchNeedsReview(seed.summary) === seed.totals.done &&
+      seed.totals.done > 0
+    ) {
+      return 'Every label in this batch needs review.';
     }
     return `Reviewing outcomes for ${seed.totals.done} labels. Nothing is stored.`;
   }, [seed.phase, seed.summary, seed.totals]);

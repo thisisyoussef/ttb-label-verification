@@ -30,9 +30,9 @@ interface BatchDrillInShellProps {
 
 const FILTER_POSITION_LABEL: Record<BatchDashboardFilter, string> = {
   all: 'labels',
-  reject: 'rejects',
-  review: 'reviews',
-  approve: 'approves'
+  reject: 'labels needing review',
+  review: 'labels needing review',
+  approve: 'approved labels'
 };
 
 export function BatchDrillInShell(props: BatchDrillInShellProps) {
@@ -47,10 +47,6 @@ export function BatchDrillInShell(props: BatchDrillInShellProps) {
   } = props;
 
   const image = useMemo<LabelImage>(() => buildDrillInImage(row), [row]);
-  const secondaryImage = useMemo<LabelImage | null>(
-    () => buildDrillInSecondaryImage(row),
-    [row]
-  );
   const beverage = row.beverageType as BeverageSelection;
 
   if (!row.reportId) {
@@ -90,7 +86,6 @@ export function BatchDrillInShell(props: BatchDrillInShellProps) {
     >
       <Results
         image={image}
-        secondaryImage={secondaryImage}
         beverage={beverage}
         report={report}
         onNewReview={props.onBack}
@@ -269,58 +264,25 @@ function UnavailablePanel({ onBack }: { onBack: () => void }) {
 }
 
 function buildDrillInImage(row: BatchDashboardRow): LabelImage {
-  return buildDrillInImageVariant({
-    filename: row.filename,
-    previewUrl: row.previewUrl,
-    isPdf: row.isPdf,
-    sizeLabel: row.sizeLabel,
-    brandName: row.brandName,
-    classType: row.classType
-  });
-}
-
-function buildDrillInSecondaryImage(row: BatchDashboardRow): LabelImage | null {
-  if (!row.secondaryImageId || !row.secondaryFilename) {
-    return null;
-  }
-
-  return buildDrillInImageVariant({
-    filename: row.secondaryFilename,
-    previewUrl: row.secondaryPreviewUrl ?? null,
-    isPdf: row.secondaryIsPdf ?? false,
-    sizeLabel: row.secondarySizeLabel ?? row.sizeLabel,
-    brandName: row.brandName,
-    classType: row.classType
-  });
-}
-
-function buildDrillInImageVariant(input: {
-  filename: string;
-  previewUrl: string | null;
-  isPdf: boolean;
-  sizeLabel: string;
-  brandName: string;
-  classType: string;
-}): LabelImage {
-  const mimeType = input.isPdf
+  const mimeType = row.isPdf
     ? 'application/pdf'
-    : input.filename.toLowerCase().endsWith('.png')
+    : row.filename.toLowerCase().endsWith('.png')
       ? 'image/png'
-      : input.filename.toLowerCase().endsWith('.webp')
+      : row.filename.toLowerCase().endsWith('.webp')
         ? 'image/webp'
         : 'image/jpeg';
-  const file = new File([new Uint8Array()], input.filename, { type: mimeType });
+  const file = new File([new Uint8Array()], row.filename, { type: mimeType });
   const previewUrl =
-    input.previewUrl ??
-    (input.isPdf
+    row.previewUrl ??
+    (row.isPdf
       ? ''
       : buildLabelThumbnail({
-          brandName: input.brandName,
-          classType: input.classType
+          brandName: row.brandName,
+          classType: row.classType
         }));
   return {
     file,
     previewUrl,
-    sizeLabel: input.sizeLabel
+    sizeLabel: row.sizeLabel
   };
 }
