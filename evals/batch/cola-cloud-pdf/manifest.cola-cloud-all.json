@@ -15,27 +15,62 @@
       "imageCases": [
         {
           "id": "persian-empire-black-widow-distilled-spirits",
+          "sampleId": "persian-empire-black-widow-distilled-spirits",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/persian-empire-black-widow-distilled-spirits.pdf",
           "beverageType": "distilled-spirits",
           "expectedRecommendation": "approve",
           "source": "cola-cloud"
         },
         {
+          "id": "persian-empire-black-widow-distilled-spirits--secondary",
+          "sampleId": "persian-empire-black-widow-distilled-spirits",
+          "isSecondary": true,
+          "assetPath": "evals/labels/assets/cola-cloud-pdf/persian-empire-black-widow-distilled-spirits-back.pdf",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
           "id": "persian-empire-arak-distilled-spirits",
+          "sampleId": "persian-empire-arak-distilled-spirits",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/persian-empire-arak-distilled-spirits.pdf",
           "beverageType": "distilled-spirits",
           "expectedRecommendation": "approve",
           "source": "cola-cloud"
         },
         {
+          "id": "persian-empire-arak-distilled-spirits--secondary",
+          "sampleId": "persian-empire-arak-distilled-spirits",
+          "isSecondary": true,
+          "assetPath": "evals/labels/assets/cola-cloud-pdf/persian-empire-arak-distilled-spirits-back.pdf",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
           "id": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+          "sampleId": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/simply-elegant-simply-elegant-spirits-distilled-spirits.pdf",
           "beverageType": "distilled-spirits",
           "expectedRecommendation": "approve",
           "source": "cola-cloud"
         },
         {
+          "id": "simply-elegant-simply-elegant-spirits-distilled-spirits--secondary",
+          "sampleId": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+          "isSecondary": true,
+          "assetPath": "evals/labels/assets/cola-cloud-pdf/simply-elegant-simply-elegant-spirits-distilled-spirits-back.pdf",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
           "id": "crafy-elk-cranberry-blueberry-acai-distilled-spirits",
+          "sampleId": "crafy-elk-cranberry-blueberry-acai-distilled-spirits",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/crafy-elk-cranberry-blueberry-acai-distilled-spirits.pdf",
           "beverageType": "distilled-spirits",
           "expectedRecommendation": "approve",
@@ -43,34 +78,80 @@
         },
         {
           "id": "leitz-rottland-wine",
+          "sampleId": "leitz-rottland-wine",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/leitz-rottland-wine.pdf",
           "beverageType": "wine",
           "expectedRecommendation": "approve",
           "source": "cola-cloud"
         },
         {
+          "id": "leitz-rottland-wine--secondary",
+          "sampleId": "leitz-rottland-wine",
+          "isSecondary": true,
+          "assetPath": "evals/labels/assets/cola-cloud-pdf/leitz-rottland-wine-back.pdf",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
           "id": "leitz-magdalenenkreuz-wine",
+          "sampleId": "leitz-magdalenenkreuz-wine",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/leitz-magdalenenkreuz-wine.pdf",
           "beverageType": "wine",
           "expectedRecommendation": "approve",
           "source": "cola-cloud"
         },
         {
+          "id": "leitz-magdalenenkreuz-wine--secondary",
+          "sampleId": "leitz-magdalenenkreuz-wine",
+          "isSecondary": true,
+          "assetPath": "evals/labels/assets/cola-cloud-pdf/leitz-magdalenenkreuz-wine-back.pdf",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
           "id": "leitz-klosterlay-wine",
+          "sampleId": "leitz-klosterlay-wine",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/leitz-klosterlay-wine.pdf",
           "beverageType": "wine",
           "expectedRecommendation": "approve",
           "source": "cola-cloud"
         },
         {
+          "id": "leitz-klosterlay-wine--secondary",
+          "sampleId": "leitz-klosterlay-wine",
+          "isSecondary": true,
+          "assetPath": "evals/labels/assets/cola-cloud-pdf/leitz-klosterlay-wine-back.pdf",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
           "id": "uncorked-in-mayberry-otis-own-wine",
+          "sampleId": "uncorked-in-mayberry-otis-own-wine",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/uncorked-in-mayberry-otis-own-wine.pdf",
           "beverageType": "wine",
           "expectedRecommendation": "approve",
           "source": "cola-cloud"
         },
         {
+          "id": "uncorked-in-mayberry-otis-own-wine--secondary",
+          "sampleId": "uncorked-in-mayberry-otis-own-wine",
+          "isSecondary": true,
+          "assetPath": "evals/labels/assets/cola-cloud-pdf/uncorked-in-mayberry-otis-own-wine-back.pdf",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
           "id": "lake-placid-shredder-malt-beverage",
+          "sampleId": "lake-placid-shredder-malt-beverage",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/lake-placid-shredder-malt-beverage.pdf",
           "beverageType": "malt-beverage",
           "expectedRecommendation": "approve",
@@ -78,6 +159,8 @@
         },
         {
           "id": "lake-placid-ridge-runner-malt-beverage",
+          "sampleId": "lake-placid-ridge-runner-malt-beverage",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/lake-placid-ridge-runner-malt-beverage.pdf",
           "beverageType": "malt-beverage",
           "expectedRecommendation": "approve",
@@ -85,6 +168,8 @@
         },
         {
           "id": "recluse-brew-works-shy-guy-malt-beverage",
+          "sampleId": "recluse-brew-works-shy-guy-malt-beverage",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/recluse-brew-works-shy-guy-malt-beverage.pdf",
           "beverageType": "malt-beverage",
           "expectedRecommendation": "approve",
@@ -92,6 +177,8 @@
         },
         {
           "id": "pleasant-prairie-brewing-peach-sour-ale-malt-beverage",
+          "sampleId": "pleasant-prairie-brewing-peach-sour-ale-malt-beverage",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/pleasant-prairie-brewing-peach-sour-ale-malt-beverage.pdf",
           "beverageType": "malt-beverage",
           "expectedRecommendation": "approve",
@@ -99,6 +186,8 @@
         },
         {
           "id": "crafty-elk-mango-honey-distilled-spirits",
+          "sampleId": "crafty-elk-mango-honey-distilled-spirits",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/crafty-elk-mango-honey-distilled-spirits.pdf",
           "beverageType": "distilled-spirits",
           "expectedRecommendation": "approve",
@@ -106,6 +195,8 @@
         },
         {
           "id": "the-wine-trust-rum-distilled-spirits",
+          "sampleId": "the-wine-trust-rum-distilled-spirits",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/the-wine-trust-rum-distilled-spirits.pdf",
           "beverageType": "distilled-spirits",
           "expectedRecommendation": "approve",
@@ -113,6 +204,8 @@
         },
         {
           "id": "flaviar-columbia-creek-tennessee-whiskey-distilled-spirits",
+          "sampleId": "flaviar-columbia-creek-tennessee-whiskey-distilled-spirits",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/flaviar-columbia-creek-tennessee-whiskey-distilled-spirits.pdf",
           "beverageType": "distilled-spirits",
           "expectedRecommendation": "approve",
@@ -120,13 +213,26 @@
         },
         {
           "id": "old-station-31-orange-distilled-spirits",
+          "sampleId": "old-station-31-orange-distilled-spirits",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/old-station-31-orange-distilled-spirits.pdf",
           "beverageType": "distilled-spirits",
           "expectedRecommendation": "approve",
           "source": "cola-cloud"
         },
         {
+          "id": "old-station-31-orange-distilled-spirits--secondary",
+          "sampleId": "old-station-31-orange-distilled-spirits",
+          "isSecondary": true,
+          "assetPath": "evals/labels/assets/cola-cloud-pdf/old-station-31-orange-distilled-spirits-back.pdf",
+          "beverageType": "distilled-spirits",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
           "id": "west-peak-tequila-paloma-distilled-spirits",
+          "sampleId": "west-peak-tequila-paloma-distilled-spirits",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/west-peak-tequila-paloma-distilled-spirits.pdf",
           "beverageType": "distilled-spirits",
           "expectedRecommendation": "approve",
@@ -134,13 +240,26 @@
         },
         {
           "id": "stormwood-wines-semillon-wine",
+          "sampleId": "stormwood-wines-semillon-wine",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/stormwood-wines-semillon-wine.pdf",
           "beverageType": "wine",
           "expectedRecommendation": "approve",
           "source": "cola-cloud"
         },
         {
+          "id": "stormwood-wines-semillon-wine--secondary",
+          "sampleId": "stormwood-wines-semillon-wine",
+          "isSecondary": true,
+          "assetPath": "evals/labels/assets/cola-cloud-pdf/stormwood-wines-semillon-wine-strip.pdf",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
           "id": "forlorn-hope-san-hercurmer-delle-frecce-wine",
+          "sampleId": "forlorn-hope-san-hercurmer-delle-frecce-wine",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/forlorn-hope-san-hercurmer-delle-frecce-wine.pdf",
           "beverageType": "wine",
           "expectedRecommendation": "approve",
@@ -148,34 +267,80 @@
         },
         {
           "id": "manzone-giovanni-barolo-perno-wine",
+          "sampleId": "manzone-giovanni-barolo-perno-wine",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/manzone-giovanni-barolo-perno-wine.pdf",
           "beverageType": "wine",
           "expectedRecommendation": "approve",
           "source": "cola-cloud"
         },
         {
+          "id": "manzone-giovanni-barolo-perno-wine--secondary",
+          "sampleId": "manzone-giovanni-barolo-perno-wine",
+          "isSecondary": true,
+          "assetPath": "evals/labels/assets/cola-cloud-pdf/manzone-giovanni-barolo-perno-wine-back.pdf",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
           "id": "ana-luisa-gran-reserva-parcelas-blend-wine",
+          "sampleId": "ana-luisa-gran-reserva-parcelas-blend-wine",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/ana-luisa-gran-reserva-parcelas-blend-wine.pdf",
           "beverageType": "wine",
           "expectedRecommendation": "approve",
           "source": "cola-cloud"
         },
         {
+          "id": "ana-luisa-gran-reserva-parcelas-blend-wine--secondary",
+          "sampleId": "ana-luisa-gran-reserva-parcelas-blend-wine",
+          "isSecondary": true,
+          "assetPath": "evals/labels/assets/cola-cloud-pdf/ana-luisa-gran-reserva-parcelas-blend-wine-back.pdf",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
           "id": "carousel-winery-fairy-floss-cotton-candy-wine",
+          "sampleId": "carousel-winery-fairy-floss-cotton-candy-wine",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/carousel-winery-fairy-floss-cotton-candy-wine.pdf",
           "beverageType": "wine",
           "expectedRecommendation": "approve",
           "source": "cola-cloud"
         },
         {
+          "id": "carousel-winery-fairy-floss-cotton-candy-wine--secondary",
+          "sampleId": "carousel-winery-fairy-floss-cotton-candy-wine",
+          "isSecondary": true,
+          "assetPath": "evals/labels/assets/cola-cloud-pdf/carousel-winery-fairy-floss-cotton-candy-wine-back.pdf",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
           "id": "venture-studios-null-wine",
+          "sampleId": "venture-studios-null-wine",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/venture-studios-null-wine.pdf",
           "beverageType": "wine",
           "expectedRecommendation": "approve",
           "source": "cola-cloud"
         },
         {
+          "id": "venture-studios-null-wine--secondary",
+          "sampleId": "venture-studios-null-wine",
+          "isSecondary": true,
+          "assetPath": "evals/labels/assets/cola-cloud-pdf/venture-studios-null-wine-back.pdf",
+          "beverageType": "wine",
+          "expectedRecommendation": "approve",
+          "source": "cola-cloud"
+        },
+        {
           "id": "sapwood-cellars-albura-lager-malt-beverage",
+          "sampleId": "sapwood-cellars-albura-lager-malt-beverage",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/sapwood-cellars-albura-lager-malt-beverage.pdf",
           "beverageType": "malt-beverage",
           "expectedRecommendation": "approve",
@@ -183,6 +348,8 @@
         },
         {
           "id": "drekker-brewing-company-piano-necktie-malt-beverage",
+          "sampleId": "drekker-brewing-company-piano-necktie-malt-beverage",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/drekker-brewing-company-piano-necktie-malt-beverage.pdf",
           "beverageType": "malt-beverage",
           "expectedRecommendation": "approve",
@@ -190,6 +357,8 @@
         },
         {
           "id": "pilok-broumy-malt-beverage",
+          "sampleId": "pilok-broumy-malt-beverage",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/pilok-broumy-malt-beverage.pdf",
           "beverageType": "malt-beverage",
           "expectedRecommendation": "approve",
@@ -197,6 +366,8 @@
         },
         {
           "id": "1840-original-lager-1840-original-lager-malt-beverage",
+          "sampleId": "1840-original-lager-1840-original-lager-malt-beverage",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/1840-original-lager-1840-original-lager-malt-beverage.pdf",
           "beverageType": "malt-beverage",
           "expectedRecommendation": "approve",
@@ -204,6 +375,8 @@
         },
         {
           "id": "harpoon-ale-malt-beverage",
+          "sampleId": "harpoon-ale-malt-beverage",
+          "isSecondary": false,
           "assetPath": "evals/labels/assets/cola-cloud-pdf/harpoon-ale-malt-beverage.pdf",
           "beverageType": "malt-beverage",
           "expectedRecommendation": "approve",

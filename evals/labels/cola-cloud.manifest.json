@@ -9,6 +9,7 @@
       "goldenCaseId": "G-41",
       "title": "Persian Empire — Black Widow",
       "assetPath": "assets/cola-cloud/persian-empire-black-widow-distilled-spirits.webp",
+      "secondaryAssetPath": "assets/cola-cloud/persian-empire-black-widow-distilled-spirits-back.webp",
       "beverageType": "distilled-spirits",
       "scenario": "Real TTB-approved distilled spirits label (other specialties & proprietaries, canada)",
       "expectedRecommendation": "approve",
@@ -27,7 +28,8 @@
         "llmCategory": "Liquor",
         "llmCategoryPath": "Liquor",
         "hasBarcodes": false,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000115_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000115_0.webp",
+        "secondaryImageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000115_1.webp"
       }
     },
     {
@@ -35,6 +37,7 @@
       "goldenCaseId": "G-42",
       "title": "Persian Empire — Arak ",
       "assetPath": "assets/cola-cloud/persian-empire-arak-distilled-spirits.webp",
+      "secondaryAssetPath": "assets/cola-cloud/persian-empire-arak-distilled-spirits-back.webp",
       "beverageType": "distilled-spirits",
       "scenario": "Real TTB-approved distilled spirits label (arack/raki, canada)",
       "expectedRecommendation": "approve",
@@ -53,7 +56,8 @@
         "llmCategory": "Liquor",
         "llmCategoryPath": "Liquor",
         "hasBarcodes": true,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000084_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000084_0.webp",
+        "secondaryImageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000084_1.webp"
       }
     },
     {
@@ -61,6 +65,7 @@
       "goldenCaseId": "G-43",
       "title": "Simply Elegant — Simply Elegant Spirits",
       "assetPath": "assets/cola-cloud/simply-elegant-simply-elegant-spirits-distilled-spirits.webp",
+      "secondaryAssetPath": "assets/cola-cloud/simply-elegant-simply-elegant-spirits-distilled-spirits-back.webp",
       "beverageType": "distilled-spirits",
       "scenario": "Real TTB-approved distilled spirits label (straight bourbon whisky, kentucky)",
       "expectedRecommendation": "approve",
@@ -79,7 +84,8 @@
         "llmCategory": "Bourbon",
         "llmCategoryPath": "Liquor > Whiskey > American Whiskey > Bourbon",
         "hasBarcodes": false,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000152_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000152_0.webp",
+        "secondaryImageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000152_1.webp"
       }
     },
     {
@@ -87,6 +93,7 @@
       "goldenCaseId": "G-44",
       "title": "Crafy Elk — Cranberry, Blueberry, & Acai",
       "assetPath": "assets/cola-cloud/crafy-elk-cranberry-blueberry-acai-distilled-spirits.webp",
+      "secondaryAssetPath": null,
       "beverageType": "distilled-spirits",
       "scenario": "Real TTB-approved distilled spirits label (vodka specialties, wisconsin)",
       "expectedRecommendation": "approve",
@@ -105,7 +112,8 @@
         "llmCategory": "Flavored Vodka",
         "llmCategoryPath": "Liquor > Vodka > Flavored Vodka",
         "hasBarcodes": true,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000150_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000150_0.webp",
+        "secondaryImageUrl": null
       }
     },
     {
@@ -113,6 +121,7 @@
       "goldenCaseId": "G-45",
       "title": "Leitz — Rottland",
       "assetPath": "assets/cola-cloud/leitz-rottland-wine.webp",
+      "secondaryAssetPath": "assets/cola-cloud/leitz-rottland-wine-back.webp",
       "beverageType": "wine",
       "scenario": "Real TTB-approved wine label (table white wine, germany)",
       "expectedRecommendation": "approve",
@@ -133,7 +142,8 @@
         "llmCategory": "Riesling",
         "llmCategoryPath": "Wine > White Wine > Riesling",
         "hasBarcodes": true,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26092001000992_1.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26092001000992_1.webp",
+        "secondaryImageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26092001000992_0.webp"
       }
     },
     {
@@ -141,6 +151,7 @@
       "goldenCaseId": "G-46",
       "title": "Leitz — Magdalenenkreuz",
       "assetPath": "assets/cola-cloud/leitz-magdalenenkreuz-wine.webp",
+      "secondaryAssetPath": "assets/cola-cloud/leitz-magdalenenkreuz-wine-back.webp",
       "beverageType": "wine",
       "scenario": "Real TTB-approved wine label (table white wine, germany)",
       "expectedRecommendation": "approve",
@@ -161,7 +172,8 @@
         "llmCategory": "Late Harvest",
         "llmCategoryPath": "Wine > Dessert Wine > Late Harvest",
         "hasBarcodes": true,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26092001000912_1.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26092001000912_1.webp",
+        "secondaryImageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26092001000912_0.webp"
       }
     },
     {
@@ -169,6 +181,7 @@
       "goldenCaseId": "G-47",
       "title": "Leitz — Klosterlay",
       "assetPath": "assets/cola-cloud/leitz-klosterlay-wine.webp",
+      "secondaryAssetPath": "assets/cola-cloud/leitz-klosterlay-wine-back.webp",
       "beverageType": "wine",
       "scenario": "Real TTB-approved wine label (table white wine, germany)",
       "expectedRecommendation": "approve",
@@ -189,7 +202,8 @@
         "llmCategory": "Riesling",
         "llmCategoryPath": "Wine > White Wine > Riesling",
         "hasBarcodes": true,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26092001000896_1.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26092001000896_1.webp",
+        "secondaryImageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26092001000896_0.webp"
       }
     },
     {
@@ -197,6 +211,7 @@
       "goldenCaseId": "G-48",
       "title": "Uncorked In Mayberry — Otis' Own",
       "assetPath": "assets/cola-cloud/uncorked-in-mayberry-otis-own-wine.webp",
+      "secondaryAssetPath": "assets/cola-cloud/uncorked-in-mayberry-otis-own-wine-back.webp",
       "beverageType": "wine",
       "scenario": "Real TTB-approved wine label (table white wine, north carolina)",
       "expectedRecommendation": "approve",
@@ -220,7 +235,8 @@
         "llmCategory": "White Wine",
         "llmCategoryPath": "Wine > White Wine",
         "hasBarcodes": false,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26094001000045_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26094001000045_0.webp",
+        "secondaryImageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26094001000045_1.webp"
       }
     },
     {
@@ -228,6 +244,7 @@
       "goldenCaseId": "G-49",
       "title": "Lake Placid — Shredder",
       "assetPath": "assets/cola-cloud/lake-placid-shredder-malt-beverage.webp",
+      "secondaryAssetPath": null,
       "beverageType": "malt-beverage",
       "scenario": "Real TTB-approved malt beverage label (ale, new york)",
       "expectedRecommendation": "approve",
@@ -246,7 +263,8 @@
         "llmCategory": "IPA",
         "llmCategoryPath": "Beer > Ale > IPA",
         "hasBarcodes": false,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000608_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000608_0.webp",
+        "secondaryImageUrl": null
       }
     },
     {
@@ -254,6 +272,7 @@
       "goldenCaseId": "G-50",
       "title": "Lake Placid — Ridge Runner",
       "assetPath": "assets/cola-cloud/lake-placid-ridge-runner-malt-beverage.webp",
+      "secondaryAssetPath": null,
       "beverageType": "malt-beverage",
       "scenario": "Real TTB-approved malt beverage label (ale, new york)",
       "expectedRecommendation": "approve",
@@ -272,7 +291,8 @@
         "llmCategory": "Pale Ale",
         "llmCategoryPath": "Beer > Ale > Pale Ale",
         "hasBarcodes": true,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000588_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000588_0.webp",
+        "secondaryImageUrl": null
       }
     },
     {
@@ -280,6 +300,7 @@
       "goldenCaseId": "G-51",
       "title": "Recluse Brew Works — Shy Guy",
       "assetPath": "assets/cola-cloud/recluse-brew-works-shy-guy-malt-beverage.webp",
+      "secondaryAssetPath": null,
       "beverageType": "malt-beverage",
       "scenario": "Real TTB-approved malt beverage label (beer, washington)",
       "expectedRecommendation": "approve",
@@ -298,7 +319,8 @@
         "llmCategory": "IPA",
         "llmCategoryPath": "Beer > Ale > IPA",
         "hasBarcodes": false,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000512_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000512_0.webp",
+        "secondaryImageUrl": null
       }
     },
     {
@@ -306,6 +328,7 @@
       "goldenCaseId": "G-52",
       "title": "Pleasant Prairie Brewing — Peach Sour Ale",
       "assetPath": "assets/cola-cloud/pleasant-prairie-brewing-peach-sour-ale-malt-beverage.webp",
+      "secondaryAssetPath": null,
       "beverageType": "malt-beverage",
       "scenario": "Real TTB-approved malt beverage label (malt beverages specialities - flavored, montana)",
       "expectedRecommendation": "approve",
@@ -324,7 +347,8 @@
         "llmCategory": "Kettle Sour",
         "llmCategoryPath": "Beer > Ale > Sour / Wild Ale > Kettle Sour",
         "hasBarcodes": false,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000406_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000406_0.webp",
+        "secondaryImageUrl": null
       }
     },
     {
@@ -332,6 +356,7 @@
       "goldenCaseId": "G-53",
       "title": "Crafty Elk — Mango & Honey",
       "assetPath": "assets/cola-cloud/crafty-elk-mango-honey-distilled-spirits.webp",
+      "secondaryAssetPath": null,
       "beverageType": "distilled-spirits",
       "scenario": "Real TTB-approved distilled spirits label (vodka specialties, wisconsin)",
       "expectedRecommendation": "approve",
@@ -350,7 +375,8 @@
         "llmCategory": "Flavored Vodka",
         "llmCategoryPath": "Liquor > Vodka > Flavored Vodka",
         "hasBarcodes": true,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000138_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000138_0.webp",
+        "secondaryImageUrl": null
       }
     },
     {
@@ -358,6 +384,7 @@
       "goldenCaseId": "G-54",
       "title": "The Wine Trust — Rum",
       "assetPath": "assets/cola-cloud/the-wine-trust-rum-distilled-spirits.webp",
+      "secondaryAssetPath": null,
       "beverageType": "distilled-spirits",
       "scenario": "Real TTB-approved distilled spirits label (other rum gold fb, trinidad/tobago)",
       "expectedRecommendation": "approve",
@@ -376,7 +403,8 @@
         "llmCategory": "Rum",
         "llmCategoryPath": "Liquor > Rum",
         "hasBarcodes": false,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000104_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000104_0.webp",
+        "secondaryImageUrl": null
       }
     },
     {
@@ -384,6 +412,7 @@
       "goldenCaseId": "G-55",
       "title": "Flaviar — Columbia Creek Tennessee Whiskey",
       "assetPath": "assets/cola-cloud/flaviar-columbia-creek-tennessee-whiskey-distilled-spirits.webp",
+      "secondaryAssetPath": null,
       "beverageType": "distilled-spirits",
       "scenario": "Real TTB-approved distilled spirits label (whisky, new york)",
       "expectedRecommendation": "approve",
@@ -402,7 +431,8 @@
         "llmCategory": "Whiskey",
         "llmCategoryPath": "Liquor > Whiskey",
         "hasBarcodes": true,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000100_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000100_0.webp",
+        "secondaryImageUrl": null
       }
     },
     {
@@ -410,6 +440,7 @@
       "goldenCaseId": "G-56",
       "title": "Old Station 31 — Orange",
       "assetPath": "assets/cola-cloud/old-station-31-orange-distilled-spirits.webp",
+      "secondaryAssetPath": "assets/cola-cloud/old-station-31-orange-distilled-spirits-back.webp",
       "beverageType": "distilled-spirits",
       "scenario": "Real TTB-approved distilled spirits label (vodka - orange flavored, wisconsin)",
       "expectedRecommendation": "approve",
@@ -428,7 +459,8 @@
         "llmCategory": "Vodka",
         "llmCategoryPath": "Liquor > Vodka",
         "hasBarcodes": true,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000003_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000003_0.webp",
+        "secondaryImageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000003_1.webp"
       }
     },
     {
@@ -436,6 +468,7 @@
       "goldenCaseId": "G-57",
       "title": "West Peak — Tequila Paloma",
       "assetPath": "assets/cola-cloud/west-peak-tequila-paloma-distilled-spirits.webp",
+      "secondaryAssetPath": null,
       "beverageType": "distilled-spirits",
       "scenario": "Real TTB-approved distilled spirits label (other specialties & proprietaries, california)",
       "expectedRecommendation": "approve",
@@ -454,7 +487,8 @@
         "llmCategory": "Tequila",
         "llmCategoryPath": "Liquor > Tequila",
         "hasBarcodes": false,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000002_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000002_0.webp",
+        "secondaryImageUrl": null
       }
     },
     {
@@ -462,6 +496,7 @@
       "goldenCaseId": "G-58",
       "title": "Stormwood Wines — Semillon",
       "assetPath": "assets/cola-cloud/stormwood-wines-semillon-wine.webp",
+      "secondaryAssetPath": "assets/cola-cloud/stormwood-wines-semillon-wine-strip.webp",
       "beverageType": "wine",
       "scenario": "Real TTB-approved wine label (table white wine, new zealand)",
       "expectedRecommendation": "approve",
@@ -482,7 +517,8 @@
         "llmCategory": "White Wine",
         "llmCategoryPath": "Wine > White Wine",
         "hasBarcodes": false,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26089001000783_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26089001000783_0.webp",
+        "secondaryImageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26089001000783_1.webp"
       }
     },
     {
@@ -490,6 +526,7 @@
       "goldenCaseId": "G-59",
       "title": "Forlorn Hope — San Hercurmer Delle Frecce",
       "assetPath": "assets/cola-cloud/forlorn-hope-san-hercurmer-delle-frecce-wine.webp",
+      "secondaryAssetPath": null,
       "beverageType": "wine",
       "scenario": "Real TTB-approved wine label (table red wine, california)",
       "expectedRecommendation": "approve",
@@ -510,7 +547,8 @@
         "llmCategory": "Barbera",
         "llmCategoryPath": "Wine > Red Wine > Barbera",
         "hasBarcodes": false,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26096001000685_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26096001000685_0.webp",
+        "secondaryImageUrl": null
       }
     },
     {
@@ -518,6 +556,7 @@
       "goldenCaseId": "G-60",
       "title": "Manzone Giovanni — Barolo Perno",
       "assetPath": "assets/cola-cloud/manzone-giovanni-barolo-perno-wine.webp",
+      "secondaryAssetPath": "assets/cola-cloud/manzone-giovanni-barolo-perno-wine-back.webp",
       "beverageType": "wine",
       "scenario": "Real TTB-approved wine label (table red wine, italy)",
       "expectedRecommendation": "approve",
@@ -538,7 +577,8 @@
         "llmCategory": "Red Wine",
         "llmCategoryPath": "Wine > Red Wine",
         "hasBarcodes": true,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26094001000054_1.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26094001000054_1.webp",
+        "secondaryImageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26094001000054_0.webp"
       }
     },
     {
@@ -546,6 +586,7 @@
       "goldenCaseId": "G-61",
       "title": "Ana Luisa — Gran Reserva Parcelas Blend",
       "assetPath": "assets/cola-cloud/ana-luisa-gran-reserva-parcelas-blend-wine.webp",
+      "secondaryAssetPath": "assets/cola-cloud/ana-luisa-gran-reserva-parcelas-blend-wine-back.webp",
       "beverageType": "wine",
       "scenario": "Real TTB-approved wine label (table red wine, chile)",
       "expectedRecommendation": "approve",
@@ -568,7 +609,8 @@
         "llmCategory": "Red Wine",
         "llmCategoryPath": "Wine > Red Wine",
         "hasBarcodes": true,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26093001000283_1.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26093001000283_1.webp",
+        "secondaryImageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26093001000283_0.webp"
       }
     },
     {
@@ -576,6 +618,7 @@
       "goldenCaseId": "G-62",
       "title": "Carousel Winery — Fairy Floss Cotton Candy",
       "assetPath": "assets/cola-cloud/carousel-winery-fairy-floss-cotton-candy-wine.webp",
+      "secondaryAssetPath": "assets/cola-cloud/carousel-winery-fairy-floss-cotton-candy-wine-back.webp",
       "beverageType": "wine",
       "scenario": "Real TTB-approved wine label (table flavored wine, indiana)",
       "expectedRecommendation": "approve",
@@ -594,7 +637,8 @@
         "llmCategory": "White Wine",
         "llmCategoryPath": "Wine > White Wine",
         "hasBarcodes": true,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000443_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000443_0.webp",
+        "secondaryImageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000443_1.webp"
       }
     },
     {
@@ -602,6 +646,7 @@
       "goldenCaseId": "G-63",
       "title": "Venture Studios — null",
       "assetPath": "assets/cola-cloud/venture-studios-null-wine.webp",
+      "secondaryAssetPath": "assets/cola-cloud/venture-studios-null-wine-back.webp",
       "beverageType": "wine",
       "scenario": "Real TTB-approved wine label (table white wine, france)",
       "expectedRecommendation": "approve",
@@ -620,7 +665,8 @@
         "llmCategory": "White Wine",
         "llmCategoryPath": "Wine > White Wine",
         "hasBarcodes": false,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26097001000965_1.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26097001000965_1.webp",
+        "secondaryImageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26097001000965_0.webp"
       }
     },
     {
@@ -628,6 +674,7 @@
       "goldenCaseId": "G-64",
       "title": "Sapwood Cellars — Albura Lager",
       "assetPath": "assets/cola-cloud/sapwood-cellars-albura-lager-malt-beverage.webp",
+      "secondaryAssetPath": null,
       "beverageType": "malt-beverage",
       "scenario": "Real TTB-approved malt beverage label (beer, maryland)",
       "expectedRecommendation": "approve",
@@ -646,7 +693,8 @@
         "llmCategory": "International Pale Lager",
         "llmCategoryPath": "Beer > Lagers > Pale Lager > International Pale Lager",
         "hasBarcodes": true,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000393_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000393_0.webp",
+        "secondaryImageUrl": null
       }
     },
     {
@@ -654,6 +702,7 @@
       "goldenCaseId": "G-65",
       "title": "Drekker Brewing Company — Piano Necktie",
       "assetPath": "assets/cola-cloud/drekker-brewing-company-piano-necktie-malt-beverage.webp",
+      "secondaryAssetPath": null,
       "beverageType": "malt-beverage",
       "scenario": "Real TTB-approved malt beverage label (ale, north dakota)",
       "expectedRecommendation": "approve",
@@ -672,7 +721,8 @@
         "llmCategory": "Pale Ale",
         "llmCategoryPath": "Beer > Ale > Pale Ale",
         "hasBarcodes": false,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000387_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000387_0.webp",
+        "secondaryImageUrl": null
       }
     },
     {
@@ -680,6 +730,7 @@
       "goldenCaseId": "G-66",
       "title": "Pilok — Broumy",
       "assetPath": "assets/cola-cloud/pilok-broumy-malt-beverage.webp",
+      "secondaryAssetPath": null,
       "beverageType": "malt-beverage",
       "scenario": "Real TTB-approved malt beverage label (beer, czech republic)",
       "expectedRecommendation": "approve",
@@ -698,7 +749,8 @@
         "llmCategory": "Amber Lager",
         "llmCategoryPath": "Beer > Lagers > Amber Lager",
         "hasBarcodes": false,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000381_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000381_0.webp",
+        "secondaryImageUrl": null
       }
     },
     {
@@ -706,6 +758,7 @@
       "goldenCaseId": "G-67",
       "title": "1840 Original Lager — 1840 Original Lager",
       "assetPath": "assets/cola-cloud/1840-original-lager-1840-original-lager-malt-beverage.webp",
+      "secondaryAssetPath": null,
       "beverageType": "malt-beverage",
       "scenario": "Real TTB-approved malt beverage label (beer, pennsylvania)",
       "expectedRecommendation": "approve",
@@ -724,7 +777,8 @@
         "llmCategory": "Pale Lager",
         "llmCategoryPath": "Beer > Lagers > Pale Lager",
         "hasBarcodes": false,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000363_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000363_0.webp",
+        "secondaryImageUrl": null
       }
     },
     {
@@ -732,6 +786,7 @@
       "goldenCaseId": "G-68",
       "title": "Harpoon — Ale",
       "assetPath": "assets/cola-cloud/harpoon-ale-malt-beverage.webp",
+      "secondaryAssetPath": null,
       "beverageType": "malt-beverage",
       "scenario": "Real TTB-approved malt beverage label (ale, massachusetts)",
       "expectedRecommendation": "approve",
@@ -750,7 +805,8 @@
         "llmCategory": "Ale",
         "llmCategoryPath": "Beer > Ale",
         "hasBarcodes": false,
-        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000362_0.webp"
+        "imageUrl": "https://dyuie4zgfxmt6.cloudfront.net/26100001000362_0.webp",
+        "secondaryImageUrl": null
       }
     }
   ]

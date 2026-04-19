@@ -29,6 +29,11 @@
 - For `TTB-210`, keep batch-specific behavior in orchestration and telemetry only; item execution must reuse the canonical single-review prompt, resolver, and report path so single mode stays the source of truth.
 - For `TTB-210`, keep route-specific prompt provenance dynamic in trace and eval metadata, with batch run/retry item execution reusing `review-cloud-v1` instead of a separate batch profile.
 - Publish `TTB-304` from a clean sibling worktree and port only the dual-image story files, because the root checkout also contains unrelated `TTB-210` warning-refine edits.
+- For the `TTB-304` counterpart reload follow-up, refresh the existing stored COLA ids in place instead of reseeding a different corpus so sample ids, batch CSV rows, and eval references stay stable while counterpart images are backfilled.
+- When a refreshed COLA record exposes multiple images, persist up to two preferred stored assets and record both the local asset path and the upstream secondary image URL in manifest metadata.
+- Keep batch image cases flattened to actual files with `sampleId` and `isSecondary`, but keep Toolbench direct sample lists grouped by the original stored sample id so secondary images do not masquerade as standalone reviews.
+- Hydrate sample loaders from ordered `images` arrays so `/api/eval/sample` and the built-in Toolbench fallback use the same two-image contract.
+- Absorb COLA Cloud `429` responses inside the refresh helper with an explicit backoff loop instead of treating rate limiting as a fatal corpus-refresh failure.
 - For the `TTB-401` docs follow-up, keep the docs packet on native Mermaid blocks; the SVG asset detour was merged once, but the better fit for this repo is direct Mermaid rendering plus stronger README framing for assessors.
 - In the README, explain `/api/review/refine` as a silent second-pass verifier and separate perceived-latency tactics from actual-latency tactics, because the assignment brief makes time-to-first-answer a product requirement, not just an implementation metric.
 - For the screenshot follow-up, use the live Toolbench-enabled local app as the capture source and document Toolbench explicitly as the fastest evaluator harness rather than burying it as a developer-only surface.

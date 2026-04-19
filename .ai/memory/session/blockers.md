@@ -1,7 +1,8 @@
 # Blockers
 
-- Current Toolbench follow-up: no active implementation blocker. Remaining work is merge/publish, not local correctness.
-- The warning diagnostic run shows a real data-quality blocker for corpus interpretation: many `cola-cloud-real` assets are front labels that do not visibly include the government warning, so those cases cannot prove warning-reader quality without a paired back-label image.
+- The immediate `TTB-304` counterpart reload branch is not locally blocked; code, manifests, and refreshed assets are in place pending the user's direction on whether to keep or publish the generated corpus churn.
+- Counterpart coverage improved but is still incomplete: 13 stored COLA records now have paired secondary/back images, while the remaining stored records are still front-only or otherwise lack a warning-visible counterpart.
+- The warning diagnostic run still has a broader corpus-interpretation blocker: many `cola-cloud-real` assets are front labels that do not visibly include the government warning, so those cases still cannot prove warning-reader quality without a paired back-label image.
 - The warning-visible slice is still unstable across repeated live runs because the upstream warning readers vary label to label and run to run; after the current fixes the remaining hard failures are no longer heading-format false fails, but single-run exact-text collapses can still occur on labels such as `G-67` when both VLM and OCR fail together.
 - The main warning-route regression blocker is resolved: `npm run eval:golden` no longer fails on `G-02:warning`.
 - Authoritative live core-six extraction verification is still blocked by the absence of curated internal label files; `evals/labels/assets/` now contains Gemini-generated synthetic smoke PNGs, but they are not the final source-of-truth corpus.

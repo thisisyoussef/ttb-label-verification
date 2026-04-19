@@ -29,6 +29,39 @@ afterEach(async () => {
 });
 
 describe('eval COLA Cloud routes', () => {
+  it('returns counterpart stored sample images when the checked-in corpus has them', async () => {
+    process.env.TTB_BOOT_WARMUP = 'disabled';
+
+    const realFetch = fetch;
+    const server = await startServer();
+    registerServer(server);
+
+    const response = await realFetch(
+      serverUrl(
+        server,
+        '/api/eval/sample?id=persian-empire-black-widow-distilled-spirits'
+      )
+    );
+
+    expect(response.status).toBe(200);
+
+    const payload = (await response.json()) as {
+      image: { id: string; filename: string };
+      images?: Array<{ id: string; filename: string }>;
+      fields: { brandName: string };
+    };
+
+    expect(payload.fields.brandName).toBe('Persian Empire');
+    expect(payload.image.filename).toBe(
+      'persian-empire-black-widow-distilled-spirits.webp'
+    );
+    expect(payload.images).toHaveLength(2);
+    expect(payload.images?.map((image) => image.filename)).toEqual([
+      'persian-empire-black-widow-distilled-spirits.webp',
+      'persian-empire-black-widow-distilled-spirits-back.webp'
+    ]);
+  });
+
   it('returns both preferred live images when a COLA record includes a second label', async () => {
     process.env.COLACLOUD_API_KEY = 'test-cola-cloud-key';
     process.env.TTB_BOOT_WARMUP = 'disabled';

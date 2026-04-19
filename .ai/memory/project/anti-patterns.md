@@ -29,6 +29,8 @@
 - Re-parsing optional multipart `fields` ad hoc inside route handlers instead of using the shared intake normalizer
 - Treating standalone review requests as invalid just because the multipart `fields` part is omitted
 - Treating a front/back label pair as two separate applications or allowing more than two label files through one review row
+- Refreshing the stored COLA corpus but still collapsing multi-image records back to one asset per sample, which silently erases counterpart coverage the shipped dual-image path now expects
+- Exposing flattened secondary image cases as separate single-review samples instead of grouping them back under the original stored sample id for direct sample loading
 - Leaving dev-only fixture controls visible in normal runtime mode so seeded behavior silently overrides the live path
 - Letting the batch dashboard, retry, export, or processing path branch directly on `fixtureControlsEnabled` instead of the active batch source, so dev mode silently falls back to seeded data even during a live session
 - Replacing the current live batch image list when the reviewer clicks `Add more` instead of appending the newly selected files

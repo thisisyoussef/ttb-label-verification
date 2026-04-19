@@ -39,6 +39,8 @@
 - When the shared contract expands, client-side fixture and helper types should alias the shared report types instead of preserving a parallel interface tree.
 - Upload intake starts with route-local in-memory validation and explicit limits; no global multipart middleware is allowed.
 - Multi-image label intake is capped at two ordered files: primary first, optional secondary second, with legacy one-image callers still routed through the same normalized contract.
+- When a live COLA corpus refresh exists to repair stored assets, refresh the existing stored ids in place instead of rotating the corpus; downstream eval manifests and sample references depend on stable sample ids.
+- Stored sample packs should separate sample identity from physical asset identity: batch/eval manifests may flatten actual files with `sampleId` and `isSecondary`, while Toolbench single-sample pickers and fallback loaders stay keyed to the original sample row and hydrate ordered `images` arrays.
 - Multipart request parsing and normalization should live in a dedicated server module (`src/server/review-intake.ts`) so routes consume a typed result instead of re-parsing `fields` inline.
 - Standalone single-label intake is represented by omitted or blank multipart `fields`, which normalize to `beverageTypeHint: 'auto'`, `origin: 'domestic'`, and `hasApplicationData: false`.
 - Responses structured outputs should use an API-facing schema with required-plus-nullable fields, then normalize into the shared server contract after parsing.

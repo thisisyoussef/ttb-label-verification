@@ -1,11 +1,11 @@
-filename,beverage_type,brand_name,fanciful_name,class_type,alcohol_content,net_contents,applicant_address,origin,country,formula_id,appellation,vintage
-leitz-rottland-wine.pdf,wine,Leitz,Rottland,table white wine,12.5% Alc./Vol.,,,imported,germany,,Rheingau,2023
-leitz-magdalenenkreuz-wine.pdf,wine,Leitz,Magdalenenkreuz,table white wine,8% Alc./Vol.,,,imported,germany,,Rheingau,2025
-leitz-klosterlay-wine.pdf,wine,Leitz,Klosterlay,table white wine,8.5% Alc./Vol.,,,imported,germany,,Rheingau,2025
-uncorked-in-mayberry-otis-own-wine.pdf,wine,Uncorked In Mayberry,Otis' Own,table white wine,12.5% Alc./Vol.,,,domestic,,,North Carolina,
-stormwood-wines-semillon-wine.pdf,wine,Stormwood Wines,Semillon,table white wine,13% Alc./Vol.,,,imported,new zealand,,Waiheke Island,2025
-forlorn-hope-san-hercurmer-delle-frecce-wine.pdf,wine,Forlorn Hope,San Hercurmer Delle Frecce,table red wine,12.5% Alc./Vol.,,,domestic,,,Sierra Foothills,2020
-manzone-giovanni-barolo-perno-wine.pdf,wine,Manzone Giovanni,Barolo Perno,table red wine,13.5% Alc./Vol.,,,imported,italy,,Barolo,1998
-ana-luisa-gran-reserva-parcelas-blend-wine.pdf,wine,Ana Luisa,Gran Reserva Parcelas Blend,table red wine,14% Alc./Vol.,,,imported,chile,,Valle De Curico,2023
-carousel-winery-fairy-floss-cotton-candy-wine.pdf,wine,Carousel Winery,Fairy Floss Cotton Candy,table flavored wine,9% Alc./Vol.,,,domestic,,,American,
-venture-studios-null-wine.pdf,wine,Venture Studios,,table white wine,14% Alc./Vol.,,,imported,france,,,
+filename,secondary_filename,beverage_type,brand_name,fanciful_name,class_type,alcohol_content,net_contents,applicant_address,origin,country,formula_id,appellation,vintage
+leitz-rottland-wine.pdf,leitz-rottland-wine-back.pdf,wine,Leitz,Rottland,table white wine,12.5% Alc./Vol.,,,imported,germany,,Rheingau,2023
+leitz-magdalenenkreuz-wine.pdf,leitz-magdalenenkreuz-wine-back.pdf,wine,Leitz,Magdalenenkreuz,table white wine,8% Alc./Vol.,,,imported,germany,,Rheingau,2025
+leitz-klosterlay-wine.pdf,leitz-klosterlay-wine-back.pdf,wine,Leitz,Klosterlay,table white wine,8.5% Alc./Vol.,,,imported,germany,,Rheingau,2025
+uncorked-in-mayberry-otis-own-wine.pdf,uncorked-in-mayberry-otis-own-wine-back.pdf,wine,Uncorked In Mayberry,Otis' Own,table white wine,12.5% Alc./Vol.,,,domestic,,,North Carolina,
+stormwood-wines-semillon-wine.pdf,stormwood-wines-semillon-wine-strip.pdf,wine,Stormwood Wines,Semillon,table white wine,13% Alc./Vol.,,,imported,new zealand,,Waiheke Island,2025
+forlorn-hope-san-hercurmer-delle-frecce-wine.pdf,,wine,Forlorn Hope,San Hercurmer Delle Frecce,table red wine,12.5% Alc./Vol.,,,domestic,,,Sierra Foothills,2020
+manzone-giovanni-barolo-perno-wine.pdf,manzone-giovanni-barolo-perno-wine-back.pdf,wine,Manzone Giovanni,Barolo Perno,table red wine,13.5% Alc./Vol.,,,imported,italy,,Barolo,1998
+ana-luisa-gran-reserva-parcelas-blend-wine.pdf,ana-luisa-gran-reserva-parcelas-blend-wine-back.pdf,wine,Ana Luisa,Gran Reserva Parcelas Blend,table red wine,14% Alc./Vol.,,,imported,chile,,Valle De Curico,2023
+carousel-winery-fairy-floss-cotton-candy-wine.pdf,carousel-winery-fairy-floss-cotton-candy-wine-back.pdf,wine,Carousel Winery,Fairy Floss Cotton Candy,table flavored wine,9% Alc./Vol.,,,domestic,,,American,
+venture-studios-null-wine.pdf,venture-studios-null-wine-back.pdf,wine,Venture Studios,,table white wine,14% Alc./Vol.,,,imported,france,,,
