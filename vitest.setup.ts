@@ -30,3 +30,10 @@ if (typeof globalThis.crypto === 'undefined') {
 if (!process.env.OCR_PREPASS) {
   process.env.OCR_PREPASS = 'disabled';
 }
+
+// Tests spin up in-process Express apps repeatedly; the production boot
+// warmup adds avoidable OCR/model startup work and can starve the suites
+// that already exercise those binaries directly.
+if (!process.env.TTB_BOOT_WARMUP) {
+  process.env.TTB_BOOT_WARMUP = 'disabled';
+}
