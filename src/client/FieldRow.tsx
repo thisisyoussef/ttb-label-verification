@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { FieldEvidencePanel } from './FieldEvidence';
+import { LabelEvidenceBadge } from './LabelEvidenceBadge';
 import { StatusBadge } from './StatusBadge';
 import { WarningEvidencePanel } from './WarningEvidence';
 import type { CheckReview } from './types';
@@ -17,6 +18,12 @@ interface FieldRowProps {
    * moment — especially helpful when they've already expanded evidence.
    */
   refining?: boolean;
+  /**
+   * Total number of label images submitted with the review. Used to
+   * gate the per-check "Image N" evidence badge — only meaningful when
+   * the reviewer uploaded more than one image.
+   */
+  totalImages?: number;
   rowRef?: (node: HTMLButtonElement | null) => void;
   onKeyNav?: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
 }
@@ -34,6 +41,7 @@ export function FieldRow({
   onToggle,
   standalone,
   refining = false,
+  totalImages = 1,
   rowRef,
   onKeyNav
 }: FieldRowProps) {
@@ -105,6 +113,10 @@ export function FieldRow({
             {check.extractedValue || '—'}
           </span>
           <span className="shrink-0 flex items-center gap-2 md:justify-end">
+            <LabelEvidenceBadge
+              evidenceImage={check.evidenceImage}
+              totalImages={totalImages}
+            />
             {refining ? (
               <span
                 className="inline-flex items-center gap-1 font-label text-[10px] font-bold uppercase tracking-widest text-primary"

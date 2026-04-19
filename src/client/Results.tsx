@@ -344,6 +344,7 @@ export function Results({
                     expanded={expandedId === check.id}
                     onToggle={() => toggleRow(check.id)}
                     standalone={report.standalone}
+                    totalImages={secondaryImage ? 2 : 1}
                     refining={
                       refineStatus === 'refining' &&
                       check.status === 'review' &&
