@@ -106,20 +106,20 @@ export function spiritBrandCaseMismatchReport(): UIVerificationReport {
     {
       id: 'brand-name',
       label: 'Brand name',
-      status: 'review',
-      severity: 'minor',
-      summary: 'Casing difference detected.',
+      status: 'pass',
+      severity: 'note',
+      summary: 'Brand name matches the approved record.',
       details:
-        'The extracted text matches the application value when compared case-insensitively. Regulatory standards typically accept mixed-case variants for brand identification, but this may warrant a human look.',
+        'The extracted text matches the application value after cosmetic normalization, so casing alone does not trigger review.',
       confidence: 0.96,
       citations: ['27 CFR 5.63 brand name requirements'],
       applicationValue: "STONE'S THROW",
       extractedValue: "Stone's Throw",
       comparison: {
-        status: 'case-mismatch',
+        status: 'match',
         applicationValue: "STONE'S THROW",
         extractedValue: "Stone's Throw",
-        note: 'Mixed case vs. uppercase'
+        note: 'Values match after cosmetic normalization.'
       }
     },
     passCheck(
@@ -154,13 +154,13 @@ export function spiritBrandCaseMismatchReport(): UIVerificationReport {
   return withReportDefaults({
     id: 'spirit-brand-case-mismatch',
     beverageType: 'distilled-spirits',
-    verdict: 'review',
+    verdict: 'approve',
     standalone: false,
     extractionQuality: { globalConfidence: 0.96, state: 'ok' },
     counts: countsFor(checks, crossFieldChecks),
     checks,
     crossFieldChecks,
-    summary: 'Cosmetic brand mismatch keeps the distilled spirits label in review.'
+    summary: 'Cosmetic brand casing differences do not change the approval outcome.'
   });
 }
 

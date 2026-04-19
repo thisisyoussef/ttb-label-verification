@@ -1,0 +1,1631 @@
+{
+  "date": "2026-04-19T19:20:14.558Z",
+  "slice": "cola-cloud-warning-visible",
+  "mode": "cloud",
+  "providers": [
+    "gemini",
+    "openai"
+  ],
+  "prepassEnabled": true,
+  "useSimplePipeline": false,
+  "totals": {
+    "final": {
+      "review": 9,
+      "pass": 3,
+      "fail": 2
+    },
+    "ocr": {
+      "fail": 3,
+      "pass": 1,
+      "review": 1
+    },
+    "vlm": {
+      "pass": 8,
+      "fail": 3,
+      "review": 3
+    },
+    "reconciled": {
+      "pass": 8,
+      "fail": 3,
+      "review": 3
+    },
+    "ocv": {
+      "fail": 9,
+      "pass": 4,
+      "review": 1
+    },
+    "subChecks": {
+      "present": {
+        "pass": 14
+      },
+      "exact-text": {
+        "review": 10,
+        "pass": 3,
+        "fail": 1
+      },
+      "uppercase-bold-heading": {
+        "review": 9,
+        "pass": 4,
+        "fail": 1
+      },
+      "continuous-paragraph": {
+        "pass": 14
+      },
+      "legibility": {
+        "pass": 12,
+        "review": 2
+      }
+    }
+  },
+  "diagnostics": [
+    {
+      "id": "G-44",
+      "slug": "crafy-elk-cranberry-blueberry-acai-distilled-spirits",
+      "title": "Crafy Elk — Cranberry, Blueberry, & Acai",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/crafy-elk-cranberry-blueberry-acai-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.55,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "ocv": {
+          "status": "partial",
+          "confidence": 0.7,
+          "similarity": 0.678,
+          "vote": "fail",
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE RETURN FOR REFUND * cc SURGEON GENERAL, WOMEN SHOULD NOT DRINK WHERE APPLICABLE..."
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        },
+        "visualSignals": {
+          "prefixAllCaps": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "prefixBold": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "continuousParagraph": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "separateFromOtherContent": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "imageQuality": {
+            "state": "ok",
+            "score": 0.9
+          }
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.88,
+        "summary": "Warning text partially matches",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Text matches, but the label image is hard to read. Please confirm."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Heading is all caps, but it is hard to tell whether it is bold in this image."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-50",
+      "slug": "lake-placid-ridge-runner-malt-beverage",
+      "title": "Lake Placid — Ridge Runner",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/lake-placid-ridge-runner-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 0.933,
+          "vote": "pass",
+          "length": 264,
+          "preview": "WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUSE OF THE RI..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 0.933,
+          "vote": "pass",
+          "length": 264,
+          "preview": "WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUSE OF THE RI..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.55,
+          "similarity": 0.933,
+          "vote": "pass",
+          "length": 264,
+          "preview": "WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUSE OF THE RI..."
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        },
+        "visualSignals": {
+          "prefixAllCaps": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "prefixBold": {
+            "status": "yes",
+            "confidence": 0.9
+          },
+          "continuousParagraph": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "separateFromOtherContent": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "imageQuality": {
+            "state": "ok",
+            "score": 0.9
+          }
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.87,
+        "summary": "Warning text partially matches",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Warning text does not exactly match the required wording (93% aligned). Review the highlighted differences before approval."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not confirm the heading is all caps because the label image is hard to read."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-51",
+      "slug": "recluse-brew-works-shy-guy-malt-beverage",
+      "title": "Recluse Brew Works — Shy Guy",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/recluse-brew-works-shy-guy-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.98,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.98,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.55,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        },
+        "visualSignals": {
+          "prefixAllCaps": {
+            "status": "yes",
+            "confidence": 0.98
+          },
+          "prefixBold": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "continuousParagraph": {
+            "status": "yes",
+            "confidence": 0.98
+          },
+          "separateFromOtherContent": {
+            "status": "yes",
+            "confidence": 0.98
+          },
+          "imageQuality": {
+            "state": "ok",
+            "score": 0.9
+          }
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.89,
+        "summary": "Warning text partially matches",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Warning text does not exactly match the required wording (97% aligned). Review the highlighted differences before approval."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Heading is all caps, but it is hard to tell whether it is bold in this image."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-52",
+      "slug": "pleasant-prairie-brewing-peach-sour-ale-malt-beverage",
+      "title": "Pleasant Prairie Brewing — Peach Sour Ale",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/pleasant-prairie-brewing-peach-sour-ale-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": true,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.979,
+          "vote": "pass",
+          "length": 277,
+          "preview": "GOVERNMENT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy be..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.979,
+          "vote": "pass",
+          "length": 277,
+          "preview": "GOVERNMENT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy be..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.979,
+          "vote": "pass",
+          "length": 277,
+          "preview": "GOVERNMENT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy be..."
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "ocr-too-noisy"
+        },
+        "visualSignals": {
+          "prefixAllCaps": {
+            "status": "yes",
+            "confidence": 0.9
+          },
+          "prefixBold": {
+            "status": "uncertain",
+            "confidence": 0.5
+          },
+          "continuousParagraph": {
+            "status": "yes",
+            "confidence": 0.9
+          },
+          "separateFromOtherContent": {
+            "status": "yes",
+            "confidence": 0.9
+          },
+          "imageQuality": {
+            "state": "ok",
+            "score": 0.9
+          }
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.84,
+        "summary": "Warning text partially matches",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Warning text does not exactly match the required wording (98% aligned). Review the highlighted differences before approval."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Heading is all caps, but it is hard to tell whether it is bold in this image."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-53",
+      "slug": "crafty-elk-mango-honey-distilled-spirits",
+      "title": "Crafty Elk — Mango & Honey",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/crafty-elk-mango-honey-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": true,
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 0.299,
+          "vote": "fail",
+          "length": 939,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE RETURN FOR REFUND SURGEON GENERAL, WOMEN SHOULD NOT DRINK WHERE APPLICABLE ALCO..."
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.9,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.9,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.9,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "ocv": {
+          "status": "partial",
+          "confidence": 0.7,
+          "similarity": 0.672,
+          "vote": "fail",
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING 10 THE RETURN FOR REFUND ,@®, oc SURGEON GENERAL, WOMEN SHOULD NOT DRINK WHERE APPLICA..."
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        },
+        "visualSignals": {
+          "prefixAllCaps": {
+            "status": "yes",
+            "confidence": 0.9
+          },
+          "prefixBold": {
+            "status": "no",
+            "confidence": 0.8
+          },
+          "continuousParagraph": {
+            "status": "yes",
+            "confidence": 0.9
+          },
+          "separateFromOtherContent": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "imageQuality": {
+            "state": "low-confidence",
+            "score": 0.8
+          }
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.88,
+        "summary": "Warning text partially matches",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Text matches, but the label image is hard to read. Please confirm."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Heading is all caps, but the current visual read is not reliable enough to call boldness as a defect. Please confirm visually."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "The label image is hard to read, so we cannot confirm the warning is legible."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-54",
+      "slug": "the-wine-trust-rum-distilled-spirits",
+      "title": "The Wine Trust — Rum",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/the-wine-trust-rum-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": true,
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.99,
+          "similarity": 0.986,
+          "vote": "pass",
+          "length": 279,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.99,
+          "similarity": 0.986,
+          "vote": "pass",
+          "length": 279,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.99,
+          "similarity": 0.986,
+          "vote": "pass",
+          "length": 279,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "ocv": {
+          "status": "verified",
+          "confidence": 0.93,
+          "similarity": 1,
+          "vote": "pass",
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "ocrCrossCheck": {
+          "status": "disagree",
+          "ocrText": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUSE OF THE RISK OF BIRTH DEFECTS. (2) CONSUMPTION OF ALCOHOLIC BEVERAGES IMPAIRS YOUR ABILITY TO DRIVE A CAR OR OPERATE MACHINERY, AND MAY CAUSE HEALTH PROBLEMS.",
+          "editDistance": 4
+        },
+        "visualSignals": {
+          "prefixAllCaps": {
+            "status": "yes",
+            "confidence": 0.99
+          },
+          "prefixBold": {
+            "status": "yes",
+            "confidence": 0.9
+          },
+          "continuousParagraph": {
+            "status": "yes",
+            "confidence": 0.99
+          },
+          "separateFromOtherContent": {
+            "status": "yes",
+            "confidence": 0.99
+          },
+          "imageQuality": {
+            "state": "ok",
+            "score": 0.9
+          }
+        }
+      },
+      "final": {
+        "status": "pass",
+        "severity": "note",
+        "confidence": 0.88,
+        "summary": "Warning text verified with minor read differences",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "pass",
+            "reason": "Warning text matches the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "pass",
+            "reason": "Heading is all caps and bold."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-55",
+      "slug": "flaviar-columbia-creek-tennessee-whiskey-distilled-spirits",
+      "title": "Flaviar — Columbia Creek Tennessee Whiskey",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/flaviar-columbia-creek-tennessee-whiskey-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.9,
+          "similarity": 0.7,
+          "vote": "fail",
+          "length": 215,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.9,
+          "similarity": 0.7,
+          "vote": "fail",
+          "length": 215,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.55,
+          "similarity": 0.7,
+          "vote": "fail",
+          "length": 215,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "ocv": {
+          "status": "verified",
+          "confidence": 0.93,
+          "similarity": 1,
+          "vote": "pass",
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        },
+        "visualSignals": {
+          "prefixAllCaps": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "prefixBold": {
+            "status": "uncertain",
+            "confidence": 0.5
+          },
+          "continuousParagraph": {
+            "status": "yes",
+            "confidence": 0.8
+          },
+          "separateFromOtherContent": {
+            "status": "yes",
+            "confidence": 0.9
+          },
+          "imageQuality": {
+            "state": "ok",
+            "score": 0.7
+          }
+        }
+      },
+      "final": {
+        "status": "pass",
+        "severity": "note",
+        "confidence": 0.73,
+        "summary": "Warning text verified with minor read differences",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "pass",
+            "reason": "Warning text matches the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Heading is all caps, but it is hard to tell whether it is bold in this image."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-57",
+      "slug": "west-peak-tequila-paloma-distilled-spirits",
+      "title": "West Peak — Tequila Paloma",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/west-peak-tequila-paloma-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": true,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.353,
+          "vote": "fail",
+          "length": 573,
+          "preview": "GOVERNMENT WARNING: CONSUMPTION OF ALCOHOLIC BEVERAGES IMPAIRS YOUR ABILITY TO DRIVE OR OPERATE MACHINERY OR ACCOMPLISH ..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.353,
+          "vote": "fail",
+          "length": 573,
+          "preview": "GOVERNMENT WARNING: CONSUMPTION OF ALCOHOLIC BEVERAGES IMPAIRS YOUR ABILITY TO DRIVE OR OPERATE MACHINERY OR ACCOMPLISH ..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.353,
+          "vote": "fail",
+          "length": 573,
+          "preview": "GOVERNMENT WARNING: CONSUMPTION OF ALCOHOLIC BEVERAGES IMPAIRS YOUR ABILITY TO DRIVE OR OPERATE MACHINERY OR ACCOMPLISH ..."
+        },
+        "ocv": {
+          "status": "verified",
+          "confidence": 0.93,
+          "similarity": 0.921,
+          "vote": "review",
+          "preview": "GOVERNMENT WARNING: (1) According to the Surgeon General. women shoutd mos drink aicoholbe beverages during pregnancy be..."
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        },
+        "visualSignals": {
+          "prefixAllCaps": {
+            "status": "yes",
+            "confidence": 0.99
+          },
+          "prefixBold": {
+            "status": "yes",
+            "confidence": 0.85
+          },
+          "continuousParagraph": {
+            "status": "yes",
+            "confidence": 0.9
+          },
+          "separateFromOtherContent": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "imageQuality": {
+            "state": "low-confidence",
+            "score": 0.7
+          }
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.89,
+        "summary": "Warning text partially matches",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Independent warning reads disagree, so a human should confirm the exact wording on the label."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "pass",
+            "reason": "Heading is all caps and bold."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "The label image is hard to read, so we cannot confirm the warning is legible."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-59",
+      "slug": "forlorn-hope-san-hercurmer-delle-frecce-wine",
+      "title": "Forlorn Hope — San Hercurmer Delle Frecce",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/forlorn-hope-san-hercurmer-delle-frecce-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.98,
+          "similarity": 0.958,
+          "vote": "pass",
+          "length": 271,
+          "preview": "GOVERNMENT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy be..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.98,
+          "similarity": 0.958,
+          "vote": "pass",
+          "length": 271,
+          "preview": "GOVERNMENT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy be..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.55,
+          "similarity": 0.958,
+          "vote": "pass",
+          "length": 271,
+          "preview": "GOVERNMENT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy be..."
+        },
+        "ocv": {
+          "status": "verified",
+          "confidence": 0.93,
+          "similarity": 0.993,
+          "vote": "pass",
+          "preview": "GOVERNMENT WARNING (1) According to the Surgeon General, women should not drink alcoho! i¢ beverages during pregnancy be..."
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        },
+        "visualSignals": {
+          "prefixAllCaps": {
+            "status": "yes",
+            "confidence": 0.99
+          },
+          "prefixBold": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "continuousParagraph": {
+            "status": "yes",
+            "confidence": 0.99
+          },
+          "separateFromOtherContent": {
+            "status": "yes",
+            "confidence": 0.99
+          },
+          "imageQuality": {
+            "state": "ok",
+            "score": 0.95
+          }
+        }
+      },
+      "final": {
+        "status": "pass",
+        "severity": "note",
+        "confidence": 0.9,
+        "summary": "Warning text verified with minor read differences",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "pass",
+            "reason": "Independent warning reads support the required wording despite minor read noise."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "pass",
+            "reason": "Heading is all caps and bold."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-64",
+      "slug": "sapwood-cellars-albura-lager-malt-beverage",
+      "title": "Sapwood Cellars — Albura Lager",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/sapwood-cellars-albura-lager-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.85,
+          "vote": "review",
+          "length": 320,
+          "preview": "GOVERNMENT WARNING:\nAccording to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.85,
+          "vote": "review",
+          "length": 320,
+          "preview": "GOVERNMENT WARNING:\nAccording to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.85,
+          "vote": "review",
+          "length": 320,
+          "preview": "GOVERNMENT WARNING:\nAccording to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "ocv": {
+          "status": "verified",
+          "confidence": 0.93,
+          "similarity": 0.955,
+          "vote": "pass",
+          "preview": "GOVERNMENT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy be..."
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        },
+        "visualSignals": {
+          "prefixAllCaps": {
+            "status": "yes",
+            "confidence": 1
+          },
+          "prefixBold": {
+            "status": "no",
+            "confidence": 0.7
+          },
+          "continuousParagraph": {
+            "status": "yes",
+            "confidence": 1
+          },
+          "separateFromOtherContent": {
+            "status": "yes",
+            "confidence": 1
+          },
+          "imageQuality": {
+            "state": "ok",
+            "score": 0.85
+          }
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.92,
+        "summary": "Warning text partially matches",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Independent warning reads disagree, so a human should confirm the exact wording on the label."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Heading is all caps, but it is hard to tell whether it is bold in this image."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-65",
+      "slug": "drekker-brewing-company-piano-necktie-malt-beverage",
+      "title": "Drekker Brewing Company — Piano Necktie",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/drekker-brewing-company-piano-necktie-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": true,
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 0.333,
+          "vote": "fail",
+          "length": 836,
+          "preview": "GOVERNMENT WARNING: ATTENTION = BEAD (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT ORINK ALCOHOLIC BEVERAGES. D..."
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.9,
+          "similarity": 0.901,
+          "vote": "review",
+          "length": 255,
+          "preview": "ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUSE OF THE RISK OF BIR..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.9,
+          "similarity": 0.901,
+          "vote": "review",
+          "length": 255,
+          "preview": "ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUSE OF THE RISK OF BIR..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.9,
+          "similarity": 0.901,
+          "vote": "review",
+          "length": 255,
+          "preview": "ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUSE OF THE RISK OF BIR..."
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        },
+        "visualSignals": {
+          "prefixAllCaps": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "prefixBold": {
+            "status": "yes",
+            "confidence": 0.9
+          },
+          "continuousParagraph": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "separateFromOtherContent": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "imageQuality": {
+            "state": "ok",
+            "score": 0.9
+          }
+        }
+      },
+      "final": {
+        "status": "fail",
+        "severity": "blocker",
+        "confidence": 0.92,
+        "summary": "Warning formatting needs attention",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Warning text does not exactly match the required wording (90% aligned). Review the highlighted differences before approval."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "fail",
+            "reason": "Heading is not all caps."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-66",
+      "slug": "pilok-broumy-malt-beverage",
+      "title": "Pilok — Broumy",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/pilok-broumy-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": true,
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 0.882,
+          "vote": "review",
+          "length": 321,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.848,
+          "vote": "review",
+          "length": 240,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.848,
+          "vote": "review",
+          "length": 240,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.848,
+          "vote": "review",
+          "length": 240,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "ocr-too-noisy"
+        },
+        "visualSignals": {
+          "prefixAllCaps": {
+            "status": "yes",
+            "confidence": 0.9
+          },
+          "prefixBold": {
+            "status": "uncertain",
+            "confidence": 0.5
+          },
+          "continuousParagraph": {
+            "status": "yes",
+            "confidence": 0.9
+          },
+          "separateFromOtherContent": {
+            "status": "yes",
+            "confidence": 0.9
+          },
+          "imageQuality": {
+            "state": "ok",
+            "score": 0.85
+          }
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.83,
+        "summary": "Warning text partially matches",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Warning text does not exactly match the required wording (85% aligned). Review the highlighted differences before approval."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Heading is all caps, but it is hard to tell whether it is bold in this image."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-67",
+      "slug": "1840-original-lager-1840-original-lager-malt-beverage",
+      "title": "1840 Original Lager — 1840 Original Lager",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/1840-original-lager-1840-original-lager-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": true,
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 0.385,
+          "vote": "fail",
+          "length": 736,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING:\nACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING:\nACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING:\nACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "ocr-too-noisy"
+        },
+        "visualSignals": {
+          "prefixAllCaps": {
+            "status": "yes",
+            "confidence": 0.98
+          },
+          "prefixBold": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "continuousParagraph": {
+            "status": "yes",
+            "confidence": 0.98
+          },
+          "separateFromOtherContent": {
+            "status": "yes",
+            "confidence": 0.95
+          },
+          "imageQuality": {
+            "state": "ok",
+            "score": 0.9
+          }
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.95,
+        "summary": "Warning text partially matches",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Warning text does not exactly match the required wording (97% aligned). Review the highlighted differences before approval."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "pass",
+            "reason": "Heading is all caps and bold."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-68",
+      "slug": "harpoon-ale-malt-beverage",
+      "title": "Harpoon — Ale",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/harpoon-ale-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": true,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 1,
+          "similarity": 0.61,
+          "vote": "fail",
+          "length": 341,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 1,
+          "similarity": 0.61,
+          "vote": "fail",
+          "length": 341,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 1,
+          "similarity": 0.61,
+          "vote": "fail",
+          "length": 341,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "ocv": {
+          "status": "partial",
+          "confidence": 0.5,
+          "similarity": 0.507,
+          "vote": "fail",
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING T WORCESTER, MA, MANCHESTER, NH IeINK ALCOMULIC SVEN OUAING PREGNANCY BECAUSE OFTHE RO..."
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        },
+        "visualSignals": {
+          "prefixAllCaps": {
+            "status": "yes",
+            "confidence": 1
+          },
+          "prefixBold": {
+            "status": "no",
+            "confidence": 0.8
+          },
+          "continuousParagraph": {
+            "status": "yes",
+            "confidence": 1
+          },
+          "separateFromOtherContent": {
+            "status": "yes",
+            "confidence": 1
+          },
+          "imageQuality": {
+            "state": "ok",
+            "score": 0.95
+          }
+        }
+      },
+      "final": {
+        "status": "fail",
+        "severity": "blocker",
+        "confidence": 0.96,
+        "summary": "Warning formatting needs review",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "fail",
+            "reason": "Warning wording differs from the required text. See the diff below for exact changes."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Heading is all caps, but the current visual read is not reliable enough to call boldness as a defect. Please confirm visually."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    }
+  ]
+}

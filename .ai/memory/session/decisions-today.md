@@ -1,5 +1,11 @@
 # Decisions Today
 
+- Keep non-warning capitalization differences as normal matches. Only the government warning diff keeps a dedicated wrong-capitalization surface.
+- Diagnose warning-field reliability against the real approved `cola-cloud-real` slice with the actual OCR/VLM/OCV/cross-check stages, not just final verdicts.
+- Treat the `cola-cloud-real` warning results in two buckets: front-only / no-warning-visible assets versus visible-warning false negatives (heading-bold false fails, voted exact-text reviews/fails, and a misleading `100% aligned` review state when exact wording is still strict but the vote saturates to pass).
+- Add explicit `cola-cloud-warning-visible` and `cola-cloud-warning-not-visible` golden slices so warning-reader regressions can be monitored without front-only assets drowning the signal.
+- Resolve the warning exact-text contradiction by promoting two independent pass-grade reads to a pass-grade exact-text subcheck, while mixed warning reads downgrade to review instead of fail.
+- Treat heading-format negatives conservatively on live labels: use the visual all-caps signal, not noisy transcribed casing, for hard all-caps defects; keep bold-only negatives in review until a stronger style detector exists.
 - Keep the default agent contract lean: SSOT, branch tracker, memory bank, TDD, and clean code are the core workflow.
 - Default new work to a fresh story branch in the current checkout; use sibling linked worktrees only for parallel tasks or dirty-checkout isolation.
 - Keep `docs/specs/<story-id>/` as the universal story packet, but make spec expansion proportional to the size and risk of the change.

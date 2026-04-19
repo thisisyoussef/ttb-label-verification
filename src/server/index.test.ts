@@ -415,7 +415,7 @@ describe('server deployment surfaces', () => {
     const payload = checkReviewSchema.parse(await response.json());
 
     expect(payload.id).toBe('government-warning');
-    expect(payload.status).toBe('fail');
+    expect(payload.status).toBe('review');
     expect(payload.warning?.subChecks.map((subCheck) => subCheck.id)).toEqual([
       'present',
       'exact-text',

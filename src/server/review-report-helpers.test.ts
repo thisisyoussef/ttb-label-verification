@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { CheckReview } from '../shared/contracts/review';
 import {
+  compareFieldValues,
   resolveDynamicReviewPhrase,
   summarizeReviewSeverity
 } from './review-report-helpers';
@@ -106,5 +107,21 @@ describe('resolveDynamicReviewPhrase', () => {
     expect(
       resolveDynamicReviewPhrase({ count: 7, maxSeverity: 'minor' })
     ).toBe('7 fields still need review.');
+  });
+});
+
+describe('compareFieldValues', () => {
+  it('treats case-only differences as a match outside the government warning flow', () => {
+    expect(compareFieldValues('45% Alc./Vol.', '45% alc./vol.')).toEqual({
+      status: 'match',
+      note: 'Values match after case normalization.'
+    });
+  });
+
+  it('treats cosmetic punctuation and spacing differences as a match', () => {
+    expect(compareFieldValues("STONE'S THROW", 'Stone s Throw')).toEqual({
+      status: 'match',
+      note: 'Values match after cosmetic normalization.'
+    });
   });
 });

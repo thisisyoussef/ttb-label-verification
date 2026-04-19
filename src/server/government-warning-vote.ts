@@ -25,6 +25,22 @@ export type WarningVoteSignal = {
   similarity: number;
 };
 
+type ActiveWarningVoteSignal = WarningVoteSignal & {
+  vote: Exclude<WarningSignalVote, 'abstain'>;
+};
+
+export type WarningVoteResolution = {
+  vote: Exclude<WarningSignalVote, 'abstain'>;
+  similarity: number;
+  activeSignals: number;
+  passCount: number;
+  reviewCount: number;
+  failCount: number;
+  passConsensus: boolean;
+  failConsensus: boolean;
+  conflictingSignals: boolean;
+};
+
 /**
  * Case-insensitive normalized Levenshtein similarity. Real COLA labels
  * commonly print the entire warning block in ALL CAPS because TTB
@@ -110,7 +126,9 @@ export function collectWarningVoteSignals(input: {
   return signals;
 }
 
-export function similarityToVote(similarity: number): WarningSignalVote {
+export function similarityToVote(
+  similarity: number
+): Exclude<WarningSignalVote, 'abstain'> {
   if (similarity >= WARNING_PASS_SIMILARITY) return 'pass';
   if (similarity >= WARNING_REVIEW_SIMILARITY) return 'review';
   return 'fail';
@@ -133,18 +151,114 @@ export function deriveVotedSimilarity(
   signals: WarningVoteSignal[],
   fallback: number
 ): number {
-  const active = signals.filter((s) => s.vote !== 'abstain');
-  if (active.length === 0) return fallback;
-  if (active.length === 1) return active[0]!.similarity || fallback;
+  return resolveWarningVote(signals, fallback).similarity;
+}
 
-  const passes = active.filter((s) => s.vote === 'pass').length;
-  const fails = active.filter((s) => s.vote === 'fail').length;
-  if (passes >= 2) return 1.0;
-  if (fails >= 2) return 0.0;
+export function resolveWarningVote(
+  signals: WarningVoteSignal[],
+  fallback: number
+): WarningVoteResolution {
+  const active = signals.filter(isActiveWarningVoteSignal);
+  if (active.length === 0) {
+    const fallbackVote = similarityToVote(fallback);
+    return {
+      vote: fallbackVote,
+      similarity: fallback,
+      activeSignals: 0,
+      passCount: fallbackVote === 'pass' ? 1 : 0,
+      reviewCount: fallbackVote === 'review' ? 1 : 0,
+      failCount: fallbackVote === 'fail' ? 1 : 0,
+      passConsensus: false,
+      failConsensus: false,
+      conflictingSignals: false
+    };
+  }
 
-  const sims = active.map((s) => s.similarity).sort((a, b) => a - b);
-  if (sims.length === 2) return (sims[0]! + sims[1]!) / 2;
-  return sims[Math.floor(sims.length / 2)]!;
+  if (active.length === 1) {
+    const [signal] = active;
+    return {
+      vote: signal.vote,
+      similarity: signal.similarity || fallback,
+      activeSignals: 1,
+      passCount: signal.vote === 'pass' ? 1 : 0,
+      reviewCount: signal.vote === 'review' ? 1 : 0,
+      failCount: signal.vote === 'fail' ? 1 : 0,
+      passConsensus: false,
+      failConsensus: false,
+      conflictingSignals: false
+    };
+  }
+
+  const passSignals = active.filter((signal) => signal.vote === 'pass');
+  const reviewSignals = active.filter((signal) => signal.vote === 'review');
+  const failSignals = active.filter((signal) => signal.vote === 'fail');
+  const passCount = passSignals.length;
+  const reviewCount = reviewSignals.length;
+  const failCount = failSignals.length;
+  const passConsensus = passCount >= 2;
+  const failConsensus = failCount >= 2;
+  const conflictingSignals =
+    (passCount > 0 && failCount > 0) ||
+    (reviewCount > 0 && (passCount > 0 || failCount > 0));
+
+  if (passConsensus) {
+    return {
+      vote: 'pass',
+      similarity: meanSimilarity(passSignals.map((signal) => signal.similarity), fallback),
+      activeSignals: active.length,
+      passCount,
+      reviewCount,
+      failCount,
+      passConsensus,
+      failConsensus,
+      conflictingSignals
+    };
+  }
+
+  if (failConsensus) {
+    return {
+      vote: 'fail',
+      similarity: meanSimilarity(failSignals.map((signal) => signal.similarity), fallback),
+      activeSignals: active.length,
+      passCount,
+      reviewCount,
+      failCount,
+      passConsensus,
+      failConsensus,
+      conflictingSignals
+    };
+  }
+
+  const similarities = active.map((signal) => signal.similarity).sort((a, b) => a - b);
+
+  return {
+    vote: 'review',
+    similarity:
+      similarities.length === 2
+        ? (similarities[0]! + similarities[1]!) / 2
+        : similarities[Math.floor(similarities.length / 2)]!,
+    activeSignals: active.length,
+    passCount,
+    reviewCount,
+    failCount,
+    passConsensus,
+    failConsensus,
+    conflictingSignals
+  };
+}
+
+function meanSimilarity(values: number[], fallback: number) {
+  if (values.length === 0) {
+    return fallback;
+  }
+
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function isActiveWarningVoteSignal(
+  signal: WarningVoteSignal
+): signal is ActiveWarningVoteSignal {
+  return signal.vote !== 'abstain';
 }
 
 function levenshteinDistance(a: string, b: string): number {

@@ -19,7 +19,7 @@ import type { WarningOcvResult } from './warning-region-ocv';
 import {
   collectWarningVoteSignals,
   computeWarningSimilarity,
-  deriveVotedSimilarity
+  resolveWarningVote
 } from './government-warning-vote';
 import {
   buildContinuousParagraphSubCheck,
@@ -107,10 +107,11 @@ export function buildGovernmentWarningCheck(
     ocrCrossCheck,
     warningOcv
   });
-  const textSimilarity = deriveVotedSimilarity(
+  const voteResolution = resolveWarningVote(
     voteSignals,
     hasVlmText ? vlmSimilarity : ocvSim
   );
+  const textSimilarity = voteResolution.similarity;
 
   const subChecks = warningEvidenceSchema.shape.subChecks.parse([
     buildPresenceSubCheck({
@@ -121,7 +122,9 @@ export function buildGovernmentWarningCheck(
       hasWarningText,
       exactWordingMatch,
       textReliable,
-      similarity: textSimilarity
+      similarity: textSimilarity,
+      passConsensus: voteResolution.passConsensus,
+      conflictingSignals: voteResolution.conflictingSignals
     }),
     buildHeadingSubCheck({
       extractedText,
@@ -187,9 +190,9 @@ function summarizeWarningStatus(subChecks: WarningSubCheck[]): CheckStatus {
   }
 
   // If the text match (exact-text) and presence both pass, the warning is
-  // substantively correct. Visual formatting sub-checks (bold, paragraph,
-  // separation) being uncertain should NOT block approval — they're nice
-  // to have but the regulatory substance is the TEXT, not the formatting.
+  // substantively correct. Residual visual uncertainty should not block
+  // approval once the wording is verified; clear visual defects still
+  // fail through their own sub-checks.
   const textPasses = subChecks.find(sc => sc.id === 'exact-text')?.status === 'pass';
   const presencePasses = subChecks.find(sc => sc.id === 'present')?.status === 'pass';
   if (textPasses && presencePasses) {

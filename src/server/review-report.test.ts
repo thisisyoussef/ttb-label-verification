@@ -174,10 +174,7 @@ describe('review report builder', () => {
     // approve so the reviewer isn't nagged about apostrophes, casing, or
     // OCR noise that happens to land within 20% edit distance.
     expect(brandCheck?.status).toBe('pass');
-    // Fuzzy-close rule still tags the visual difference for the
-    // comparison panel — "case-mismatch" is the narrower framing here
-    // because apostrophe + casing are both cosmetic.
-    expect(brandCheck?.comparison?.status).toBe('case-mismatch');
+    expect(brandCheck?.comparison?.status).toBe('match');
     expect(report.verdict).toBe('approve');
   });
 

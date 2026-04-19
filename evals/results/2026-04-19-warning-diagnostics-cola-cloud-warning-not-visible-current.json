@@ -1,0 +1,1301 @@
+{
+  "date": "2026-04-19T19:12:45.747Z",
+  "slice": "cola-cloud-warning-not-visible",
+  "mode": "cloud",
+  "providers": [
+    "gemini",
+    "openai"
+  ],
+  "prepassEnabled": true,
+  "useSimplePipeline": false,
+  "totals": {
+    "final": {
+      "review": 14
+    },
+    "ocr": {},
+    "vlm": {},
+    "reconciled": {},
+    "ocv": {
+      "fail": 14
+    },
+    "subChecks": {
+      "present": {
+        "review": 14
+      },
+      "exact-text": {
+        "review": 14
+      },
+      "uppercase-bold-heading": {
+        "review": 14
+      },
+      "continuous-paragraph": {
+        "review": 14
+      },
+      "legibility": {
+        "review": 14
+      }
+    }
+  },
+  "diagnostics": [
+    {
+      "id": "G-41",
+      "slug": "persian-empire-black-widow-distilled-spirits",
+      "title": "Persian Empire — Black Widow",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/persian-empire-black-widow-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.38,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-42",
+      "slug": "persian-empire-arak-distilled-spirits",
+      "title": "Persian Empire — Arak ",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/persian-empire-arak-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.38,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-43",
+      "slug": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+      "title": "Simply Elegant — Simply Elegant Spirits",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/simply-elegant-simply-elegant-spirits-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.38,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-45",
+      "slug": "leitz-rottland-wine",
+      "title": "Leitz — Rottland",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/leitz-rottland-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.13,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-46",
+      "slug": "leitz-magdalenenkreuz-wine",
+      "title": "Leitz — Magdalenenkreuz",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/leitz-magdalenenkreuz-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0.01,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0.01,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0.01,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.39,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-47",
+      "slug": "leitz-klosterlay-wine",
+      "title": "Leitz — Klosterlay",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/leitz-klosterlay-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.39,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-48",
+      "slug": "uncorked-in-mayberry-otis-own-wine",
+      "title": "Uncorked In Mayberry — Otis' Own",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/uncorked-in-mayberry-otis-own-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.38,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-49",
+      "slug": "lake-placid-shredder-malt-beverage",
+      "title": "Lake Placid — Shredder",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/lake-placid-shredder-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.38,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-56",
+      "slug": "old-station-31-orange-distilled-spirits",
+      "title": "Old Station 31 — Orange",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/old-station-31-orange-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.38,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-58",
+      "slug": "stormwood-wines-semillon-wine",
+      "title": "Stormwood Wines — Semillon",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/stormwood-wines-semillon-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.16,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-60",
+      "slug": "manzone-giovanni-barolo-perno-wine",
+      "title": "Manzone Giovanni — Barolo Perno",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/manzone-giovanni-barolo-perno-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.38,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-61",
+      "slug": "ana-luisa-gran-reserva-parcelas-blend-wine",
+      "title": "Ana Luisa — Gran Reserva Parcelas Blend",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/ana-luisa-gran-reserva-parcelas-blend-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.38,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-62",
+      "slug": "carousel-winery-fairy-floss-cotton-candy-wine",
+      "title": "Carousel Winery — Fairy Floss Cotton Candy",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/carousel-winery-fairy-floss-cotton-candy-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.39,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-63",
+      "slug": "venture-studios-null-wine",
+      "title": "Venture Studios — null",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/venture-studios-null-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "failed",
+          "headerFound": false,
+          "present": false,
+          "confidence": null,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0.12,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0.12,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0.12,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.15,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    }
+  ]
+}

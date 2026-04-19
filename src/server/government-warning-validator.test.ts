@@ -235,6 +235,13 @@ describe('government warning validator', () => {
       buildExtraction({
         governmentWarning: {
           value: WARNING_DEFECT_EXTRACTED
+        },
+        warningSignals: {
+          prefixAllCaps: {
+            status: 'no',
+            confidence: 0.96,
+            note: 'Heading is title case.'
+          }
         }
       })
     );
@@ -344,8 +351,34 @@ describe('government warning validator', () => {
     expect(
       check.warning?.subChecks.find((subCheck) => subCheck.id === 'uppercase-bold-heading')?.reason
     ).toBe(
-      'Heading text is uppercase, but bold styling cannot be confirmed reliably from this image.'
+      'Heading is all caps, but the current visual read is not reliable enough to call boldness as a defect. Please confirm visually.'
     );
+  });
+
+  it('keeps bold-only misses on unclear warning images in review instead of fail', () => {
+    const check = buildGovernmentWarningCheck(
+      buildExtraction({
+        governmentWarning: {
+          confidence: 0.55
+        },
+        warningSignals: {
+          prefixBold: {
+            status: 'no',
+            confidence: 0.92,
+            note: 'Very small vertical heading.'
+          }
+        }
+      })
+    );
+
+    expect(check.status).toBe('review');
+    expect(check.warning?.subChecks).toMatchObject([
+      { id: 'present', status: 'pass' },
+      { id: 'exact-text', status: 'review' },
+      { id: 'uppercase-bold-heading', status: 'review' },
+      { id: 'continuous-paragraph', status: 'pass' },
+      { id: 'legibility', status: 'pass' }
+    ]);
   });
 
   it('fails when a readable label is missing the warning text entirely', () => {

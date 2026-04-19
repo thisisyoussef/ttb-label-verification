@@ -1,0 +1,2561 @@
+{
+  "date": "2026-04-19T18:52:57.094Z",
+  "slice": "cola-cloud-real",
+  "mode": "cloud",
+  "providers": [
+    "gemini",
+    "openai"
+  ],
+  "prepassEnabled": true,
+  "useSimplePipeline": false,
+  "totals": {
+    "final": {
+      "review": 21,
+      "fail": 4,
+      "pass": 3
+    },
+    "ocr": {
+      "fail": 3,
+      "pass": 1,
+      "review": 1
+    },
+    "vlm": {
+      "pass": 10,
+      "review": 2,
+      "fail": 2
+    },
+    "reconciled": {
+      "pass": 10,
+      "review": 2,
+      "fail": 2
+    },
+    "ocv": {
+      "fail": 23,
+      "pass": 4,
+      "review": 1
+    }
+  },
+  "diagnostics": [
+    {
+      "id": "G-41",
+      "slug": "persian-empire-black-widow-distilled-spirits",
+      "title": "Persian Empire — Black Widow",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/persian-empire-black-widow-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.38,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-42",
+      "slug": "persian-empire-arak-distilled-spirits",
+      "title": "Persian Empire — Arak ",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/persian-empire-arak-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.38,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-43",
+      "slug": "simply-elegant-simply-elegant-spirits-distilled-spirits",
+      "title": "Simply Elegant — Simply Elegant Spirits",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/simply-elegant-simply-elegant-spirits-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.38,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-44",
+      "slug": "crafy-elk-cranberry-blueberry-acai-distilled-spirits",
+      "title": "Crafy Elk — Cranberry, Blueberry, & Acai",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/crafy-elk-cranberry-blueberry-acai-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.55,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "ocv": {
+          "status": "partial",
+          "confidence": 0.7,
+          "similarity": 0.678,
+          "vote": "fail",
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE RETURN FOR REFUND * cc SURGEON GENERAL, WOMEN SHOULD NOT DRINK WHERE APPLICABLE..."
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.89,
+        "summary": "Warning text partially matches",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Text matches, but the label image is hard to read. Please confirm."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Heading is all caps, but it is hard to tell whether it is bold in this image."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-45",
+      "slug": "leitz-rottland-wine",
+      "title": "Leitz — Rottland",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/leitz-rottland-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.38,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-46",
+      "slug": "leitz-magdalenenkreuz-wine",
+      "title": "Leitz — Magdalenenkreuz",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/leitz-magdalenenkreuz-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.38,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-47",
+      "slug": "leitz-klosterlay-wine",
+      "title": "Leitz — Klosterlay",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/leitz-klosterlay-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.15,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-48",
+      "slug": "uncorked-in-mayberry-otis-own-wine",
+      "title": "Uncorked In Mayberry — Otis' Own",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/uncorked-in-mayberry-otis-own-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.39,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-49",
+      "slug": "lake-placid-shredder-malt-beverage",
+      "title": "Lake Placid — Shredder",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/lake-placid-shredder-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0.01,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0.01,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0.01,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.39,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-50",
+      "slug": "lake-placid-ridge-runner-malt-beverage",
+      "title": "Lake Placid — Ridge Runner",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/lake-placid-ridge-runner-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 0.837,
+          "vote": "review",
+          "length": 240,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women cannot drink alcoholic beverages during pregnancy because of..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 0.837,
+          "vote": "review",
+          "length": 240,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women cannot drink alcoholic beverages during pregnancy because of..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.55,
+          "similarity": 0.837,
+          "vote": "review",
+          "length": 240,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women cannot drink alcoholic beverages during pregnancy because of..."
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.82,
+        "summary": "Warning text partially matches",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Warning text does not exactly match the required wording (84% aligned). Review the highlighted differences before approval."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Heading is all caps, but it is hard to tell whether it is bold in this image."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-51",
+      "slug": "recluse-brew-works-shy-guy-malt-beverage",
+      "title": "Recluse Brew Works — Shy Guy",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/recluse-brew-works-shy-guy-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.55,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        }
+      },
+      "final": {
+        "status": "fail",
+        "severity": "blocker",
+        "confidence": 0.86,
+        "summary": "Warning formatting needs attention",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Warning text does not exactly match the required wording (97% aligned). Review the highlighted differences before approval."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "fail",
+            "reason": "The heading does not appear bold."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-52",
+      "slug": "pleasant-prairie-brewing-peach-sour-ale-malt-beverage",
+      "title": "Pleasant Prairie Brewing — Peach Sour Ale",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/pleasant-prairie-brewing-peach-sour-ale-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": true,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING:\n(1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy be..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING:\n(1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy be..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING:\n(1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy be..."
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "ocr-too-noisy"
+        }
+      },
+      "final": {
+        "status": "fail",
+        "severity": "blocker",
+        "confidence": 0.91,
+        "summary": "Warning formatting needs attention",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Text matches, but the label image is hard to read. Please confirm."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "fail",
+            "reason": "The heading does not appear bold."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "The label image is hard to read, so we cannot confirm the warning is legible."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-53",
+      "slug": "crafty-elk-mango-honey-distilled-spirits",
+      "title": "Crafty Elk — Mango & Honey",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/crafty-elk-mango-honey-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": true,
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 0.299,
+          "vote": "fail",
+          "length": 939,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE RETURN FOR REFUND SURGEON GENERAL, WOMEN SHOULD NOT DRINK WHERE APPLICABLE ALCO..."
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.99,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.99,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.99,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "ocv": {
+          "status": "partial",
+          "confidence": 0.7,
+          "similarity": 0.672,
+          "vote": "fail",
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING 10 THE RETURN FOR REFUND ,@®, oc SURGEON GENERAL, WOMEN SHOULD NOT DRINK WHERE APPLICA..."
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        }
+      },
+      "final": {
+        "status": "pass",
+        "severity": "note",
+        "confidence": 0.92,
+        "summary": "Warning text verified with minor read differences",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "pass",
+            "reason": "Warning text matches the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "pass",
+            "reason": "Heading is all caps and bold."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-54",
+      "slug": "the-wine-trust-rum-distilled-spirits",
+      "title": "The Wine Trust — Rum",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/the-wine-trust-rum-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": true,
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 1,
+          "vote": "pass",
+          "length": 283,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.986,
+          "vote": "pass",
+          "length": 279,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.986,
+          "vote": "pass",
+          "length": 279,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.986,
+          "vote": "pass",
+          "length": 279,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "ocv": {
+          "status": "verified",
+          "confidence": 0.93,
+          "similarity": 1,
+          "vote": "pass",
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "ocrCrossCheck": {
+          "status": "disagree",
+          "ocrText": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUSE OF THE RISK OF BIRTH DEFECTS. (2) CONSUMPTION OF ALCOHOLIC BEVERAGES IMPAIRS YOUR ABILITY TO DRIVE A CAR OR OPERATE MACHINERY, AND MAY CAUSE HEALTH PROBLEMS.",
+          "editDistance": 4
+        }
+      },
+      "final": {
+        "status": "pass",
+        "severity": "note",
+        "confidence": 0.86,
+        "summary": "Warning text verified with minor read differences",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "pass",
+            "reason": "Warning text matches the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "pass",
+            "reason": "Heading is all caps and bold."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-55",
+      "slug": "flaviar-columbia-creek-tennessee-whiskey-distilled-spirits",
+      "title": "Flaviar — Columbia Creek Tennessee Whiskey",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/flaviar-columbia-creek-tennessee-whiskey-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.9,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.9,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.55,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "ocv": {
+          "status": "verified",
+          "confidence": 0.93,
+          "similarity": 1,
+          "vote": "pass",
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        }
+      },
+      "final": {
+        "status": "pass",
+        "severity": "note",
+        "confidence": 0.79,
+        "summary": "Warning text verified with minor read differences",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "pass",
+            "reason": "Warning text matches the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Heading is all caps, but it is hard to tell whether it is bold in this image."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-56",
+      "slug": "old-station-31-orange-distilled-spirits",
+      "title": "Old Station 31 — Orange",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/old-station-31-orange-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.38,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-57",
+      "slug": "west-peak-tequila-paloma-distilled-spirits",
+      "title": "West Peak — Tequila Paloma",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/west-peak-tequila-paloma-distilled-spirits.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": true,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 0.496,
+          "vote": "fail",
+          "length": 763,
+          "preview": "GOVERNMENT WARNING: Consumers who have                              any health condition, are pregnant,                 ..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 0.496,
+          "vote": "fail",
+          "length": 763,
+          "preview": "GOVERNMENT WARNING: Consumers who have                              any health condition, are pregnant,                 ..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 0.496,
+          "vote": "fail",
+          "length": 763,
+          "preview": "GOVERNMENT WARNING: Consumers who have                              any health condition, are pregnant,                 ..."
+        },
+        "ocv": {
+          "status": "verified",
+          "confidence": 0.93,
+          "similarity": 0.921,
+          "vote": "review",
+          "preview": "GOVERNMENT WARNING: (1) According to the Surgeon General. women shoutd mos drink aicoholbe beverages during pregnancy be..."
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        }
+      },
+      "final": {
+        "status": "fail",
+        "severity": "blocker",
+        "confidence": 0.92,
+        "summary": "Warning wording does not match",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "fail",
+            "reason": "Warning wording differs from the required text. See the diff below for exact changes."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "pass",
+            "reason": "Heading is all caps and bold."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-58",
+      "slug": "stormwood-wines-semillon-wine",
+      "title": "Stormwood Wines — Semillon",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/stormwood-wines-semillon-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.37,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-59",
+      "slug": "forlorn-hope-san-hercurmer-delle-frecce-wine",
+      "title": "Forlorn Hope — San Hercurmer Delle Frecce",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/forlorn-hope-san-hercurmer-delle-frecce-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.8,
+          "similarity": 0.527,
+          "vote": "fail",
+          "length": 171,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy by car..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.8,
+          "similarity": 0.527,
+          "vote": "fail",
+          "length": 171,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy by car..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.55,
+          "similarity": 0.527,
+          "vote": "fail",
+          "length": 171,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy by car..."
+        },
+        "ocv": {
+          "status": "verified",
+          "confidence": 0.93,
+          "similarity": 0.993,
+          "vote": "pass",
+          "preview": "GOVERNMENT WARNING (1) According to the Surgeon General, women should not drink alcoho! i¢ beverages during pregnancy be..."
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.9,
+        "summary": "Warning text partially matches",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Warning text does not exactly match the required wording (76% aligned). Review the highlighted differences before approval."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "pass",
+            "reason": "Heading is all caps and bold."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-60",
+      "slug": "manzone-giovanni-barolo-perno-wine",
+      "title": "Manzone Giovanni — Barolo Perno",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/manzone-giovanni-barolo-perno-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.38,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-61",
+      "slug": "ana-luisa-gran-reserva-parcelas-blend-wine",
+      "title": "Ana Luisa — Gran Reserva Parcelas Blend",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/ana-luisa-gran-reserva-parcelas-blend-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0.01,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0.01,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0.01,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.39,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-62",
+      "slug": "carousel-winery-fairy-floss-cotton-candy-wine",
+      "title": "Carousel Winery — Fairy Floss Cotton Candy",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/carousel-winery-fairy-floss-cotton-candy-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.37,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-63",
+      "slug": "venture-studios-null-wine",
+      "title": "Venture Studios — null",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/venture-studios-null-wine.webp",
+      "steps": {
+        "ocr": {
+          "status": "failed",
+          "headerFound": false,
+          "present": false,
+          "confidence": null,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": false,
+          "confidence": 0.12,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "merged": {
+          "present": false,
+          "confidence": 0.12,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "reconciled": {
+          "present": false,
+          "confidence": 0.12,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "no-vlm-warning-text"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.17,
+        "summary": "Warning text unclear",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "review",
+            "reason": "The label image is too unclear to confirm whether the warning is there."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to compare it to the required wording."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Could not read the heading clearly enough to check its formatting."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "Could not read the warning clearly enough to check if it is readable and set apart."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-64",
+      "slug": "sapwood-cellars-albura-lager-malt-beverage",
+      "title": "Sapwood Cellars — Albura Lager",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/sapwood-cellars-albura-lager-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": false,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "ocv": {
+          "status": "verified",
+          "confidence": 0.93,
+          "similarity": 0.955,
+          "vote": "pass",
+          "preview": "GOVERNMENT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy be..."
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.94,
+        "summary": "Warning text partially matches",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Warning text does not exactly match the required wording (100% aligned). Review the highlighted differences before approval."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "pass",
+            "reason": "Heading is all caps and bold."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-65",
+      "slug": "drekker-brewing-company-piano-necktie-malt-beverage",
+      "title": "Drekker Brewing Company — Piano Necktie",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/drekker-brewing-company-piano-necktie-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": true,
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 0.333,
+          "vote": "fail",
+          "length": 836,
+          "preview": "GOVERNMENT WARNING: ATTENTION = BEAD (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT ORINK ALCOHOLIC BEVERAGES. D..."
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.97,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.97,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.97,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.93,
+        "summary": "Warning text partially matches",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Warning text does not exactly match the required wording (97% aligned). Review the highlighted differences before approval."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "pass",
+            "reason": "Heading is all caps and bold."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-66",
+      "slug": "pilok-broumy-malt-beverage",
+      "title": "Pilok — Broumy",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/pilok-broumy-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": true,
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 0.882,
+          "vote": "review",
+          "length": 321,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.98,
+          "similarity": 0.848,
+          "vote": "review",
+          "length": 240,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.98,
+          "similarity": 0.848,
+          "vote": "review",
+          "length": 240,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.98,
+          "similarity": 0.848,
+          "vote": "review",
+          "length": 240,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "ocr-too-noisy"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.96,
+        "summary": "Warning text partially matches",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Warning text does not exactly match the required wording (85% aligned). Review the highlighted differences before approval."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "review",
+            "reason": "Heading is all caps, but it is hard to tell whether it is bold in this image."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "review",
+            "reason": "The label image is hard to read, so we cannot confirm the warning is legible."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-67",
+      "slug": "1840-original-lager-1840-original-lager-malt-beverage",
+      "title": "1840 Original Lager — 1840 Original Lager",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/1840-original-lager-1840-original-lager-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": true,
+          "present": true,
+          "confidence": 0.85,
+          "similarity": 0.385,
+          "vote": "fail",
+          "length": 736,
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BE..."
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.98,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.98,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.98,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: ACCORDING TO THE SURGEON GENERAL, WOMEN SHOULD NOT DRINK ALCOHOLIC BEVERAGES DURING PREGNANCY BECAUS..."
+        },
+        "ocv": {
+          "status": "not-found",
+          "confidence": 0.7,
+          "similarity": 0,
+          "vote": "fail",
+          "preview": null
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "ocr-too-noisy"
+        }
+      },
+      "final": {
+        "status": "review",
+        "severity": "major",
+        "confidence": 0.97,
+        "summary": "Warning text partially matches",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "review",
+            "reason": "Warning text does not exactly match the required wording (97% aligned). Review the highlighted differences before approval."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "pass",
+            "reason": "Heading is all caps and bold."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "G-68",
+      "slug": "harpoon-ale-malt-beverage",
+      "title": "Harpoon — Ale",
+      "expectedPrimaryResult": "approve",
+      "focus": [
+        "real-label-extraction"
+      ],
+      "assetPath": "evals/labels/assets/cola-cloud/harpoon-ale-malt-beverage.webp",
+      "steps": {
+        "ocr": {
+          "status": "success",
+          "headerFound": true,
+          "present": false,
+          "confidence": 0.1,
+          "similarity": null,
+          "vote": "abstain",
+          "length": 0,
+          "preview": null
+        },
+        "vlm": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "merged": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "reconciled": {
+          "present": true,
+          "confidence": 0.95,
+          "similarity": 0.972,
+          "vote": "pass",
+          "length": 275,
+          "preview": "GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy becaus..."
+        },
+        "ocv": {
+          "status": "partial",
+          "confidence": 0.5,
+          "similarity": 0.507,
+          "vote": "fail",
+          "preview": "GOVERNMENT WARNING: (1) ACCORDING T WORCESTER, MA, MANCHESTER, NH IeINK ALCOMULIC SVEN OUAING PREGNANCY BECAUSE OFTHE RO..."
+        },
+        "ocrCrossCheck": {
+          "status": "abstain",
+          "reason": "warning-not-found-in-ocr"
+        }
+      },
+      "final": {
+        "status": "fail",
+        "severity": "blocker",
+        "confidence": 0.94,
+        "summary": "Warning wording does not match",
+        "subChecks": [
+          {
+            "id": "present",
+            "status": "pass",
+            "reason": "Warning text is on the label."
+          },
+          {
+            "id": "exact-text",
+            "status": "fail",
+            "reason": "Warning wording differs from the required text. See the diff below for exact changes."
+          },
+          {
+            "id": "uppercase-bold-heading",
+            "status": "pass",
+            "reason": "Heading is all caps and bold."
+          },
+          {
+            "id": "continuous-paragraph",
+            "status": "pass",
+            "reason": "Warning reads as one paragraph."
+          },
+          {
+            "id": "legibility",
+            "status": "pass",
+            "reason": "Warning is readable and stands apart from nearby text."
+          }
+        ]
+      }
+    }
+  ]
+}

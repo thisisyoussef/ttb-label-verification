@@ -100,7 +100,7 @@ describe('review contract', () => {
     expect(brand?.applicationValue).toBe('My Custom Brand');
     expect(brand?.comparison?.status).toBe('value-mismatch');
     expect(alcohol?.applicationValue).toBe('45% Alc./Vol.');
-    expect(alcohol?.comparison?.status).toBe('case-mismatch');
+    expect(alcohol?.comparison?.status).toBe('match');
   });
 
   it('supports standalone reports with comparison skips', () => {

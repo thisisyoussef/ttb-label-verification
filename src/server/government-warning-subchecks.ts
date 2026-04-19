@@ -49,6 +49,8 @@ export function buildExactTextSubCheck(input: {
   exactWordingMatch: boolean;
   textReliable: boolean;
   similarity: number;
+  passConsensus: boolean;
+  conflictingSignals: boolean;
 }): WarningSubCheck {
   if (!input.hasWarningText) {
     return {
@@ -70,12 +72,42 @@ export function buildExactTextSubCheck(input: {
     };
   }
 
+  if (input.passConsensus && input.textReliable) {
+    return {
+      id: 'exact-text',
+      label: 'Warning text matches required wording',
+      status: 'pass',
+      reason:
+        'Independent warning reads support the required wording despite minor read noise.'
+    };
+  }
+
   if (input.exactWordingMatch) {
     return {
       id: 'exact-text',
       label: 'Warning text matches required wording',
       status: 'review',
       reason: 'Text matches, but the label image is hard to read. Please confirm.'
+    };
+  }
+
+  if (input.passConsensus) {
+    return {
+      id: 'exact-text',
+      label: 'Warning text matches required wording',
+      status: 'review',
+      reason:
+        'Independent warning reads support the required wording, but the image is still too hard to trust without review.'
+    };
+  }
+
+  if (input.conflictingSignals) {
+    return {
+      id: 'exact-text',
+      label: 'Warning text matches required wording',
+      status: 'review',
+      reason:
+        'Independent warning reads disagree, so a human should confirm the exact wording on the label.'
     };
   }
 
@@ -136,7 +168,7 @@ export function buildHeadingSubCheck(input: {
     };
   }
 
-  if (!prefixHasExpectedWords || !prefixIsUppercase || allCapsSignal === 'fail') {
+  if (allCapsSignal === 'fail') {
     return {
       id: 'uppercase-bold-heading',
       label: 'Warning heading is uppercase and bold',
@@ -147,13 +179,32 @@ export function buildHeadingSubCheck(input: {
     };
   }
 
+  if (!prefixHasExpectedWords) {
+    return {
+      id: 'uppercase-bold-heading',
+      label: 'Warning heading is uppercase and bold',
+      status: 'review',
+      reason: 'Could not read the heading words clearly enough to verify the formatting.'
+    };
+  }
+
+  if (!prefixIsUppercase) {
+    return {
+      id: 'uppercase-bold-heading',
+      label: 'Warning heading is uppercase and bold',
+      status: 'review',
+      reason:
+        'Heading words were found, but the capitalization read is not stable enough to treat as a defect without manual review.'
+    };
+  }
+
   if (boldStatus === 'fail') {
     return {
       id: 'uppercase-bold-heading',
       label: 'Warning heading is uppercase and bold',
       status: 'review',
       reason:
-        'Heading text is uppercase, but bold styling cannot be confirmed reliably from this image.'
+        'Heading is all caps, but the current visual read is not reliable enough to call boldness as a defect. Please confirm visually.'
     };
   }
 
