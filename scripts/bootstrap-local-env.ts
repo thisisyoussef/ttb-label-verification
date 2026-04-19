@@ -2,7 +2,6 @@ import { readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { DEFAULT_LANGSMITH_PROJECT } from '../src/server/langsmith-config';
 import { parseDotEnvFile } from '../src/server/load-local-env';
 
 const DEFAULT_ENV_VALUES = {
@@ -29,11 +28,8 @@ const DEFAULT_ENV_VALUES = {
   TRANSFORMERS_DTYPE: 'q4',
   TRANSFORMERS_TIMEOUT_MS: '15000',
   TRANSFORMERS_CACHE_DIR: '.cache/transformers',
-  LANGSMITH_API_KEY: '',
-  LANGSMITH_PROJECT: DEFAULT_LANGSMITH_PROJECT,
-  LANGSMITH_TRACING: 'false',
   PORT: '8787',
-  STITCH_FLOW_MODE: 'direct',
+  STITCH_FLOW_MODE: 'claude-direct',
   STITCH_API_KEY: '',
   STITCH_PROJECT_ID: '3197911668966401642',
   STITCH_PROJECT_TITLE: 'TTB Label Verification System',
@@ -46,12 +42,10 @@ const DEFAULT_ENV_VALUES = {
 
 const OPENAI_ENV_KEY = 'OPENAI_API_KEY';
 const GEMINI_ENV_KEY = 'GEMINI_API_KEY';
-const LANGSMITH_ENV_KEY = 'LANGSMITH_API_KEY';
 const orderedKeys = [
   OPENAI_ENV_KEY,
-  'GEMINI_API_KEY',
+  GEMINI_ENV_KEY,
   'OLLAMA_HOST',
-  LANGSMITH_ENV_KEY,
   ...Object.keys(DEFAULT_ENV_VALUES)
 ] as const;
 const ignoredDirectoryNames = new Set([
@@ -195,6 +189,11 @@ export function bootstrapLocalEnv(repoDir = process.cwd()) {
     repoDir,
     targetKey: OPENAI_ENV_KEY
   });
+  const geminiSource = getKeySource({
+    existingEnv,
+    repoDir,
+    targetKey: GEMINI_ENV_KEY
+  });
 
   if (!openAiSource) {
     throw new Error(
@@ -202,78 +201,50 @@ export function bootstrapLocalEnv(repoDir = process.cwd()) {
     );
   }
 
-  const geminiSource = getKeySource({
-    existingEnv,
-    repoDir,
-    targetKey: GEMINI_ENV_KEY
-  });
-  const langSmithSource = getKeySource({
-    existingEnv,
-    fallbackSourceKeys: ['LANGCHAIN_API_KEY'],
-    repoDir,
-    targetKey: LANGSMITH_ENV_KEY
-  });
-
   const mergedEnv: Record<string, string> = {
     ...DEFAULT_ENV_VALUES,
     ...existingEnv,
     [OPENAI_ENV_KEY]: openAiSource.value
   };
-
   if (geminiSource) {
     mergedEnv[GEMINI_ENV_KEY] = geminiSource.value;
   }
 
-  if (langSmithSource) {
-    mergedEnv[LANGSMITH_ENV_KEY] = langSmithSource.value;
-  }
-
   writeFileSync(envPath, renderEnvFile(mergedEnv), 'utf8');
 
-  const sources = [openAiSource, geminiSource, langSmithSource].filter(
-    (source): source is KeySource => Boolean(source)
+  const sources = [openAiSource, geminiSource].filter(
+    (source): source is KeySource => source !== null
   );
-  const actionLabel = sources.every(
-    ({ sourceType }) => sourceType === 'existing'
-  )
+  const sourceTypes = sources.map((source) => source.sourceType);
+  const actionLabel = sourceTypes.every((sourceType) => sourceType === 'existing')
     ? 'validated'
     : 'created';
-  const sourceDescriptions = [
-    describeKeySource(OPENAI_ENV_KEY, openAiSource)
-  ];
+  const sourceDescriptions = sources.map((source) =>
+    describeKeySource(
+      source.sourceKey === GEMINI_ENV_KEY ? GEMINI_ENV_KEY : OPENAI_ENV_KEY,
+      source
+    )
+  );
 
-  if (geminiSource) {
-    sourceDescriptions.push(describeKeySource(GEMINI_ENV_KEY, geminiSource));
-  }
-
-  if (langSmithSource) {
-    sourceDescriptions.push(
-      describeKeySource(LANGSMITH_ENV_KEY, langSmithSource)
-    );
+  console.log(`${actionLabel} ${envPath}`);
+  for (const sourceDescription of sourceDescriptions) {
+    console.log(`- ${sourceDescription}`);
   }
 
   return {
     actionLabel,
     envPath,
-    sourceDescriptions,
-    values: mergedEnv
+    sourceDescriptions
   };
 }
 
-function main() {
+if (path.resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url)) {
   try {
-    const result = bootstrapLocalEnv();
-
-    console.log(`${result.actionLabel} ${result.envPath}`);
-    for (const sourceDescription of result.sourceDescriptions) {
-      console.log(`- ${sourceDescription}`);
-    }
+    bootstrapLocalEnv();
   } catch (error) {
-    console.error(error instanceof Error ? error.message : String(error));
+    console.error(
+      error instanceof Error ? error.message : 'env:bootstrap failed unexpectedly.'
+    );
     process.exitCode = 1;
   }
-}
-
-if (path.resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url)) {
-  main();
 }

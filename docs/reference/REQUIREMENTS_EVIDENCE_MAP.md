@@ -28,7 +28,7 @@ Last verified: 2026-04-15
 | Gemini adapter | `gemini-review-extractor.ts:123` | Uses `inlineData` with base64. No Files API, no `cachedContents`, no durable upload surface. |
 | UI copy | `ResultsPinnedColumn.tsx:85` | "Nothing is stored. Inputs and results are discarded when you leave." |
 | Guided help | `help-fixture.ts:89,124` | `anchorKey: 'no-persistence'` teaches the no-storage policy to reviewers. |
-| LangSmith traces | `llm-trace.ts:116,134,160,251,258,306,312,365,372` | Every trace metadata block carries `noPersistence: true`. |
+| Trace metadata | `llm-trace.ts:116,134,160,251,258,306,312,365,372` | Every trace metadata block carries `noPersistence: true`. |
 | Test: health | `index.test.ts:43` | `expect(payload.store).toBe(false)` |
 | Test: report | `index.test.ts:101,130` | `expect(payload.noPersistence).toBe(true)` on standard and standalone paths. |
 | Test: contract | `review.test.ts:57,202` | Asserts both `noPersistence` and `store: false` at the schema boundary. |
@@ -272,4 +272,4 @@ These are explicit scope boundaries, not apologies:
 - **Visual signal detection is model-dependent.** The deterministic layer compensates by defaulting uncertain claims to `review`.
 - **No real authentication.** Mock Treasury SSO/PIV simulation only.
 - **Local extraction mode is lower fidelity.** Small self-hosted model degrades extraction quality.
-- **TTB-210 (prompt profiles) is blocked** on LangSmith auth. TTB-401 (final submission pack) is blocked on TTB-210.
+- **TTB-210 (prompt profiles) is blocked** on prompt-profile closure and warning-eval follow-up. TTB-401 (final submission pack) is blocked on TTB-210.

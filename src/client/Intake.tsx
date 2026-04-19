@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import type { ReviewRelevanceResult } from '../shared/contracts/review';
 import { BeverageTypeField } from './BeverageTypeField';
 import { useHint } from './useHint';
 import { DropZone } from './DropZone';
+import { ReviewRelevanceBanner } from './ReviewRelevanceBanner';
 import {
   abvTagFor,
   FieldGroup,
@@ -42,6 +44,8 @@ interface IntakeProps {
   secondaryImage: LabelImage | null;
   beverage: BeverageSelection;
   fields: IntakeFields;
+  reviewRelevance: ReviewRelevanceResult | null;
+  reviewRelevancePending: boolean;
   onImagesChange: (
     primaryImage: LabelImage | null,
     secondaryImage: LabelImage | null
@@ -49,6 +53,7 @@ interface IntakeProps {
   onBeverageChange: (value: BeverageSelection) => void;
   onFieldsChange: (fields: IntakeFields) => void;
   onVerify: () => void;
+  onContinueAfterRelevanceWarning: () => void;
   onClear: () => void;
   onLaunchTour?: () => void;
 }
@@ -58,10 +63,13 @@ export function Intake({
   secondaryImage,
   beverage,
   fields,
+  reviewRelevance,
+  reviewRelevancePending,
   onImagesChange,
   onBeverageChange,
   onFieldsChange,
   onVerify,
+  onContinueAfterRelevanceWarning,
   onClear,
   onLaunchTour
 }: IntakeProps) {
@@ -108,6 +116,12 @@ export function Intake({
                 primaryImage={image}
                 secondaryImage={secondaryImage}
                 onChange={onImagesChange}
+              />
+              <ReviewRelevanceBanner
+                pending={reviewRelevancePending}
+                relevance={reviewRelevance}
+                onTryAnotherImage={() => onImagesChange(null, null)}
+                onContinueAnyway={onContinueAfterRelevanceWarning}
               />
               {jsonPasteHint.visible && !image ? (
                 <p className="text-xs text-on-surface-variant/70 font-label flex items-center gap-1.5 mt-2">

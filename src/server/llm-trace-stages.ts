@@ -2,17 +2,16 @@
 //
 // These three wrappers are each a simple `traceable(fn, options)` factory
 // that wraps the base operation (extraction, warning validation, report
-// assembly) with LangSmith tracing metadata. They were originally inline in
+// assembly) with local trace metadata. They were originally inline in
 // llm-trace.ts but extracted to keep that file under the 500-line source
 // cap. No behavior change.
 //
-// Each traceable emits a span under the "ttb" / "llm" tags and uses the
-// processInputs/processOutputs summarizers to strip PII from the recorded
-// payload before it goes to LangSmith. processInputs always returns
-// `noPersistence: true` so the spans keep their metadata but the raw label
-// image bytes never leave our process.
+// Each traceable emits local metadata under the "ttb" / "llm" tags and uses
+// the processInputs/processOutputs summarizers to keep the same privacy-safe
+// shape the external tracing path expected. processInputs always returns
+// `noPersistence: true` so raw label image bytes never leave the process.
 
-import { traceable } from 'langsmith/traceable';
+import { traceable } from './trace-runtime';
 
 import type {
   CheckReview,

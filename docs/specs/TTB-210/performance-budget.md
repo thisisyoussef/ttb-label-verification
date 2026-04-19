@@ -14,6 +14,7 @@
 - prompt-profile selection and assembly: `<= 25 ms`
 - structural guardrail evaluation: `<= 50 ms`
 - total overhead introduced by this story on the single-label path: `<= 100 ms`
+- quick relevance preflight: runs on image-selection time, not on the canonical `/api/review` submit path, and should stay within the existing OCR-prepass band (`~1-2 s typical`) so obviously irrelevant uploads can break early before the 5-7 s extract-only prefetch
 
 ## Measurement method
 
@@ -31,6 +32,7 @@
 ## 2026-04-15 implementation note
 
 - The cutover adds only prompt string selection plus post-parse object normalization; no extra provider call or route stage was introduced.
+- The relevance-preflight follow-up adds a deterministic OCR-only route on upload-time prefetch, not on the canonical review submit path.
 - Local verification:
   - `npm run test` passed after the prompt-policy + guardrail cutover.
   - `npm run eval:golden` passed on the fixture-backed endpoint slice.
@@ -39,4 +41,4 @@
   - the route-level fixture latencies stayed inside their existing local test bands after the change
   - no new latency-specific regression surfaced in `src/server/index.latency.test.ts`
 - Remaining caveat:
-  - published LangSmith traces are blocked by auth, so the story currently relies on local fixture timing plus the existing latency tests rather than a persisted traced comparison set
+  - the story now relies on local fixture timing, route headers, and the existing latency tests rather than any external trace store

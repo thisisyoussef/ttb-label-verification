@@ -1,30 +1,24 @@
-import { traceable } from 'langsmith/traceable';
+import { traceable } from './trace-runtime';
 
 import type {
   CheckReview,
   ReviewExtraction,
   VerificationReport
 } from '../shared/contracts/review';
-import { isOcrPrepassEnabled } from './ocr-prepass';
-import { type WarningOcvResult } from './warning-region-ocv';
+import { runWarningOcrCrossCheck } from './warning-ocr-cross-check';
+import { runOcrPrepass, isOcrPrepassEnabled } from './ocr-prepass';
+import { runWarningOcv, type WarningOcvResult } from './warning-region-ocv';
 import {
+  runAnchorTrack,
   resolveAnchorMergeMode,
   type AnchorTrackResult
 } from './anchor-field-track';
 import { reconcileExtractionWithOcr } from './extraction-ocr-reconciler';
 import { extractFieldsFromOcrText } from './ocr-field-extractor';
-import { isRegionDetectionEnabled } from './vlm-region-detector';
+import { runVlmRegionDetection, isRegionDetectionEnabled } from './vlm-region-detector';
 import { createJudgmentLlmClient } from './judgment-llm-client-factory';
 import { mergeOcrAndVlm, applyRegionOverrides } from './extraction-merge';
 import { resolveReviewJudgment } from './review-surface-judgment';
-import {
-  runAnchorTrackOverLabels,
-  runOcrPrepassOverLabels,
-  runSpiritsColocationOverLabels,
-  runVlmRegionDetectionOverLabels,
-  runWarningOcrCrossCheckOverLabels,
-  runWarningOcvOverLabels
-} from './multi-label-stages';
 import {
   tracedReviewExtraction,
   tracedWarningValidation,
@@ -53,6 +47,7 @@ import {
   type ReviewLatencySummary
 } from './review-latency';
 import {
+  checkSpiritsColocation,
   isSpiritsColocationAvailable,
   type SpiritsColocationResult
 } from './spirits-colocation-check';
@@ -62,12 +57,6 @@ export type { TracedReviewExtractionInput };
 export type TracedReviewSurfaceInput = TracedReviewExtractionInput & {
   reportId?: string;
   latencyObserver?: ReviewLatencyObserver;
-  /**
-   * Batch aggregation path: skip the per-label resolver (see
-   * review-report.ts `deferResolver`). Set by batch-session.ts when it
-   * wants to aggregate ambiguous fields across all labels into one
-   * resolver call.
-   */
   deferResolver?: boolean;
 };
 
@@ -106,54 +95,34 @@ const tracedReviewSurface = traceable(
     const latencyCapture = resolveLatencyCapture(input);
     const startedAt = performance.now();
 
-    // Parallelize OCR pre-pass, warning OCV, and VLM extraction. They do not
-    // depend on one another and running them together cuts 1-3s from the path.
     let augmentedIntake = input.intake;
     let warningOcv: WarningOcvResult | undefined;
 
-    // The VLM is usually the long pole, so keep OCR pre-pass and OCV fully
-    // independent instead of serializing OCV behind OCR text reuse.
     const prepassEnabled = isOcrPrepassEnabled();
-    // EXTRACTION_PIPELINE=simple skips OCR pre-pass + merge and trusts the
-    // VLM structure, but still keeps warning OCV as a canonical-text check.
     const useSimplePipeline = process.env.EXTRACTION_PIPELINE?.trim().toLowerCase() === 'simple';
 
     const ocrPromise = prepassEnabled && !useSimplePipeline
-      ? measureStage(() => runOcrPrepassOverLabels(input.intake.labels))
+      ? measureStage(() => runOcrPrepass(input.intake.label))
       : Promise.resolve(null);
 
-    // OCV's slow rotation fallbacks are cancellable once the VLM returns so
-    // they never extend wall-clock after the long pole completes.
     const ocvController = new AbortController();
     const ocvPromise = prepassEnabled
       ? measureStage(() =>
-          runWarningOcvOverLabels({
-            labels: input.intake.labels,
-            signal: ocvController.signal
-          })
+          runWarningOcv({ label: input.intake.label, signal: ocvController.signal })
         )
       : Promise.resolve(null);
 
-    // VLM extraction always uses the standard prompt; OCR values override text
-    // fields later instead of biasing the model with an OCR-first prompt.
     const vlmPromise = measureStage(() =>
       runTracedReviewExtraction({ ...input, intake: input.intake, latencyCapture })
     );
-    // Stop OCV rotation fallbacks once the VLM resolves.
     vlmPromise.finally(() => ocvController.abort()).catch(() => {});
 
-    // Parallel anchor track confirms application values against full-label OCR
-    // and can upgrade uncertain review results when ANCHOR_MERGE is enabled.
     const anchorMergeMode = resolveAnchorMergeMode();
     const anchorPromise: Promise<{ result: AnchorTrackResult | null; elapsedMs: number }> =
       anchorMergeMode === 'disabled'
         ? Promise.resolve({ result: null, elapsedMs: 0 })
-        : measureStage(() =>
-            runAnchorTrackOverLabels(input.intake.labels, input.intake.fields)
-          );
+        : measureStage(() => runAnchorTrack(input.intake.label, input.intake.fields));
 
-    // Await all four in parallel. Anchor adds work but does not typically
-    // extend wall-clock because the VLM remains the long pole.
     const [ocrStage, ocvStage, vlmStage, anchorStage] = await Promise.all([
       ocrPromise,
       ocvPromise,
@@ -179,7 +148,6 @@ const tracedReviewSurface = traceable(
         durationMs: ocvStage.elapsedMs
       });
     }
-    // In shadow mode we still capture anchor telemetry but skip the merge.
     if (anchorStage.result) {
       latencyCapture.recordSpan({
         stage: 'anchor-track',
@@ -192,8 +160,6 @@ const tracedReviewSurface = traceable(
 
     let extractionElapsedMs = vlmStage.elapsedMs;
 
-    // OCR-first extraction: regex harvests text fields, VLM still covers
-    // visual signals and sparse-OCR fallback.
     let extractionResult: ReviewExtraction;
 
     const ocrRegexOutput = augmentedIntake.ocrText
@@ -207,10 +173,9 @@ const tracedReviewSurface = traceable(
       extractionResult = vlmStage.result;
     }
 
-    // VLM finds regions; OCR supplies verified text for those regions.
     if (isRegionDetectionEnabled()) {
       const regionStage = await measureStage(() =>
-        runVlmRegionDetectionOverLabels(input.intake.labels)
+        runVlmRegionDetection(input.intake.label)
       );
       latencyCapture.recordSpan({
         stage: 'region-detection',
@@ -222,7 +187,6 @@ const tracedReviewSurface = traceable(
       extractionResult = applyRegionOverrides(extractionResult, regionStage.result.regions);
     }
 
-    // Reconcile remaining VLM-only fields
     const { extraction: reconciledExtraction } = reconcileExtractionWithOcr(
       extractionResult,
       augmentedIntake.ocrText
@@ -233,10 +197,7 @@ const tracedReviewSurface = traceable(
       { status: 'abstain', reason: 'no-vlm-warning-text' };
     if (vlmWarning.length > 0) {
       try {
-        ocrCrossCheck = await runWarningOcrCrossCheckOverLabels({
-          labels: input.intake.labels,
-          vlmWarningText: vlmWarning
-        });
+        ocrCrossCheck = await runWarningOcrCrossCheck({ label: input.intake.label, vlmWarningText: vlmWarning });
       } catch {
         ocrCrossCheck = { status: 'abstain', reason: 'ocr-error' };
       }
@@ -251,15 +212,13 @@ const tracedReviewSurface = traceable(
       durationMs: warningStage.elapsedMs
     });
 
-    // Spirits same-field-of-vision check (27 CFR 5.61) only runs for
-    // distilled-spirits reviews when Gemini is configured.
     let spiritsColocation: SpiritsColocationResult | null = null;
     if (
       reconciledExtraction.beverageType === 'distilled-spirits' &&
       isSpiritsColocationAvailable()
     ) {
       const colocationStage = await measureStage(() =>
-        runSpiritsColocationOverLabels(input.intake.labels)
+        checkSpiritsColocation(input.intake.label)
       );
       spiritsColocation = colocationStage.result;
       latencyCapture.recordSpan({
@@ -286,7 +245,6 @@ const tracedReviewSurface = traceable(
       durationMs: reportStage.elapsedMs
     });
 
-    // LLM judgment resolves the remaining ambiguous high-variance fields.
     let finalReport = reportStage.result;
     const judgmentClient = createJudgmentLlmClient();
     if (judgmentClient) {
@@ -470,16 +428,6 @@ export async function runTracedReviewSurface(input: TracedReviewSurfaceInput) {
       latencyCapture
     });
     emitReviewLatencySummary(latencyCapture, input.latencyObserver);
-    // Return the report directly for backward compatibility with the
-    // single-label review route (which only needs the report), but
-    // attach the reconciled extraction as a non-enumerable property so
-    // the batch orchestrator can pick it up when it needs to re-derive
-    // the verdict after aggregated-resolver patching.
-    //
-    // Callers that don't know about extraction just see it as
-    // `result.report` and are unaffected. Callers that do — i.e.
-    // batch-session.ts in the Opt D path — read `result.extraction`
-    // after type-narrowing.
     const report = result.report as VerificationReport & { __extraction?: ReviewExtraction };
     Object.defineProperty(report, '__extraction', {
       value: result.extraction,

@@ -57,12 +57,8 @@ For endpoint slices, also record the extraction mode used. Today every checked-i
 ## Rules
 
 - If a story changes extraction, validators, recommendation logic, evidence payloads, or user-visible seeded scenario claims, record an eval run.
-- If a story changes prompt, model choice, tool-calling, or agentic orchestration, pair the eval run with a LangSmith trace review and record the winning traces.
-- Use `npm run eval:golden` for the fixture-backed endpoint gate. It validates manifests and runs the LangSmith-backed eval suite with test tracking on only when the env enables it.
-- Use `npm run eval:golden:batch` for the live Gemini Batch sweep over the approved checked-in image-backed corpus.
-- Use `npm run eval:golden:full` when you want both layers in one command: the canonical fixture-backed route gate first, then the live Gemini Batch corpus sweep.
-- Use `npx tsx scripts/run-gemini-batch-extraction-benchmark.ts --dry-run` to verify the approved live Gemini Batch corpus, inline payload size, and output artifact path without submitting a provider job.
-- Use `npx tsx scripts/run-gemini-batch-extraction-benchmark.ts` only for non-urgent, cost-sensitive Gemini extraction sweeps over the checked-in `cola-cloud` plus `supplemental-generated` corpus. This runner is eval tooling only, submits inline requests only, writes local artifacts under `evals/results/`, and does not replace the canonical fixture-backed gate.
+- If a story changes prompt, model choice, tool-calling, or agentic orchestration, pair the eval run with a local trace-driven review and record the winning command, fixture slice, and timing evidence.
+- Use `npm run eval:golden` for the fixture-backed endpoint gate. It validates manifests and runs the dedicated endpoint eval suite locally.
 - If a story exposes a new important failure mode, update `golden/manifest.json` or create a backlog item to do so.
 - Capture measured latency with each eval run for single-label critical-path work.
 - The endpoint-aware golden runner is fixture-backed on purpose. It complements, rather than replaces, any live image-backed eval slice required by a specific story.

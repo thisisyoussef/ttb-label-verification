@@ -1,5 +1,4 @@
-import { afterEach, expect } from 'vitest';
-import * as ls from 'langsmith/vitest';
+import { afterEach, describe, expect, test } from 'vitest';
 
 import {
   REVIEW_EXTRACTION_MODE,
@@ -39,8 +38,8 @@ const ACTIVE_BATCH_CASES = batchEndpointCases.filter(
   (caseItem) => caseItem.caseId !== 'G-36'
 );
 
-ls.describe('TTB batch route golden evals', () => {
-  ls.test.each(
+describe('TTB batch route golden evals', () => {
+  test.each(
     ACTIVE_BATCH_CASES.map((caseItem) => ({
       caseKey: `${caseItem.caseId}:batch`,
       inputs: {
@@ -59,7 +58,7 @@ ls.describe('TTB batch route golden evals', () => {
       ? summarizeBatchSummary(result.retrySummary)
       : undefined;
 
-    ls.logOutputs({
+    const diagnostics = {
       endpointSurface: '/api/batch/run',
       caseId: caseItem.caseId,
       title: caseItem.title,
@@ -77,7 +76,8 @@ ls.describe('TTB batch route golden evals', () => {
         runSummary,
         retrySummary
       }
-    });
+    };
+    void diagnostics;
 
     expect(result.runSummary.summary).toEqual(expected.summaryAfterRun);
     expect(result.runSummary.rows[0]?.status).toBe(expected.runStatus);
@@ -90,31 +90,6 @@ ls.describe('TTB batch route golden evals', () => {
       expect(result.retrySummary?.rows[0]?.status).toBe(expected.retryStatus);
     }
 
-    ls.logFeedback({
-      key: `${caseItem.caseId.toLowerCase()}-contract-match`,
-      score:
-        JSON.stringify(result.runSummary.summary) ===
-          JSON.stringify(expected.summaryAfterRun) &&
-        result.runSummary.rows[0]?.status === expected.runStatus
-    });
-    ls.logFeedback({
-      key: `${caseItem.caseId.toLowerCase()}-latency-stable`,
-      score: result.runLatencyMs < 1500
-    });
-    ls.logFeedback({
-      key: `${caseItem.caseId.toLowerCase()}-retry-contained`,
-      score:
-        expected.retryStatus === undefined
-          ? true
-          : result.retrySummary?.rows[0]?.status === expected.retryStatus
-    });
-    personas.forEach((persona: string) => {
-      ls.logFeedback({
-        key: `persona-${persona.toLowerCase()}`,
-        score:
-          JSON.stringify(result.runSummary.summary) ===
-          JSON.stringify(expected.summaryAfterRun)
-      });
-    });
+    void personas;
   });
 });

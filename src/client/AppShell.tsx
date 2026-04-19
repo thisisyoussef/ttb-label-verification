@@ -162,17 +162,19 @@ export function AppShell({
             secondaryImage={single.secondaryImage}
             beverage={single.beverage}
             fields={single.fields}
+            reviewRelevance={single.reviewRelevance}
+            reviewRelevancePending={single.reviewRelevancePending}
             onImagesChange={single.onImagesChange}
             onBeverageChange={single.setBeverage}
             onFieldsChange={single.setFields}
             onVerify={single.onVerify}
+            onContinueAfterRelevanceWarning={single.onContinueAfterRelevanceWarning}
             onClear={single.onClear}
             onLaunchTour={help.onLaunchTour}
           />
         ) : view === 'processing' && single.image ? (
           <Processing
             image={single.image}
-            secondaryImage={single.secondaryImage}
             beverage={single.beverage}
             steps={single.steps}
             phase={single.phase}
@@ -196,7 +198,6 @@ export function AppShell({
             />
             <Results
               image={single.image}
-              secondaryImage={single.secondaryImage}
               beverage={single.beverage}
               report={single.report}
               tourExpandedCheckId={tourExpandedCheckId}

@@ -32,10 +32,19 @@ import {
   readClientTraceId,
   readProviderOverrideHeader,
   recordPreparedReviewLatency,
+  writeStageTimingsHeader,
   type ExtractorResolver,
   type ResolvedExtractor
 } from './review-route-support';
 import { handleReviewStream } from './review-stream-route';
+import { isOcrPrepassEnabled } from './ocr-prepass';
+import { runReviewRelevancePreflight } from './review-relevance';
+import { emitReviewLatencySummary } from './review-latency';
+export {
+  readProviderOverrideHeader,
+  type ExtractorResolver,
+  type ResolvedExtractor
+} from './review-route-support';
 
 export function registerReviewRoutes(input: {
   app: express.Express;
@@ -127,18 +136,7 @@ export function registerReviewRoutes(input: {
       // typical 8KB header budget and is trivially grep-able from client
       // timing tools.
       try {
-        const finalized = latencyCapture.finalize();
-        const aggregate: Record<string, number> = {};
-        for (const span of finalized.spans) {
-          const ms = Math.round(span.durationMs);
-          if (!Number.isFinite(ms) || ms < 0) continue;
-          aggregate[span.stage] = (aggregate[span.stage] ?? 0) + ms;
-        }
-        const parts = Object.entries(aggregate).map(
-          ([stage, ms]) => `${stage}=${ms}`
-        );
-        parts.unshift(`total=${Math.round(finalized.totalDurationMs)}`);
-        response.setHeader('X-Stage-Timings', parts.join(';'));
+        writeStageTimingsHeader(response, latencyCapture);
       } catch {
         /* best-effort; never block the response on telemetry */
       }
@@ -199,6 +197,54 @@ export function registerReviewRoutes(input: {
     });
   });
 
+  app.post('/api/review/relevance', (request, response) => {
+    const clientTraceId = readClientTraceId(request);
+    const latencyCapture = createReviewLatencyCapture({
+      surface: '/api/review/relevance',
+      clientTraceId
+    });
+
+    void prepareReviewUpload(request, response)
+      .then(async (prepared) => {
+        recordPreparedReviewLatency(latencyCapture, prepared);
+
+        if (!prepared.success) {
+          emitPreProviderLatencySummary({
+            latencyCapture,
+            observer: latencyObserver,
+            providers: []
+          });
+          return;
+        }
+
+        const relevanceStartedAt = performance.now();
+        const relevance = await runReviewRelevancePreflight({
+          labels: prepared.intake.labels,
+          ocrEnabled: isOcrPrepassEnabled()
+        });
+
+        latencyCapture.recordSpan({
+          stage: 'relevance-preflight',
+          outcome: 'success',
+          durationMs: performance.now() - relevanceStartedAt
+        });
+        latencyCapture.setProviderOrder([]);
+        latencyCapture.setOutcomePath('preflight-success');
+        emitReviewLatencySummary(latencyCapture, latencyObserver);
+
+        try {
+          writeStageTimingsHeader(response, latencyCapture);
+        } catch {
+          /* best-effort only */
+        }
+
+        response.json(relevance);
+      })
+      .catch((error) => {
+        respondToReviewExecutionError(error, response);
+      });
+  });
+
   // Image-first prefetch: runs the full extraction + warning-check
   // pipeline on the uploaded image without requiring application data
   // or computing a verdict. The result is stashed in an in-memory cache
@@ -215,9 +261,7 @@ export function registerReviewRoutes(input: {
       latencyCapture,
       resolution
     }) => {
-      const cacheKey = cacheKeyFromBytes(
-        (intake.labels.length > 0 ? intake.labels : [intake.label]).map((label) => label.buffer)
-      );
+      const cacheKey = cacheKeyFromBytes(intake.labels.map((label) => label.buffer));
       const existing = extractionCache.get(cacheKey);
       if (existing) {
         logServerEvent('review.extraction-cache.prefetch-dedup', {

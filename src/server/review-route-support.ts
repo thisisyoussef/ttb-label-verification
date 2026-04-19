@@ -78,6 +78,24 @@ export function emitPreProviderLatencySummary(input: {
   emitReviewLatencySummary(input.latencyCapture, input.observer);
 }
 
+export function writeStageTimingsHeader(
+  response: express.Response,
+  latencyCapture: ReviewLatencyCapture
+) {
+  const finalized = latencyCapture.finalize();
+  const aggregate: Record<string, number> = {};
+  for (const span of finalized.spans) {
+    const ms = Math.round(span.durationMs);
+    if (!Number.isFinite(ms) || ms < 0) continue;
+    aggregate[span.stage] = (aggregate[span.stage] ?? 0) + ms;
+  }
+  const parts = Object.entries(aggregate).map(
+    ([stage, ms]) => `${stage}=${ms}`
+  );
+  parts.unshift(`total=${Math.round(finalized.totalDurationMs)}`);
+  response.setHeader('X-Stage-Timings', parts.join(';'));
+}
+
 export function cacheKeyFromBytes(buffers: Buffer[]): string {
   const hash = crypto.createHash('sha256');
   for (const buffer of buffers) {

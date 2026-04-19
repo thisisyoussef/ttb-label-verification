@@ -7,8 +7,7 @@ import {
   type ReviewStreamFrame
 } from '../shared/contracts/review';
 import { extractFieldsFromOcrText } from './ocr-field-extractor';
-import { isOcrPrepassEnabled } from './ocr-prepass';
-import { runOcrPrepassOverLabels } from './multi-label-stages';
+import { isOcrPrepassEnabled, runOcrPrepass } from './ocr-prepass';
 import { runTracedReviewSurface } from './llm-trace';
 import {
   prepareReviewUpload,
@@ -18,15 +17,16 @@ import {
   createReviewLatencyCapture,
   type ReviewLatencyObserver
 } from './review-latency';
-import type { ReviewExtractor } from './review-extraction';
+import { logServerEvent } from './server-events';
 import {
+  emitPreProviderLatencySummary,
   readClientTraceId,
   readProviderOverrideHeader,
   recordPreparedReviewLatency,
   type ExtractorResolver,
   type ResolvedExtractor
 } from './review-route-support';
-import { logServerEvent } from './server-events';
+import { type ReviewExtractor } from './review-extraction';
 
 export async function handleReviewStream(
   request: express.Request,
@@ -43,6 +43,7 @@ export async function handleReviewStream(
     surface: '/api/review',
     clientTraceId
   });
+
   const prepared = await prepareReviewUpload(request, response);
   recordPreparedReviewLatency(latencyCapture, prepared);
 
@@ -51,15 +52,19 @@ export async function handleReviewStream(
   }
 
   const override = readProviderOverrideHeader(request);
-  const resolution =
-    override && deps.extractorResolver
-      ? (() => {
-          const overridden = deps.extractorResolver?.(override);
-          return overridden?.extractor ? overridden : deps.extractorResolution;
-        })()
-      : deps.extractorResolution;
+  const resolution = override && deps.extractorResolver
+    ? (() => {
+        const overridden = deps.extractorResolver!(override);
+        return overridden.extractor ? overridden : deps.extractorResolution;
+      })()
+    : deps.extractorResolution;
 
   if (!resolution.extractor) {
+    emitPreProviderLatencySummary({
+      latencyCapture,
+      observer: deps.latencyObserver,
+      providers: resolution.providers
+    });
     sendReviewError(response, resolution.status, resolution.error);
     return;
   }
@@ -91,7 +96,9 @@ export async function handleReviewStream(
     clearInterval(heartbeat);
     try {
       response.end();
-    } catch {}
+    } catch {
+      /* already closed */
+    }
   };
 
   request.on('close', cleanup);
@@ -109,7 +116,7 @@ export async function handleReviewStream(
     if (isOcrPrepassEnabled()) {
       const ocrStartedAt = performance.now();
       try {
-        const ocrResult = await runOcrPrepassOverLabels(prepared.intake.labels);
+        const ocrResult = await runOcrPrepass(prepared.intake.label);
         const durationMs = Math.round(performance.now() - ocrStartedAt);
         if (ocrResult.status !== 'failed' && ocrResult.text) {
           const regex = extractFieldsFromOcrText(ocrResult.text);
@@ -154,9 +161,8 @@ export async function handleReviewStream(
       }
     }
 
-    const onlyOcr =
-      String(request.query.only ?? '').toLowerCase() === 'ocr' ||
-      String(request.query['only-ocr'] ?? '').toLowerCase() === 'true';
+    const onlyOcr = String(request.query.only ?? '').toLowerCase() === 'ocr'
+      || String(request.query['only-ocr'] ?? '').toLowerCase() === 'true';
 
     if (onlyOcr) {
       emit({ type: 'done', requestId });
@@ -196,7 +202,9 @@ export async function handleReviewStream(
                 alternativeReading: value.alternativeReading
               }
             });
-          } catch {}
+          } catch {
+            /* best-effort progressive emission */
+          }
         }
       });
 
@@ -204,10 +212,11 @@ export async function handleReviewStream(
       emit({ type: 'done', requestId });
     }
   } catch (error) {
+    const message = error instanceof Error ? error.message : 'Internal error';
     emit({
       type: 'error',
       requestId,
-      message: error instanceof Error ? error.message : 'Internal error',
+      message,
       retryable: true,
       kind: 'internal'
     });

@@ -1,33 +1,64 @@
 # Workspace Index
 
-Core docs:
-
-- `AGENTS.md` — canonical repo contract
-- `docs/process/SINGLE_SOURCE_OF_TRUTH.md` — active story and next-step tracker
-- `docs/process/GIT_HYGIENE.md` — branch, worktree, push, and merge rules
-- `docs/process/BRANCH_TRACKER.md` — branch lifecycle registry
-- `CLAUDE.md` — agent mirror for Claude
-- `docs/process/CODEX_CHECKLIST.md` — implementation checklist used for engineering or mixed-surface story work
-- `docs/specs/FULL_PRODUCT_SPEC.md` — product blueprint
-- `docs/specs/PROJECT_STORY_INDEX.md` — story queue
-
-Core helpers:
-
-- `scripts/story-branch.ts` — open, update, and close story branches; can optionally create linked worktrees
-- `scripts/branch-tracker.ts` — tracker helpers
-- `scripts/git-story-gate.ts` — commit, push, and publish gates
-
-Core workflows:
-
-- `.ai/workflows/continue-next-story.md`
-- `.ai/workflows/story-lookup.md`
-- `.ai/workflows/story-sizing.md`
-- `.ai/workflows/tdd-pipeline.md`
-
-Memory:
-
-- `.ai/memory/README.md`
-- `.ai/memory/project/**`
-- `.ai/memory/session/**`
-
-Legacy `.ai` workflow files that still exist are compatibility stubs, not the primary contract.
+- `AGENTS.md` — canonical execution contract
+- `docs/process/SINGLE_SOURCE_OF_TRUTH.md` — canonical checked-in active story, owner, and handoff tracker
+- `docs/process/BRANCH_TRACKER.md` — canonical checked-in branch registry for description, status, PR state, and closeout notes
+- `docs/specs/FULL_PRODUCT_SPEC.md` — product-wide blueprint and leaf-story decomposition
+- `docs/reference/env-audit-2026-04-13.md` — current local env and API-key audit for this repo
+- `docs/process/TRACE_DRIVEN_DEVELOPMENT.md` — local fixture-backed tuning loop for prompt, model, tool-call, and agentic work
+- `docs/process/TEST_QUALITY_STANDARD.md` — repo standard for strong TDD, contract, property, and mutation-test design
+- `docs/process/STITCH_AUTOMATION.md` — Claude-direct default UI flow plus automated/manual Stitch alternatives
+- `docs/process/DEPLOYMENT_FLOW.md` — GitHub repo bootstrap, Railway staging/prod flow, and story-to-deploy rules
+- `docs/process/GIT_HYGIENE.md` — branch, commit, push, and merge gates for story work
+- `docs/process/PR_DESCRIPTION_STANDARD.md` — required PR body sections and content rules for reviewable story branches
+- `scripts/bootstrap-local-env.ts` — creates or refreshes an ignored repo `.env` from the local gauntlet env inventory without printing secrets
+- `eval.vitest.config.ts` — dedicated Vitest config for fixture-backed endpoint evals
+- `stryker.config.mjs` — targeted mutation-testing configuration for high-risk pure logic
+- `scripts/validate-evals.ts` — validates the full golden manifest against the live core-six subset
+- `scripts/git-story-gate.ts` — shared local commit, push, and publish gate command implementation
+- `scripts/branch-tracker.ts` — branch-tracker helpers for active-row upsert, closeout, and branch-name parsing
+- `scripts/story-branch.ts` — helper CLI for opening, updating, and closing tracked story branches
+- `scripts/install-git-hooks.ts` — installs repo-managed git hooks by setting `core.hooksPath=.githooks`
+- `.githooks/pre-commit` — automatically runs `npm run gate:commit`
+- `.githooks/pre-push` — automatically runs `npm run gate:push`
+- `.github/pull_request_template.md` — default production-grade PR body template
+- `.github/workflows/auto-open-story-prs.yml` — opens draft story PRs on first publish when no GitHub PR exists yet
+- `.github/workflows/ci.yml` — verification workflow plus PR description validation on pull requests
+- `docs/process/UI_CLAUDE_CHECKLIST.md` — Claude UI lane checklist for full-screen mock/no-data delivery and approval handoff
+- `docs/process/CODEX_CHECKLIST.md` — Codex engineering lane checklist for packet completion, TDD, and verification
+- `.ai/docs/SINGLE_SOURCE_OF_TRUTH.md` — compatibility mirror pointing back to the canonical process tracker
+- `docs/reference/product-docs/README.md` — imported source material from the uploaded files
+- `docs/reference/product-docs/ttb-user-personas.md` — stakeholder-derived persona source for UX, trust, dashboard, and deployment-posture decisions
+- `CLAUDE.md` — Claude UI lane and collaboration rules
+- `docs/presearch/2026-04-13-foundation.md` — grounding decisions, sources, and initial architecture
+- `docs/design/MASTER_DESIGN.md` — durable product-level design baseline
+- `docs/rules/README.md` — how validator source traceability works in this repo
+- `docs/rules/RULE_SOURCE_INDEX.md` — canonical rule-to-source matrix for compliance work
+- `evals/README.md` — evaluation harness expectations for this project
+- `evals/golden/README.md` — slice-based golden eval usage rules
+- `evals/golden/manifest.json` — canonical machine-readable full golden eval set
+- `evals/labels/README.md` — live core-six label subset and naming rules
+- `evals/labels/manifest.json` — machine-readable live image-backed core-six subset
+- `evals/results/TEMPLATE.md` — checked-in eval run template
+- `docs/backlog/README.md` — backlog structure and Claude-to-Codex handoff queue rules
+- `docs/backlog/codex-handoffs/README.md` — queue contract for approved UI handoff docs
+- `docs/backlog/codex-handoffs/TEMPLATE.md` — template Claude fills before Codex engineering starts
+- `docs/specs/README.md` — standard feature artifact layout
+- `docs/specs/TTB-WF-001/` — current workflow-foundation spec packet
+- `docs/specs/TTB-WF-003/` — branch tracker and story-branch workflow packet
+- `.ai/codex.md` — Codex execution mirror
+- `.ai/agents/claude.md` — Claude execution mirror
+- `.ai/workflows/README.md` — lookup, sizing, spec, eval, handoff, and TDD gates
+- `.ai/workflows/trace-driven-development.md` — Codex trace loop for LLM and agentic tuning work
+- `.ai/workflows/continue-next-story.md` — how `continue` and `next story` resolve from checked-in state
+- `.ai/workflows/eval-gate.md` — eval corpus and result gate for AI/validator stories
+- `.ai/workflows/codex-from-ui-handoff.md` — Codex engineering flow after approved UI handoff
+- `.ai/workflows/story-handoff.md` — review and acceptance handoff workflow
+- `.ai/docs/SPEC_CREATION_METHODOLOGY.md` — story IDs, packet shape, and spec-authoring method
+- `.ai/templates/spec/README.md` — reusable planning templates
+- `.ai/templates/spec/TRACE_BRIEF_TEMPLATE.md` — packet template for trace-driven development work
+- `.ai/memory/README.md` — durable vs session memory layout
+- `src/shared/contracts/review.ts` — typed boundary between UI and API
+- `src/server/trace-runtime.ts` — local no-op trace wrapper that preserves metadata flow without external trace storage
+- `src/server/index.ts` — scaffold API entrypoint
+- `src/client/main.tsx` — scaffold review shell

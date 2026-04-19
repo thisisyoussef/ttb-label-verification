@@ -6,6 +6,7 @@ export const REVIEW_EXTRACTION_GUARDRAIL_POLICY = 'structured-output-shared-sche
 
 export const LLM_ENDPOINT_SURFACES = [
   '/api/review',
+  '/api/review/relevance',
   '/api/review/extraction',
   '/api/review/warning',
   '/api/batch/run',

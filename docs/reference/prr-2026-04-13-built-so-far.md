@@ -25,7 +25,7 @@ Primary grounding:
 - The product is no longer just a scaffold. The repo now contains a full React + Express application with a typed shared contract, approved UI flows for single-label and batch work, and a live single-label backend pipeline.
 - Single-label review is the most complete slice. Intake, processing, results, standalone mode, no-text handling, low-confidence handling, extraction, warning validation, and deterministic report shaping are all present in the current worktree.
 - Batch work is visually far ahead of backend execution. Batch upload, matching review, progress, dashboard, drill-in shell, and export UI are implemented as approved shells, but the real batch API/orchestration remains deferred to `TTB-301`.
-- Release and submission plumbing is also in place: repo process docs, GitHub/Railway deployment flow, local env bootstrap, LangSmith smoke path, Stitch automation, and story gates are all documented and wired into the harness.
+- Release and submission plumbing is also in place: repo process docs, GitHub/Railway deployment flow, local env bootstrap, local fixture-backed eval tuning, Stitch automation, and story gates are all documented and wired into the harness.
 - The main near-term gap is closure of `TTB-205` and alignment of tracker/doc status with the code that now exists in the worktree.
 
 ## Snapshot
@@ -150,7 +150,7 @@ mindmap
       Railway staging and production model
       Local env bootstrap
       Stitch automation
-      LangSmith smoke path
+      Local fixture-backed eval tuning
       Story and git gates
     Still pending
       Batch API and orchestration
@@ -258,7 +258,7 @@ This repo also has real delivery scaffolding, not just product code:
 - checked-in story tracker and lane rules
 - git hygiene gates
 - Stitch automation flow
-- LangSmith smoke test path
+- Local fixture-backed eval tuning path
 - local env bootstrap
 - GitHub + Railway deployment model
 
@@ -271,7 +271,7 @@ Key files:
 - `docs/process/DEPLOYMENT_FLOW.md`
 - `scripts/bootstrap-local-env.ts`
 - `scripts/git-story-gate.ts`
-- `scripts/langsmith-smoke-test.ts`
+- `eval.vitest.config.ts`
 
 ## Evidence of Validation So Far
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { prefetchExtraction } from './appReviewApi';
+import type { ReviewRelevanceResult } from '../shared/contracts/review';
+import { checkReviewRelevance, prefetchExtraction } from './appReviewApi';
 import type { BeverageSelection, LabelImage } from './types';
 
 /**
@@ -21,6 +22,10 @@ import type { BeverageSelection, LabelImage } from './types';
 export interface ExtractionPrefetchHandle {
   /** Cache key returned by the server; pass this to submitReview. */
   cacheKey: string | null;
+  /** Quick relevance result for the currently selected image(s). */
+  relevance: ReviewRelevanceResult | null;
+  /** True while the lightweight relevance scan is running. */
+  relevancePending: boolean;
   /** Fire a prefetch for the given image. Aborts any in-flight call. */
   start: (
     image: LabelImage,
@@ -35,6 +40,8 @@ export function useExtractionPrefetch(options: {
   enabled?: boolean;
 } = {}): ExtractionPrefetchHandle {
   const [cacheKey, setCacheKey] = useState<string | null>(null);
+  const [relevance, setRelevance] = useState<ReviewRelevanceResult | null>(null);
+  const [relevancePending, setRelevancePending] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const enabled = options.enabled ?? true;
 
@@ -48,6 +55,8 @@ export function useExtractionPrefetch(options: {
     abortRef.current?.abort();
     abortRef.current = null;
     setCacheKey(null);
+    setRelevance(null);
+    setRelevancePending(false);
   }, []);
 
   const start = useCallback<ExtractionPrefetchHandle['start']>(
@@ -57,8 +66,10 @@ export function useExtractionPrefetch(options: {
       const controller = new AbortController();
       abortRef.current = controller;
       setCacheKey(null);
+      setRelevance(null);
+      setRelevancePending(true);
 
-      prefetchExtraction({
+      checkReviewRelevance({
         image,
         secondaryImage,
         beverage,
@@ -66,15 +77,40 @@ export function useExtractionPrefetch(options: {
       })
         .then((result) => {
           if (controller.signal.aborted) return;
+          setRelevance(result);
+          if (!result) {
+            return prefetchExtraction({
+              image,
+              secondaryImage,
+              beverage,
+              signal: controller.signal
+            });
+          }
+          if (!result.shouldPrefetchExtraction) {
+            return;
+          }
+          return prefetchExtraction({
+            image,
+            secondaryImage,
+            beverage,
+            signal: controller.signal
+          });
+        })
+        .then((result) => {
+          if (controller.signal.aborted) return;
           if (result?.cacheKey) setCacheKey(result.cacheKey);
         })
         .catch(() => {
           // Prefetch failures are silent — canonical /api/review still
           // runs a cold extraction if the cache key is missing.
+        })
+        .finally(() => {
+          if (controller.signal.aborted) return;
+          setRelevancePending(false);
         });
     },
     [enabled]
   );
 
-  return { cacheKey, start, reset };
+  return { cacheKey, relevance, relevancePending, start, reset };
 }

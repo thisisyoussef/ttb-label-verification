@@ -21,7 +21,7 @@ Build a standalone web application that helps TTB reviewers verify alcohol bever
 - `TTB-208` and `TTB-209` now provide the latency measurement foundation, winning Gemini defaults, and checked-in 20-case latency corpus for the default cloud path, while keeping the public contract at `<= 5,000 ms`.
 - The model may extract and classify, but final compliance outcomes come from deterministic logic and typed contracts.
 - Uncertain visual judgments, especially boldness, same-field-of-vision, continuity, and separation, default to `review`.
-- Direct UI development is the default in this repo. Automated Stitch and manual Comet remain available as explicit alternate flows when a story benefits from Stitch-generated references.
+- Claude-direct UI development is the default in this repo. Automated Stitch and manual Comet remain available as explicit alternate flows when a story benefits from Stitch-generated references.
 
 ## Primary personas
 
@@ -157,7 +157,6 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 ### Umbrella packets
 
 - `TTB-EVAL-001`: eval baseline
-- `TTB-EVAL-002`: Gemini Batch live eval runner
 - `TTB-001`: single-label reviewer experience
 - `TTB-002`: single-label intelligence path
 - `TTB-003`: batch workflow
@@ -165,7 +164,6 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 
 ### Executable leaf stories
 
-- `TTB-EVAL-002`: Gemini Batch golden-set live eval runner and cost discipline
 - `TTB-101`: single-label intake and processing UI
 - `TTB-102`: single-label results, warning evidence, and standalone UI
 - `TTB-201`: shared review contract expansion and seed fixture alignment
@@ -184,34 +182,40 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 - `TTB-301`: batch parser, matcher, orchestration, and session export
 - `TTB-302`: live-first batch runtime, workflow cleanup, and fixture demotion
 - `TTB-303`: batch input append and toolbench mode-routing regression fix
+- `TTB-304`: dual-image intake, CSV pairing, and toolbench loading
 - `TTB-105`: accessibility, trust copy, and final UI polish
 - `TTB-106`: guided review, replayable help, and contextual info layer
 - `TTB-107`: mock Treasury auth entry and signed-in shell identity
 - `TTB-108`: extraction mode selector and mode-aware processing states
 - `TTB-401`: final privacy, performance, eval, and submission pack
 
-## Agent model
+## Lane split
 
-- Claude and Codex are both full agents in this repo.
-- Either agent may implement frontend, backend, contracts, tests, evals, and flow docs directly on a story branch.
-- Older UI-first handoffs and lane-marked packets remain useful context for past stories, but they are not a default blocker for new work.
-- Stitch is optional per story. Use direct implementation by default, switch to automated or manual Stitch only when the story benefits from that flow.
+### Claude
+
+- owns frontend design in `src/client/**`
+- defaults to direct UI implementation, and prepares Stitch briefs only when a pass explicitly uses automated or manual Stitch
+- stops at visual approval, writes Codex handoffs, and then continues the next UI story
+
+### Codex
+
+- owns contracts, server, validators, OpenAI integration, tests, evals, local fixture-backed tuning loops, privacy, performance, and submission docs
+- preserves the approved UI without redesigning it and may wire approved `src/client/**` surfaces to live behavior
+- blocks and returns to Claude when a required UI change appears
 
 ## Compact packet rule
 
 - Every leaf story has a checked-in packet under `docs/specs/<story-id>/`.
 - During planning, that packet may be a compact `story-packet.md`.
-- Before active implementation, any agent may create or expand the packet into the standard working docs needed to move the story forward.
+- Before active implementation, any agent may create or expand the packet into the standard working docs needed to move the story forward. Lane ownership still controls implementation and handoff work.
 
 ## Env and integration needs
 
 - required for MVP implementation: `OPENAI_API_KEY`
 - required config values: `OPENAI_MODEL`, `OPENAI_VISION_MODEL`, `OPENAI_STORE=false`, `PORT`
 - planned extraction-mode and provider config: `GEMINI_API_KEY`, `GEMINI_VISION_MODEL`, `GEMINI_TEXT_MODEL`, `GEMINI_EMBEDDING_MODEL`, `AI_CAPABILITY_DEFAULT_ORDER`, `AI_EXTRACTION_MODE_DEFAULT` (do not require these until `TTB-206` and `TTB-207` land). Historical local-mode env ideas were archived with `TTB-212`.
-- optional local trace-driven development: `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT`, `LANGSMITH_TRACING=false` by default
 - local runtime bootstrap: `npm run env:bootstrap` creates or refreshes an ignored repo `.env` from the local gauntlet env inventory, and the server auto-loads `.env` / `.env.local`
-- LangSmith bootstrap resolves `LANGSMITH_API_KEY` from either `LANGSMITH_API_KEY` or legacy `LANGCHAIN_API_KEY` in the local gauntlet env inventory
-- trace-driven development is a local-only engineering loop; do not trace staging or production user submissions
+- trace-driven development is a local-only engineering loop over approved fixtures or sanitized inputs; do not run it on staging or production user submissions
 - optional automated Stitch generation can use a local `STITCH_API_KEY` or the ignored project-local Stitch MCP config
 - optional local-only Stitch tooling values: `STITCH_PROJECT_ID`, `STITCH_FLOW_MODE`
 
@@ -232,6 +236,6 @@ The product is ready to develop through the harness when:
 - the live tracker points to the next ready leaf story
 - the owning agent can resolve `continue` from checked-in state
 - every UI umbrella packet has a backfilled `ui-component-spec.md`, with `stitch-screen-brief.md` present whenever that packet uses Stitch
-- LangSmith trace-driven development is wired for future AI stories via repo-local env bootstrap, `npm run langsmith:smoke`, and checked-in workflow docs, while staying off by default
+- Local fixture-backed tuning is wired for future AI stories through `npm run eval:golden`, stage-timing probes, and checked-in workflow docs
 - the leaf-story map is explicit enough that no one has to infer the next slice from memory
 - the deployment scaffold is checked in even if the external GitHub and Railway bootstrap still needs user credentials and project linkage

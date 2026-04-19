@@ -30,6 +30,11 @@ export const reviewErrorKindSchema = z.enum([
   'adapter',
   'unknown'
 ]);
+export const reviewRelevanceDecisionSchema = z.enum([
+  'likely-label',
+  'uncertain',
+  'unlikely-label'
+]);
 export const verificationModeSchema = z.enum(['single-label', 'batch']);
 export const extractionQualityStateSchema = z.enum([
   'ok',
@@ -106,6 +111,29 @@ export const reviewErrorSchema = z.object({
   kind: reviewErrorKindSchema,
   message: z.string(),
   retryable: z.boolean()
+});
+
+export const reviewRelevanceSignalsSchema = z.object({
+  scannedImageCount: z.number().int().positive(),
+  textLength: z.number().int().nonnegative(),
+  alcoholKeywordHits: z.number().int().nonnegative(),
+  hasAlcoholContent: z.boolean(),
+  hasNetContents: z.boolean(),
+  hasGovernmentWarning: z.boolean(),
+  hasClassType: z.boolean(),
+  hasApplicantAddress: z.boolean(),
+  hasCountryOfOrigin: z.boolean()
+});
+
+export const reviewRelevanceResultSchema = z.object({
+  decision: reviewRelevanceDecisionSchema,
+  confidence: z.number().min(0).max(1),
+  summary: z.string(),
+  detectedBeverage: beverageTypeSchema.optional(),
+  shouldPrefetchExtraction: z.boolean(),
+  continueAllowed: z.literal(true),
+  noPersistence: z.literal(true),
+  signals: reviewRelevanceSignalsSchema
 });
 
 export const comparisonEvidenceSchema = z.object({
@@ -361,6 +389,7 @@ export type ReviewIntakeBeverage = z.infer<typeof reviewIntakeBeverageSchema>;
 export type OriginChoice = z.infer<typeof originChoiceSchema>;
 export type ProcessingStepId = z.infer<typeof processingStepIdSchema>;
 export type ReviewErrorKind = z.infer<typeof reviewErrorKindSchema>;
+export type ReviewRelevanceDecision = z.infer<typeof reviewRelevanceDecisionSchema>;
 export type VerificationMode = z.infer<typeof verificationModeSchema>;
 export type ExtractionQualityState = z.infer<typeof extractionQualityStateSchema>;
 export type ComparisonStatus = z.infer<typeof comparisonStatusSchema>;
@@ -371,6 +400,8 @@ export type DiffSegmentKind = z.infer<typeof diffSegmentKindSchema>;
 export type ReviewVarietal = z.infer<typeof reviewVarietalSchema>;
 export type ReviewIntakeFields = z.infer<typeof reviewIntakeFieldsSchema>;
 export type ReviewError = z.infer<typeof reviewErrorSchema>;
+export type ReviewRelevanceSignals = z.infer<typeof reviewRelevanceSignalsSchema>;
+export type ReviewRelevanceResult = z.infer<typeof reviewRelevanceResultSchema>;
 export type ComparisonEvidence = z.infer<typeof comparisonEvidenceSchema>;
 export type ReviewExtractionField = z.infer<typeof reviewExtractionFieldSchema>;
 export type ReviewExtractionVarietal = z.infer<typeof reviewExtractionVarietalSchema>;

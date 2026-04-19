@@ -54,14 +54,22 @@ Without a shared prompt policy and endpoint-aware plus mode-aware guardrails, pr
    - unsafe high-confidence hallucination patterns
 6. `/api/review`, `/api/review/extraction`, `/api/review/warning`, and batch item processing all resolve prompt policy and guardrails through the same central path instead of embedding route-local prompt strings, with batch item processing explicitly mapped onto the canonical `review` overlay.
 7. Tests prove non-default submitted values survive through the route boundary and that partial or hallucinated model outputs degrade to explicit uncertainty or structured error rather than fake certainty.
-8. Trace and eval artifacts record the winning prompt-profile and guardrail thresholds against the approved fixture slice before this story is considered complete.
+8. Local eval and tuning artifacts record the winning prompt-profile and guardrail thresholds against the approved fixture slice before this story is considered complete.
 9. The additional prompt and guardrail overhead stays within the active cloud/default single-label latency target.
+10. The intake flow adds a fast OCR-backed relevance preflight before `/api/review/extract-only` so obviously irrelevant or unreadable uploads do not automatically pay the full extract-only cost.
+11. The relevance preflight remains advisory:
+   - likely label -> background extract-only prefetch may start
+   - uncertain -> reviewer may continue normally
+   - unlikely label -> intake pauses and offers `Try another image` or `Continue anyway`
+12. The relevance preflight must not persist raw OCR text, label bytes, or filenames beyond the current request, and it must not block the canonical `/api/review` path when the reviewer explicitly continues anyway.
 
 ## Edge cases
 
 - A high-quality label appears to omit the government warning entirely. The route must preserve that as valid extraction evidence, not auto-upgrade it into an adapter error.
 - A low-quality label produces sparse output. The route should expose reversible uncertainty instead of manufacturing a strong result.
 - A decorative art upload or other non-label image produces sparse extraction. Auto-detect must keep the beverage type `unknown` unless there is trustworthy alcohol-label evidence.
+- A decorative art upload or other non-label image should be caught by the quick relevance preflight and should not automatically trigger the expensive extract-only prefetch path.
+- A genuine label with weak or partial OCR should remain reversible. The quick relevance preflight may warn, but it must still allow the reviewer to continue into the canonical review path.
 - The same label is processed through the review route and warning-only route. Prompt overlays may differ, but the extraction contract and user-facing trust posture must stay consistent.
 - The same label is processed in cloud mode and local mode. Mode overlays may differ, but the contract and trust posture must remain consistent.
 - Batch items from the same importer drift across repeated runs. The route should keep those results aligned with single-review extraction behavior while surfacing row-local instability clearly instead of polluting the full session.

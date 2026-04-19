@@ -55,12 +55,10 @@ A shared extraction baseline plus small endpoint overlays and structural guardra
   - contradictory no-text outputs are sanitized into explicit uncertainty instead of surfacing fake certainty
   - warning-absent outputs preserve absence while downgrading unsupported warning-signal certainty
   - local-mode overlays and guardrails now downgrade formatting/spatial claims instead of promoting them
-- attempted traced evidence:
-  - direct route-surface probe root id: `019d8f14-2b7c-7000-8000-00a681dfeb29`
-  - nested extraction span id: `019d8f14-2b81-7000-8000-034d26f75baa`
-- current blocker:
-  - `LANGSMITH_TRACING=true LANGSMITH_TEST_TRACKING=true npm run eval:golden` fails with `401 Unauthorized` on `/datasets`
-  - direct traced probe generates local trace ids but upload returns `403 Forbidden`
+- local evidence:
+  - `npm run eval:golden`
+  - route-level spot checks against `/api/review/relevance`
+  - `X-Stage-Timings` headers and existing latency-focused tests
 - remaining persona tradeoffs:
   - none observed in fixture-backed evals
-  - external trace publication is still blocked by LangSmith auth, so the story cannot yet record a published winning trace set
+  - no external trace publication is required after the external trace dependency removal
