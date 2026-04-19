@@ -1,277 +1,321 @@
 # TTB Label Verification
 
-A proof-of-concept assistant for **TTB alcohol label compliance review**. A reviewer uploads a label image plus the approved application data; the system extracts structured facts from the label, runs deterministic TTB compliance rules, and returns a verdict (**approve · review · reject**) with every decision backed by citations and evidence the human reviewer can audit.
+TTB Label Verification is a proof-of-concept review system for comparing COLA Form 5100.31 application data against alcohol beverage label images. The architecture is intentionally narrow: AI extracts structured facts from the label, deterministic code validates those facts against application data and regulatory rules, and the product surfaces `approve`, `review`, or `reject` without pretending the model made the compliance decision.
 
-**Live demo:** <https://ttb-label-verification-production-f17b.up.railway.app>
-**Staging:** <https://ttb-label-verification-staging.up.railway.app>
+Live demo: [Production](https://ttb-label-verification-production-f17b.up.railway.app) | [Staging](https://ttb-label-verification-staging.up.railway.app)
 
----
+## Architecture Summary
 
-## Why this architecture
+The central invariant is:
 
-Most "LLM reads a document" prototypes send the whole image to a VLM, trust whatever JSON comes back, and call the model's opinion a verdict. That shape fails the TTB domain on two axes:
+**AI extracts, rules judge.**
 
-1. **Regulatory decisions must cite regulations.** Approvals, rejections, and review calls need to map to 27 CFR, not a language model's impression.
-2. **Language models hallucinate confidently.** A single noisy VLM read of a 260-character warning or a 40.3% → 46% ABV misread has real tax and compliance consequences.
+- provider adapters normalize Gemini, OpenAI Responses, or local Ollama/Qwen output into one typed extraction schema
+- OCR prepass and warning-specific OCV act as independent evidence lanes
+- deterministic TypeScript rules produce field checks, cross-field checks, and the final verdict
+- reviewer-facing UI deliberately collapses internal `reject` into `Needs review` so the human remains accountable
+- no upload or verification report is intended to be persisted; contracts carry `noPersistence: true`, and the OpenAI adapter enforces `store: false`
 
-This prototype solves both with a deliberate separation of responsibility:
-
-```
-┌────────────────────────────────────────────────────────────────┐
-│  Input: label image + application CSV row                       │
-└────────────────────────────────────────────────────────────────┘
-                              │
-        ┌─────────────────────┼─────────────────────┐
-        ▼                     ▼                     ▼
-┌──────────────────┐ ┌──────────────────┐ ┌────────────────────┐
-│ Tesseract OCR    │ │ Warning region   │ │ Gemini VLM         │
-│ prepass (full    │ │ OCV (cropped)    │ │ (schema-constrained│
-│ image)           │ │                  │ │  JSON output)      │
-│ ~500ms           │ │ ~3s              │ │ ~3–5s              │
-└────────┬─────────┘ └────────┬─────────┘ └──────────┬─────────┘
-         │                    │                      │
-         └─── all three fire in parallel ───────────┘
-                              │
-                              ▼
-┌────────────────────────────────────────────────────────────────┐
-│ Stage 1 — Extraction reconciler (src/server/extraction-merge)   │
-│                                                                  │
-│  Field-by-field: route the read to its strongest reader.        │
-│    • Decorative / stylized / dense text (brand, class/type,     │
-│      fanciful, country, address, varietal, warning) →           │
-│      trust the VLM, no cap.                                     │
-│    • Numeric / regulatory-exact (ABV, net contents, vintage) →  │
-│      Tesseract wins; VLM-only reads capped at 0.80 confidence   │
-│      so downstream rules know they're unverified.                │
-└────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌────────────────────────────────────────────────────────────────┐
-│ Stage 2 — Deterministic field judgments                          │
-│ (src/server/judgment-field-rules)                                │
-│                                                                  │
-│  One judge function per field, each returning                   │
-│  { disposition, confidence, rule, tier }.                        │
-│                                                                  │
-│  judgeBrandName · judgeClassType · judgeAlcoholContent ·        │
-│  judgeNetContents · judgeApplicantAddress ·                     │
-│  judgeCountryOfOrigin · judgeVarietal · judgeVintage            │
-│                                                                  │
-│  Every rule carries a CFR citation. ABV crosses a wine tax      │
-│  boundary → reject, not review. Brand "Lake Placid" vs          │
-│  "LAKE PLACID" → brand-case-only → approve. The LLM never       │
-│  decides these — the rule engine does.                           │
-└────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌────────────────────────────────────────────────────────────────┐
-│ Stage 2a — Government warning: 2-of-3 vote                       │
-│ (src/server/government-warning-vote)                             │
-│                                                                  │
-│  Three independent reads of the warning text:                   │
-│    • VLM extraction                                              │
-│    • OCV on the cropped warning region                           │
-│    • Tesseract full-image cross-check                            │
-│                                                                  │
-│  Each votes pass / review / fail on fuzzy Levenshtein tiers.     │
-│  2-of-3 passes → pass (similarity = 1.0). 2-of-3 fails →         │
-│  fail (similarity = 0.0). Mixed → median. Zero single-signal    │
-│  jitter can flip a label.                                        │
-└────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌────────────────────────────────────────────────────────────────┐
-│ Stage 3 — LLM uncertainty resolver  (one-directional)            │
-│ (src/server/llm-resolver)                                        │
-│                                                                  │
-│  Only fires when the deterministic cascade left a field at      │
-│  status='review' AND confidence < 0.60, and only on fields      │
-│  where taxonomies can't cover the long tail (brand, class,      │
-│  address, country, varietal). Never on ABV, net contents,       │
-│  warning, or vintage — those stay fully deterministic.           │
-│                                                                  │
-│  Output space is { equivalent, uncertain }. The LLM cannot      │
-│  emit reject. It can only upgrade review → pass, with           │
-│  confidence capped at 0.82 so the reviewer sees the upgrade     │
-│  is LLM-assisted. One batched call per label; zero ambiguous    │
-│  fields = zero LLM latency cost.                                 │
-└────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌────────────────────────────────────────────────────────────────┐
-│ Stage 4 — Verdict rollup (src/server/judgment-scoring)           │
-│                                                                  │
-│  Weighted scoring with safety gates:                             │
-│    • Any critical-tier reject → verdict = reject                 │
-│    • Any remaining review / reject → verdict = review            │
-│    • All pass & confidence ≥ gate → verdict = approve            │
-└────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-                    VerificationReport
-           { verdict, checks[], counts, summary }
+```mermaid
+flowchart LR
+    A["Label image(s) + COLA data"] --> B1["Tesseract OCR prepass"]
+    A --> B2["Warning OCV"]
+    A --> B3["Gemini / OpenAI / Ollama extraction"]
+    B1 --> C["Reconcile extracted fields"]
+    B2 --> C
+    B3 --> C
+    C --> D["Deterministic field judges"]
+    D --> E["Cross-field checks"]
+    E --> F["One-directional resolver<br/>review -> pass only"]
+    F --> G["Weighted verdict rollup"]
+    G --> H["VerificationReport"]
 ```
 
-### What sets it apart
+The full architectural narrative, regulatory mapping, warning deep dive, and eval history live here:
 
-- **Seven TTB-required fields validated end-to-end** — brand name, class/type, alcohol content, net contents, name/address of bottler, country of origin (imports), government health warning — plus varietal & vintage for wines. Every one carries a 27 CFR citation.
-- **Three independent reads of the government warning** instead of one, with a deterministic 2-of-3 vote. Run-to-run VLM noise on the 260-char warning text can't single-handedly flip a label between pass and fail.
-- **LLM as a one-directional uncertainty resolver**, not a second opinion. It can upgrade ambiguous reviews to approvals after deterministic rules abstain; it can never reject, never downgrade. This is the pattern that recovered approval rates without the false-reject regression we saw from a naive "LLM judgment" layer.
-- **Cloud/local-agnostic provider swap.** `AI_PROVIDER=cloud` routes extraction through Gemini; `AI_PROVIDER=local` routes through Ollama (Qwen2.5-VL). Judgment has its own swap (`LLM_JUDGMENT_PROVIDER`). Same `ReviewExtractor` interface, same downstream pipeline.
-- **Privacy by construction.** `store:false` on every AI call, zero persistence on disk, everything in-memory, no label image or applicant data ever written to a database.
+- [Architecture And Decisions](docs/ARCHITECTURE_AND_DECISIONS.md)
+- [Government Warning](docs/GOVERNMENT_WARNING.md)
+- [Regulatory Mapping](docs/REGULATORY_MAPPING.md)
+- [Eval Results](docs/EVAL_RESULTS.md)
+- [Railway / Ollama Setup](docs/process/RAILWAY_OLLAMA_SETUP.md)
 
----
+## Quick Start (Cloud Mode)
 
-## Accuracy & latency — measured, not claimed
+### Prerequisites
 
-The 28-label `cola-cloud-all` corpus is real TTB-approved COLA labels with ground-truth application data. Here's the production run on today's architecture:
-
-```
-Remote eval against: http://127.0.0.1:8787
-Slice: cola-cloud-all
-────────────────────────────────────────────────────────────────────────────────
-Loaded 28 cases
-
-[ 1/28] persian-empire-black-widow-distilled-spirits  ✓ approve    5.3s
-[ 2/28] persian-empire-arak-distilled-spirits         ✓ review     9.9s
-[ 3/28] simply-elegant-simply-elegant-spirits-…       ✓ approve    9.8s
-[ 4/28] crafy-elk-cranberry-blueberry-acai-…          ✓ review     8.5s
-[ 5/28] leitz-rottland-wine                           ✓ review     8.2s
-[ 6/28] leitz-magdalenenkreuz-wine                    ✓ review     4.7s
-[ 7/28] leitz-klosterlay-wine                         ✓ review     3.3s
-[ 8/28] uncorked-in-mayberry-otis-own-wine            ✓ approve    3.0s
-[ 9/28] lake-placid-shredder-malt-beverage            ✓ review     3.7s
-…
-[27/28] 1840-original-lager-1840-original-lager-…     ✓ approve    8.1s
-[28/28] harpoon-ale-malt-beverage                     ✗ reject     7.5s
-────────────────────────────────────────────────────────────────────────────────
-Result:   27/28 correct (96%)
-Verdicts: 9 approve · 18 review · 1 reject · 0 error
-Latency:  avg=5.2s  p50=5.8s  p95=9.5s  max=10.3s
-```
-
-Full log: [`docs/evals/2026-04-17-cola-cloud-all-production-run.txt`](docs/evals/2026-04-17-cola-cloud-all-production-run.txt)
-
-### How we got here (measured across 8 configurations)
-
-| Config | Change from previous | Correct | Approve | Reject | Avg latency |
-|---|---|---:|---:|---:|---:|
-| Baseline (pre-pivot) | multi-stage, no resolver | 23/28 | 8 | 5 | 7.0s |
-| A | same, cleaned up | 23/28 | 10 | 5 | 5.2s |
-| B | **+ LLM uncertainty resolver** | 23/28 | 9 | 5 | 4.9s |
-| C | resolver on all reviews | 22/28 | 8 | 6 | 5.2s (regressed) |
-| D | simple single-VLM pipeline | 20/28 | 8 | 8 | 6.5s (regressed) |
-| E | simple, no resolver | 18/28 | 8 | 10 | 5.7s (regressed) |
-| F | simple + few-shot + resolver | 23/28 | 11 | 5 | 9.0s |
-| **B2** | **B + warning validator fuzzy match** | **27/28** | **9** | **1** | **5.2s** ✓ |
-| H | B2 + expanded VLM trust + 2-of-3 vote | 26/28 | 12–14 | 2 | 4.9s |
-
-**Configs B2 and H** (the shipped architecture) consistently deliver **26–27/28 correct** with **0–2 false rejects** and **avg ~5 seconds**. Earlier research-recommended variants (configs D, E, F — single-VLM pipelines) regressed to 18–23/28 on our corpus, so the OCR reconciler stayed.
-
-The 859-variation synthetic test harness ([`scripts/judgment-variations.ts`](scripts/judgment-variations.ts)) gives an independent correctness view: every `judgeX` rule hit **92.7%** match against its expected disposition across generated legit / ambiguous / illegit perturbations.
-
----
-
-## Running locally
-
-### Requirements
-
-- Node.js 20+ (Node 18 won't work — Vite 7 uses `crypto.hash`)
+- Node.js 20+
 - npm 10+
-- `GEMINI_API_KEY` in `.env` for the cloud track (Ollama is optional for local track)
-- `tesseract` installed (`brew install tesseract` on macOS; `apt-get install tesseract-ocr tesseract-ocr-eng` on Linux) for the OCR pre-pass and warning OCV
+- Tesseract OCR
+  - macOS: `brew install tesseract`
+  - Ubuntu/Debian: `sudo apt-get install tesseract-ocr tesseract-ocr-eng`
 
-### Quick start
+### Install
 
 ```bash
+git clone <repo-url>
+cd ttb-label-verification
 npm install
-cp .env.example .env          # add GEMINI_API_KEY
-npm run dev                   # http://localhost:5176 (web) + :8787 (API)
+npm run env:bootstrap
 ```
 
-### Running the golden eval locally
+`npm run env:bootstrap` creates local env scaffolding if it is missing. The server auto-loads repo-local `.env` and `.env.local` outside tests.
+
+### Configure
+
+At minimum, set:
 
 ```bash
-# 1. Start the API with the production-recommended env
-AI_PROVIDER=cloud \
-  LLM_JUDGMENT=disabled \
-  LLM_RESOLVER=enabled \
-  LLM_RESOLVER_THRESHOLD=0.60 \
-  REGION_DETECTION=disabled \
-  PORT=8787 \
-  npm run dev:api
-
-# 2. Run the 28-label corpus in another shell
-BASE_URL=http://127.0.0.1:8787 npx tsx scripts/remote-eval.ts --slice=cola-cloud-all
-
-# 3. Or run the synthetic rule harness (no server needed)
-npx tsx scripts/judgment-variations.ts
+GEMINI_API_KEY=...
 ```
 
-### Feature flags (all optional)
+Optional cloud fallback / experimentation:
 
-| Flag | Default | Effect |
-|---|---|---|
-| `AI_PROVIDER` | `cloud` | `cloud` = Gemini, `local` = Ollama |
-| `LLM_RESOLVER` | `disabled` | Enable the one-directional review→pass resolver |
-| `LLM_RESOLVER_THRESHOLD` | `0.60` | Confidence ceiling that triggers the resolver |
-| `LLM_JUDGMENT` | `disabled` | Old full-field judgment layer (regressed; kept for A/B) |
-| `EXTRACTION_TRUSTED_TIER` | *expanded* | Set to `minimal` to revert to pre-Config-H VLM trust set |
-| `EXTRACTION_PIPELINE` | multi-stage | Set to `simple` to skip the OCR reconciler |
-| `EXTRACTION_FEW_SHOT` | `disabled` | Enable 3-shot prompt appendix |
-| `REGION_DETECTION` | `disabled` | Opt-in per-field region detection (+4.5s latency, regressed on our corpus) |
-
----
-
-## Where things live
-
+```bash
+OPENAI_API_KEY=...
+LLM_RESOLVER=enabled
 ```
+
+### Run
+
+```bash
+npm run dev
+```
+
+Default local endpoints:
+
+- UI: `http://127.0.0.1:5176`
+- API: `http://127.0.0.1:8787`
+
+Basic probes:
+
+```bash
+curl http://127.0.0.1:8787/api/health
+curl http://127.0.0.1:8787/api/capabilities
+```
+
+What you should expect:
+
+- `/api/health` reports liveness and whether the Responses API path is configured
+- `/api/capabilities` reports whether local mode is allowed and what the default extraction mode is
+
+## Local / Air-Gapped Mode
+
+Local mode matters because the product docs target government deployment paths where public AI APIs may be disallowed or impractical inside a FedRAMP boundary. The deterministic validator is already local; this mode moves extraction local too.
+
+### 1. Install local dependencies
+
+- Node.js 20+
+- npm 10+
+- Tesseract OCR
+- [Ollama](https://ollama.com/)
+
+### 2. Pull the checked-in local model
+
+```bash
+ollama pull qwen2.5vl:3b
+```
+
+That tag matches the default used by the Ollama adapter.
+
+### 3. Configure local extraction
+
+Set these variables in `.env`:
+
+```bash
+AI_PROVIDER=local
+AI_EXTRACTION_MODE_DEFAULT=local
+AI_EXTRACTION_MODE_ALLOW_LOCAL=true
+OLLAMA_HOST=http://127.0.0.1:11434
+OLLAMA_VISION_MODEL=qwen2.5vl:3b
+LLM_JUDGMENT=disabled
+```
+
+### 4. Enforce zero external API calls
+
+For a strict air-gapped or government-style run:
+
+1. do **not** set `GEMINI_API_KEY`
+2. do **not** set `OPENAI_API_KEY`
+3. keep outbound network egress blocked at the host or deployment boundary
+
+Why that third step matters: the extractor factory itself defaults cross-mode fallback off, but the app wiring in `src/server/index.ts` is reliability-oriented and enables cross-mode fallback unless it is explicitly disabled by the caller. In practice, strict no-egress means “local mode plus no cloud credentials plus network policy,” not just “set `AI_PROVIDER=local`.”
+
+### 5. Run and verify
+
+```bash
+npm run dev
+curl http://127.0.0.1:8787/api/capabilities
+```
+
+You should see `defaultMode: "local"` when the environment is configured that way.
+
+For more operational detail, see [docs/process/RAILWAY_OLLAMA_SETUP.md](docs/process/RAILWAY_OLLAMA_SETUP.md).
+
+## Environment Variable Reference
+
+The exhaustive checked-in example is [`.env.example`](.env.example). The tables below summarize the runtime knobs by purpose.
+
+### Core runtime
+
+| Variable | Purpose | Default / Notes |
+| --- | --- | --- |
+| `PORT` | API port | `8787` |
+| `AI_PROVIDER` | provider family selector | `cloud` |
+| `AI_EXTRACTION_MODE_DEFAULT` | default routing mode | `cloud` |
+| `AI_EXTRACTION_MODE_ALLOW_LOCAL` | allow local-mode selection | `false` unless set |
+| `TTB_BOOT_WARMUP` | disable extractor warmup when set to `disabled` | warmup enabled by default |
+| `TTB_DEBUG_LATENCY` | enable verbose latency diagnostics | unset |
+| `TTB_LOG_SERVER_EVENTS` | enable structured server-event logging | unset |
+| `NODE_ENV` | runtime environment | `development` locally |
+
+### Cloud providers
+
+| Variable | Purpose | Default / Notes |
+| --- | --- | --- |
+| `GEMINI_API_KEY` | Gemini API key | required for Gemini cloud mode |
+| `GEMINI_VISION_MODEL` | Gemini extraction model | `gemini-2.5-flash-lite` |
+| `GEMINI_TIMEOUT_MS` | Gemini timeout | `5000` |
+| `GEMINI_MEDIA_RESOLUTION` | Gemini media resolution hint | unset |
+| `GEMINI_SERVICE_TIER` | Gemini service-tier hint | unset |
+| `GEMINI_THINKING_BUDGET` | Gemini thinking budget override | model-aware default |
+| `GEMINI_STREAM` | enable streaming path | off by default |
+| `GEMINI_PRESCALE_EDGE` | optional raster prescale before Gemini | off by default |
+| `OPENAI_API_KEY` | OpenAI Responses API key | optional cloud alternative |
+| `OPENAI_MODEL` | default OpenAI model | `gpt-5.4-mini` |
+| `OPENAI_VISION_MODEL` | OpenAI vision model | `gpt-5.4-mini` |
+| `OPENAI_VISION_DETAIL` | OpenAI image detail hint | `auto` |
+| `OPENAI_SERVICE_TIER` | OpenAI service-tier hint | unset |
+| `OPENAI_STORE` | must remain `false` | enforced by code |
+| `OPENAI_MAX_ATTEMPTS` | OpenAI retry cap | adapter default |
+
+### Local extraction
+
+| Variable | Purpose | Default / Notes |
+| --- | --- | --- |
+| `OLLAMA_HOST` | Ollama server URL | `http://127.0.0.1:11434` |
+| `OLLAMA_VISION_MODEL` | local VLM tag | `qwen2.5vl:3b` |
+| `OLLAMA_JUDGMENT_MODEL` | local text helper model | local-docs default; legacy path only |
+| `OLLAMA_VLM_ENABLED` | force enable / disable Ollama VLM path | auto-detect |
+| `TRANSFORMERS_LOCAL_MODEL` | local transformers model path | optional |
+| `TRANSFORMERS_DTYPE` | local transformers dtype override | optional |
+| `TRANSFORMERS_CACHE_DIR` | local model cache directory | optional |
+| `TRANSFORMERS_CACHE_REQUIRED` | require cache-only local transformer mode | optional |
+
+### Accuracy and policy controls
+
+| Variable | Purpose | Default / Notes |
+| --- | --- | --- |
+| `LLM_RESOLVER` | enable review-only resolver | enabled in `.env.example`, off unless set in runtime env |
+| `LLM_RESOLVER_THRESHOLD` | resolver confidence threshold | `0.60` |
+| `LLM_JUDGMENT` | legacy broader LLM judgment layer | `disabled` |
+| `ENABLE_SPIRITS_COLOCATION` | same-field-of-vision model check | auto |
+| `SPIRITS_COLOCATION_MODEL` | colocation model override | inherits Gemini vision model |
+| `SPIRITS_COLOCATION_TIMEOUT_MS` | colocation timeout | `8000` |
+| `EXTRACTION_PIPELINE` | pipeline variant selector | multi-stage default |
+| `EXTRACTION_FEW_SHOT` | enable few-shot appendix | off by default |
+| `EXTRACTION_TRUSTED_TIER` | trusted-field set selector | expanded default |
+| `OCR_VLM_CAP_CONFIDENCE` | cap for VLM-only OCR-friendly fields | `0.8` |
+| `REGION_DETECTION` | enable experimental region detection | `disabled` |
+| `ANCHOR_MERGE` | enable anchor merge path | unset |
+| `VERIFICATION_MODE` | identifier-first verification experiment | `off` |
+
+### Batch, tracing, and tooling
+
+| Variable | Purpose | Default / Notes |
+| --- | --- | --- |
+| `BATCH_CONCURRENCY` | concurrent labels in batch mode | `5`, clamped to `8` |
+| `BATCH_RESOLVER_AGGREGATION` | aggregate resolver work across batch labels | `disabled` |
+| `LANGSMITH_API_KEY` | LangSmith tracing key | dev/eval only |
+| `LANGSMITH_PROJECT` | LangSmith project name | `ttb-label-verification-dev` |
+| `LANGSMITH_TRACING` | enable tracing | `false` by default |
+| `BASE_URL` | target API URL for eval scripts | `http://127.0.0.1:8787` |
+| `EVAL_OUTPUT_PATH` | helper-script output path | optional |
+| `EVAL_SETS` | eval-slice selector | optional |
+| `OUTPUT_PATH` | generic helper output path | optional |
+| `TIMEOUT_MS` | helper timeout override | optional |
+| `VITE_ENABLE_EVAL_DEMO` | expose evaluator demo route | `1` in dev |
+| `VITE_ENABLE_TOOLBENCH` | expose developer toolbench | optional |
+
+### Story / UI workflow tooling
+
+These are not required for runtime review, but they are documented in the repo and surfaced in `.env.example`.
+
+| Variable | Purpose |
+| --- | --- |
+| `STITCH_FLOW_MODE` | Claude/Stitch workflow mode |
+| `STITCH_API_KEY` | Stitch API key |
+| `STITCH_ACCESS_TOKEN` | Stitch access token |
+| `STITCH_PROJECT_ID` | Stitch project id |
+| `STITCH_PROJECT_TITLE` | Stitch project display name |
+| `STITCH_MODEL_ID` | Stitch model id |
+| `STITCH_DEVICE_TYPE` | Stitch device target |
+| `STITCH_AUTOMATION_REVIEW_REQUIRED` | require human review for Stitch automation |
+| `STITCH_GENERATION_TIMEOUT_MS` | Stitch generation timeout |
+| `STITCH_DOWNLOAD_TIMEOUT_MS` | Stitch download timeout |
+| `STITCH_POLL_INTERVAL_MS` | Stitch poll interval |
+| `STITCH_POLL_TIMEOUT_MS` | Stitch poll timeout |
+
+## Running Tests And Evals
+
+Core engineering checks:
+
+```bash
+npm run test
+npm run typecheck
+npm run build
+```
+
+Eval-specific checks:
+
+```bash
+npm run evals:validate
+npm run eval:golden
+```
+
+Tracing / provider smoke:
+
+```bash
+npm run langsmith:smoke
+```
+
+Useful supporting docs:
+
+- [Eval Results](docs/EVAL_RESULTS.md)
+- [Trace-Driven Development](docs/process/TRACE_DRIVEN_DEVELOPMENT.md)
+- [Test Quality Standard](docs/process/TEST_QUALITY_STANDARD.md)
+
+## Project Structure
+
+```text
 src/
-├── client/                       React 19 reviewer UI
-├── server/
-│   ├── llm-trace.ts              Pipeline orchestrator (parallel OCR + OCV + VLM)
-│   ├── gemini-review-extractor.ts        Cloud VLM path
-│   ├── ollama-vlm-review-extractor.ts    Local VLM path (swappable)
-│   ├── extraction-merge.ts               Reconciler: VLM-trusted fields vs OCR-verified
-│   ├── government-warning-validator.ts   Canonical 27 CFR 16.21/16.22 checks
-│   ├── government-warning-vote.ts        2-of-3 vote across VLM + OCV + OCR
-│   ├── government-warning-subchecks.ts   Presence, exact-text, heading, continuity, legibility
-│   ├── judgment-field-rules.ts           Per-field judge functions + CFR rules
-│   ├── llm-resolver.ts                   One-directional uncertainty resolver
-│   ├── judgment-scoring.ts               Weighted verdict rollup with safety gates
-│   └── review-report.ts                  Final VerificationReport builder
-└── shared/contracts/             Zod schemas shared between client and server
-
+  client/                    Reviewer UI, batch UI, help surfaces
+  server/                    Extractors, validators, routes, batch sessions, diagnostics
+  shared/contracts/          Typed extraction/report/help contracts
+docs/
+  ARCHITECTURE_AND_DECISIONS.md
+  GOVERNMENT_WARNING.md
+  REGULATORY_MAPPING.md
+  EVAL_RESULTS.md
+  process/                   Delivery, testing, deploy, and workflow docs
+  reference/product-docs/    Imported product and domain source material
 evals/
-├── labels/                       Real COLA-approved label images + manifests
-├── results/                      Checked-in eval run artifacts
-└── llm/                          Golden-case harness (vitest + LangSmith)
-
-scripts/
-├── remote-eval.ts                Run the 28-label corpus against any URL
-├── judgment-variations.ts        859 synthetic tests of each judgeX rule
-└── debug-warning-fail.ts         Single-label warning-check probe
-
-docs/evals/                       Checked-in production eval logs
+  golden/                    Canonical scenario manifest
+  labels/                    Live image-backed core-six subset
+  results/                   Checked-in eval outputs
+scripts/                     Eval helpers, bootstrap, stage-timing tools
 ```
 
----
+## Deployment Notes
 
-## Deployment
+- `railway.toml` and `nixpacks.toml` are the checked-in deployment scaffolds
+- `nixpacks.toml` installs Tesseract and keeps some experimental features off by default because they regressed latency or accuracy
+- `/api/health` is a lightweight liveness/configuration endpoint, not a full provider readiness probe
+- boot warmup exists to reduce cold-start pain, but first-request latency still depends heavily on the extractor provider
 
-CI → Railway is fully automated via GitHub Actions ([`.github/workflows/railway-post-deploy.yml`](.github/workflows/railway-post-deploy.yml)):
+## What To Read Next
 
-- **Push to `main`** → CI → `railway-deploy` against the `staging` environment
-- **`promote-production` workflow_dispatch** → copies `main` to `production` branch → CI → `railway-deploy` against the `production` environment
-
-Build uses **Nixpacks** so `tesseract-ocr` and `tesseract-ocr-eng` are installed as APT packages at build time. Without them the pipeline degrades gracefully but loses the OCR reconciler signal (~35% of auto-approves).
-
----
-
-## Additional docs
-
-- [`docs/reference/submission-baseline.md`](docs/reference/submission-baseline.md) — assumptions register, evidence map, and open gaps
-- [`docs/process/DEPLOYMENT_FLOW.md`](docs/process/DEPLOYMENT_FLOW.md) — full CI / Railway flow
-- [`docs/specs/FULL_PRODUCT_SPEC.md`](docs/specs/FULL_PRODUCT_SPEC.md) — product shape and story map
-- [`evals/README.md`](evals/README.md) — eval harness details
-- [`docs/evals/2026-04-17-cola-cloud-all-production-run.txt`](docs/evals/2026-04-17-cola-cloud-all-production-run.txt) — latest 28-label production run log
+- [Architecture And Decisions](docs/ARCHITECTURE_AND_DECISIONS.md): the full system brief
+- [Government Warning](docs/GOVERNMENT_WARNING.md): the most detailed single-rule deep dive
+- [Regulatory Mapping](docs/REGULATORY_MAPPING.md): CFR-to-code traceability
+- [Eval Results](docs/EVAL_RESULTS.md): model and pipeline evidence
+- [Railway / Ollama Setup](docs/process/RAILWAY_OLLAMA_SETUP.md): operational setup notes
