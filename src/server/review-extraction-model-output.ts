@@ -24,7 +24,12 @@ const apiExtractionFieldSchema = z.object({
   // with VERIFICATION_MODE=on AND the applicant declared the field.
   // Nullable so the model can omit them under the standard prompt.
   visibleText: z.string().nullable().optional(),
-  alternativeReading: z.string().nullable().optional()
+  alternativeReading: z.string().nullable().optional(),
+  // Multi-image attribution. Zero-indexed ordinal of the uploaded image
+  // the value was read from. `null` on single-image intakes, when the
+  // value spans images, or when the model can't attribute. No
+  // front/back semantics — strictly upload order.
+  evidenceImage: z.number().int().min(0).nullable().optional()
 });
 
 const apiExtractionVarietalSchema = z.object({
@@ -241,6 +246,7 @@ function normalizeExtractionField(
     confidence: field.confidence,
     note: field.note ?? undefined,
     visibleText: field.visibleText ?? undefined,
-    alternativeReading: field.alternativeReading ?? undefined
+    alternativeReading: field.alternativeReading ?? undefined,
+    evidenceImage: field.evidenceImage ?? undefined
   };
 }

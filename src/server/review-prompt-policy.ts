@@ -49,6 +49,18 @@ const BASELINE_INSTRUCTIONS = [
   'Estimate warning visual signals for the opening "GOVERNMENT WARNING" heading only: whether those words are all caps, whether they are visually bolder than the words immediately after them, whether the warning is a continuous paragraph, and whether it is visually separated from surrounding content.',
   'Provide a beverageTypeHint only when the label content supports it; otherwise use unknown.',
   'Populate the structured fields exactly as named, including governmentWarning when warning text is visible.',
+  // Multi-image intake. TTB-304 lets applicants submit up to two
+  // label images per review. They are complementary views of the same
+  // product label set (typically a front and back scan, but the order
+  // is whatever the user uploaded — do NOT assume "image 1 is the
+  // front"). Extract each field from whichever image actually shows it
+  // and union the results into one structured output. Set
+  // `evidenceImage` to the 0-indexed ordinal (0 = first uploaded image,
+  // 1 = second) of the image you read each field from. When the
+  // evidence spans both images or attribution is unclear, leave
+  // `evidenceImage` null. If only one image was provided, always set
+  // `evidenceImage` to 0 or leave it null — never invent a second image.
+  'If multiple label images are provided, treat them as complementary views of the same product label set without assuming an order (do NOT assume image 1 is the front). Extract each field from whichever image actually shows it and union the results into one structured output. For every field, set `evidenceImage` to the 0-indexed ordinal of the image you read the value from. Leave `evidenceImage` null when the evidence spans both images, when attribution is unclear, or when a single image was submitted.',
   // applicantAddress disambiguation: per 27 CFR §§ 4.35, 5.63, 7.24,
   // this field is the NAME AND ADDRESS of the bottler, packer, or
   // importer as it appears on the label — typically as a single
@@ -77,6 +89,13 @@ const OCR_AUGMENTED_INSTRUCTIONS = [
   'For warning visual signals: evaluate the opening "GOVERNMENT WARNING" heading only, compare its boldness against the words immediately after it, and mark "uncertain" if unclear.',
   'Provide a beverageTypeHint only when the OCR text or image supports it; otherwise use unknown.',
   'Populate the structured fields exactly as named, including governmentWarning when warning text appears in the OCR output.',
+  // Multi-image intake mirrors BASELINE_INSTRUCTIONS — the OCR text may
+  // contain two concatenated sections separated by "--- LABEL IMAGE N
+  // ---" markers. Use those markers to attribute fields to the
+  // corresponding 0-indexed image via `evidenceImage`. Leave
+  // `evidenceImage` null when the OCR output is a single block or the
+  // value spans both images.
+  'If the OCR text contains multiple "--- LABEL IMAGE N ---" section markers, treat them as text extracted from separate images in upload order, and set `evidenceImage` on each field to the 0-indexed ordinal where the value appears. If the OCR text contains no such markers, leave `evidenceImage` null.',
   // Same disambiguation as BASELINE_INSTRUCTIONS — keep prompts in
   // sync so the OCR-augmented path doesn't leak URLs either.
   'The applicantAddress field is the NAME AND/OR POSTAL ADDRESS of the bottler, packer, or importer, as printed on the label (e.g. "Bottled by Acme Brewery, Boston, MA 02210", or "Bottled by Acme Brewery" without a street if no street is printed). A producer/bottler name alone qualifies. NEVER populate applicantAddress with a web URL (http://..., www...., example.com), an email address, or a social-media handle. If the OCR text shows only a URL/website, set applicantAddress.present=false.'

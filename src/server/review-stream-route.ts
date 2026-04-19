@@ -7,7 +7,8 @@ import {
   type ReviewStreamFrame
 } from '../shared/contracts/review';
 import { extractFieldsFromOcrText } from './ocr-field-extractor';
-import { runOcrPrepass, isOcrPrepassEnabled } from './ocr-prepass';
+import { isOcrPrepassEnabled } from './ocr-prepass';
+import { runOcrPrepassOverLabels } from './multi-label-stages';
 import { runTracedReviewSurface } from './llm-trace';
 import {
   prepareReviewUpload,
@@ -108,7 +109,7 @@ export async function handleReviewStream(
     if (isOcrPrepassEnabled()) {
       const ocrStartedAt = performance.now();
       try {
-        const ocrResult = await runOcrPrepass(prepared.intake.label);
+        const ocrResult = await runOcrPrepassOverLabels(prepared.intake.labels);
         const durationMs = Math.round(performance.now() - ocrStartedAt);
         if (ocrResult.status !== 'failed' && ocrResult.text) {
           const regex = extractFieldsFromOcrText(ocrResult.text);
