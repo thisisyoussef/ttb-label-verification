@@ -36,10 +36,20 @@ import { describe, expect, it } from 'vitest';
 
 import { buildExtractionPayload } from './index.test-helpers';
 import { runTracedReviewSurface } from './llm-trace';
+import {
+  finalizeReviewExtraction,
+  type ReviewExtractor
+} from './review-extraction';
 import { createNormalizedReviewIntake } from './review-intake';
-import type { ReviewExtractor } from './review-extraction';
+import { applyReviewExtractorGuardrails } from './review-extractor-guardrails';
+import {
+  normalizeReviewExtractionModelOutput,
+  reviewExtractionModelOutputSchema,
+  type ReviewExtractionModelOutputSchema
+} from './review-extraction-model-output';
 
-const LABELS_ROOT = path.join(process.cwd(), 'evals/labels/assets/cola-cloud');
+const LABELS_ROOT = path.join(process.cwd(), 'evals/labels/assets');
+const COLA_CLOUD_ROOT = path.join(LABELS_ROOT, 'cola-cloud');
 
 function tesseractAvailable(): boolean {
   try {
@@ -50,11 +60,11 @@ function tesseractAvailable(): boolean {
   }
 }
 
-function uploadFromDisk(filename: string) {
-  const buffer = readFileSync(path.join(LABELS_ROOT, filename));
+function uploadFromAssetPath(assetPath: string) {
+  const buffer = readFileSync(path.join(LABELS_ROOT, assetPath));
   return {
     fieldname: 'label',
-    originalname: filename,
+    originalname: path.basename(assetPath),
     encoding: '7bit',
     mimetype: 'image/webp' as const,
     size: buffer.length,
@@ -67,9 +77,31 @@ function uploadFromDisk(filename: string) {
   };
 }
 
+function uploadFromDisk(filename: string) {
+  return uploadFromAssetPath(path.join('cola-cloud', filename));
+}
+
 function intakeFromRealLabel(filename: string, fields: Record<string, string | string[] | undefined>) {
   return createNormalizedReviewIntake({
     file: uploadFromDisk(filename) as any,
+    fields: {
+      hasApplicationData: true,
+      fields: {
+        beverageTypeHint: 'auto',
+        origin: 'domestic',
+        varietals: [],
+        ...fields
+      } as any
+    }
+  });
+}
+
+function intakeFromAssetPath(
+  assetPath: string,
+  fields: Record<string, string | string[] | undefined>
+) {
+  return createNormalizedReviewIntake({
+    file: uploadFromAssetPath(assetPath) as any,
     fields: {
       hasApplicationData: true,
       fields: {
@@ -91,7 +123,7 @@ function stubExtractor(payload: Parameters<typeof buildExtractionPayload>[0]): R
   return async () => buildExtractionPayload(payload);
 }
 
-const RUN_E2E = tesseractAvailable() && existsSync(LABELS_ROOT);
+const RUN_E2E = tesseractAvailable() && existsSync(COLA_CLOUD_ROOT);
 const describeE2E = RUN_E2E ? describe : describe.skip;
 
 // Stable extraction stub used across the merge/no-merge scenarios.
@@ -112,6 +144,50 @@ const ABSENT_PAYLOAD = {
     countryOfOrigin: { present: false, confidence: 0.05 } as any
   }
 };
+
+function buildLowContrastAddressOvercallOutput(): ReviewExtractionModelOutputSchema {
+  return reviewExtractionModelOutputSchema.parse({
+    beverageTypeHint: 'wine',
+    fields: {
+      brandName: { present: false, value: null, confidence: 0.05, note: null },
+      fancifulName: { present: false, value: null, confidence: 0.05, note: null },
+      classType: { present: false, value: null, confidence: 0.05, note: null },
+      alcoholContent: { present: false, value: null, confidence: 0.05, note: null },
+      netContents: { present: false, value: null, confidence: 0.05, note: null },
+      applicantAddress: {
+        present: true,
+        value: 'NORTH CAROLINA',
+        confidence: 0.74,
+        note: null
+      },
+      countryOfOrigin: {
+        present: true,
+        value: 'North Carolina',
+        confidence: 0.88,
+        note: null
+      },
+      ageStatement: { present: false, value: null, confidence: 0.05, note: null },
+      sulfiteDeclaration: { present: false, value: null, confidence: 0.05, note: null },
+      appellation: { present: false, value: null, confidence: 0.05, note: null },
+      vintage: { present: false, value: null, confidence: 0.05, note: null },
+      governmentWarning: { present: false, value: null, confidence: 0.05, note: null },
+      varietals: []
+    },
+    warningSignals: {
+      prefixAllCaps: { status: 'uncertain', confidence: 0.6, note: null },
+      prefixBold: { status: 'uncertain', confidence: 0.52, note: null },
+      continuousParagraph: { status: 'uncertain', confidence: 0.55, note: null },
+      separateFromOtherContent: { status: 'uncertain', confidence: 0.58, note: null }
+    },
+    imageQuality: {
+      score: 0.58,
+      issues: ['dark label', 'low contrast text'],
+      noTextDetected: false,
+      note: null
+    },
+    summary: 'Structured extraction completed successfully.'
+  });
+}
 
 describeE2E('review pipeline — real-label end-to-end', () => {
   it(
@@ -255,6 +331,50 @@ describeE2E('review pipeline — real-label end-to-end', () => {
         if (prev === undefined) delete process.env.ANCHOR_MERGE;
         else process.env.ANCHOR_MERGE = prev;
       }
+    },
+    60_000
+  );
+
+  it(
+    'low-contrast inverse label suppresses a geography-only applicant-address overcall',
+    async () => {
+      const intake = intakeFromAssetPath(
+        'supplemental-generated/uncorked-in-mayberry-low-contrast-review.webp',
+        {
+          country: 'North Carolina'
+        }
+      );
+
+      const report = await runTracedReviewSurface({
+        surface: '/api/review',
+        extractionMode: 'cloud',
+        clientTraceId: 'e2e-low-contrast-address-overcall',
+        intake,
+        extractor: async (intakeForExtraction) => {
+          const guardrailResult = applyReviewExtractorGuardrails({
+            surface: '/api/review',
+            extractionMode: 'cloud',
+            output: buildLowContrastAddressOvercallOutput()
+          });
+
+          if (!guardrailResult.success) {
+            throw new Error(guardrailResult.error.message);
+          }
+
+          return finalizeReviewExtraction({
+            intake: intakeForExtraction,
+            model: 'test-guardrailed-extractor',
+            extracted: normalizeReviewExtractionModelOutput(guardrailResult.value),
+            id: 'e2e-low-contrast-address-overcall'
+          });
+        }
+      });
+
+      const applicantCheck = report.checks.find((c) => c.id === 'applicant-address');
+      const countryCheck = report.checks.find((c) => c.id === 'country-of-origin');
+
+      expect(applicantCheck).toBeUndefined();
+      expect(countryCheck?.status).toBe('pass');
     },
     60_000
   );

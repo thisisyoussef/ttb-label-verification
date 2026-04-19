@@ -20,6 +20,7 @@ This story introduces the first live vision extraction call, typed extraction sh
 - application-provided beverage type being ignored
 - ambiguous class/type text resolving to the wrong commodity
 - missing no-text or low-confidence quality signals
+- low-contrast geography reads being overcalled as `applicantAddress`
 - PDF or image request packaging using a durable upload mechanism
 - structured output refusal or partial parse being treated as success
 - extraction payload shape drifting from the shared contract
@@ -28,10 +29,13 @@ This story introduces the first live vision extraction call, typed extraction sh
 
 - the six baseline cases referenced by `evals/labels/manifest.json`
 - additional unit fixtures covering beverage inference and image-quality edge cases
+- focused guardrail fixtures where a dark/low-contrast label yields a bare geography in both `countryOfOrigin` and `applicantAddress`
+- the real supplemental label asset `evals/labels/assets/supplemental-generated/uncorked-in-mayberry-low-contrast-review.webp` replayed through the review pipeline with the guardrailed extraction seam
 
 ## Pass criteria
 
 - contract tests cover the extraction payload shape
 - adapter tests prove `store: false`, structured outputs, and non-persistent file packaging
 - route tests prove the extraction endpoint returns the shared contract when injected with a valid extractor
+- the low-contrast real-label replay does not surface a standalone `applicant-address` pass when the extracted value is only a duplicated geography
 - live six-label eval is recorded when the binary assets are available, or explicitly marked blocked with the exact missing asset paths

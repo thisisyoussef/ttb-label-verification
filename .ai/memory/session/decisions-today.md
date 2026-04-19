@@ -30,3 +30,5 @@
 - For the `TTB-401` docs follow-up, keep the docs packet on native Mermaid blocks; the SVG asset detour was merged once, but the better fit for this repo is direct Mermaid rendering plus stronger README framing for assessors.
 - In the README, explain `/api/review/refine` as a silent second-pass verifier and separate perceived-latency tactics from actual-latency tactics, because the assignment brief makes time-to-first-answer a product requirement, not just an implementation metric.
 - For the screenshot follow-up, use the live Toolbench-enabled local app as the capture source and document Toolbench explicitly as the fastest evaluator harness rather than burying it as a developer-only surface.
+- For the `TTB-203` inverse-contrast follow-up, treat a standalone geography that exactly matches `countryOfOrigin` or `appellation` as an applicant-address overcall and scrub it before report shaping.
+- Cover the low-contrast applicant-address regression at two seams: direct guardrail tests for the duplication rule and a real-label review-pipeline e2e using `supplemental-generated/uncorked-in-mayberry-low-contrast-review.webp`.

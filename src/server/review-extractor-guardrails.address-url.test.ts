@@ -17,7 +17,11 @@ import {
 } from './review-extractor-guardrails';
 import { reviewExtractionModelOutputSchema } from './review-extraction-model-output';
 
-function buildOutput(addressValue: string | null = null) {
+function buildOutput(input: {
+  applicantAddress?: string | null;
+  countryOfOrigin?: string | null;
+  appellation?: string | null;
+} = {}) {
   const base = reviewExtractionModelOutputSchema.parse({
     beverageTypeHint: 'unknown',
     imageQuality: { score: 0.9, issues: [], noTextDetected: false, note: null },
@@ -33,13 +37,17 @@ function buildOutput(addressValue: string | null = null) {
       classType: { present: false, value: null, confidence: 0.1, note: null },
       alcoholContent: { present: false, value: null, confidence: 0.1, note: null },
       netContents: { present: false, value: null, confidence: 0.1, note: null },
-      applicantAddress: addressValue
-        ? { present: true, value: addressValue, confidence: 0.9, note: null }
+      applicantAddress: input.applicantAddress
+        ? { present: true, value: input.applicantAddress, confidence: 0.9, note: null }
         : { present: false, value: null, confidence: 0.1, note: null },
-      countryOfOrigin: { present: false, value: null, confidence: 0.1, note: null },
+      countryOfOrigin: input.countryOfOrigin
+        ? { present: true, value: input.countryOfOrigin, confidence: 0.9, note: null }
+        : { present: false, value: null, confidence: 0.1, note: null },
       ageStatement: { present: false, value: null, confidence: 0.1, note: null },
       sulfiteDeclaration: { present: false, value: null, confidence: 0.1, note: null },
-      appellation: { present: false, value: null, confidence: 0.1, note: null },
+      appellation: input.appellation
+        ? { present: true, value: input.appellation, confidence: 0.9, note: null }
+        : { present: false, value: null, confidence: 0.1, note: null },
       vintage: { present: false, value: null, confidence: 0.1, note: null },
       governmentWarning: { present: false, value: null, confidence: 0.1, note: null },
       varietals: []
@@ -96,7 +104,7 @@ describe('isUrlOnlyAddress', () => {
 
 describe('applyReviewExtractorGuardrails — applicant-address URL scrub', () => {
   it('downgrades a URL-only applicantAddress to present=false', () => {
-    const output = buildOutput('www.harpoonbrewery.com');
+    const output = buildOutput({ applicantAddress: 'www.harpoonbrewery.com' });
     const result = applyReviewExtractorGuardrails({
       surface: '/api/review',
       extractionMode: 'cloud',
@@ -114,7 +122,7 @@ describe('applyReviewExtractorGuardrails — applicant-address URL scrub', () =>
   });
 
   it('passes through a real postal address unchanged', () => {
-    const output = buildOutput('306 Northern Ave, Boston, MA 02210');
+    const output = buildOutput({ applicantAddress: '306 Northern Ave, Boston, MA 02210' });
     const result = applyReviewExtractorGuardrails({
       surface: '/api/review',
       extractionMode: 'cloud',
@@ -128,7 +136,59 @@ describe('applyReviewExtractorGuardrails — applicant-address URL scrub', () =>
 
   it('passes through an address that happens to include a trailing URL', () => {
     const value = 'Bottled by Harpoon Brewery, 306 Northern Ave, Boston, MA 02210 · www.harpoonbrewery.com';
-    const output = buildOutput(value);
+    const output = buildOutput({ applicantAddress: value });
+    const result = applyReviewExtractorGuardrails({
+      surface: '/api/review',
+      extractionMode: 'cloud',
+      output
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.value.fields.applicantAddress.present).toBe(true);
+    expect(result.value.fields.applicantAddress.value).toBe(value);
+  });
+
+  it('downgrades a bare geography that duplicates countryOfOrigin', () => {
+    const output = buildOutput({
+      applicantAddress: 'NORTH CAROLINA',
+      countryOfOrigin: 'North Carolina'
+    });
+    const result = applyReviewExtractorGuardrails({
+      surface: '/api/review',
+      extractionMode: 'cloud',
+      output
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.value.fields.applicantAddress.present).toBe(false);
+    expect(result.value.fields.applicantAddress.value).toBeNull();
+    expect(result.value.fields.applicantAddress.note?.toLowerCase()).toContain(
+      'geography'
+    );
+  });
+
+  it('downgrades a bare geography that duplicates appellation', () => {
+    const output = buildOutput({
+      applicantAddress: 'RHEINGAU',
+      appellation: 'Rheingau'
+    });
+    const result = applyReviewExtractorGuardrails({
+      surface: '/api/review',
+      extractionMode: 'cloud',
+      output
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.value.fields.applicantAddress.present).toBe(false);
+    expect(result.value.fields.applicantAddress.value).toBeNull();
+  });
+
+  it('preserves a producer line even when it mentions the same geography', () => {
+    const value = 'Bottled by Otis Winery, North Carolina';
+    const output = buildOutput({
+      applicantAddress: value,
+      countryOfOrigin: 'North Carolina'
+    });
     const result = applyReviewExtractorGuardrails({
       surface: '/api/review',
       extractionMode: 'cloud',
