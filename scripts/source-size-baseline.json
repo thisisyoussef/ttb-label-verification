@@ -1,17 +1,11 @@
 {
   "src/server/judgment-field-rules.ts": 781,
   "src/server/gemini-review-extractor.ts": 764,
-  "src/server/register-review-routes.ts": 691,
   "scripts/run-cola-cloud-batch-fixtures.ts": 656,
   "scripts/remote-eval.ts": 638,
   "scripts/run-cola-cloud-batch-fixtures-local.ts": 617,
-  "src/server/batch-session.ts": 585,
   "src/server/review-extractor-factory.ts": 585,
-  "src/server/llm-trace.ts": 582,
-  "src/server/register-eval-routes.ts": 635,
-  "src/client/useSingleReviewPipeline.ts": 554,
-  "src/client/toolbench/ToolbenchSamples.tsx": 530,
+  "src/server/llm-trace.ts": 595,
   "src/client/useBatchWorkflow.ts": 526,
-  "src/client/App.tsx": 518,
   "src/server/ollama-vlm-review-extractor.ts": 505
 }

@@ -28,4 +28,4 @@
 
 - Objective: add a source-size guard for runtime/tooling files
 - Dependency: `must-have`
-- Validation: the guard passes in the cleaned repo and fails when a target file exceeds 500 lines
+- Validation: the guard passes with no new violations or baseline regressions and fails when a target file newly exceeds 500 lines or a baseline-listed file grows beyond its allowance
