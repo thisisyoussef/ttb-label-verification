@@ -15,6 +15,10 @@ import {
 const WARNING_DEFECT_EXTRACTED =
   'Government Warning. (1) According to the surgeon general, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects (2) Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems.';
 
+const WARNING_UPPERCASE_BODY_EXTRACTED = `GOVERNMENT WARNING:${CANONICAL_GOVERNMENT_WARNING
+  .slice('GOVERNMENT WARNING:'.length)
+  .toUpperCase()}`;
+
 const EXPECTED_WARNING_DEFECT_SEGMENTS: DiffSegment[] = [
   {
     kind: 'wrong-case',
@@ -183,6 +187,14 @@ describe('government warning validator', () => {
     const check = buildGovernmentWarningCheck(buildExtraction());
 
     expect(check.status).toBe('pass');
+    expect(check.summary).toBe('Warning text verified');
+    expect(check.details).toBe('All required warning language is present.');
+    expect(check.warning?.result).toMatchObject({
+      overall: 'pass',
+      focus: 'verified',
+      label: 'Warning text verified',
+      sublabel: 'All required warning language is present.'
+    });
     expect(check.warning?.segments).toEqual([
       {
         kind: 'match',
@@ -199,6 +211,25 @@ describe('government warning validator', () => {
     ]);
   });
 
+  it('passes when the body casing differs but the warning wording and heading format still match', () => {
+    const check = buildGovernmentWarningCheck(
+      buildExtraction({
+        governmentWarning: {
+          value: WARNING_UPPERCASE_BODY_EXTRACTED
+        }
+      })
+    );
+
+    expect(check.status).toBe('pass');
+    expect(check.warning?.subChecks).toMatchObject([
+      { id: 'present', status: 'pass' },
+      { id: 'exact-text', status: 'pass' },
+      { id: 'uppercase-bold-heading', status: 'pass' },
+      { id: 'continuous-paragraph', status: 'pass' },
+      { id: 'legibility', status: 'pass' }
+    ]);
+  });
+
   it('fails the showcase warning defect case with precise evidence', () => {
     const check = buildGovernmentWarningCheck(
       buildExtraction({
@@ -210,22 +241,39 @@ describe('government warning validator', () => {
 
     expect(check.status).toBe('fail');
     expect(check.severity).toBe('blocker');
-    // exact-text is now a case-insensitive fuzzy check (see
-    // government-warning-validator.ts computeWarningSimilarity). The
-    // showcase defect body text is ~98% similar to the canonical after
-    // case folding, so exact-text passes — but the heading casing defect
-    // is caught by uppercase-bold-heading, which still drives the overall
-    // fail verdict. This matches TTB 27 CFR 16.22 where the heading
-    // conspicuousness is a separate regulatory requirement from the body
-    // wording.
     expect(check.warning?.subChecks).toMatchObject([
       { id: 'present', status: 'pass' },
-      { id: 'exact-text', status: 'pass' },
+      { id: 'exact-text', status: 'review' },
       { id: 'uppercase-bold-heading', status: 'fail' },
       { id: 'continuous-paragraph', status: 'pass' },
       { id: 'legibility', status: 'pass' }
     ]);
+    expect(check.warning?.result).toMatchObject({
+      overall: 'reject',
+      focus: 'formatting-check',
+      label: 'Warning formatting needs attention'
+    });
     expect(check.warning?.segments).toEqual(EXPECTED_WARNING_DEFECT_SEGMENTS);
+  });
+
+  it('keeps missing-word defects inside the exact-text check instead of a second critical-word downgrade', () => {
+    const check = buildGovernmentWarningCheck(
+      buildExtraction({
+        governmentWarning: {
+          value: CANONICAL_GOVERNMENT_WARNING.replace('during pregnancy because', 'during because')
+        }
+      })
+    );
+
+    expect(check.status).toBe('review');
+    expect(check.warning?.subChecks).toMatchObject([
+      { id: 'present', status: 'pass' },
+      { id: 'exact-text', status: 'review' },
+      { id: 'uppercase-bold-heading', status: 'pass' },
+      { id: 'continuous-paragraph', status: 'pass' },
+      { id: 'legibility', status: 'pass' }
+    ]);
+    expect(check.warning?.result?.focus).not.toBe('missing-language');
   });
 
   it('downgrades ambiguous visual formatting calls to review instead of fail', () => {
@@ -252,6 +300,12 @@ describe('government warning validator', () => {
     );
 
     expect(check.status).toBe('review');
+    expect(check.summary).toBe('Warning text unclear');
+    expect(check.warning?.result).toMatchObject({
+      overall: 'review',
+      focus: 'text-unclear',
+      label: 'Warning text unclear'
+    });
     expect(check.warning?.subChecks).toMatchObject([
       { id: 'present', status: 'pass' },
       { id: 'exact-text', status: 'review' },
@@ -273,7 +327,13 @@ describe('government warning validator', () => {
     );
 
     expect(check.status).toBe('fail');
-    expect(check.summary).toBe('Required government warning was not detected on the label.');
+    expect(check.summary).toBe('Warning not found in this image');
+    expect(check.details).toContain('No warning text was found');
+    expect(check.warning?.result).toMatchObject({
+      overall: 'reject',
+      focus: 'not-found',
+      label: 'Warning not found in this image'
+    });
     expect(check.warning?.subChecks).toMatchObject([
       { id: 'present', status: 'fail' },
       { id: 'exact-text', status: 'review' },
@@ -300,6 +360,12 @@ describe('government warning validator', () => {
     );
 
     expect(check.status).toBe('review');
+    expect(check.summary).toBe('Warning text unclear');
+    expect(check.warning?.result).toMatchObject({
+      overall: 'review',
+      focus: 'text-unclear',
+      label: 'Warning text unclear'
+    });
     expect(check.warning?.subChecks).toMatchObject([
       { id: 'present', status: 'review' },
       { id: 'exact-text', status: 'review' },
@@ -323,6 +389,12 @@ describe('government warning validator', () => {
     );
 
     expect(check.status).toBe('fail');
+    expect(check.summary).toBe('Warning formatting needs attention');
+    expect(check.warning?.result).toMatchObject({
+      overall: 'reject',
+      focus: 'formatting-check',
+      label: 'Warning formatting needs attention'
+    });
     expect(check.warning?.subChecks).toMatchObject([
       { id: 'present', status: 'pass' },
       { id: 'exact-text', status: 'pass' },
@@ -330,6 +402,6 @@ describe('government warning validator', () => {
       { id: 'continuous-paragraph', status: 'pass' },
       { id: 'legibility', status: 'fail' }
     ]);
-    expect(check.details).toContain('Warning does not appear separate from surrounding label content.');
+    expect(check.details).toContain('heading or layout does not meet the required presentation');
   });
 });

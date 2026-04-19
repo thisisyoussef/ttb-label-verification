@@ -21,11 +21,13 @@ Implement the government warning validator, phrase-level diff shaping, and a war
 ## Design choices
 
 - Whitespace is normalized before exact-text comparison so OCR line breaks do not create fake failures.
+- Exact wording remains deterministic, but letter-case enforcement is split: the warning body may differ in case without a hard fail, while the opening `GOVERNMENT WARNING` heading still carries the separate uppercase/bold requirement.
 - Text defects remain deterministic when the warning read is clear.
 - Visual checks use the existing `warningSignals` extraction surface and stay conservative:
   - high-confidence `yes` -> `pass`
   - high-confidence `no` -> `fail`
   - `uncertain` or low-confidence -> `review`
+- Heading boldness should be judged against the words immediately after the heading, not against the entire paragraph.
 - `legibility` carries the approved UI slot for readability plus the CFR `separate and apart` requirement.
 
 ## Risks and fallback
@@ -34,5 +36,7 @@ Implement the government warning validator, phrase-level diff shaping, and a war
   - Fallback: keep token-level alignment and only merge wrong-case words across matching spaces.
 - Risk: extraction quality is too weak for a hard exact-text decision.
   - Fallback: keep `present` pass when text is detected, but downgrade `exact-text` and visual formatting checks to `review`.
+- Risk: body-case noise or OCR drift gets double-counted as both an exact-text failure and a second "critical words" failure.
+  - Fallback: keep wording differences inside the exact-text sub-check and reserve the format check for the opening heading plus layout signals only.
 - Risk: a warning-only route drifts from the future full review path.
   - Fallback: keep the validator pure and let the route be a thin seam over the reusable module.

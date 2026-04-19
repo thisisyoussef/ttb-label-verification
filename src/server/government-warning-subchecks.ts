@@ -14,6 +14,7 @@ import type {
   ReviewVisualSignal,
   WarningSubCheck
 } from '../shared/contracts/review';
+import { WARNING_REVIEW_SIMILARITY } from './government-warning-vote';
 
 const WARNING_TEXT_CONFIDENCE_THRESHOLD = 0.8;
 const WARNING_VISUAL_CONFIDENCE_THRESHOLD = 0.75;
@@ -45,7 +46,7 @@ export function buildPresenceSubCheck(input: {
 
 export function buildExactTextSubCheck(input: {
   hasWarningText: boolean;
-  exactMatch: boolean;
+  exactWordingMatch: boolean;
   textReliable: boolean;
   similarity: number;
 }): WarningSubCheck {
@@ -59,7 +60,7 @@ export function buildExactTextSubCheck(input: {
     };
   }
 
-  if (input.exactMatch && input.textReliable) {
+  if (input.exactWordingMatch && input.textReliable) {
     return {
       id: 'exact-text',
       label: 'Warning text matches required wording',
@@ -69,7 +70,7 @@ export function buildExactTextSubCheck(input: {
     };
   }
 
-  if (input.exactMatch) {
+  if (input.exactWordingMatch) {
     return {
       id: 'exact-text',
       label: 'Warning text matches required wording',
@@ -78,25 +79,12 @@ export function buildExactTextSubCheck(input: {
     };
   }
 
-  // Fuzzy tiers match the OCV fast-path so both ingestion routes apply the
-  // same "OCR noise vs real word substitution" distinction. A 90%+ match
-  // is normal Tesseract/VLM noise on small-print warnings — pass. A 65-89%
-  // match might be a real but minor wording issue — review. Below 65% is
-  // a genuine content divergence — fail.
-  if (input.similarity >= 0.9) {
-    return {
-      id: 'exact-text',
-      label: 'Warning text matches required wording',
-      status: 'pass',
-      reason: `Warning text matches the required wording (${(input.similarity * 100).toFixed(0)}% match). Small differences are typical of reading small print.`
-    };
-  }
-  if (input.similarity >= 0.65) {
+  if (input.similarity >= WARNING_REVIEW_SIMILARITY) {
     return {
       id: 'exact-text',
       label: 'Warning text matches required wording',
       status: 'review',
-      reason: `Warning text mostly matches the required wording (${(input.similarity * 100).toFixed(0)}% match). A human reviewer should confirm.`
+      reason: `Warning text does not exactly match the required wording (${(input.similarity * 100).toFixed(0)}% aligned). Review the highlighted differences before approval.`
     };
   }
 
@@ -126,24 +114,10 @@ export function buildHeadingSubCheck(input: {
     };
   }
 
-  const prefixText = detectWarningPrefix(input.extractedText);
-  // Accept the "GOVERNMENT WARNING" phrase anywhere near the start of the
-  // extracted text, not only at position 0. Gemini Flash occasionally
-  // reformats the extraction to lead with "(1) According to..." when the
-  // on-label layout stacks the heading above the body; the heading is
-  // still present in the image and in the extracted string, just not at
-  // the start. Requiring position-0 match caused persistent false-fails
-  // on those labels. The text still has to contain the phrase — and
-  // `detectWarningPrefix` (position 0) still supplies the primary signal
-  // when present, which lets the downstream bold/allcaps check engage.
-  const headingAppearsInBody = /GOVERN(?:MENT)?\s*WARNING/i.test(
-    input.extractedText.slice(0, 300)
-  );
-  const prefixHasExpectedWords =
-    (prefixText.toUpperCase() === 'GOVERNMENT WARNING' && prefixText.length > 0) ||
-    headingAppearsInBody;
+  const prefixText = detectWarningHeading(input.extractedText);
+  const prefixHasExpectedWords = prefixText.length > 0;
   const prefixIsUppercase =
-    prefixText.length === 0 ? headingAppearsInBody : prefixText === prefixText.toUpperCase();
+    prefixText.length > 0 && prefixText === prefixText.toUpperCase();
   const allCapsSignal = summarizeVisualSignal(input.prefixAllCaps);
   const boldStatus = summarizeVisualSignal(input.prefixBold);
 
@@ -307,7 +281,9 @@ function summarizeVisualSignal(signal: ReviewVisualSignal) {
   return 'review' as const;
 }
 
-function detectWarningPrefix(value: string) {
-  const match = value.match(/^[A-Za-z ]+(?=[:.])/);
+function detectWarningHeading(value: string) {
+  const match = value
+    .slice(0, 300)
+    .match(/\bGOVERNMENT\s+WARNING\b/i);
   return match ? match[0].trim() : '';
 }

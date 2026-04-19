@@ -29,7 +29,7 @@ import {
   buildPresenceSubCheck,
   isTextReliable
 } from './government-warning-subchecks';
-import { findMissingCriticalWords } from './government-warning-verification';
+import { buildWarningResult } from './government-warning-result';
 
 const WARNING_CITATIONS = [
   '27 CFR 16.21 mandatory warning text',
@@ -44,11 +44,6 @@ export function buildGovernmentWarningCheck(
   ocrCrossCheck?: OcrCrossCheckResult,
   warningOcv?: WarningOcvResult
 ): CheckReview {
-  // When OCV verified the warning text deterministically, use it as primary signal.
-  if (warningOcv && warningOcv.status === 'verified') {
-    return buildOcvBasedWarningCheck(extraction, warningOcv);
-  }
-
   const extractedField = extraction.fields.governmentWarning;
   // Pick the CLEANEST read across VLM + OCV for display and
   // downstream comparison. Previously we preferred OCV text whenever
@@ -79,31 +74,43 @@ export function buildGovernmentWarningCheck(
     extracted: extractedText
   });
   const exactMatch = extractedText === CANONICAL_GOVERNMENT_WARNING;
-  const textReliable = isTextReliable(extraction);
-  const hasWarningText = extractedField.present && extractedText.length > 0;
+  const exactWordingMatch =
+    extractedText.toUpperCase() === CANONICAL_GOVERNMENT_WARNING.toUpperCase();
+  const textReliable =
+    isTextReliable(extraction) || warningOcv?.status === 'verified';
+  const hasVlmText = extractedField.present && vlmRaw.length > 0;
+  const hasWarningText =
+    extractedText.length > 0 &&
+    (hasVlmText || warningOcv?.status === 'verified' || warningOcv?.status === 'partial');
   // 2-of-3 warning vote across three independent reads. Stabilizes the
   // fuzzy-match boundary so a single-signal ~260-char similarity that
-  // jitters across the 0.65/0.90 tier lines (Gemini Flash run-to-run
+  // jitters across the review/pass lines (Gemini Flash run-to-run
   // variance) cannot single-handedly flip a label between review and
   // fail. The three signals:
   //   1. VLM extraction (via extraction.fields.governmentWarning.value)
   //   2. Warning OCV on the cropped region (via warningOcv)
   //   3. Full-image Tesseract OCR (via ocrCrossCheck)
   //
-  // Each signal votes pass|review|fail using the same 0.90 / 0.65
-  // Levenshtein tiers. A signal abstains when it couldn't read the
+  // Each signal votes pass|review|fail using the shared warning
+  // similarity tiers. A signal abstains when it couldn't read the
   // warning at all (no ocrCrossCheck result, OCV failed, etc.). Final
   // status = majority (with a conservative-tie-break toward review).
-  const vlmSimilarity = hasWarningText
-    ? computeWarningSimilarity(extractedText, CANONICAL_GOVERNMENT_WARNING)
+  const vlmSimilarity = hasVlmText
+    ? computeWarningSimilarity(
+        normalizeGovernmentWarningText(vlmRaw),
+        CANONICAL_GOVERNMENT_WARNING
+      )
     : 0;
   const voteSignals = collectWarningVoteSignals({
     vlmSimilarity,
-    hasVlmText: hasWarningText,
+    hasVlmText,
     ocrCrossCheck,
     warningOcv
   });
-  const textSimilarity = deriveVotedSimilarity(voteSignals, vlmSimilarity);
+  const textSimilarity = deriveVotedSimilarity(
+    voteSignals,
+    hasVlmText ? vlmSimilarity : ocvSim
+  );
 
   const subChecks = warningEvidenceSchema.shape.subChecks.parse([
     buildPresenceSubCheck({
@@ -112,7 +119,7 @@ export function buildGovernmentWarningCheck(
     }),
     buildExactTextSubCheck({
       hasWarningText,
-      exactMatch,
+      exactWordingMatch,
       textReliable,
       similarity: textSimilarity
     }),
@@ -133,107 +140,44 @@ export function buildGovernmentWarningCheck(
     })
   ]);
 
-  // Critical-words hard gate per 27 CFR § 16.21. A warning that
-  // scores high overall similarity but is missing "pregnancy",
-  // "birth defects", "operate", "machinery", or "health problems"
-  // is not compliant — targeted omissions can still score well
-  // under pure Levenshtein but disqualify the warning legally. We
-  // gate AFTER the subcheck vote so this check only downgrades
-  // (pass→review/fail), never upgrades (to 'pass').
-  const statusBeforeGate = summarizeWarningStatus(subChecks);
-  let status: CheckStatus = statusBeforeGate;
-  let criticalWordsNote: string | null = null;
-  if (hasWarningText && statusBeforeGate === 'pass') {
-    const missing = findMissingCriticalWords(extractedText);
-    if (missing.length > 0) {
-      // Downgrade — we have text that LOOKS like the warning but is
-      // missing statute-required wording. Never auto-reject; route to
-      // review so a human confirms whether OCR missed a term or the
-      // label genuinely omits it.
-      status = 'review';
-      criticalWordsNote =
-        `Warning appears present but is missing required wording (${missing.join(', ')}). Please confirm.`;
-    }
-  }
+  const status = summarizeWarningStatus(subChecks);
   const severity =
     status === 'fail' ? 'blocker' : status === 'review' ? 'major' : 'note';
+  const confidence = deriveWarningConfidence(extraction, ocrCrossCheck);
+  const result = buildWarningResult({
+    status,
+    confidence,
+    extractedText,
+    segments: exactSegments,
+    subChecks,
+    exactMatch,
+    textSimilarity,
+    hasWarningText,
+    signalScores: deriveWarningSignalScores({
+      voteSignals,
+      vlmSimilarity: vlmSim,
+      hasVlmText,
+      ocrCrossCheck
+    })
+  });
 
   return checkReviewSchema.parse({
     id: 'government-warning',
     label: 'Government warning',
     status,
     severity,
-    summary: criticalWordsNote ?? buildWarningSummary({
-      status,
-      subChecks,
-      hasWarningText,
-      exactMatch
-    }),
-    details: buildWarningDetails(subChecks),
-    confidence: deriveWarningConfidence(extraction, ocrCrossCheck),
+    summary: result.label,
+    details: result.sublabel,
+    confidence,
     citations: [...WARNING_CITATIONS],
     extractedValue: hasWarningText ? extractedText : undefined,
     warning: {
       subChecks,
       required: CANONICAL_GOVERNMENT_WARNING,
       extracted: extractedText,
-      segments: exactSegments
+      segments: exactSegments,
+      result
     }
-  });
-}
-
-/** OCV fast-path: warning verified deterministically via dedicated OCR comparison. */
-function buildOcvBasedWarningCheck(
-  extraction: ReviewExtraction,
-  ocv: WarningOcvResult
-): CheckReview {
-  const extractedText = normalizeGovernmentWarningText(ocv.extractedText);
-  const segments = diffGovernmentWarningText({
-    required: CANONICAL_GOVERNMENT_WARNING,
-    extracted: extractedText
-  });
-  const subChecks = warningEvidenceSchema.shape.subChecks.parse([
-    { id: 'present', label: 'Warning text is present', status: 'pass', reason: 'Warning text is on the label.' },
-    {
-      id: 'exact-text',
-      label: 'Warning text matches required wording',
-      status: ocv.similarity >= 0.85 ? 'pass' : ocv.similarity >= 0.65 ? 'review' : 'fail',
-      reason: `Warning text ${ocv.similarity >= 0.85 ? 'matches' : 'partly matches'} (${(ocv.similarity * 100).toFixed(1)}% match).`
-    },
-    {
-      id: 'uppercase-bold-heading',
-      label: 'Heading is uppercase and bold',
-      status: ocv.headingAllCaps ? 'pass' : 'review',
-      reason: ocv.headingAllCaps
-        ? 'GOVERNMENT WARNING heading is in all caps.'
-        : 'Could not confirm the heading is all caps from the label image.'
-    },
-    { id: 'continuous-paragraph', label: 'Warning is a continuous paragraph', status: 'pass', reason: 'Warning appears as a single paragraph.' },
-    {
-      id: 'legibility',
-      label: 'Warning is legible at label size',
-      status: extraction.imageQuality.state === 'ok' ? 'pass' : 'review',
-      reason:
-        extraction.imageQuality.state === 'ok'
-          ? 'Image is clear enough to read.'
-          : 'The label image is hard to read.'
-    }
-  ]);
-  const status = summarizeWarningStatus(subChecks);
-  return checkReviewSchema.parse({
-    id: 'government-warning',
-    label: 'Government warning',
-    status,
-    severity: status === 'fail' ? 'blocker' : status === 'review' ? 'major' : 'note',
-    summary:
-      status === 'pass'
-        ? 'Warning text matches the required wording.'
-        : `Warning text partly matches (${(ocv.similarity * 100).toFixed(1)}% match).`,
-    details: `Similarity ${(ocv.similarity * 100).toFixed(1)}%, ${ocv.editDistance} character changes from required wording.`,
-    confidence: ocv.confidence,
-    citations: [...WARNING_CITATIONS],
-    extractedValue: extractedText,
-    warning: { subChecks, required: CANONICAL_GOVERNMENT_WARNING, extracted: extractedText, segments }
   });
 }
 
@@ -284,44 +228,26 @@ function deriveWarningConfidence(
   );
 }
 
-function buildWarningSummary(input: {
-  status: CheckStatus;
-  subChecks: WarningSubCheck[];
-  hasWarningText: boolean;
-  exactMatch: boolean;
+function deriveWarningSignalScores(input: {
+  voteSignals: ReturnType<typeof collectWarningVoteSignals>;
+  vlmSimilarity: number;
+  hasVlmText: boolean;
+  ocrCrossCheck?: OcrCrossCheckResult;
 }) {
-  if (input.status === 'pass') {
-    return 'Warning text matches the required wording and formatting.';
-  }
+  const scoreFor = (source: 'vlm' | 'ocv' | 'ocr-cross-check') =>
+    input.voteSignals.find((signal) => signal.source === source)?.similarity ?? null;
 
-  if (input.status === 'fail') {
-    if (!input.hasWarningText) {
-      return 'Required government warning was not detected on the label.';
-    }
-
-    if (!input.exactMatch) {
-      const headingFailed = input.subChecks.some(
-        (subCheck) =>
-          subCheck.id === 'uppercase-bold-heading' && subCheck.status === 'fail'
-      );
-
-      return headingFailed
-        ? 'The heading and the wording do not match what is required.'
-        : 'Warning wording does not match what is required.';
-    }
-
-    return 'Warning formatting does not meet the rules.';
-  }
-
-  return 'Warning was found, but one or more details still need a human look.';
-}
-
-function buildWarningDetails(subChecks: WarningSubCheck[]) {
-  const relevant = subChecks.filter((subCheck) => subCheck.status !== 'pass');
-
-  if (relevant.length === 0) {
-    return 'Wording, heading, paragraph, and legibility all meet the rules under 27 CFR part 16.';
-  }
-
-  return relevant.map((subCheck) => subCheck.reason).join(' ');
+  return {
+    vlm: input.hasVlmText ? input.vlmSimilarity : null,
+    ocrCropped: scoreFor('ocv'),
+    ocrFull:
+      input.ocrCrossCheck &&
+      (input.ocrCrossCheck.status === 'agree' ||
+        input.ocrCrossCheck.status === 'disagree')
+        ? computeWarningSimilarity(
+            normalizeGovernmentWarningText(input.ocrCrossCheck.ocrText),
+            CANONICAL_GOVERNMENT_WARNING
+          )
+        : scoreFor('ocr-cross-check')
+  };
 }

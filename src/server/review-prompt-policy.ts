@@ -46,7 +46,7 @@ const BASELINE_INSTRUCTIONS = [
   'Use confidence between 0 and 1.',
   'Do not silently omit low-confidence ambiguity. Preserve it with confidence and notes.',
   'Assess image quality, and set noTextDetected=true only when no readable label text can be extracted.',
-  'Estimate warning visual signals for all-caps prefix, bold prefix, continuous paragraph, and visual separation.',
+  'Estimate warning visual signals for the opening "GOVERNMENT WARNING" heading only: whether those words are all caps, whether they are visually bolder than the words immediately after them, whether the warning is a continuous paragraph, and whether it is visually separated from surrounding content.',
   'Provide a beverageTypeHint only when the label content supports it; otherwise use unknown.',
   'Populate the structured fields exactly as named, including governmentWarning when warning text is visible.',
   // applicantAddress disambiguation: per 27 CFR §§ 4.35, 5.63, 7.24,
@@ -74,7 +74,7 @@ const OCR_AUGMENTED_INSTRUCTIONS = [
   'For every field, mark present=true only when the OCR text supports the extraction.',
   'Use confidence between 0 and 1. Base text field confidence on OCR text clarity.',
   'Assess image quality from the image itself, and set noTextDetected=true only when the OCR text is empty.',
-  'For warning visual signals: report what you see but mark "uncertain" if unclear.',
+  'For warning visual signals: evaluate the opening "GOVERNMENT WARNING" heading only, compare its boldness against the words immediately after it, and mark "uncertain" if unclear.',
   'Provide a beverageTypeHint only when the OCR text or image supports it; otherwise use unknown.',
   'Populate the structured fields exactly as named, including governmentWarning when warning text appears in the OCR output.',
   // Same disambiguation as BASELINE_INSTRUCTIONS — keep prompts in
@@ -93,7 +93,8 @@ const ENDPOINT_OVERLAYS: Record<ReviewPromptSurface, readonly string[]> = {
   ],
   warning: [
     'Prioritize exact government warning text, punctuation, and warning visual signals.',
-    'If warning evidence is weak, say so explicitly instead of upgrading it into certainty.'
+    'If warning evidence is weak, say so explicitly instead of upgrading it into certainty.',
+    'For the opening "GOVERNMENT WARNING" heading only, compare boldness against the words immediately after it.'
   ]
 } as const;
 

@@ -25,8 +25,9 @@
 
 ## Comparison semantics
 
-- Exact-text comparison normalizes whitespace only.
-- Case, punctuation, and character substitutions remain literal.
+- Exact-text comparison normalizes whitespace only for positional alignment.
+- Diff rendering keeps punctuation, character substitutions, and case-only differences explicit in the segment list.
+- Warning pass/fail semantics still require exact wording and punctuation, but body-letter case differences alone do not force failure when the wording otherwise matches.
 - Missing punctuation may absorb the following matched whitespace into the `missing` segment so the UI stays positionally readable.
 - Case-only word defects are grouped at the phrase level when adjacent wrong-case words are separated only by matching spaces.
 
@@ -37,12 +38,13 @@
   - `fail` only when the label is readable and the warning still is not detected
   - `review` when presence itself is uncertain
 - `exact-text`
-  - `pass` for an exact canonical match after whitespace normalization
+  - `pass` when the warning wording and punctuation match after whitespace normalization, even if body letter case differs
   - `fail` for clear wording or punctuation defects
   - `review` when text confidence or image quality is too weak for a hard call
 - `uppercase-bold-heading`
+  - applies only to the opening `GOVERNMENT WARNING` heading, not the rest of the warning body
   - deterministic failure for visible mixed-case heading text
-  - visual boldness uses the extracted `prefixBold` signal
+  - visual boldness uses the extracted `prefixBold` signal and compares the heading against the words immediately after it
   - uncertainty falls back to `review`
 - `continuous-paragraph`
   - driven by the extracted `continuousParagraph` signal
