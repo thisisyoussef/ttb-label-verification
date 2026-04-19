@@ -8,6 +8,7 @@ import type {
 import { runWarningOcrCrossCheck } from './warning-ocr-cross-check';
 import { runOcrPrepass, isOcrPrepassEnabled } from './ocr-prepass';
 import { runWarningOcv, type WarningOcvResult } from './warning-region-ocv';
+import { buildNoTextShortCircuit } from './llm-trace-no-text-exit';
 import {
   runAnchorTrack,
   resolveAnchorMergeMode,
@@ -180,11 +181,29 @@ const tracedReviewSurface = traceable(
         ? Promise.resolve({ result: null, elapsedMs: 0 })
         : measureStage(() => runAnchorTrack(input.intake.label, input.intake.fields));
 
-    // Await all four in parallel. Anchor adds one Tesseract call but
-    // it runs alongside the existing 3 stages — no wall-clock cost
-    // on cold labels because VLM is the long pole.
-    const [ocrStage, ocvStage, vlmStage, anchorStage] = await Promise.all([
-      ocrPromise,
+    // OCR fast-exit: Tesseract returning zero characters is a strong
+    // signal the image isn't a label. Await OCR first (~1-2s vs VLM's
+    // 3-7s long pole → no wall-clock regression on good labels). See
+    // llm-trace-no-text-exit.ts for the synthetic-extraction path.
+    const ocrStage = await ocrPromise;
+    if (
+      ocrStage?.result.status === 'failed' &&
+      ocrStage.result.reason === 'no-text-extracted'
+    ) {
+      ocvController.abort();
+      return buildNoTextShortCircuit({
+        intake: input.intake,
+        reportId: input.reportId,
+        ocrDurationMs: ocrStage.elapsedMs,
+        surfaceStartedAt: startedAt,
+        latencyCapture,
+        pending: [vlmPromise, ocvPromise, anchorPromise]
+      });
+    }
+
+    // OCR has resolved; await the other three in parallel. Equivalent
+    // in wall-clock to the old Promise.all([ocr, ocv, vlm, anchor]).
+    const [ocvStage, vlmStage, anchorStage] = await Promise.all([
       ocvPromise,
       vlmPromise,
       anchorPromise

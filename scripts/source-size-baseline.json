@@ -7,7 +7,7 @@
   "scripts/run-cola-cloud-batch-fixtures-local.ts": 617,
   "src/server/batch-session.ts": 585,
   "src/server/review-extractor-factory.ts": 585,
-  "src/server/llm-trace.ts": 582,
+  "src/server/llm-trace.ts": 601,
   "src/server/register-eval-routes.ts": 635,
   "src/client/useSingleReviewPipeline.ts": 554,
   "src/client/toolbench/ToolbenchSamples.tsx": 530,
