@@ -27,8 +27,8 @@ Use staging as the external review URL for now. The repo and Railway docs also t
 - Prototype-safe mock Treasury-style entry with signed-in shell identity treatment
 - Single-label review flow:
   - image upload
-  - optional application-field intake
-  - OpenAI-powered structured extraction
+  - optional application-field intake or Toolbench-loaded real COLA samples
+  - cloud extraction with typed provider adapters
   - deterministic government warning, field comparison, beverage, and cross-field checks
   - evidence-rich results
 - Batch flow:
@@ -42,6 +42,10 @@ Use staging as the external review URL for now. The repo and Railway docs also t
   - remote help manifest endpoint
   - local fallback manifest
   - client replay state
+- Evaluation harness:
+  - Toolbench sample loader
+  - COLA Cloud API fetch path
+  - checked-in golden-set and live-subset docs under `evals/`
 - Deployment and workflow baseline:
   - GitHub-hosted source repo
   - Railway deployment wiring
@@ -74,12 +78,14 @@ Use staging as the external review URL for now. The repo and Railway docs also t
 - Vite 7
 - Express 4
 - Zod 4
-- OpenAI Node SDK / Responses API
+- Gemini and OpenAI provider adapters with typed extraction contracts
+- OpenAI Node SDK / Responses API with `store: false`
+- Tesseract OCR
 - Vitest
 - Stryker
 - Railway
 - GitHub Actions
-- Local fixture-backed eval tuning (development-only)
+- Local fixture-backed trace/eval tuning (development-only)
 
 ## Assumptions Made
 
@@ -95,7 +101,7 @@ These are the material gaps we filled independently and should keep documenting 
    - Because the prototype may touch sensitive label/application content, the safest prototype posture is to persist nothing.
 
 4. **Cloud AI is acceptable for the prototype**
-   - The current build uses a cloud AI API for extraction, with the assumption that a production system would need a different deployment and compliance posture.
+   - The current build uses a cloud extraction path as the best-evidenced reviewer workflow, with the assumption that a government deployment may require a stricter restricted-network posture later.
 
 5. **Standalone prototype over direct COLAs integration**
    - The prototype assumes value can be demonstrated without integrating into the legacy COLAs stack.
@@ -112,7 +118,8 @@ These are the material gaps we filled independently and should keep documenting 
 - Bold-text assessment relies on AI interpretation and confidence, not pixel-level typography analysis.
 - The prototype cannot prove physical type-size compliance from a photo alone.
 - Batch processing is a prototype flow with a bounded session model, not a durable long-running job system.
-- The staged Gemini-primary routing, endpoint-aware prompt hardening, and sub-4-second release target are planned follow-on stories, not finished capabilities on `main`.
+- The cloud path is stronger and better benchmarked than the restricted-network/local posture.
+- Restricted-network/local operation exists because government firewall and no-egress constraints are real, but it should be presented as a constrained operating mode rather than the default demonstrated path.
 
 ## Core Demo / Eval Labels
 
@@ -142,12 +149,14 @@ See [evals/README.md](../../evals/README.md) for the canonical slice definitions
 
 - Review contract: [src/shared/contracts/review.ts](../../src/shared/contracts/review.ts)
 - Review route and health route: [src/server/index.ts](../../src/server/index.ts)
-- OpenAI extraction boundary: [src/server/openai-review-extractor.ts](../../src/server/openai-review-extractor.ts)
+- Provider-backed extraction seams: [src/server/review-extractor-factory.ts](../../src/server/review-extractor-factory.ts)
 - Warning validator: [src/server/government-warning-validator.ts](../../src/server/government-warning-validator.ts)
 - Recommendation/report builder: [src/server/review-report.ts](../../src/server/review-report.ts)
 - Batch session engine: [src/server/batch-session.ts](../../src/server/batch-session.ts)
 - Guided help runtime: [src/client/help-runtime.ts](../../src/client/help-runtime.ts)
 - Current eval guidance: [evals/README.md](../../evals/README.md)
+- Architecture and tradeoffs: [docs/ARCHITECTURE_AND_DECISIONS.md](../ARCHITECTURE_AND_DECISIONS.md)
+- Benchmark evidence: [docs/EVAL_RESULTS.md](../EVAL_RESULTS.md)
 - Current release-gate packet: [docs/specs/TTB-401/story-packet.md](../specs/TTB-401/story-packet.md)
 
 ## What Still Needs To Close Before Final Submission

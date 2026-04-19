@@ -1,5 +1,6 @@
 # Blockers
 
+- `TTB-401` documentation refresh is not yet published or merged; local validation still needs to run before deciding whether the branch can go straight through the normal PR path.
 - The warning diagnostic run shows a real data-quality blocker for corpus interpretation: many `cola-cloud-real` assets are front labels that do not visibly include the government warning, so those cases cannot prove warning-reader quality without a paired back-label image.
 - The warning-visible slice is still unstable across repeated live runs because the upstream warning readers vary label to label and run to run; after the current fixes the remaining hard failures are no longer heading-format false fails, but single-run exact-text collapses can still occur on labels such as `G-67` when both VLM and OCR fail together.
 - The main warning-route regression blocker is resolved: `npm run eval:golden` no longer fails on `G-02:warning`.

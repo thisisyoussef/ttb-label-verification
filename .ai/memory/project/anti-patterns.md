@@ -21,6 +21,7 @@
 - Creating a parallel per-story `design.md` instead of writing the feature design into `ui-component-spec.md`
 - Leaving durable workflow corrections only in chat instead of promoting them into checked-in docs
 - Treating automated Stitch as mandatory after `claude-direct` became the default UI flow
+- Letting evaluator-facing docs drift into shallow setup copy that hides the architecture, datasets, benchmarks, and tradeoffs the brief actually asked the repo to demonstrate
 - Starting standard feature work without a spec packet or behavior changes without a RED test
 - Leaving a leaf story as `story-packet.md` only after active implementation has already started and deeper working docs are clearly needed
 - Treating production promotion as automatic per story instead of an explicit release action

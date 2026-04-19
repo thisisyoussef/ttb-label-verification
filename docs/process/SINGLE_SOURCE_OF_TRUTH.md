@@ -43,7 +43,7 @@ Last updated: 2026-04-19 (`TTB-108` is complete with extraction-mode selection, 
 ## Active pointers
 
 - Active Claude story: none in progress (`TTB-108` Claude lane complete and approved 2026-04-14)
-- Active Codex story: none in progress; the PR #138 consolidation merge on 2026-04-19 landed the wine-field reveal, refine kickoff from the live report via `useRefineCoordinator`, batch review-first wording plus simplified ETA, Toolbench dual-image sample pack, primary/secondary label rename, OCR no-text short-circuit, and every TTB-204/TTB-210/TTB-304 follow-up that was sitting on isolated publish branches
+- Active Codex story: `TTB-401` documentation roll-up is in progress on `codex/TTB-401-readme-doc-refresh`; this pass refreshes the assessor-facing README abstract, evaluator guide, submission baseline, and the `results-review.png` screenshot so the release-pack docs foreground architecture, datasets, benchmarks, tradeoffs, and the restricted-network posture from checked-in evidence instead of older submission framing
 - Next ready for Claude: none queued
 - Next preferred for Codex: `TTB-401` documentation roll-up
 - Next blocking for Codex: `TTB-401` documentation roll-up
@@ -80,7 +80,7 @@ Last updated: 2026-04-19 (`TTB-108` is complete with extraction-mode selection, 
 | 19 | `TTB-209` | `TTB-002` | cloud/default Gemini hot-path tuning and latency policy hardening | Codex | `done` | keep the winning Gemini defaults, the 20-case latency corpus, the eval result, and the explicit non-cutover note as the record of the completed cloud-baseline hardening slice | none |
 | 21 | `TTB-210` | `TTB-002` | persona-centered prompt profiles and endpoint plus mode guardrails | Codex | `done` | keep the packet, local fixture-backed eval evidence, relevance-preflight record, local literal-anchor field-priority follow-up evidence, and the relevance-recovery follow-up on `codex/TTB-210-relevance-recovery-publish` that removes the intake quick-scan warning and defers readability/non-label messaging to the post-Verify result path as the proof that prompt/guardrail hardening and early upload fast-breaks are complete without external trace dependencies | none |
 | 22 | `TTB-211` | `TTB-002` | LLM endpoint and mode eval matrix, persona scorecards, and trace regression gates | Codex | `done` | keep the endpoint-aware eval harness, route-surface timing evidence, persona scorecards, local tuning guidance, and CI golden gate as the record of the completed route-aware regression slice | none |
-| 23 | `TTB-401` | `TTB-004` | final privacy, performance, eval, and submission pack | Codex | `ready` | run the release gate and package the submission | none |
+| 23 | `TTB-401` | `TTB-004` | final privacy, performance, eval, and submission pack | Codex | `in-progress` | finish the assessor-facing doc refresh, run local validation, and then publish or report the exact remaining release-gate blocker | none |
 
 ## Handoff points
 
