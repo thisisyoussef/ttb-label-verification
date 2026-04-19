@@ -18,8 +18,13 @@ import { WARNING_REVIEW_SIMILARITY } from './government-warning-vote';
 
 const WARNING_TEXT_CONFIDENCE_THRESHOLD = 0.8;
 const WARNING_VISUAL_CONFIDENCE_THRESHOLD = 0.75;
+const WARNING_SUPPORTED_PASS_SIMILARITY = 0.9;
 
-export { WARNING_TEXT_CONFIDENCE_THRESHOLD, WARNING_VISUAL_CONFIDENCE_THRESHOLD };
+export {
+  WARNING_TEXT_CONFIDENCE_THRESHOLD,
+  WARNING_VISUAL_CONFIDENCE_THRESHOLD,
+  WARNING_SUPPORTED_PASS_SIMILARITY
+};
 
 export function buildPresenceSubCheck(input: {
   hasWarningText: boolean;
@@ -51,6 +56,8 @@ export function buildExactTextSubCheck(input: {
   similarity: number;
   passConsensus: boolean;
   conflictingSignals: boolean;
+  supportingPassSignal: boolean;
+  hasLexicalInsertionOrDeletion: boolean;
 }): WarningSubCheck {
   if (!input.hasWarningText) {
     return {
@@ -79,6 +86,22 @@ export function buildExactTextSubCheck(input: {
       status: 'pass',
       reason:
         'Independent warning reads support the required wording despite minor read noise.'
+    };
+  }
+
+  if (
+    input.supportingPassSignal &&
+    !input.conflictingSignals &&
+    input.textReliable &&
+    input.similarity >= WARNING_SUPPORTED_PASS_SIMILARITY &&
+    !input.hasLexicalInsertionOrDeletion
+  ) {
+    return {
+      id: 'exact-text',
+      label: 'Warning text matches required wording',
+      status: 'pass',
+      reason:
+        'A supported warning read matches the required wording despite minor read noise.'
     };
   }
 

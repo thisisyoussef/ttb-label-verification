@@ -415,7 +415,7 @@ describe('server deployment surfaces', () => {
     const payload = checkReviewSchema.parse(await response.json());
 
     expect(payload.id).toBe('government-warning');
-    expect(payload.status).toBe('review');
+    expect(payload.status).toBe('pass');
     expect(payload.warning?.subChecks.map((subCheck) => subCheck.id)).toEqual([
       'present',
       'exact-text',
@@ -423,6 +423,12 @@ describe('server deployment surfaces', () => {
       'continuous-paragraph',
       'legibility'
     ]);
+    expect(payload.warning?.subChecks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'exact-text', status: 'pass' }),
+        expect.objectContaining({ id: 'uppercase-bold-heading', status: 'review' })
+      ])
+    );
     expect(extractor).toHaveBeenCalledTimes(1);
   });
 

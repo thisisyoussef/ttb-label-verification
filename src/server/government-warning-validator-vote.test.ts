@@ -142,7 +142,33 @@ describe('government warning validator vote-backed outcomes', () => {
     });
   });
 
-  it('keeps conflicting warning reads in review instead of hard-failing the wording', () => {
+  it('passes exact-text when one signal passes and the only other signal is a non-conflicting review', () => {
+    const check = buildGovernmentWarningCheck(
+      buildExtraction(),
+      undefined,
+      {
+        status: 'verified',
+        similarity: 0.8,
+        extractedText:
+          'GOVERNMENT WARNING: According to the Surgeon General women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. (2) Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery and may cause health problems.',
+        editDistance: 26,
+        headingAllCaps: true,
+        confidence: 0.91,
+        durationMs: 140
+      }
+    );
+
+    expect(check.status).toBe('pass');
+    expect(check.warning?.subChecks).toMatchObject([
+      { id: 'present', status: 'pass' },
+      { id: 'exact-text', status: 'pass' },
+      { id: 'uppercase-bold-heading', status: 'pass' },
+      { id: 'continuous-paragraph', status: 'pass' },
+      { id: 'legibility', status: 'pass' }
+    ]);
+  });
+
+  it('fails wording when the only secondary read still does not reach the pass band', () => {
     const wrongWarning =
       'GOVERNMENT WARNING: Consumers who have any health condition, are pregnant, or may become pregnant should consult their physician before consuming this product.';
 
@@ -166,17 +192,41 @@ describe('government warning validator vote-backed outcomes', () => {
       }
     );
 
-    expect(check.status).toBe('review');
-    expect(check.warning?.subChecks).toMatchObject([
-      { id: 'present', status: 'pass' },
-      { id: 'exact-text', status: 'review' },
-      { id: 'uppercase-bold-heading', status: 'pass' },
-      { id: 'continuous-paragraph', status: 'pass' },
-      { id: 'legibility', status: 'pass' }
-    ]);
-    expect(check.warning?.result).toMatchObject({
-      overall: 'review',
-      focus: 'partial-match'
+    expect(check.status).toBe('fail');
+    expect(check.warning?.subChecks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'present', status: 'pass' }),
+        expect.objectContaining({ id: 'exact-text', status: 'fail' }),
+        expect.objectContaining({ id: 'uppercase-bold-heading', status: 'pass' }),
+        expect.objectContaining({ id: 'continuous-paragraph', status: 'pass' }),
+        expect.objectContaining({ id: 'legibility', status: 'pass' })
+      ])
+    );
+    expect(check.warning?.result?.overall).toBe('reject');
+  });
+
+  it('passes exact-text while still failing the uppercase heading defect from the G-02 warning fixture', () => {
+    const extraction = buildExtraction({
+      governmentWarning: {
+        value:
+          'Government Warning. (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. (2) Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems.'
+      }
     });
+
+    extraction.warningSignals.prefixAllCaps = {
+      status: 'no',
+      confidence: 0.96
+    };
+
+    const check = buildGovernmentWarningCheck(extraction);
+
+    expect(check.status).toBe('fail');
+    expect(check.warning?.subChecks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'present', status: 'pass' }),
+        expect.objectContaining({ id: 'exact-text', status: 'pass' }),
+        expect.objectContaining({ id: 'uppercase-bold-heading', status: 'fail' })
+      ])
+    );
   });
 });
