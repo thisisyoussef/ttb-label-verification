@@ -4,7 +4,8 @@ import { formatFileSize } from '../shared/batch-file-meta';
 import type { Mode, View } from './appTypes';
 import type { SingleReviewFlow } from './singleReviewFlowSupport';
 import { resolveToolbenchAssetRoute } from './toolbenchRouteState';
-import type { LabelImage, OriginChoice } from './types';
+import type { LabelImage } from './types';
+import { buildToolbenchSampleLoadState } from './toolbench/toolbenchSingleSample';
 import type { SampleFields } from './toolbench/toolbenchSampleSupport';
 import type { BatchWorkflow } from './useBatchWorkflow';
 
@@ -99,25 +100,11 @@ export function useAppToolbench(options: {
       const secondaryImage = secondaryFile
         ? toLabelImage(secondaryFile)
         : null;
-
-      options.single.onImagesChange(primaryImage, secondaryImage);
-
-      const origin: OriginChoice =
-        fields.origin === 'imported' ? 'imported' : 'domestic';
-      options.single.setFields({
-        brandName: fields.brandName,
-        fancifulName: fields.fancifulName,
-        classType: fields.classType,
-        alcoholContent: fields.alcoholContent,
-        netContents: fields.netContents,
-        applicantAddress: fields.applicantAddress,
-        origin,
-        country: fields.country,
-        formulaId: fields.formulaId,
-        appellation: fields.appellation,
-        vintage: fields.vintage,
-        varietals: []
-      });
+      options.single.onLoadToolbenchSample(
+        primaryImage,
+        secondaryImage,
+        buildToolbenchSampleLoadState(fields)
+      );
 
       if (options.mode !== 'single') {
         options.batch.onSelectMode('single', options.mode);

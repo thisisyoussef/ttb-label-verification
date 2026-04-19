@@ -1,5 +1,7 @@
 # Decisions Today
 
+- Reserve the Toolbench Samples capability slot with a loading placeholder until live/synthetic probe results settle so the tab does not reflow through intermediate action stacks.
+- Route Toolbench single-sample hydration through a dedicated single-review reset path instead of piecemeal image and field setters, so old OCR/report state cannot leak into the next sample.
 - Keep non-warning capitalization differences as normal matches. Only the government warning diff keeps a dedicated wrong-capitalization surface.
 - Diagnose warning-field reliability against the real approved `cola-cloud-real` slice with the actual OCR/VLM/OCV/cross-check stages, not just final verdicts.
 - Treat the `cola-cloud-real` warning results in two buckets: front-only / no-warning-visible assets versus visible-warning false negatives (heading-bold false fails, voted exact-text reviews/fails, and a misleading `100% aligned` review state when exact wording is still strict but the vote saturates to pass).

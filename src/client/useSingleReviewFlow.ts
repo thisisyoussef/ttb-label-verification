@@ -1,39 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-
-import {
-  buildLowQualityCautionReport,
-  emptyIntake,
-  prefillFromReport
-} from './appSingleState';
+import { buildLowQualityCautionReport, emptyIntake, prefillFromReport } from './appSingleState';
 import type { View } from './appTypes';
 import { buildTourDemoImage, resolveTourDemoReviewReport } from './help-tour-runtime';
 import { DEFAULT_FAILURE_MESSAGE } from './reviewFailureMessage';
 import { logReviewClientEvent } from './review-observability';
 import { resolveResultReport } from './review-runtime';
 import type { SeedScenario } from './scenarios';
-import {
-  cloneScenarioFields,
-  resolveVerifyIntent,
-  REVIEW_VARIANT_OPTIONS,
-  type SingleReviewFlow
-} from './singleReviewFlowSupport';
+import { cloneScenarioFields, resolveVerifyIntent, REVIEW_VARIANT_OPTIONS, type SingleReviewFlow } from './singleReviewFlowSupport';
 import { exportReviewResults } from './single-review-export';
-import type {
-  BeverageSelection,
-  IntakeFields,
-  LabelImage,
-  ResultVariantOverride
-} from './types';
-import {
-  type ReviewPipelineEvent,
-  useSingleReviewPipeline
-} from './useSingleReviewPipeline';
+import type { BeverageSelection, IntakeFields, LabelImage, ResultVariantOverride } from './types';
+import { type ReviewPipelineEvent, useSingleReviewPipeline } from './useSingleReviewPipeline';
 import { useSpeculativePrefetch } from './useSpeculativePrefetch';
 import { useOcrPreview } from './useOcrPreview';
 import { useExtractionPrefetch } from './useExtractionPrefetch';
 import { mergeRefinedReport } from './useRefineReview';
 import { useRefineCoordinator } from './useRefineCoordinator';
-
+import type { ToolbenchSampleLoadState } from './toolbench/toolbenchSingleSample';
 export type { SingleReviewFlow } from './singleReviewFlowSupport';
 
 export function useSingleReviewFlow(options: {
@@ -431,6 +413,35 @@ export function useSingleReviewFlow(options: {
         primaryFilename: primary?.file.name ?? null,
         secondaryFilename: nextSecondary?.file.name ?? null
       });
+    },
+    onLoadToolbenchSample: (primary, secondary, nextState: ToolbenchSampleLoadState) => {
+      abandonInFlightReview();
+      clearRefineState();
+      ocrPreview.reset();
+      reviewTraceIdRef.current = null;
+      const nextSecondary = secondary ?? null;
+      if (image && image !== primary && image !== nextSecondary) {
+        revokeImage(image);
+      }
+      if (
+        secondaryImage &&
+        secondaryImage !== primary &&
+        secondaryImage !== nextSecondary
+      ) {
+        revokeImage(secondaryImage);
+      }
+      refreshImagePrefetch(primary, nextSecondary);
+      setImage(primary);
+      setSecondaryImage(nextSecondary);
+      setBeverage(nextState.beverage);
+      setFieldsState(nextState.fields);
+      setScenarioId(nextState.scenarioId);
+      setForceFailure(nextState.forceFailure);
+      setVariantOverride(nextState.variantOverride);
+      resetPipelineState();
+      setPhase(nextState.phase);
+      setFailureMessage(nextState.failureMessage);
+      setReport(nextState.report);
     },
     onClear: () => {
       clearRefineState();
