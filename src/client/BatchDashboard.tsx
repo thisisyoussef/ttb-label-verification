@@ -25,6 +25,7 @@ import { TriageGuidance } from './TriageGuidance';
 interface BatchDashboardProps {
   seed: BatchDashboardSeed;
   reviewedIds: Set<string>;
+  retryingRowIds: Set<string>;
   exportState: ExportState;
   onOpenRow: (
     row: BatchDashboardRow,
@@ -132,6 +133,7 @@ export function BatchDashboard(props: BatchDashboardProps) {
             <TriageTable
               rows={visibleRows}
               reviewedIds={reviewedIds}
+              retryingRowIds={props.retryingRowIds}
               onOpenRow={(row) => props.onOpenRow(row, filter, visibleRows)}
               onRetryRow={props.onRetryRow}
             />

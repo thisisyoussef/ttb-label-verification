@@ -41,6 +41,7 @@ import type {
   UploadedBatchFile
 } from './batch-session-types';
 import { estimateBatchSecondsRemaining } from './batch-session-estimate';
+import { logServerEvent } from '../server-events';
 type ExtractorOverride = {
   extractor: ReviewExtractor;
   extractionMode: ExtractionMode;
@@ -123,7 +124,8 @@ export class BatchSessionStore {
       const assignment = assignments[assignmentIndex]!;
       const completedOrder = assignmentIndex + 1;
       const promise = (async (): Promise<CompletedItem> => {
-        const result = await this.processAssignment({
+        const result = await this.processAssignmentWithHiddenRetry({
+          sessionId: session.id,
           assignment,
           completedOrder,
           surface: '/api/batch/run',
@@ -257,7 +259,8 @@ export class BatchSessionStore {
         retryable: false
       });
     }
-    const result = await this.processAssignment({
+    const result = await this.processAssignmentWithHiddenRetry({
+      sessionId: session.id,
       assignment,
       completedOrder: existing.row.completedOrder,
       surface: '/api/batch/retry',
@@ -273,7 +276,52 @@ export class BatchSessionStore {
     session.summary = summarizeRows(this.sortedRows(session));
     return this.serializeSummary(session);
   }
+  private async processAssignmentWithHiddenRetry(input: {
+    sessionId: string;
+    assignment: StoredBatchAssignment;
+    completedOrder: number;
+    surface: LlmEndpointSurface;
+    override?: ExtractorOverride;
+  }) {
+    let hiddenRetryCount = 0;
+
+    while (true) {
+      const result = await this.processAssignment(input);
+      if (!result.error?.retryable) {
+        if (hiddenRetryCount > 0) {
+          logServerEvent('batch.item.hidden-retry.succeeded', {
+            batchSessionId: input.sessionId,
+            imageId: input.assignment.primaryImage.id,
+            surface: input.surface,
+            hiddenRetryCount
+          });
+        }
+        return result;
+      }
+
+      if (hiddenRetryCount >= 1) {
+        logServerEvent('batch.item.hidden-retry.exhausted', {
+          batchSessionId: input.sessionId,
+          imageId: input.assignment.primaryImage.id,
+          surface: input.surface,
+          hiddenRetryCount,
+          kind: result.error.kind
+        });
+        return result;
+      }
+
+      hiddenRetryCount += 1;
+      logServerEvent('batch.item.hidden-retry.started', {
+        batchSessionId: input.sessionId,
+        imageId: input.assignment.primaryImage.id,
+        surface: input.surface,
+        hiddenRetryCount,
+        kind: result.error.kind
+      });
+    }
+  }
   private async processAssignment(input: {
+    sessionId: string;
     assignment: StoredBatchAssignment;
     completedOrder: number;
     surface: LlmEndpointSurface;
@@ -335,7 +383,8 @@ export class BatchSessionStore {
         }),
         report,
         intake,
-        extraction
+        extraction,
+        error: null
       };
     } catch (error) {
       if (!latencyCapture.getOutcomePath()) {
@@ -349,7 +398,8 @@ export class BatchSessionStore {
           completedOrder: input.completedOrder,
           error: reviewError
         }),
-        report: null
+        report: null,
+        error: reviewError
       };
     }
   }

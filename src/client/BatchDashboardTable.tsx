@@ -15,11 +15,13 @@ const BEVERAGE_LABELS: Record<BatchDashboardRow['beverageType'], string> = {
 export function TriageTable({
   rows,
   reviewedIds,
+  retryingRowIds,
   onOpenRow,
   onRetryRow
 }: {
   rows: BatchDashboardRow[];
   reviewedIds: Set<string>;
+  retryingRowIds: Set<string>;
   onOpenRow: (row: BatchDashboardRow) => void;
   onRetryRow: (row: BatchDashboardRow) => void;
 }) {
@@ -39,6 +41,7 @@ export function TriageTable({
             <TriageRow
               row={row}
               reviewed={reviewedIds.has(row.rowId)}
+              retrying={retryingRowIds.has(row.rowId)}
               onOpenRow={onOpenRow}
               onRetryRow={onRetryRow}
             />
@@ -81,11 +84,13 @@ export function EmptyFilter({
 function TriageRow({
   row,
   reviewed,
+  retrying,
   onOpenRow,
   onRetryRow
 }: {
   row: BatchDashboardRow;
   reviewed: boolean;
+  retrying: boolean;
   onOpenRow: (row: BatchDashboardRow) => void;
   onRetryRow: (row: BatchDashboardRow) => void;
 }) {
@@ -126,9 +131,10 @@ function TriageRow({
           <button
             type="button"
             onClick={() => onRetryRow(row)}
-            className="text-sm font-semibold text-primary hover:underline"
+            disabled={retrying}
+            className="text-sm font-semibold text-primary hover:underline disabled:text-on-surface-variant disabled:no-underline disabled:cursor-wait"
           >
-            Retry
+            {retrying ? 'Retrying...' : 'Retry'}
           </button>
         ) : null}
       </div>

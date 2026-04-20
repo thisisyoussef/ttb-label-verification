@@ -31,7 +31,10 @@
 - happy path to terminal summary
 - cancelled mid-run
 - item-level error shown in stream
+- first retryable item failure is retried internally before the row is surfaced as an error
+- second consecutive retryable item failure for the same row is surfaced as an error
 - retry available on error row
+- manual retry shows a visible in-progress state until the row settles
 - stream start failure returns to intake with actionable copy
 
 ### Dashboard and drill-in
@@ -42,6 +45,7 @@
 - drill-in report unavailable
 - retry from dashboard succeeds
 - retry from dashboard fails
+- retry from dashboard shows visible progress while the request is in flight
 
 ### Export
 

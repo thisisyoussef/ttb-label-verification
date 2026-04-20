@@ -13,7 +13,7 @@ import {
   emptyBatchSeedState
 } from './appBatchState';
 import { prepareLiveBatchPreflight } from './appBatchPreflight';
-import { streamBatchRun } from './appReviewApi';
+import { parseApiError, streamBatchRun } from './appReviewApi';
 import type { View } from './appTypes';
 import type { SeedBatch } from './batchScenarios';
 import type {
@@ -207,6 +207,9 @@ export async function retryLiveBatchItem(input: {
   itemId: string;
   batchSessionId: string | null;
   batchSeedImages: BatchLabelImage[];
+  setRetryingItemIds: (
+    updater: (previous: Set<string>) => Set<string>
+  ) => void;
   setBatchItems: (
     updater: (previous: BatchStreamItem[]) => BatchStreamItem[]
   ) => void;
@@ -215,41 +218,79 @@ export async function retryLiveBatchItem(input: {
     return;
   }
 
-  const response = await fetch(
-    `/api/batch/${input.batchSessionId}/retry/${input.itemId}`,
-    {
-      method: 'POST'
+  input.setRetryingItemIds((previous) => new Set(previous).add(input.itemId));
+
+  try {
+    const response = await fetch(
+      `/api/batch/${input.batchSessionId}/retry/${input.itemId}`,
+      {
+        method: 'POST'
+      }
+    );
+    if (!response.ok) {
+      const message = await parseApiError(
+        response,
+        "We couldn't retry this item right now."
+      );
+      input.setBatchItems((previous) =>
+        previous.map((item) =>
+          item.id === input.itemId
+            ? {
+                ...item,
+                status: 'error',
+                errorMessage: message,
+                retryKey: item.retryKey + 1
+              }
+            : item
+        )
+      );
+      return;
     }
-  );
-  if (!response.ok) {
-    return;
-  }
 
-  const dashboardResponse = batchDashboardResponseSchema.parse(
-    await response.json()
-  );
-  const nextSeed = buildDashboardSeedFromResponse({
-    batchSessionId: input.batchSessionId,
-    response: dashboardResponse,
-    images: input.batchSeedImages
-  });
-  const retriedRow = nextSeed.rows.find((row) => row.imageId === input.itemId);
-  if (!retriedRow) {
-    return;
-  }
+    const dashboardResponse = batchDashboardResponseSchema.parse(
+      await response.json()
+    );
+    const nextSeed = buildDashboardSeedFromResponse({
+      batchSessionId: input.batchSessionId,
+      response: dashboardResponse,
+      images: input.batchSeedImages
+    });
+    const retriedRow = nextSeed.rows.find((row) => row.imageId === input.itemId);
+    if (!retriedRow) {
+      input.setBatchItems((previous) =>
+        previous.map((item) =>
+          item.id === input.itemId
+            ? {
+                ...item,
+                status: 'error',
+                errorMessage: "We couldn't update this item right now.",
+                retryKey: item.retryKey + 1
+              }
+            : item
+        )
+      );
+      return;
+    }
 
-  input.setBatchItems((previous) =>
-    previous.map((item) =>
-      item.id === input.itemId
-        ? {
-            ...item,
-            status: retriedRow.status,
-            errorMessage: retriedRow.errorMessage ?? undefined,
-            retryKey: item.retryKey + 1
-          }
-        : item
-    )
-  );
+    input.setBatchItems((previous) =>
+      previous.map((item) =>
+        item.id === input.itemId
+          ? {
+              ...item,
+              status: retriedRow.status,
+              errorMessage: retriedRow.errorMessage ?? undefined,
+              retryKey: item.retryKey + 1
+            }
+          : item
+      )
+    );
+  } finally {
+    input.setRetryingItemIds((previous) => {
+      const next = new Set(previous);
+      next.delete(input.itemId);
+      return next;
+    });
+  }
 }
 
 async function requestBatchPreflight(input: {

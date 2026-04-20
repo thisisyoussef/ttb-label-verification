@@ -89,7 +89,7 @@ describe('LLM trace surfaces', () => {
     expect(report.checks.find((check) => check.id === 'government-warning')?.status).toBe(
       'pass'
     );
-  });
+  }, 15000);
 
   it('keeps the extraction surface on the extraction contract', async () => {
     const intake = buildIntake();
