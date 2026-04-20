@@ -66,6 +66,7 @@ export const REFINABLE_FIELD_IDS = new Set([
 
 /** @deprecated Use REFINABLE_FIELD_IDS. Kept for backwards compatibility. */
 export const IDENTIFIER_FIELD_IDS = REFINABLE_FIELD_IDS;
+const GOVERNMENT_WARNING_CHECK_ID = 'government-warning';
 
 /**
  * Pure: returns true when the report still has at least one row in
@@ -156,8 +157,10 @@ export function useRefineReview(): RefineHandle {
  * Refinement is intentionally one-way: only rows that STARTED in
  * `review` may change, and only when the second pass either upgrades
  * them to `pass` or keeps them at `review` with changed evidence.
- * Any downgrade, or any attempt to touch rows that were already
- * `pass`/`fail`, is ignored.
+ * The government warning row is stricter: refine may clear it to
+ * `pass`, but it may not replace one review-state warning read with
+ * another. Any downgrade, or any attempt to touch rows that were
+ * already `pass`/`fail`, is ignored.
  *
  * Returns a new report object — safe to pass straight to useState.
  */
@@ -207,5 +210,8 @@ function shouldApplyRefinedCheck(
   if (baseCheck.status !== 'review') return false;
   if (refinedCheck.status === 'pass') return true;
   if (refinedCheck.status !== 'review') return false;
+  if (baseCheck.id === GOVERNMENT_WARNING_CHECK_ID) {
+    return false;
+  }
   return JSON.stringify(refinedCheck) !== JSON.stringify(baseCheck);
 }

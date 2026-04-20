@@ -4,6 +4,14 @@ TTB Label Verification is a standalone proof-of-concept for the take-home brief:
 
 Live demo: [Production](https://ttb-label-verification-production-f17b.up.railway.app) | [Staging](https://ttb-label-verification-staging.up.railway.app)
 
+## Start Here
+
+These are the submission entry points and should be read before digging through the rest of the repo:
+
+- [Architecture And Decisions](docs/ARCHITECTURE_AND_DECISIONS.md): the system shape, the major engineering decisions, and why the prototype keeps AI on extraction while deterministic code owns the verdict.
+- [Approach, Tools, Assumptions, Trade-Offs, And Limitations](docs/reference/submission-baseline.md): the brief submission note covering how the prototype was built, which runtime tools and development harnesses were used, what assumptions were filled independently, and where the current limits are.
+- [Evaluator Guide](docs/EVALUATOR_GUIDE.md): the fastest route through the live prototype, Toolbench flows, refine behavior, and batch mode.
+
 ## Abstract
 
 This submission treats the brief as a workflow and trust problem, not just a multimodal extraction demo. Gemini, OpenAI Responses, or local Qwen/Ollama paths extract structured facts; OCR and warning-specific checks contribute independent evidence; deterministic TypeScript validators decide the report; and the UI stays evidence-first so the reviewer keeps the final judgment. That is the central trade: lower false certainty and better reviewer trust, even when it means more `Needs review` outcomes on ambiguous labels.
@@ -167,6 +175,7 @@ Latency is the adoption gate in the stakeholder interviews, so the prototype tre
 Detailed architectural writeups and eval evidence live here:
 
 - [Architecture And Decisions](docs/ARCHITECTURE_AND_DECISIONS.md)
+- [Approach, Tools, Assumptions, Trade-Offs, And Limitations](docs/reference/submission-baseline.md)
 - [Government Warning](docs/GOVERNMENT_WARNING.md)
 - [Regulatory Mapping](docs/REGULATORY_MAPPING.md)
 - [Eval Results](docs/EVAL_RESULTS.md)

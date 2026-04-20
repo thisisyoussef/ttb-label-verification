@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 import type { SeedBatch } from './batchScenarios';
 import { CsvDropZone, ImagesDropZone } from './BatchUploadDropZones';
@@ -8,7 +8,6 @@ import {
   PrivacyActionBar,
   type BatchUploadCounts
 } from './BatchUploadPanels';
-import { loadEvalPackFiles } from './evalDemoApi';
 import { MatchingReview } from './MatchingReview';
 import type {
   BatchAmbiguousItem,
@@ -41,23 +40,6 @@ export function BatchUpload(props: BatchUploadProps) {
     [seed]
   );
 
-  const [sampleLoading, setSampleLoading] = useState(false);
-  const [sampleError, setSampleError] = useState<string | null>(null);
-  const loadSamplePack = useCallback(async () => {
-    if (!props.onSelectImages || !props.onSelectCsv) return;
-    setSampleLoading(true);
-    setSampleError(null);
-    try {
-      const { csvFile, imageFiles } = await loadEvalPackFiles('cola-cloud-all');
-      props.onSelectImages(imageFiles);
-      props.onSelectCsv(csvFile);
-    } catch (err) {
-      setSampleError((err as Error).message);
-    } finally {
-      setSampleLoading(false);
-    }
-  }, [props]);
-
   return (
     <div className="max-w-[1400px] mx-auto w-full px-6 py-6 xl:py-10">
       <div className="flex flex-col gap-6">
@@ -69,39 +51,6 @@ export function BatchUpload(props: BatchUploadProps) {
             Upload many label images and one CSV of application data. Nothing is stored.
           </p>
         </header>
-
-        {props.interactive ? (
-          <section
-            aria-label="Quick-load sample pack"
-            className="flex flex-wrap items-center gap-3 rounded-md border border-dashed border-outline-variant/60 bg-surface-container-lowest px-4 py-3"
-          >
-            <span
-              aria-hidden="true"
-              className="material-symbols-outlined text-[18px] text-on-surface-variant"
-            >
-              science
-            </span>
-            <div className="flex-1 min-w-[240px]">
-              <p className="font-label text-xs font-semibold text-on-surface">
-                Try it with real TTB-approved COLA labels
-              </p>
-              <p className="text-xs text-on-surface-variant leading-snug">
-                One click populates the full sample pack + its matching application CSV.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => void loadSamplePack()}
-              disabled={sampleLoading}
-              className="rounded-md bg-primary text-on-primary px-3 py-1.5 text-sm font-label font-semibold transition-colors hover:bg-primary/90 disabled:bg-primary/40 disabled:cursor-not-allowed"
-            >
-              {sampleLoading ? 'Loading…' : 'Load COLA sample pack'}
-            </button>
-            {sampleError ? (
-              <span className="text-xs text-error basis-full">Couldn't load — {sampleError}</span>
-            ) : null}
-          </section>
-        ) : null}
 
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ImagesDropZone

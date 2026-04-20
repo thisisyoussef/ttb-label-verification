@@ -1,8 +1,8 @@
-# Submission Baseline
+# Approach, Tools, Assumptions, Trade-Offs, And Limitations
 
-Last updated: 2026-04-14
+Last updated: 2026-04-19
 
-This document records the deliverables, approach, tools, assumptions, and evaluation framing for the prototype as it exists today. It is intentionally grounded in checked-in code, live deployment checks, and checked-in eval artifacts instead of wishful roadmap claims.
+This is the short submission brief for the current prototype. It complements the deeper [Architecture And Decisions](../ARCHITECTURE_AND_DECISIONS.md) writeup by answering the practical review questions up front: what was built, how it was built, which runtime tools and development harnesses were used, what assumptions were filled independently, and where the current trade-offs and limits still are.
 
 ## Deliverables
 
@@ -11,79 +11,91 @@ This document records the deliverables, approach, tools, assumptions, and evalua
 - Repository URL: [github.com/thisisyoussef/ttb-label-verification](https://github.com/thisisyoussef/ttb-label-verification)
 - Source code: `src/client`, `src/server`, `src/shared`, `scripts`, and checked-in docs
 - Local setup and run instructions: [README.md](../../README.md)
-- Approach, tools, assumptions, and evaluation mapping: this document
+- Architecture and major engineering choices: [docs/ARCHITECTURE_AND_DECISIONS.md](../ARCHITECTURE_AND_DECISIONS.md)
+- Approach, tools, assumptions, trade-offs, and limitations: this document
 
 ### 2. Deployed application URL
 
-- Working prototype URL: [ttb-label-verification-staging.up.railway.app](https://ttb-label-verification-staging.up.railway.app)
-- Verification performed on 2026-04-14:
+- Production review URL: [ttb-label-verification-production-f17b.up.railway.app](https://ttb-label-verification-production-f17b.up.railway.app)
+- Staging URL: [ttb-label-verification-staging.up.railway.app](https://ttb-label-verification-staging.up.railway.app)
+- Verification performed on 2026-04-19:
   - `GET /api/health` returned `status=ok`
-  - browser load returned the committed prototype shell
+  - production and staging both returned the committed prototype shell
 
-Use staging as the external review URL for now. The repo and Railway docs also track a production environment, but the current submission-oriented public prototype URL is staging.
+## Current Approach
 
-## What Is Implemented So Far
+### Product shape
 
-- Prototype-safe mock Treasury-style entry with signed-in shell identity treatment
-- Single-label review flow:
-  - image upload
-  - optional application-field intake
-  - OpenAI-powered structured extraction
-  - deterministic government warning, field comparison, beverage, and cross-field checks
-  - evidence-rich results
-- Batch flow:
-  - batch preflight
-  - batch run stream
-  - dashboard summary
-  - drill-in review
-  - retry
-  - JSON export
-- Replayable contextual help:
-  - remote help manifest endpoint
-  - local fallback manifest
-  - client replay state
-- Deployment and workflow baseline:
-  - GitHub-hosted source repo
-  - Railway deployment wiring
-  - checked-in git hygiene, hooks, publish gate, and rebase-only mainline policy
+- The prototype is a standalone TTB label-verification workstation, not a COLAs replacement.
+- The primary flow is single-label review with optional application-form fields, evidence-rich results, OCR preview, and a post-result refine pass.
+- The secondary flow is batch review with CSV plus image intake, preflight validation, queue execution, retry, export, and drill-in review.
+- The UI is intentionally reviewer-first: it surfaces evidence, confidence, and review states instead of claiming autonomous compliance approval.
 
-## Approach
-
-### Architecture
+### Engineering shape
 
 - **Frontend:** React 19 + Vite 7 render the workstation, intake/results flows, batch surfaces, help overlay, and prototype auth shell.
-- **Backend:** Express 4 handles multipart uploads, extraction orchestration, deterministic validation, batch sessions, and static serving for built assets.
-- **Shared contracts:** Zod-backed types in `src/shared/contracts` define the client/server seam and keep the payloads typed end to end.
+- **Backend:** Express 4 handles multipart uploads, extraction orchestration, deterministic validation, batch sessions, and static asset serving.
+- **Shared contracts:** Zod-backed contracts in `src/shared/contracts` keep client and server behavior typed end to end.
+- **Privacy posture:** uploads, intake values, batch state, and reports are kept in memory only; the OpenAI path is configured with `store: false`; no application database or durable report store is part of the runtime.
 
 ### Decision split: AI vs deterministic logic
 
-- **AI handles extraction only.** The model reads the image, extracts structured fields, estimates warning visual signals, and reports confidence.
+- **AI handles extraction and visual interpretation only.** The model reads the label, extracts structured fields, estimates warning/layout signals, and returns confidence-bearing evidence.
 - **Deterministic code handles compliance outcomes.** Warning validation, field matching, beverage rules, cross-field logic, and recommendation aggregation are implemented in typed server modules.
 - **The human reviewer stays in charge.** The UI presents evidence and recommendations; it is not framed as an autonomous approval system.
 
-### Privacy and runtime posture
-
-- Uploads, application data, batch sessions, and reports stay in memory for the lifetime of the request/session only.
-- The OpenAI Responses API is configured with `store: false`.
-- Trace instrumentation is development-only and off by default.
-
 ## Tools Used
+
+### Runtime and application stack
 
 - TypeScript
 - React 19
 - Vite 7
 - Express 4
 - Zod 4
-- OpenAI Node SDK / Responses API
-- Vitest
-- Stryker
-- Railway
-- GitHub Actions
-- Local fixture-backed eval tuning (development-only)
+- Tesseract OCR
+- Sharp and the image-processing utilities used by the warning/OCV pipeline
+
+### AI and extraction tooling
+
+- Gemini extraction adapter for the primary cloud VLM path
+- OpenAI Node SDK with the Responses API for the OpenAI extraction path and provider fallback, configured with `store: false`
+- Ollama with Qwen2.5-VL for the local or air-gapped extraction path
+- Local fixture-backed evals and trace-driven prompt tuning for extractor and resolver behavior
+
+### Development workflow and custom harness
+
+- **Spec-driven delivery:** the repo is organized around a checked-in product blueprint, ordered story index, and per-story packets under `docs/specs/<story-id>/` so implementation, tests, evals, and handoffs are tied to explicit acceptance criteria instead of ad hoc chat memory.
+- **Checked-in project control docs:** `docs/process/SINGLE_SOURCE_OF_TRUTH.md` and `docs/process/BRANCH_TRACKER.md` act as the workflow control plane for active story state, branch lifecycle, and handoff readiness.
+- **Harness memory bank:** `.ai/memory/project/` and `.ai/memory/session/` hold concise architecture, pattern, anti-pattern, technical-debt, active-context, decision, and blocker notes so agent work stays grounded in checked-in repo truth.
+- **Custom evaluator harness:** the in-app Toolbench is the built-in reviewer harness for loading known samples, switching single versus batch flows, checking health, and exercising provider-mode variants without manual setup.
+- **Trace-driven development:** prompt, model, retry, and routing behavior are tuned through local fixture loops, timing summaries, and checked-in eval artifacts instead of external tracing services.
+- **Publish and branch gates:** the repo uses checked-in commit, push, and publish gates plus PR-driven merge flow so deployable changes are validated before they are claimed as reviewable.
+
+### UI design and implementation tooling
+
+- **Claude UI lane:** UI-first stories follow the checked-in lane split, with Claude responsible for initial design direction and Codex responsible for engineering completion and integration.
+- **Stitch for UI reference generation:** on stories that explicitly used Stitch, the repo supports automated Stitch runs and manual Comet fallback so UI references can be generated, reviewed, and preserved in the story packet before implementation.
+- **Direct packet-driven UI work:** Stitch is not mandatory on every story; the default mode is direct implementation from the approved UI packet, master design, and seeded scenarios.
+
+### Development and quality tooling
+
+- Vitest for unit, contract, and integration coverage
+- Stryker for targeted mutation testing on high-risk pure logic
+- Checked-in eval manifests and run artifacts under `evals/`
+- Codex in this workspace for engineering and documentation work
+- Claude for the UI-first design lane where story handoffs call for it
+
+### Deployment and release tooling
+
+- GitHub Actions for CI, staging deploys, and production-promotion workflows
+- Railway for hosted staging and production runtime verification
+
+Codex, Claude, and Stitch are development tools only. They are not runtime dependencies and are not part of the deployed verifier stack.
 
 ## Assumptions Made
 
-These are the material gaps we filled independently and should keep documenting as part of the submission:
+These are the material assumptions the prototype fills independently:
 
 1. **Government warning source text**
    - The assignment referenced a standard warning but did not provide a canonical machine-readable source, so the project relies on researched TTB/CFR language.
@@ -92,13 +104,13 @@ These are the material gaps we filled independently and should keep documenting 
    - Spirits, wine, and beer rules are modeled as researched prototype rules rather than as a full production-grade legal rules engine.
 
 3. **No persistence is a deliberate design choice**
-   - Because the prototype may touch sensitive label/application content, the safest prototype posture is to persist nothing.
+   - Because the prototype may touch sensitive label and application content, the safest proof-of-concept posture is to persist nothing and to keep sessions bounded in memory.
 
-4. **Cloud AI is acceptable for the prototype**
-   - The current build uses a cloud AI API for extraction, with the assumption that a production system would need a different deployment and compliance posture.
+4. **Cloud and local model paths are both acceptable for the prototype**
+   - The repo supports cloud extraction and local extraction because the brief and user research suggest deployment posture may vary by environment.
 
 5. **Standalone prototype over direct COLAs integration**
-   - The prototype assumes value can be demonstrated without integrating into the legacy COLAs stack.
+   - The prototype assumes value can be demonstrated without integrating directly into the legacy COLAs stack or agency identity systems.
 
 6. **Recommendations, not decisions**
    - The system assumes reviewers remain responsible for the final compliance call even when every check passes.
@@ -106,13 +118,35 @@ These are the material gaps we filled independently and should keep documenting 
 7. **Prototype auth is theater, not security**
    - The mock Treasury-style entry and signed-in shell are presentation cues only. No real credentials, tokens, cookies, or server sessions are involved.
 
-## Trade-Offs and Known Limitations
+8. **The checked-in eval corpus is representative enough to prove direction, not completeness**
+   - The current GoldenSet and live core subset are used to evaluate engineering direction and regressions, not to claim exhaustive regulatory coverage.
 
-- Same-field-of-vision judgments are simplified heuristics, not true container-layout verification.
-- Bold-text assessment relies on AI interpretation and confidence, not pixel-level typography analysis.
+## Trade-Offs
+
+1. **Trust over automation aggressiveness**
+   - The architecture prefers evidence plus deterministic review outcomes over end-to-end model judgment. That reduces false certainty, but it also means more `Needs review` outcomes on hard labels.
+
+2. **Fast first answer over exhaustive first-pass analysis**
+   - OCR preview, extraction prefetch, and the post-result refine pass are all designed to make the first screen feel fast. The trade-off is that some borderline cases improve only after the first result has already rendered.
+
+3. **No persistence over auditability**
+   - Keeping uploads and results out of storage is the right privacy posture for the prototype, but it limits historical analytics, supervisor replay, and full audit reconstruction.
+
+4. **Provider abstraction over single-provider optimization**
+   - Supporting Gemini, OpenAI, and local Ollama/Qwen paths improves deployment flexibility, but it increases prompt, eval, and performance-tuning complexity.
+
+5. **Prototype-safe batch sessions over durable background jobs**
+   - Batch mode is fast to inspect and easy to demo, but it is not meant to survive process restarts or act like a production queueing system.
+
+## Limitations
+
+- Same-field-of-vision and placement judgments are still heuristic. The system does not perform true package-geometry verification.
+- Boldness, stylization, and low-contrast typography remain model-sensitive and often resolve to `review`.
 - The prototype cannot prove physical type-size compliance from a photo alone.
-- Batch processing is a prototype flow with a bounded session model, not a durable long-running job system.
-- The staged Gemini-primary routing, endpoint-aware prompt hardening, and sub-4-second release target are planned follow-on stories, not finished capabilities on `main`.
+- The encoded rule set is intentionally partial. It covers the key demo surfaces, not the full TTB regulatory universe.
+- The production deployment is a working software environment, not a government-accredited hosting posture.
+- There is no real authentication, authorization, case-management integration, or durable audit ledger.
+- The current eval corpus is useful for regression control and demonstration, but it is not exhaustive enough to justify production claims by itself.
 
 ## Core Demo / Eval Labels
 
@@ -150,9 +184,10 @@ See [evals/README.md](../../evals/README.md) for the canonical slice definitions
 - Current eval guidance: [evals/README.md](../../evals/README.md)
 - Current release-gate packet: [docs/specs/TTB-401/story-packet.md](../specs/TTB-401/story-packet.md)
 
-## What Still Needs To Close Before Final Submission
+## What Still Needs To Close Before Production-Grade Use
 
-- Final privacy re-verification against the finished system
-- Final latency measurement against the active target
-- Final endpoint-aware eval / trace evidence after the provider-routing stories land
-- README and submission notes refreshed one more time against the actual final shipped build
+- A larger, more authoritative eval corpus across more beverage classes and harder image conditions
+- Additional deterministic rule ingestion beyond the current high-signal prototype checks
+- A real identity, authorization, and audit story
+- Deployment hardening for a government or similarly constrained environment
+- More complete latency and failure-characterization evidence across providers and image-quality bands
