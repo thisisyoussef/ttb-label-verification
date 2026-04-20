@@ -1,6 +1,6 @@
 # Branch Tracker
 
-Last updated: 2026-04-19
+Last updated: 2026-04-20
 
 This file is the checked-in branch registry for normal story work.
 
@@ -34,7 +34,6 @@ This file is the checked-in branch registry for normal story work.
 | `claude/TTB-000-warning-body-case-insensitive` | `TTB-000` | `claude` | `draft-local` | stop firing the "minor read differences" banner when only government warning body text casing differs; body capitalization is already policed by the dedicated heading sub-check | - | `2026-04-19` | `2026-04-19` | `origin/main` | salvaged from stash on worktree-agent-ad9666b3; preserves lexical insertion/deletion check |
 | `codex/TTB-203-inverse-contrast-ocr` | `TTB-203` | `codex` | `ready-pr` | harden OCR prepass for inverse-contrast black-label white-text samples without regressing normal-label reads | #151 | `2026-04-19` | `2026-04-19` | `origin/main` | linked worktree: /Users/youss/Development/gauntlet/ttb-label-verification-ttb203-inverse-contrast-ocr |
 | `codex/TTB-304-toolbench-sample-reset` | `TTB-304` | `codex` | `ready-pr` | stabilize toolbench sample hydration and clear stale single-review state between sample loads | `#152` | `2026-04-19` | `2026-04-19` | `origin/main` | linked worktree: /Users/youss/Development/gauntlet/ttb-label-verification-ttb304-toolbench-sample-reset |
-| `codex/TTB-304-counterpart-sample-reload` | `TTB-304` | `codex` | `draft-local` | reload stored COLA sample data with counterpart images and wire eval sample loading to use them | - | `2026-04-19` | `2026-04-19` | `origin/main` | linked worktree: /Users/youss/Development/gauntlet/ttb-label-verification-ttb304-counterpart-sample-reload |
 | `codex/TTB-WF-003-tracker-sync` | `TTB-WF-003` | `codex` | `draft-local` | sync branch tracker and SSOT with the state of main after the PR #138 consolidation: close every TTB-204/TTB-210/TTB-304/TTB-401/TTB-WF-003/TTB-EVAL-002 branch that is on main, and mark TTB-304 done | - | `2026-04-19` | `2026-04-19` | `origin/main` | isolated tracker-sync worktree at `/private/tmp/ttb-tracker-cleanup` |
 <!-- ACTIVE_BRANCHES:END -->
 
@@ -43,6 +42,7 @@ This file is the checked-in branch registry for normal story work.
 <!-- CLOSED_BRANCHES:START -->
 | Branch | Story | Lane | Final status | Description | Closed | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| `codex/TTB-304-counterpart-sample-reload` | `TTB-304` | `codex` | `merged` | reload stored COLA sample data with counterpart images and wire eval sample loading to use them | `2026-04-20` | merged via PR #153 |
 | `chore/TTB-WF-002-source-size-baseline` | `TTB-WF-002` | `chore` | `merged` | baseline inherited source-size debt so the guard blocks new oversized files and regressions without preventing unrelated story publishes | `2026-04-19` | merged via PR #124 |
 | `codex/TTB-000-dynamic-verdict-banner` | `TTB-000` | `codex` | `merged` | make the verdict banner follow the live matched/review state and remove overly optimistic review copy | `2026-04-19` | merged via e1084bab on main |
 | `codex/TTB-000-review-animation-stability` | `TTB-000` | `codex` | `merged` | remove unstable review-page row reordering motion and keep only local smooth state changes | `2026-04-19` | merged via PR #148 |
