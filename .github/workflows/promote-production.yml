@@ -9,12 +9,12 @@ on:
         default: main
 
 permissions:
-  actions: write
   contents: write
 
 jobs:
   promote:
     runs-on: ubuntu-latest
+    environment: production
 
     steps:
       - name: Check out repository
@@ -27,34 +27,64 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Promote source ref to production branch
+      - name: Resolve source ref
         env:
           SOURCE_REF: ${{ github.event.inputs.source_ref }}
         run: |
           set -euo pipefail
           git fetch origin "$SOURCE_REF"
           git checkout --detach FETCH_HEAD
-          git push origin HEAD:production --force-with-lease
+          echo "DEPLOY_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
 
-      - name: Trigger CI on production branch
-        uses: actions/github-script@v7
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'ci.yml',
-              ref: 'production',
-            });
+          node-version: 20
+
+      - name: Install Railway CLI
+        run: npm install --global @railway/cli@4.33.0
+
+      - name: Deploy selected ref to Railway production
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+        run: |
+          railway up --ci --verbose --project a80335ea-ec6b-408f-8e38-81fb157cf993 --environment production --service ttb-label-verification
+
+      - name: Verify production health endpoint
+        run: |
+          set -euo pipefail
+          root="https://ttb-label-verification-production-f17b.up.railway.app"
+          for _attempt in $(seq 1 20); do
+            if curl --fail --silent --show-error "$root/api/health" > /tmp/health.json; then
+              cat /tmp/health.json
+              exit 0
+            fi
+            sleep 6
+          done
+          echo "Production healthcheck failed after manual promotion." >&2
+          exit 1
+
+      - name: Sync production branch after verified deploy
+        run: |
+          set -euo pipefail
+
+          if git fetch origin production; then
+            expected="$(git rev-parse origin/production)"
+            git push origin HEAD:production --force-with-lease=refs/heads/production:"$expected"
+          else
+            git push origin HEAD:production
+          fi
 
       - name: Write promotion summary
         env:
           SOURCE_REF: ${{ github.event.inputs.source_ref }}
         run: |
           {
-            echo "## Production promotion requested"
+            echo "## Production promotion verified"
             echo
             echo "- Source ref: $SOURCE_REF"
+            echo "- Deployed SHA: $DEPLOY_SHA"
             echo "- Target branch: production"
-            echo "- CI has been explicitly dispatched on \`production\` and will verify, then trigger Railway production deploy via the CLI workflow."
+            echo "- Railway production deploy: complete"
+            echo "- Healthcheck: \`https://ttb-label-verification-production-f17b.up.railway.app/api/health\`"
           } >> "$GITHUB_STEP_SUMMARY"

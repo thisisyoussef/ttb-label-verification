@@ -1,5 +1,10 @@
 # Decisions Today
 
+- Make successful staging deploys the default production promotion path instead of relying on a second workflow handoff after a `GITHUB_TOKEN` branch update.
+- Deploy the staged SHA to Railway production before syncing the `production` branch, so branch state stays behind live production on failure instead of getting ahead of it.
+- Keep `promote-production.yml` as the manual rollback or validated-ref backfill path, but make it deploy directly to Railway production and verify health instead of dispatching `ci` and hoping a downstream workflow continues the release.
+- Keep the existing `production`-branch `workflow_run` deploy job in place as exceptional backward-compatible support, but stop making the default release path depend on it.
+- Reuse the root checkout's `node_modules` in low-space worktrees when a full `npm ci` would fail with `ENOSPC`; treat that as a local verification workaround, not as a repo behavior change.
 - Collapse the COLA sample-pack quick-load paths onto one shared client helper in `src/client/evalDemoApi.ts` so Batch Upload and Toolbench always fetch the same full `cola-cloud-all` bundle and stop drifting on image count or source resolution.
 - Reserve the Toolbench Samples capability slot with a loading placeholder until live/synthetic probe results settle so the tab does not reflow through intermediate action stacks.
 - Route Toolbench single-sample hydration through a dedicated single-review reset path instead of piecemeal image and field setters, so old OCR/report state cannot leak into the next sample.

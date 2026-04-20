@@ -227,7 +227,9 @@ See `docs/reference/product-docs/ttb-user-personas.md` for the full stakeholder-
 - Railway `production` environment should track `production`
 - Railway should wait for CI before auto-deploying
 - post-deploy verification should hit `/api/health`
-- production promotion should be explicit and should update the `production` branch from a validated source ref
+- successful `main` CI completions should deploy staging first, then auto-promote the same verified SHA to Railway production
+- the `production` branch should be updated only after production verification succeeds so it remains the record of the live production SHA
+- a manual production-promotion workflow should remain available for rollback or validated-ref backfill
 
 ## Definition of ready to build
 
