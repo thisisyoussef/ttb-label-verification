@@ -1,5 +1,6 @@
 import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import express from 'express';
 
@@ -11,18 +12,28 @@ import {
   isSyntheticGenerationAvailable
 } from '../synthetic/synthetic-label-generator';
 
-const REPO_ROOT = path.resolve(
-  path.dirname(new URL(import.meta.url).pathname),
-  '..',
-  '..',
-  '..'
-);
-const LABELS_ROOT = path.join(REPO_ROOT, 'evals/labels/assets');
-const BATCH_MANIFEST_PATH = path.join(
-  REPO_ROOT,
-  'evals/batch/cola-cloud/manifest.json'
-);
-const BATCH_DIR = path.join(REPO_ROOT, 'evals/batch/cola-cloud');
+const BATCH_MANIFEST_RELATIVE = 'evals/batch/cola-cloud/manifest.json';
+const BATCH_DIR_RELATIVE = 'evals/batch/cola-cloud';
+const LABELS_ROOT_RELATIVE = 'evals/labels/assets';
+const REPO_ROOT_CANDIDATES = [
+  path.resolve(process.cwd()),
+  path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
+];
+
+function resolveEvalRepoRoot(): string {
+  for (const candidate of REPO_ROOT_CANDIDATES) {
+    if (existsSync(path.join(candidate, BATCH_MANIFEST_RELATIVE))) {
+      return candidate;
+    }
+  }
+
+  return REPO_ROOT_CANDIDATES[0];
+}
+
+const REPO_ROOT = resolveEvalRepoRoot();
+const LABELS_ROOT = path.join(REPO_ROOT, LABELS_ROOT_RELATIVE);
+const BATCH_MANIFEST_PATH = path.join(REPO_ROOT, BATCH_MANIFEST_RELATIVE);
+const BATCH_DIR = path.join(REPO_ROOT, BATCH_DIR_RELATIVE);
 
 type ManifestSet = {
   id: string;
