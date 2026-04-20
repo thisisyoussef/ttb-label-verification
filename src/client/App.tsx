@@ -87,7 +87,6 @@ export function App() {
   });
   const help = useHelpTourState();
   const {
-    handleToolbenchLoadBatch,
     handleToolbenchLoadCsv,
     handleToolbenchLoadImage,
     handleToolbenchLoadSample,
@@ -409,7 +408,6 @@ export function App() {
       {import.meta.env.VITE_ENABLE_TOOLBENCH !== 'false' && (
         <AssessorToolbench
           onLoadSample={handleToolbenchLoadSample}
-          onLoadBatch={handleToolbenchLoadBatch}
           onLoadImage={handleToolbenchLoadImage}
           onLoadCsv={handleToolbenchLoadCsv}
           mode={mode}
