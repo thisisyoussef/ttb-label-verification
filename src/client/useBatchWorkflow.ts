@@ -4,6 +4,7 @@ import {
   STREAM_CANCELLED,
   STREAM_RUNNING_MIXED,
   STREAM_SEEDS,
+  STREAM_TERMINAL_MIXED,
   type SeedBatch
 } from './batchScenarios';
 import { revokeBatchLabelImages } from './batch-runtime';
@@ -51,15 +52,6 @@ export interface BatchWorkflow extends BatchDashboardFlow {
   onSelectLiveImages: (files: File[]) => void;
   onRemoveLiveImage: (imageId: string) => void;
   onSelectLiveCsv: (file: File) => void;
-  /**
-   * Atomically load both images and the CSV in one call. Needed by the
-   * toolbench "Load test batch" path, where calling onSelectLiveImages
-   * followed by onSelectLiveCsv would trigger the fixture-mode reset
-   * twice — the second reset wipes the images the first call just
-   * staged, so the user has to click twice for the preflight to fire
-   * with both inputs. This handler performs a single reset, then sets
-   * images + csv + preflights in one shot.
-   */
   onLoadLiveBatch: (images: File[], csv: File) => void;
   onSelectMode: (next: Mode, currentMode: Mode) => void;
   onStartBatchFromIntake: () => void;
@@ -101,20 +93,29 @@ export function useBatchWorkflow(options: {
   const batchPreflightRequestRef = useRef<number>(0);
   const batchRunAbortRef = useRef<AbortController | null>(null);
   const batchImagesCleanupRef = useRef<BatchLabelImage[]>([]);
+  const fixtureBatchCompletionRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fixtureModeActive = usesFixtureBatchSource(batchSource);
 
+  const clearFixtureBatchCompletion = useCallback(() => {
+    if (fixtureBatchCompletionRef.current !== null) {
+      globalThis.clearTimeout(fixtureBatchCompletionRef.current);
+      fixtureBatchCompletionRef.current = null;
+    }
+  }, []);
   useEffect(() => {
     batchImagesCleanupRef.current = batchSeed.images;
   }, [batchSeed.images]);
 
   useEffect(() => {
     return () => {
+      clearFixtureBatchCompletion();
       batchRunAbortRef.current?.abort();
       revokeBatchLabelImages(batchImagesCleanupRef.current);
     };
-  }, []);
+  }, [clearFixtureBatchCompletion]);
 
   const resetLiveBatch = useCallback(() => {
+    clearFixtureBatchCompletion();
     batchRunAbortRef.current?.abort();
     batchRunAbortRef.current = null;
     revokeBatchLabelImages(batchSeed.images);
@@ -130,7 +131,7 @@ export function useBatchWorkflow(options: {
     setBatchItems([]);
     setBatchProgress(emptyBatchProgressState());
     setPreviewImage(null);
-  }, [batchSeed.images]);
+  }, [batchSeed.images, clearFixtureBatchCompletion]);
 
   const dashboard = useBatchDashboardFlow({
     fixtureControlsEnabled: options.fixtureControlsEnabled,
@@ -170,6 +171,7 @@ export function useBatchWorkflow(options: {
         return;
       }
 
+      clearFixtureBatchCompletion();
       batchRunAbortRef.current?.abort();
       batchRunAbortRef.current = null;
       revokeBatchLabelImages(batchSeed.images);
@@ -195,6 +197,7 @@ export function useBatchWorkflow(options: {
       const seed = STREAM_SEEDS.find((entry) => entry.id === id);
       if (!seed) return;
 
+      clearFixtureBatchCompletion();
       batchRunAbortRef.current?.abort();
       batchRunAbortRef.current = null;
       revokeBatchLabelImages(batchSeed.images);
@@ -225,6 +228,7 @@ export function useBatchWorkflow(options: {
       const liveBatchImages = fixtureModeActive ? [] : batchSeed.images;
 
       if (fixtureModeActive) {
+        clearFixtureBatchCompletion();
         setBatchSource((current) =>
           nextBatchWorkflowSource({ current, event: 'live-input-selected' })
         );
@@ -257,20 +261,11 @@ export function useBatchWorkflow(options: {
       });
     },
     onRemoveLiveImage: (imageId) => {
-      // Find the surviving images and rebuild the live batch by replaying
-      // them through selectLiveImages starting from empty. We can't mutate
-      // the seed directly because preflight + matching state is derived
-      // from the image set; a fresh selectLiveImages call recomputes all
-      // of that in one pass.
-      //
-      // Skips when no live images exist yet (nothing to remove) or when
-      // the pointed-at image can't be found.
       const currentImages = batchSeed.images;
       if (currentImages.length === 0) return;
       const survivors = currentImages.filter((img) => img.id !== imageId);
       if (survivors.length === currentImages.length) return; // not found
 
-      // Revoke the preview URL for the removed image to release memory.
       const removed = currentImages.find((img) => img.id === imageId);
       if (removed?.previewUrl) {
         try {
@@ -285,8 +280,6 @@ export function useBatchWorkflow(options: {
         .filter((f): f is File => f !== null);
 
       if (surviving.length === 0) {
-        // All live files removed. Return intake to empty state so the UI
-        // shows the drop zone again.
         setBatchSeed(emptyBatchSeedState());
         setBatchSessionId(null);
         setPreviewImage(null);
@@ -295,7 +288,7 @@ export function useBatchWorkflow(options: {
 
       selectLiveImages({
         files: surviving,
-        batchSeedImages: [], // start from empty; surviving files replace the set
+        batchSeedImages: [],
         batchCsvFile,
         batchPreflightRequestRef,
         setBatchSessionId,
@@ -311,6 +304,7 @@ export function useBatchWorkflow(options: {
       const liveBatchImages = fixtureModeActive ? [] : batchSeed.images;
 
       if (fixtureModeActive) {
+        clearFixtureBatchCompletion();
         setBatchSource((current) =>
           nextBatchWorkflowSource({ current, event: 'live-input-selected' })
         );
@@ -337,13 +331,8 @@ export function useBatchWorkflow(options: {
       });
     },
     onLoadLiveBatch: (files, csv) => {
-      // Single reset (not double) — the per-handler resets in
-      // onSelectLiveImages + onSelectLiveCsv each clear the seed
-      // independently, which means calling them in sequence wipes
-      // whichever one ran first. Here we inline the reset once, then
-      // call selectLiveImages with the CSV already in hand so
-      // preflight fires with both inputs on the first click.
       if (fixtureModeActive) {
+        clearFixtureBatchCompletion();
         setBatchSource((current) =>
           nextBatchWorkflowSource({ current, event: 'live-input-selected' })
         );
@@ -360,10 +349,6 @@ export function useBatchWorkflow(options: {
         setBatchSeedId(LIVE_BATCH_SEED_ID);
       }
 
-      // Stage the CSV state first so selectLiveImages (which reads
-      // batchCsvFile via the closure below) can see it. We also pass
-      // `csv` explicitly into the call so the preflight doesn't
-      // depend on the React state round-trip.
       setBatchCsvFile(csv);
       selectLiveImages({
         files,
@@ -395,6 +380,7 @@ export function useBatchWorkflow(options: {
     },
     onStartBatchFromIntake: () => {
       if (fixtureModeActive) {
+        clearFixtureBatchCompletion();
         setBatchStreamSeedId(STREAM_RUNNING_MIXED.id);
         setBatchItems([...STREAM_RUNNING_MIXED.items]);
         setBatchProgress({
@@ -404,6 +390,17 @@ export function useBatchWorkflow(options: {
         });
         setBatchPhase('running');
         options.setView('batch-processing');
+        fixtureBatchCompletionRef.current = globalThis.setTimeout(() => {
+          setBatchStreamSeedId(STREAM_TERMINAL_MIXED.id);
+          setBatchItems([...STREAM_TERMINAL_MIXED.items]);
+          setBatchProgress({
+            done: STREAM_TERMINAL_MIXED.doneOverride ?? STREAM_TERMINAL_MIXED.total,
+            total: STREAM_TERMINAL_MIXED.total,
+            secondsRemaining: 0
+          });
+          setBatchPhase('terminal');
+          fixtureBatchCompletionRef.current = null;
+        }, 8000);
         return;
       }
 
@@ -424,6 +421,7 @@ export function useBatchWorkflow(options: {
     },
     onCancelBatchRun: () => {
       if (fixtureModeActive) {
+        clearFixtureBatchCompletion();
         setBatchStreamSeedId(STREAM_CANCELLED.id);
         setBatchItems([...STREAM_CANCELLED.items]);
         setBatchProgress({
@@ -464,6 +462,7 @@ export function useBatchWorkflow(options: {
       });
     },
     onBatchBackToIntake: () => {
+      clearFixtureBatchCompletion();
       options.setView('batch-intake');
       setBatchPhase('intake');
     },
@@ -474,6 +473,7 @@ export function useBatchWorkflow(options: {
         resetLiveBatch();
         dashboard.resetDashboardSeed();
       } else {
+        clearFixtureBatchCompletion();
         setBatchPhase('intake');
       }
     },
