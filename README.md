@@ -30,7 +30,7 @@ That is why the system is built around four product bets:
 
 1. **AI extracts; deterministic rules judge.**
 2. **Time-to-first-answer matters more than clever orchestration.**
-3. **The UI should feel trustworthy to both Dave and Jenny.**
+3. **The UI should feel trustworthy to both experienced reviewers who want evidence fast and newer reviewers who need more guidance.**
 4. **The deployment story has to make sense in a government-style environment.**
 
 ## What Makes This Build Credible
@@ -116,7 +116,10 @@ The full screenshot-backed walkthrough lives in [docs/EVALUATOR_GUIDE.md](docs/E
 
 <p align="center">
   <img src="docs/screenshots/toolbench-intake.png" alt="Toolbench loading a sample into the single-review intake" width="48%" />
-  <img src="docs/screenshots/results-review.png" alt="Results screen showing expanded warning evidence and review rows" width="48%" />
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/thisisyoussef/ttb-label-verification/28f90ca7ef5d42405861ec58ad62d8907d101a74/docs/screenshots/results-review.png" alt="Results screen showing expanded warning evidence and review rows" width="92%" />
 </p>
 
 ## Datasets, Benchmarks, And Accuracy Strategy
