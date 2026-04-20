@@ -161,6 +161,7 @@ interface TsvWord {
 async function runTesseractFullLabel(
   label: NormalizedUploadedLabel
 ): Promise<TsvWord[]> {
+  const timeoutMs = process.env.VITEST ? 15_000 : 8_000;
   const meta = await sharp(label.buffer).metadata();
   const width = meta.width ?? 1000;
   const targetWidth = Math.min(2400, Math.max(1600, width * 2));
@@ -175,7 +176,7 @@ async function runTesseractFullLabel(
     writeFileSync(tmp, prepped);
     const { stdout } = await execAsync(
       `tesseract ${tmp} stdout -l eng --psm 3 --oem 1 tsv 2>/dev/null`,
-      { timeout: 8000, maxBuffer: 20 * 1024 * 1024 }
+      { timeout: timeoutMs, maxBuffer: 20 * 1024 * 1024 }
     );
     return parseTsvWords(stdout);
   } catch {

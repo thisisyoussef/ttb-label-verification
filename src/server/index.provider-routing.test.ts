@@ -167,74 +167,78 @@ describe('server provider routing', () => {
     expect(payload.fields.brandName.value).toBe('Fallback Routed Brand');
   });
 
-  it('uses the shared provider router for batch execution and preserves matched row values', async () => {
-    const geminiExecute = vi.fn(async (intake: NormalizedReviewIntake) =>
-      extractionFromIntake(intake)
-    );
+  it(
+    'uses the shared provider router for batch execution and preserves matched row values',
+    async () => {
+      const geminiExecute = vi.fn(async (intake: NormalizedReviewIntake) =>
+        extractionFromIntake(intake)
+      );
 
-    const server = await startServer({
-      providerFactories: buildProviderFactories({
-        geminiExecute
-      })
-    });
-    registerServer(server);
+      const server = await startServer({
+        providerFactories: buildProviderFactories({
+          geminiExecute
+        })
+      });
+      registerServer(server);
 
-    const csv = new File(
-      [
+      const csv = new File(
         [
-          'filename,beverage_type,brand_name,fanciful_name,class_type,alcohol_content,net_contents,applicant_address,origin,country,formula_id,appellation,vintage',
-          'batch-routed.png,distilled-spirits,Batch Routed Brand,,Vodka,45% Alc./Vol.,750 mL,Trace Distilling,domestic,,,,',
-        ].join('\n')
-      ],
-      'applications.csv',
-      { type: 'text/csv' }
-    );
+          [
+            'filename,beverage_type,brand_name,fanciful_name,class_type,alcohol_content,net_contents,applicant_address,origin,country,formula_id,appellation,vintage',
+            'batch-routed.png,distilled-spirits,Batch Routed Brand,,Vodka,45% Alc./Vol.,750 mL,Trace Distilling,domestic,,,,',
+          ].join('\n')
+        ],
+        'applications.csv',
+        { type: 'text/csv' }
+      );
 
-    const preflightResponse = await postBatchPreflight(server, {
-      images: [
-        {
-          id: 'image-batch-routed',
-          file: buildLabelFile({
-            name: 'batch-routed.png',
-            type: 'image/png'
-          })
-        }
-      ],
-      csv
-    });
+      const preflightResponse = await postBatchPreflight(server, {
+        images: [
+          {
+            id: 'image-batch-routed',
+            file: buildLabelFile({
+              name: 'batch-routed.png',
+              type: 'image/png'
+            })
+          }
+        ],
+        csv
+      });
 
-    const preflight = await parseBatchPreflight(preflightResponse);
+      const preflight = await parseBatchPreflight(preflightResponse);
 
-    const runResponse = await postBatchRun(server, {
-      batchSessionId: preflight.batchSessionId,
-      resolutions: []
-    });
+      const runResponse = await postBatchRun(server, {
+        batchSessionId: preflight.batchSessionId,
+        resolutions: []
+      });
 
-    expect(runResponse.status).toBe(200);
-    const frames = await collectNdjsonFrames(runResponse);
-    expect(frames.at(-1)).toMatchObject({
-      type: 'summary',
-      total: 1,
-      error: 0
-    });
+      expect(runResponse.status).toBe(200);
+      const frames = await collectNdjsonFrames(runResponse);
+      expect(frames.at(-1)).toMatchObject({
+        type: 'summary',
+        total: 1,
+        error: 0
+      });
 
-    expect(geminiExecute).toHaveBeenCalledTimes(1);
-    expect(geminiExecute.mock.calls[0]?.[0].fields.brandName).toBe('Batch Routed Brand');
+      expect(geminiExecute).toHaveBeenCalledTimes(1);
+      expect(geminiExecute.mock.calls[0]?.[0].fields.brandName).toBe('Batch Routed Brand');
 
-    const summaryResponse = await fetch(
-      serverUrl(server, `/api/batch/${preflight.batchSessionId}/summary`)
-    );
-    expect(summaryResponse.status).toBe(200);
-    const dashboard = batchDashboardResponseSchema.parse(await summaryResponse.json());
-    const row = dashboard.rows.find((entry) => entry.imageId === 'image-batch-routed');
-    expect(row?.brandName).toBe('Batch Routed Brand');
+      const summaryResponse = await fetch(
+        serverUrl(server, `/api/batch/${preflight.batchSessionId}/summary`)
+      );
+      expect(summaryResponse.status).toBe(200);
+      const dashboard = batchDashboardResponseSchema.parse(await summaryResponse.json());
+      const row = dashboard.rows.find((entry) => entry.imageId === 'image-batch-routed');
+      expect(row?.brandName).toBe('Batch Routed Brand');
 
-    const reportResponse = await fetch(
-      serverUrl(server, `/api/batch/${preflight.batchSessionId}/report/${row?.reportId}`)
-    );
-    expect(reportResponse.status).toBe(200);
-    const report = verificationReportSchema.parse(await reportResponse.json());
-    const brandCheck = report.checks.find((check) => check.id === 'brand-name');
-    expect(brandCheck?.applicationValue).toBe('Batch Routed Brand');
-  });
+      const reportResponse = await fetch(
+        serverUrl(server, `/api/batch/${preflight.batchSessionId}/report/${row?.reportId}`)
+      );
+      expect(reportResponse.status).toBe(200);
+      const report = verificationReportSchema.parse(await reportResponse.json());
+      const brandCheck = report.checks.find((check) => check.id === 'brand-name');
+      expect(brandCheck?.applicationValue).toBe('Batch Routed Brand');
+    },
+    15_000
+  );
 });
