@@ -4,7 +4,7 @@ This document explains how the repository thinks about TTB label review. It is g
 
 Two scope notes matter up front.
 
-1. Runtime code wins over older planning prose. The live contract currently sets the single-label latency budget to `4000ms` in `src/shared/contracts/review-base.ts:59,287-300`, even though older TTB-209 trace notes and some historical docs discuss a `5000ms` target (`docs/specs/TTB-209/trace-brief.md:57-59`).
+1. Runtime code wins over older planning prose. Some historical TTB-209 notes still discuss static latency-budget numbers, but the live repo now treats latency as measured evidence documented in checked-in eval artifacts rather than a synthetic report-contract field (`docs/specs/TTB-209/trace-brief.md:57-59`; `docs/EVAL_RESULTS.md`).
 2. The repo is intentionally conservative about claims. Where a regulation is only partially encoded, or where a product aspiration exists in docs but not in runtime code, that gap is called out explicitly instead of being papered over.
 
 Related documents:

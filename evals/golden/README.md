@@ -19,7 +19,7 @@ The eval harness now has two layers:
 
 1. `evals/golden/manifest.json`
    - full golden set
-   - all 40 cases
+   - all 75 cases
    - grouped into named slices so stories can run only what is applicable
 
 2. `evals/labels/manifest.json`
