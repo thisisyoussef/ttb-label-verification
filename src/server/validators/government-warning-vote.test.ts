@@ -49,6 +49,15 @@ describe('government warning vote similarity helpers', () => {
     expect(computeWarningSimilarity('kitten', 'sitting')).toBeCloseTo(1 - 3 / 7, 6);
   });
 
+  it('treats dropped clause markers as internal similarity noise when both canonical clauses are present', () => {
+    expect(
+      computeWarningSimilarity(
+        'GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems.',
+        CANONICAL_GOVERNMENT_WARNING
+      )
+    ).toBe(1);
+  });
+
   it('is symmetric and always stays inside the closed 0..1 range', () => {
     fc.assert(
       fc.property(fc.string(), fc.string(), (left, right) => {

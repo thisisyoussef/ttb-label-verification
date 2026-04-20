@@ -3,14 +3,19 @@ const SECOND_WARNING_CLAUSE = 'Consumption of alcoholic beverages';
 const WARNING_HEADING = 'GOVERNMENT WARNING';
 
 export function normalizeGovernmentWarningText(value: string | undefined) {
-  const collapsed = collapseWhitespace(value ?? '');
-  return repairGovernmentWarningClauseMarkers(collapsed);
+  return collapseWhitespace(value ?? '');
+}
+
+export function normalizeGovernmentWarningForSimilarity(
+  value: string | undefined
+) {
+  return repairGovernmentWarningClauseMarkers(normalizeGovernmentWarningText(value));
 }
 
 export function normalizeGovernmentWarningForComparison(
   value: string | undefined
 ) {
-  return normalizeGovernmentWarningText(value)
+  return normalizeGovernmentWarningForSimilarity(value)
     .replace(/[^\w\s]/g, '')
     .trim()
     .toLowerCase();

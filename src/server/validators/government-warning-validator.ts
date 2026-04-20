@@ -75,11 +75,11 @@ export function buildGovernmentWarningCheck(
   });
   const hasLexicalInsertionOrDeletion = exactSegments.some((segment) => {
     if (segment.kind === 'missing') {
-      return /[A-Za-z0-9]/.test(segment.required);
+      return hasMeaningfulLexicalContent(segment.required);
     }
 
     if (segment.kind === 'wrong-character' && segment.required.length === 0) {
-      return /[A-Za-z0-9]/.test(segment.extracted);
+      return hasMeaningfulLexicalContent(segment.extracted);
     }
 
     return false;
@@ -222,6 +222,11 @@ function summarizeWarningStatus(subChecks: WarningSubCheck[]): CheckStatus {
   }
 
   return 'pass';
+}
+
+function hasMeaningfulLexicalContent(text: string) {
+  const withoutClauseMarkers = text.replace(/\(\s*[12]\s*\)/g, '');
+  return /[A-Za-z0-9]/.test(withoutClauseMarkers);
 }
 
 function deriveWarningConfidence(

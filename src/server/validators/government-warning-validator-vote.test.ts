@@ -138,11 +138,11 @@ describe('government warning validator vote-backed outcomes', () => {
     ]);
     expect(check.warning?.result).toMatchObject({
       overall: 'pass',
-      focus: 'verified'
+      focus: 'verified-minor-noise'
     });
   });
 
-  it('surfaces repaired clause markers in the extracted warning when both canonical clauses are present', () => {
+  it('keeps markerless warning text visible while still letting supported reads pass exact-text', () => {
     const markerlessWarning =
       'GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems.';
 
@@ -164,15 +164,12 @@ describe('government warning validator vote-backed outcomes', () => {
       }
     );
 
-    expect(check.extractedValue).toBe(CANONICAL_GOVERNMENT_WARNING);
-    expect(check.warning?.extracted).toBe(CANONICAL_GOVERNMENT_WARNING);
-    expect(check.warning?.segments).toEqual([
-      {
-        kind: 'match',
-        required: CANONICAL_GOVERNMENT_WARNING,
-        extracted: CANONICAL_GOVERNMENT_WARNING
-      }
-    ]);
+    expect(check.status).toBe('pass');
+    expect(check.extractedValue).toBe(markerlessWarning);
+    expect(check.warning?.extracted).toBe(markerlessWarning);
+    expect(
+      check.warning?.subChecks.find((subCheck) => subCheck.id === 'exact-text')?.status
+    ).toBe('pass');
   });
 
   it('passes exact-text when one signal passes and the only other signal is a non-conflicting review', () => {
