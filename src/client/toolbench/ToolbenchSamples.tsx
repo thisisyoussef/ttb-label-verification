@@ -3,6 +3,7 @@ import {
   syntheticLabelGenerateResponseSchema,
   type SyntheticLabelExpected
 } from '../../shared/contracts/review';
+import { loadEvalPackFiles } from '../evalDemoApi';
 import { BUILTIN_SAMPLES } from './builtin-sample-packs';
 import {
   resolveToolbenchSampleSectionIds,
@@ -21,6 +22,7 @@ export type { SampleFields } from './toolbenchSampleSupport';
 
 interface ToolbenchSamplesProps {
   onLoadSample: (files: File[], fields: SampleFields, imageId: string) => void;
+  onLoadBatch: (images: File[], csv: File) => void;
   onLoadSyntheticSample?: (
     files: File[],
     fields: SampleFields,
@@ -30,6 +32,7 @@ interface ToolbenchSamplesProps {
 
 export function ToolbenchSamples({
   onLoadSample,
+  onLoadBatch,
   onLoadSyntheticSample
 }: ToolbenchSamplesProps) {
   const [samples, setSamples] = useState<SamplePreview[]>([]);
@@ -39,6 +42,7 @@ export function ToolbenchSamples({
   const [liveAvailability, setLiveAvailability] =
     useState<CapabilityProbeState>('loading');
   const [loadingLive, setLoadingLive] = useState(false);
+  const [loadingBatch, setLoadingBatch] = useState(false);
   // Synthetic-label generator (Imagen 4) state. `synthAvailable` is
   // null until the status probe lands, then true/false. The chip after
   // a successful generation tells the dev what verdict the pipeline
@@ -245,6 +249,19 @@ export function ToolbenchSamples({
     }
   }, [onLoadSample, onLoadSyntheticSample]);
 
+  const loadBatchPack = useCallback(async () => {
+    setLoadingBatch(true);
+    setLastError(null);
+    try {
+      const { csvFile, imageFiles } = await loadEvalPackFiles('cola-cloud-all');
+      onLoadBatch(imageFiles, csvFile);
+    } catch (err) {
+      setLastError((err as Error).message);
+    } finally {
+      setLoadingBatch(false);
+    }
+  }, [onLoadBatch]);
+
   return (
     <div className="flex flex-col gap-3 p-3">
       {sectionIds.map((sectionId) => renderSection(sectionId))}
@@ -354,6 +371,26 @@ export function ToolbenchSamples({
                 </span>
               </div>
             ) : null}
+          </section>
+        );
+      case 'batch-sample':
+        return (
+          <section key={sectionId} className="flex flex-col gap-2 rounded-md border border-dashed border-outline-variant/50 bg-surface-container-lowest px-3 py-3">
+            <p className="font-label text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+              Batch testing
+            </p>
+            <button
+              type="button"
+              onClick={() => void loadBatchPack()}
+              disabled={loadingBatch}
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-tertiary text-on-tertiary px-3 py-2 text-sm font-label font-semibold transition-colors hover:bg-tertiary/90 disabled:bg-tertiary/40 disabled:cursor-not-allowed"
+            >
+              <span className="material-symbols-outlined text-[16px]">inventory_2</span>
+              {loadingBatch ? 'Loading pack…' : 'Load test batch'}
+            </button>
+            <p className="text-[11px] text-on-surface-variant leading-snug">
+              Populates the batch intake with 10 real COLA labels + their matching CSV.
+            </p>
           </section>
         );
       case 'sample-catalog':

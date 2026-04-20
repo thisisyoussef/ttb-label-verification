@@ -12,6 +12,7 @@ describe('resolveToolbenchSampleSectionIds', () => {
     ).toEqual([
       'random-sample',
       'capabilities-placeholder',
+      'batch-sample',
       'sample-catalog'
     ]);
   });
@@ -25,6 +26,7 @@ describe('resolveToolbenchSampleSectionIds', () => {
     ).toEqual([
       'random-sample',
       'live-sample',
+      'batch-sample',
       'sample-catalog'
     ]);
 
@@ -37,6 +39,7 @@ describe('resolveToolbenchSampleSectionIds', () => {
       'random-sample',
       'live-sample',
       'synthetic-sample',
+      'batch-sample',
       'sample-catalog'
     ]);
   });

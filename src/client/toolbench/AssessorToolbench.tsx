@@ -7,6 +7,7 @@ import { type ToolbenchTab, useToolbenchState } from './useToolbenchState';
 
 interface AssessorToolbenchProps {
   onLoadSample: (files: File[], fields: SampleFields, imageId: string) => void;
+  onLoadBatch: (files: File[], csv: File) => void;
   onLoadImage: (file: File) => void;
   onLoadCsv: (file: File) => void;
   mode: Mode;
@@ -26,6 +27,7 @@ const TABS: { id: ToolbenchTab; label: string }[] = [
 
 export function AssessorToolbench({
   onLoadSample,
+  onLoadBatch,
   onLoadImage,
   onLoadCsv,
   extractionMode,
@@ -101,6 +103,7 @@ export function AssessorToolbench({
                   onLoadSample(files, fields, imageId);
                   close();
                 }}
+                onLoadBatch={onLoadBatch}
                 // Synthetic-label flow keeps the toolbench open so the
                 // expected-verdict chip stays visible — devs read it
                 // before clicking Verify to compare actual vs expected.

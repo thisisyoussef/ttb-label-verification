@@ -45,7 +45,7 @@ export function ImagesDropZone({
           </span>
         </div>
         <p className="text-sm text-on-surface-variant font-body">
-          Up to 50 labels per batch. Files stay local until you start processing.
+          Add as many labels as possible. Files stay local until you start processing.
         </p>
       </header>
 

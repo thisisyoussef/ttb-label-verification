@@ -90,6 +90,7 @@ export function App() {
     handleToolbenchLoadCsv,
     handleToolbenchLoadImage,
     handleToolbenchLoadSample,
+    handleToolbenchLoadBatch,
     handleToolbenchReset,
     handleToolbenchSwitchMode
   } = useAppToolbench({
@@ -401,6 +402,7 @@ export function App() {
       />
       <AssessorToolbench
         onLoadSample={handleToolbenchLoadSample}
+        onLoadBatch={handleToolbenchLoadBatch}
         onLoadImage={handleToolbenchLoadImage}
         onLoadCsv={handleToolbenchLoadCsv}
         mode={mode}
