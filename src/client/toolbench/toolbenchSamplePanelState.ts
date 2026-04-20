@@ -8,7 +8,6 @@ export type ToolbenchSampleSectionId =
   | 'capabilities-placeholder'
   | 'live-sample'
   | 'synthetic-sample'
-  | 'batch-sample'
   | 'sample-catalog';
 
 export function resolveToolbenchSampleSectionIds(input: {
@@ -31,6 +30,6 @@ export function resolveToolbenchSampleSectionIds(input: {
     }
   }
 
-  ids.push('batch-sample', 'sample-catalog');
+  ids.push('sample-catalog');
   return ids;
 }
