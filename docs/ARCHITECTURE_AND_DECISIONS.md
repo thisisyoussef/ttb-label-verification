@@ -61,7 +61,7 @@ Marcus’s path through the system is less about pretty UI and more about predic
 
 The entire system is organized around one invariant: **AI extracts; deterministic code judges**. That is not just a README slogan. It is enforced structurally.
 
-The extraction contract is a typed payload with extracted fields, image quality, warning signals, and standalone checks, but no final compliance verdict (`src/shared/contracts/review-base.ts:118-160,191-248,312-336`). The final report contract, by contrast, adds `checks`, `crossFieldChecks`, `verdict`, `latencyBudgetMs`, and a literal `noPersistence: true` marker (`src/shared/contracts/review-base.ts:287-300`). The provider adapters only return the extraction contract; the verdict is created later inside `buildVerificationReport` (`src/server/review-report.ts:71-204`).
+The extraction contract is a typed payload with extracted fields, image quality, warning signals, and standalone checks, but no final compliance verdict (`src/shared/contracts/review-base.ts:118-160,191-248,312-336`). The final report contract, by contrast, adds `checks`, `crossFieldChecks`, `verdict`, and a literal `noPersistence: true` marker (`src/shared/contracts/review-base.ts:287-300`). The provider adapters only return the extraction contract; the verdict is created later inside `buildVerificationReport` (`src/server/review-report.ts:71-204`).
 
 ```ts
 // src/shared/contracts/review-base.ts:312-336

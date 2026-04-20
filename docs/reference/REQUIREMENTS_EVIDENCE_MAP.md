@@ -57,25 +57,24 @@ Batch session data lives in a `Map<>` inside the Node process. A long-running pr
 
 | Layer | Location | What it proves |
 |---|---|---|
-| Internal constant | `review-base.ts:59` | `REVIEW_LATENCY_BUDGET_MS = 4000` (internal optimization target). |
-| Schema enforcement | `review-base.ts:251` | `latencyBudgetMs: z.number().int().positive().max(REVIEW_LATENCY_BUDGET_MS)` -- the response cannot declare a budget above 4000. |
 | Public contract | `FULL_PRODUCT_SPEC.md:21` | "keeping the public contract at `<= 5,000 ms`" |
 | Gemini timeout | `gemini-review-extractor.ts:28` | `DEFAULT_GEMINI_TIMEOUT_MS = 5000` |
 | Gemini tuning | `SINGLE_SOURCE_OF_TRUTH.md` | TTB-209 locked winning profile: `gemini-2.5-flash-lite`, raster `low`, PDF `medium`, `thinkingBudget=0`. |
 | Latency observer | `review-latency.ts` (193 lines) | `ReviewLatencyCapture` class with stage-level timing: `intake-parse`, `provider-selection`, `request-assembly`, `provider-wait`, `fallback-handoff`, `deterministic-validation`, `report-shaping`. |
 | Fallback budget gate | `review-latency.ts:4` | `REVIEW_MAX_RETRYABLE_FALLBACK_ELAPSED_MS = 550` -- fallback only attempted if primary fails within 550ms. |
 | Latency corpus | `evals/labels/latency-twenty.manifest.json` | 20-case synthetic benchmark set for timing regression. |
-| Test | `review.test.ts:58` | `expect(report.latencyBudgetMs).toBeLessThanOrEqual(4000)` |
+| Checked-in route evidence | `docs/specs/TTB-209/performance-budget.md` | Best 20-case `/api/review` run averaged `4946 ms` with `4653 ms` median and `6013 ms` p95; shipped `5000 ms` timeout profile averaged `4657 ms` with `4832 ms` median and `5018 ms` p95. |
+| Stage probe evidence | `docs/EVAL_RESULTS.md` | 2026-04-19 probe isolates provider wait at `3729-4557 ms`, OCR prepass at `298-1072 ms`, warning OCV at `779-1100 ms`, and deterministic validation at `0-6 ms`. |
 
 ### Demo path
 
-Every `POST /api/review` response includes `latencyBudgetMs` in the payload. Stage-level timing is logged to the server console via `[ttb-latency]` JSON lines.
+`POST /api/review` no longer carries a synthetic `latencyBudgetMs` field. Stage-level timing is logged to the server console via `[ttb-latency]` JSON lines, and the checked-in docs carry measured route and stage references.
 
 ### Measured results
 
-- Gemini flash-lite typical range: **1.5s -- 4.5s** end-to-end depending on image complexity and API load.
-- Deterministic validation adds **< 50ms** after extraction.
-- The tighter 4000ms internal target was not definitively proved across all conditions (TTB-209 finding). The public contract remains at 5000ms.
+- Checked-in 20-case `/api/review` best run: **4946 ms avg / 4653 ms median / 6013 ms p95**.
+- Shipped `5000 ms` timeout profile on the same slice: **4657 ms avg / 4832 ms median / 5018 ms p95**.
+- Stage probe on 2026-04-19: **provider wait 3729-4557 ms**, **OCR prepass 298-1072 ms**, **warning OCV 779-1100 ms**, **deterministic validation 0-6 ms**.
 
 ### Tradeoff
 
@@ -253,7 +252,7 @@ All six have checked-in synthetic image assets under `evals/labels/assets/` and 
 | 1 | No persistence | `FULL_PRODUCT_SPEC.md:16` | `review-base.ts:252` `z.literal(true)`, `openai-review-extractor.ts:91` `store: false`, `batch-session.ts` `Map<>` | `/api/health` returns `store: false` | Enforced at schema level |
 | 2 | OpenAI `store: false` | `FULL_PRODUCT_SPEC.md:17` | `openai-review-extractor.ts:31,74,91` type + runtime + env gate | `/api/health` returns `store: false` | Adapter refuses to start if violated |
 | 3 | Gemini inline-only | `FULL_PRODUCT_SPEC.md:18` | `gemini-review-extractor.ts:123` `inlineData` | Gemini requests use no Files API | Enforced by request construction |
-| 4 | 5-second target | `FULL_PRODUCT_SPEC.md:19` | `review-base.ts:59` budget=4000, `review-latency.ts` observer, `gemini-review-extractor.ts:28` timeout=5000 | `latencyBudgetMs` in every response | Monitored; not guaranteed under API contention |
+| 4 | 5-second target | `FULL_PRODUCT_SPEC.md:19` | `review-latency.ts` observer, `gemini-review-extractor.ts:28` timeout=5000, `docs/specs/TTB-209/performance-budget.md` measured route runs | checked-in eval artifacts plus `[ttb-latency]` stage logs | Monitored; not guaranteed under API contention |
 | 5 | Deterministic outcomes | `FULL_PRODUCT_SPEC.md:22` | `government-warning-validator.ts`, field comparators, recommendation aggregator | Expanding any check row shows deterministic evidence | Enforced by architecture |
 | 6 | Uncertain -> review | `FULL_PRODUCT_SPEC.md:23-24` | `government-warning-validator.ts:115,148,159` | Low-quality-image scenario shows `review` | Enforced in every validator path |
 | 7 | Batch support | `FULL_PRODUCT_SPEC.md:59-66` | `batch-session.ts`, `review-batch.ts`, 67 batch files | Batch tab: upload, match, progress, dashboard, drill-in, export | Working; capped at 50 |

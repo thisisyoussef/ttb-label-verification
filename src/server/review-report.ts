@@ -1,5 +1,4 @@
 import {
-  REVIEW_LATENCY_BUDGET_MS,
   verificationReportSchema,
   type CheckReview,
   type ReviewExtraction,
@@ -163,7 +162,6 @@ export async function buildVerificationReport(input: {
       },
       checks: [],
       crossFieldChecks: [],
-      latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
       noPersistence: true,
       summary: 'No text could be extracted from the submitted label image.'
     });
@@ -240,7 +238,6 @@ export async function buildVerificationReport(input: {
     counts,
     checks: stampedChecks,
     crossFieldChecks: stampedCrossFieldChecks,
-    latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
     noPersistence: true,
     summary: deriveSummary({
       verdict,

@@ -1,7 +1,6 @@
 import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
-  REVIEW_LATENCY_BUDGET_MS,
   checkReviewSchema,
   reviewExtractionSchema,
   verificationReportSchema
@@ -146,7 +145,6 @@ function buildReviewPayload(overrides: Record<string, unknown> = {}) {
     },
     checks: [buildWarningPayload()],
     crossFieldChecks: [],
-    latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
     noPersistence: true,
     summary: 'Trace review passed all deterministic checks.',
     ...overrides

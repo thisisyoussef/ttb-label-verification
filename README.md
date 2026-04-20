@@ -309,27 +309,29 @@ Implementation seams:
 
 Latency is the adoption gate in the stakeholder interviews, so the prototype treats it as both a systems problem and a product problem.
 
-- the runtime contract currently advertises `latencyBudgetMs: 4000`
 - the dominant cost is still provider wait time, not deterministic validation
 - the app therefore tackles both **actual latency** and **perceived latency**
+- current checked-in reference points are:
+  - **actual latency:** the best 20-case `/api/review` run in [`docs/specs/TTB-209/performance-budget.md`](docs/specs/TTB-209/performance-budget.md) averaged `4946 ms`, with `4653 ms` median and `6013 ms` p95; the shipped `5000 ms` timeout profile averaged `4657 ms` with `4832 ms` median and `5018 ms` p95
+  - **perceived latency:** OCR preview is documented at roughly `~500 ms` to `~1-2 s`, extraction-prefetch turns a cold `~5-7 s` verify into `<1 s` after enough form-fill time, and warm extraction-cache hits can collapse Verify to about `~100 ms`
 
 ### How the app tackles perceived latency
 
 | Tactic | What the reviewer experiences | Where it lives |
 | --- | --- | --- |
-| OCR preview | partial fields such as ABV, net contents, class, country, and warning presence appear while the full review is still running | [`src/client/useOcrPreview.ts`](src/client/useOcrPreview.ts), [`/api/review/stream?only=ocr`](src/client/appReviewApi.ts) |
-| Extraction prefetch | image upload starts extraction during form-fill time, so Verify can skip the expensive extract step later | [`src/client/useExtractionPrefetch.ts`](src/client/useExtractionPrefetch.ts), [`/api/review/extract-only`](src/server/register-review-routes.ts) |
-| Speculative full prefetch | when the user pauses on a stable input, the client can pre-run the full review in the background and consume a cache hit at Verify time | [`src/client/useSpeculativePrefetch.ts`](src/client/useSpeculativePrefetch.ts) |
-| Silent refine | the second-pass verification happens after the first answer lands, so borderline rows can improve without delaying the first render | [`src/client/useRefineReview.ts`](src/client/useRefineReview.ts), [`/api/review/refine`](src/server/register-review-routes.ts) |
+| OCR preview | partial fields such as ABV, net contents, class, country, and warning presence appear in roughly `~500 ms` on the happy path and about `~1-2 s` on slower OCR passes while the full review is still running | [`src/client/useOcrPreview.ts`](src/client/useOcrPreview.ts), [`src/client/useStreamingReview.ts`](src/client/useStreamingReview.ts), [`/api/review/stream?only=ocr`](src/client/appReviewApi.ts) |
+| Extraction prefetch | image upload starts extraction during form-fill time, so a cold `~5-7 s` Verify can drop under `<1 s` once the reviewer has spent enough time on the form | [`src/client/useExtractionPrefetch.ts`](src/client/useExtractionPrefetch.ts), [`/api/review/extract-only`](src/server/register-review-routes.ts) |
+| Speculative full prefetch | when the user pauses on a stable input, the client can pre-run the full review in the background and consume a warm cache hit; the pipeline comment calls out fast hits landing in about `600 ms` | [`src/client/useSpeculativePrefetch.ts`](src/client/useSpeculativePrefetch.ts), [`src/client/useSingleReviewPipeline.ts`](src/client/useSingleReviewPipeline.ts) |
+| Silent refine | the second-pass verification happens after the first answer lands, so it adds `0 ms` to time-to-first-answer while still improving borderline rows later | [`src/client/useRefineReview.ts`](src/client/useRefineReview.ts), [`/api/review/refine`](src/server/register-review-routes.ts) |
 
 ### How the app tackles actual latency
 
 | Tactic | Why it helps | Where it lives |
 | --- | --- | --- |
-| Parallel fanout | OCR prepass, warning OCV, VLM extraction, and anchor search run together instead of serially | [`src/server/llm-trace.ts`](src/server/llm-trace.ts) |
+| Parallel fanout | OCR prepass, warning OCV, VLM extraction, and anchor search run together instead of serially; the 2026-04-19 stage probe still showed provider wait as the dominant `~3.7-4.6 s` band | [`src/server/llm-trace.ts`](src/server/llm-trace.ts), [docs/EVAL_RESULTS.md](docs/EVAL_RESULTS.md) |
 | Boot warmup | primes Tesseract, sharp, OCR pipeline, and optional model/network connections before traffic starts | [`src/server/boot-warmup.ts`](src/server/boot-warmup.ts), [`src/server/index.ts`](src/server/index.ts) |
-| Fast-fail fallback window | provider fallback is only attempted if the primary path fails quickly enough to still be worth it | [`src/server/review-latency.ts`](src/server/review-latency.ts), [`src/server/review-fallback-executor.ts`](src/server/review-fallback-executor.ts) |
-| Stage-level timing | every request can emit a structured latency summary for diagnosis instead of anecdotal “it felt slow” reports | [`src/server/review-latency.ts`](src/server/review-latency.ts) |
+| Fast-fail fallback window | provider fallback is only attempted if the primary path fails quickly enough to still be worth it; the cutoff stays at `550 ms` so a slow primary call does not trigger a late second full attempt | [`src/server/review-latency.ts`](src/server/review-latency.ts), [`src/server/review-fallback-executor.ts`](src/server/review-fallback-executor.ts) |
+| Stage-level timing | every request can emit a structured latency summary for diagnosis instead of anecdotal “it felt slow” reports; the checked-in probe shows deterministic validation at only `0-6 ms`, OCR prepass at `298-1072 ms`, and warning OCV at `779-1100 ms` | [`src/server/review-latency.ts`](src/server/review-latency.ts), [docs/EVAL_RESULTS.md](docs/EVAL_RESULTS.md) |
 
 ### Latency decisions the prototype deliberately rejected
 

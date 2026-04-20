@@ -61,7 +61,6 @@ export const WARNING_SUB_CHECK_IDS = [
   'continuous-paragraph',
   'legibility'
 ] as const;
-export const REVIEW_LATENCY_BUDGET_MS = 4000;
 export const warningSubCheckIdSchema = z.enum(WARNING_SUB_CHECK_IDS);
 export const diffSegmentKindSchema = z.enum([
   'match',
@@ -341,7 +340,6 @@ export const verificationReportSchema = z.object({
   counts: verificationCountsSchema,
   checks: z.array(checkReviewSchema),
   crossFieldChecks: z.array(checkReviewSchema),
-  latencyBudgetMs: z.number().int().positive().max(REVIEW_LATENCY_BUDGET_MS),
   noPersistence: z.literal(true),
   summary: z.string()
 });
