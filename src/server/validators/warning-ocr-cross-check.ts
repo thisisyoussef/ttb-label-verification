@@ -3,6 +3,10 @@ import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 
 import type { NormalizedUploadedLabel } from '../review/review-intake';
+import {
+  normalizeGovernmentWarningForComparison,
+  normalizeGovernmentWarningText
+} from './government-warning-text';
 
 const execAsync = promisify(exec);
 
@@ -144,11 +148,13 @@ async function runTesseractWithTempFile(
 function extractWarningFromOcrText(ocrText: string): string | null {
   const match = ocrText.match(/GOVERNMENT\s*WARNING[\s\S]*/i);
   if (!match) return null;
-  return match[0].replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+  return normalizeGovernmentWarningText(
+    match[0].replace(/\n/g, ' ').replace(/\s+/g, ' ').trim()
+  );
 }
 
 function normalizeForComparison(text: string): string {
-  return text.replace(/\s+/g, ' ').trim().toLowerCase();
+  return normalizeGovernmentWarningForComparison(text);
 }
 
 function levenshteinDistance(a: string, b: string): number {

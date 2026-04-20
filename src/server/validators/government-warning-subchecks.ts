@@ -148,7 +148,7 @@ export function buildExactTextSubCheck(input: {
     label: 'Warning text matches required wording',
     status: input.textReliable ? 'fail' : 'review',
     reason: input.textReliable
-      ? 'Warning wording differs from the required text. See the diff below for exact changes.'
+      ? 'Warning wording may differ from the required text. Review the diff below before approval.'
       : 'Warning wording appears to differ, but the label image is hard to read. A human reviewer should confirm.'
   };
 }

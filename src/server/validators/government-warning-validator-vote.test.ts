@@ -138,8 +138,41 @@ describe('government warning validator vote-backed outcomes', () => {
     ]);
     expect(check.warning?.result).toMatchObject({
       overall: 'pass',
-      focus: 'verified-minor-noise'
+      focus: 'verified'
     });
+  });
+
+  it('surfaces repaired clause markers in the extracted warning when both canonical clauses are present', () => {
+    const markerlessWarning =
+      'GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems.';
+
+    const check = buildGovernmentWarningCheck(
+      buildExtraction({
+        governmentWarning: {
+          value: markerlessWarning
+        }
+      }),
+      undefined,
+      {
+        status: 'verified',
+        similarity: 0.976,
+        extractedText: markerlessWarning,
+        editDistance: 10,
+        headingAllCaps: true,
+        confidence: 0.93,
+        durationMs: 180
+      }
+    );
+
+    expect(check.extractedValue).toBe(CANONICAL_GOVERNMENT_WARNING);
+    expect(check.warning?.extracted).toBe(CANONICAL_GOVERNMENT_WARNING);
+    expect(check.warning?.segments).toEqual([
+      {
+        kind: 'match',
+        required: CANONICAL_GOVERNMENT_WARNING,
+        extracted: CANONICAL_GOVERNMENT_WARNING
+      }
+    ]);
   });
 
   it('passes exact-text when one signal passes and the only other signal is a non-conflicting review', () => {

@@ -75,22 +75,19 @@ export function WarningEvidencePanel({ check }: WarningEvidencePanelProps) {
 
 function SubCheckIcon({ status }: { status: CheckReview['status'] }) {
   const common = 'flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-0.5';
+  const displayStatus = toDisplayStatus(status);
   const icon =
-    status === 'pass'
+    displayStatus === 'pass'
       ? 'check'
-      : status === 'fail'
-        ? 'close'
-        : status === 'review'
-          ? 'schedule'
-          : 'info';
+      : displayStatus === 'review'
+        ? 'schedule'
+        : 'info';
   const skin =
-    status === 'pass'
+    displayStatus === 'pass'
       ? 'bg-tertiary-container text-on-tertiary-container'
-      : status === 'fail'
-        ? 'bg-error text-on-error'
-        : status === 'review'
-          ? 'bg-caution-container text-on-caution-container'
-          : 'bg-secondary-container text-on-secondary-container';
+      : displayStatus === 'review'
+        ? 'bg-caution-container text-on-caution-container'
+        : 'bg-secondary-container text-on-secondary-container';
 
   return (
     <div className={`${common} ${skin}`}>

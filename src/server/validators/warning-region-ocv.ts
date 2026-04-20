@@ -19,6 +19,7 @@ import { promisify } from 'node:util';
 
 import { CANONICAL_GOVERNMENT_WARNING } from '../../shared/contracts/review';
 import type { NormalizedUploadedLabel } from '../review/review-intake';
+import { normalizeGovernmentWarningForComparison, normalizeGovernmentWarningText } from './government-warning-text';
 
 const execAsync = promisify(exec);
 const TESSERACT_TIMEOUT_MS = 5000;
@@ -242,15 +243,18 @@ function extractWarningSection(text: string): string | null {
   if (!match) return null;
 
   // Clean up the extracted section
-  return match[0]
-    .replace(/\n/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+  return normalizeGovernmentWarningText(
+    match[0]
+      .replace(/\n/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+  );
 }
 
 function compareWarningText(extractedWarning: string): Omit<WarningOcvResult, 'durationMs'> {
   const normalizedExtracted = normalizeForComparison(extractedWarning);
   const normalizedCanonical = normalizeForComparison(CANONICAL_GOVERNMENT_WARNING);
+  const cleanedExtractedWarning = normalizeGovernmentWarningText(extractedWarning);
 
   const editDistance = levenshteinDistance(normalizedExtracted, normalizedCanonical);
   const maxLen = Math.max(normalizedExtracted.length, normalizedCanonical.length);
@@ -270,7 +274,7 @@ function compareWarningText(extractedWarning: string): Omit<WarningOcvResult, 'd
     return {
       status: 'verified',
       similarity,
-      extractedText: extractedWarning,
+      extractedText: cleanedExtractedWarning,
       editDistance,
       headingAllCaps,
       // High confidence — deterministic OCR comparison, not VLM guess
@@ -282,7 +286,7 @@ function compareWarningText(extractedWarning: string): Omit<WarningOcvResult, 'd
     return {
       status: 'partial',
       similarity,
-      extractedText: extractedWarning,
+      extractedText: cleanedExtractedWarning,
       editDistance,
       headingAllCaps,
       confidence: 0.70
@@ -292,7 +296,7 @@ function compareWarningText(extractedWarning: string): Omit<WarningOcvResult, 'd
   return {
     status: 'partial',
     similarity,
-    extractedText: extractedWarning,
+    extractedText: cleanedExtractedWarning,
     editDistance,
     headingAllCaps,
     confidence: 0.50
@@ -300,11 +304,7 @@ function compareWarningText(extractedWarning: string): Omit<WarningOcvResult, 'd
 }
 
 function normalizeForComparison(text: string): string {
-  return text
-    .replace(/\s+/g, ' ')
-    .replace(/[^\w\s]/g, '')
-    .trim()
-    .toLowerCase();
+  return normalizeGovernmentWarningForComparison(text);
 }
 
 async function runTesseractOnBuffer(buffer: Buffer): Promise<string | null> {
