@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import {
+  perfectWarning,
+  warningDefectEvidence
+} from './resultScenarioShared';
 import type {
   CheckReview,
   UIVerificationReport
@@ -161,6 +165,104 @@ describe('mergeRefinedReport', () => {
       details: 'Initial review was uncertain.'
     });
     expect(merged.counts).toEqual({ pass: 0, review: 1, fail: 0 });
+  });
+
+  it('keeps the original government warning review row when refine returns a different review reading', () => {
+    const initialWarning = structuredClone(warningDefectEvidence);
+    initialWarning.subChecks = initialWarning.subChecks.map((subCheck) => {
+      if (subCheck.id === 'exact-text') {
+        return {
+          ...subCheck,
+          status: 'pass',
+          reason: 'Exact wording matched on the initial pass.'
+        };
+      }
+      if (subCheck.id === 'uppercase-bold-heading') {
+        return {
+          ...subCheck,
+          status: 'review',
+          reason: 'Heading formatting still needs a reviewer look.'
+        };
+      }
+      return subCheck;
+    });
+
+    const base = makeReport([
+      check({
+        id: 'government-warning',
+        label: 'Government warning',
+        status: 'review',
+        severity: 'major',
+        summary: 'Warning heading needs review.',
+        details: 'Initial report isolated a formatting-only warning concern.',
+        confidence: 0.78,
+        warning: initialWarning
+      })
+    ]);
+
+    const refined = makeReport([
+      check({
+        id: 'government-warning',
+        label: 'Government warning',
+        status: 'review',
+        severity: 'major',
+        summary: 'Warning wording differs from the required text.',
+        details:
+          'Second pass widened the concern and should not replace the initial warning review.',
+        confidence: 0.52,
+        warning: warningDefectEvidence
+      })
+    ]);
+
+    const merged = mergeRefinedReport(base, refined);
+
+    expect(merged.checks[0]).toMatchObject({
+      status: 'review',
+      summary: 'Warning heading needs review.',
+      details: 'Initial report isolated a formatting-only warning concern.',
+      confidence: 0.78,
+      warning: initialWarning
+    });
+    expect(merged.counts).toEqual({ pass: 0, review: 1, fail: 0 });
+  });
+
+  it('accepts government warning review-to-pass upgrades', () => {
+    const base = makeReport([
+      check({
+        id: 'government-warning',
+        label: 'Government warning',
+        status: 'review',
+        severity: 'major',
+        summary: 'Warning needs review.',
+        details: 'Initial report was not ready to approve the warning.',
+        confidence: 0.55,
+        warning: warningDefectEvidence
+      })
+    ]);
+
+    const refined = makeReport([
+      check({
+        id: 'government-warning',
+        label: 'Government warning',
+        status: 'pass',
+        severity: 'note',
+        summary: 'Warning matches the required wording.',
+        details: 'Refine confirmed the exact text and formatting.',
+        confidence: 0.92,
+        warning: perfectWarning
+      })
+    ]);
+
+    const merged = mergeRefinedReport(base, refined);
+
+    expect(merged.checks[0]).toMatchObject({
+      status: 'pass',
+      summary: 'Warning matches the required wording.',
+      details: 'Refine confirmed the exact text and formatting.',
+      confidence: 0.92,
+      warning: perfectWarning
+    });
+    expect(merged.counts).toEqual({ pass: 1, review: 0, fail: 0 });
   });
 
   it('accepts review-to-review swaps when the refine adds more specific evidence', () => {

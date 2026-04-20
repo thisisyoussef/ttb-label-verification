@@ -10,6 +10,7 @@ Two scope notes matter up front.
 Related documents:
 
 - [README.md](../README.md)
+- [Approach, Tools, Assumptions, Trade-Offs, And Limitations](./reference/submission-baseline.md)
 - [Government Warning](./GOVERNMENT_WARNING.md)
 - [Regulatory Mapping](./REGULATORY_MAPPING.md)
 - [Eval Results](./EVAL_RESULTS.md)
