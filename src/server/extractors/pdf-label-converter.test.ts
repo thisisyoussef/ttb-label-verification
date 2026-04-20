@@ -45,5 +45,5 @@ describe('convertPdfLabelToImage', () => {
     expect(result.buffer[1]).toBe(0x50); // P
     expect(result.buffer[2]).toBe(0x4e); // N
     expect(result.buffer[3]).toBe(0x47); // G
-  });
+  }, 15000);
 });

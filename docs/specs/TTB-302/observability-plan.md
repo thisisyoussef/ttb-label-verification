@@ -21,6 +21,9 @@ Make batch flow failures localizable without exposing sensitive batch inputs.
 - export requested
 - export failed
 - retry requested
+- hidden retry started
+- hidden retry succeeded
+- hidden retry exhausted
 - retry failed
 
 ## Privacy rules

@@ -231,6 +231,7 @@ export function AppShell({
             phase={batch.batchPhase}
             progress={batch.batchProgress}
             items={batch.batchItems}
+            retryingItemIds={batch.retryingItemIds}
             summary={batch.summary}
             onCancel={batch.onCancelBatchRun}
             onRetryItem={batch.onRetryBatchItem}
@@ -242,6 +243,7 @@ export function AppShell({
           <BatchDashboard
             seed={batch.dashboardSeed}
             reviewedIds={batch.reviewedRowIds}
+            retryingRowIds={batch.retryingRowIds}
             exportState={batch.exportState}
             onOpenRow={batch.onOpenDashboardRow}
             onRetryRow={batch.onRetryDashboardRow}

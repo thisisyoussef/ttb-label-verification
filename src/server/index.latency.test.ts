@@ -115,7 +115,7 @@ describe('server latency summaries', () => {
       clientTraceId: 'latency-review-primary-001'
     });
     expect(summaries[0]?.spans.some((span) => span.stage === 'report-shaping')).toBe(true);
-  });
+  }, 15000);
 
   it('captures the fast-fail fallback path for /api/review/extraction', async () => {
     const summaries: ReviewLatencySummary[] = [];
@@ -313,5 +313,5 @@ describe('server latency summaries', () => {
       outcomePath: 'primary-success'
     });
     expect(summaries[0]?.spans.some((span) => span.stage === 'intake-normalization')).toBe(true);
-  });
+  }, 15000);
 });

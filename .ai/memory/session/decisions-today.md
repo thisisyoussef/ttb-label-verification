@@ -1,5 +1,9 @@
 # Decisions Today
 
+- For batch mode, treat the first retryable per-item failure as an internal recovery path, not reviewer-facing output. Surface an `error` row only after a second consecutive retryable failure for the same assignment attempt.
+- Keep the hidden retry at the batch-session orchestration layer instead of inventing a batch-only extractor path, so batch continues to reuse the canonical single-review report pipeline.
+- Make both retry affordances visibly react while they are running: processing rows and dashboard rows disable the retry action and switch the label to `Retrying...` until the request settles.
+- Update the existing `TTB-302` batch runtime packet docs rather than inventing a separate queue story for this scoped `TTB-000` maintenance fix.
 - Repair dropped government warning `(1)` / `(2)` clause markers only when the heading plus both canonical warning clauses are present in order; do not synthesize markers for a genuinely truncated warning.
 - Keep the extracted warning text raw; only the internal similarity/comparison seam may repair dropped clause markers, so reviewer-facing evidence stays as-read while exact-text scoring can still treat marker loss as minor noise.
 - Keep exact-text mismatch warning evidence reviewer-framed even when the underlying warning check remains fail-grade for deterministic aggregation: the copy says the wording may differ, and the warning sub-check iconography collapses to the same caution/review treatment already used by the row badge.

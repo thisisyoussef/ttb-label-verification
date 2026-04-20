@@ -17,6 +17,7 @@ export interface BatchDashboardFlow {
   dashboardSeedId: string;
   dashboardSeed: BatchDashboardSeed;
   reviewedRowIds: Set<string>;
+  retryingRowIds: Set<string>;
   drillInRowId: string | null;
   drillInFilter: BatchDashboardFilter;
   drillInRows: BatchDashboardRow[];
@@ -60,6 +61,9 @@ export function useBatchDashboardFlow(options: {
   const [reviewedRowIds, setReviewedRowIds] = useState<Set<string>>(
     () => new Set<string>()
   );
+  const [retryingRowIds, setRetryingRowIds] = useState<Set<string>>(
+    () => new Set<string>()
+  );
   const [drillInRowId, setDrillInRowId] = useState<string | null>(null);
   const [drillInFilter, setDrillInFilter] = useState<BatchDashboardFilter>('all');
   const [drillInRows, setDrillInRows] = useState<BatchDashboardRow[]>([]);
@@ -68,6 +72,7 @@ export function useBatchDashboardFlow(options: {
 
   const resetDashboardState = useCallback(() => {
     setReviewedRowIds(new Set<string>());
+    setRetryingRowIds(new Set<string>());
     setDrillInRowId(null);
     setDrillInFilter('all');
     setDrillInRows([]);
@@ -124,6 +129,7 @@ export function useBatchDashboardFlow(options: {
     dashboardSeedId,
     dashboardSeed,
     reviewedRowIds,
+    retryingRowIds,
     drillInRowId,
     drillInFilter,
     drillInRows,
@@ -234,20 +240,47 @@ export function useBatchDashboardFlow(options: {
       }
 
       void (async () => {
-        const response = await fetch(`/api/batch/${options.batchSessionId}/retry/${row.imageId}`, {
-          method: 'POST'
-        });
-        if (!response.ok) {
-          return;
+        setRetryingRowIds((previous) => new Set(previous).add(row.rowId));
+        try {
+          const response = await fetch(
+            `/api/batch/${options.batchSessionId}/retry/${row.imageId}`,
+            {
+              method: 'POST'
+            }
+          );
+          if (!response.ok) {
+            const message = await parseApiError(
+              response,
+              "We couldn't retry this item right now."
+            );
+            setDashboardSeed((previous) => ({
+              ...previous,
+              rows: previous.rows.map((candidate) =>
+                candidate.rowId === row.rowId
+                  ? {
+                      ...candidate,
+                      errorMessage: message
+                    }
+                  : candidate
+              )
+            }));
+            return;
+          }
+          const dashboard = batchDashboardResponseSchema.parse(await response.json());
+          setDashboardSeed(
+            buildDashboardSeedFromResponse({
+              batchSessionId: options.batchSessionId as string,
+              response: dashboard,
+              images: options.batchSeedImages
+            })
+          );
+        } finally {
+          setRetryingRowIds((previous) => {
+            const next = new Set(previous);
+            next.delete(row.rowId);
+            return next;
+          });
         }
-        const dashboard = batchDashboardResponseSchema.parse(await response.json());
-        setDashboardSeed(
-          buildDashboardSeedFromResponse({
-            batchSessionId: options.batchSessionId as string,
-            response: dashboard,
-            images: options.batchSeedImages
-          })
-        );
       })();
     },
     onDashboardBack: () => {

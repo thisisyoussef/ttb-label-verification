@@ -111,11 +111,13 @@ export function ProgressBlock({
 
 export function StreamBlock({
   items,
+  retryingItemIds,
   onRetryItem,
   onPreviewItem,
   streamEmptyLabel
 }: {
   items: BatchStreamItem[];
+  retryingItemIds: Set<string>;
   onRetryItem: (itemId: string) => void;
   onPreviewItem: (item: BatchStreamItem) => void;
   streamEmptyLabel: string;
@@ -141,6 +143,7 @@ export function StreamBlock({
             <li key={item.id}>
               <StreamRow
                 item={item}
+                retrying={retryingItemIds.has(item.id)}
                 onRetry={() => onRetryItem(item.id)}
                 onPreview={() => onPreviewItem(item)}
               />
@@ -287,14 +290,19 @@ function summaryIntent(summary: BatchTerminalSummary): string {
 
 function StreamRow({
   item,
+  retrying,
   onRetry,
   onPreview
 }: {
   item: BatchStreamItem;
+  retrying: boolean;
   onRetry: () => void;
   onPreview: () => void;
 }) {
   const isError = item.status === 'error';
+  const errorHint = retrying
+    ? 'Retry in progress.'
+    : item.errorMessage || 'Could not process this label - retry or skip.';
   return (
     <div
       className={[
@@ -315,7 +323,7 @@ function StreamRow({
           </button>
           {item.status === 'error' ? (
             <p className="text-xs text-error font-body mt-0.5">
-              {item.errorMessage || 'Could not process this label \u2014 retry or skip.'}
+              {errorHint}
             </p>
           ) : null}
         </div>
@@ -324,9 +332,9 @@ function StreamRow({
         <p className="text-sm text-on-surface font-semibold truncate">
           {item.identity || '—'}
         </p>
-        {isError && item.errorMessage ? (
+        {isError ? (
           <p className="text-xs text-on-surface-variant font-body mt-0.5 truncate">
-            {item.errorMessage}
+            {errorHint}
           </p>
         ) : null}
       </div>
@@ -336,9 +344,10 @@ function StreamRow({
           <button
             type="button"
             onClick={onRetry}
-            className="text-xs font-label font-bold uppercase tracking-widest text-primary hover:underline"
+            disabled={retrying}
+            className="text-xs font-label font-bold uppercase tracking-widest text-primary hover:underline disabled:text-on-surface-variant disabled:no-underline disabled:cursor-wait"
           >
-            Retry this item
+            {retrying ? 'Retrying...' : 'Retry this item'}
           </button>
         ) : null}
       </div>

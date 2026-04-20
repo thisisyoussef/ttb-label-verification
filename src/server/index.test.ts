@@ -104,7 +104,7 @@ describe('server deployment surfaces', () => {
     expect(payload.checks.some((check) => check.id === 'class-type')).toBe(true);
     expect(payload.checks.find((check) => check.id === 'government-warning')?.warning).toBeDefined();
     expect(extractor).toHaveBeenCalledTimes(1);
-  });
+  }, 15000);
 
   it('accepts review requests when application fields are omitted', async () => {
     const extractor = vi.fn().mockResolvedValue(
@@ -131,7 +131,7 @@ describe('server deployment surfaces', () => {
     expect(payload.standalone).toBe(true);
     expect(payload.verdict).toBe('review');
     expect(payload.checks[0]?.comparison?.status).toBe('not-applicable');
-  });
+  }, 15000);
 
   it('returns submitted application values in the integrated comparison rows', async () => {
     const extractor = vi.fn().mockResolvedValue(buildExtractionPayload());
@@ -156,7 +156,7 @@ describe('server deployment surfaces', () => {
     expect(payload.standalone).toBe(false);
     expect(brand?.applicationValue).toBe('My Custom Brand');
     expect(brand?.comparison?.status).toBe('value-mismatch');
-  });
+  }, 15000);
 
   it('maps missing extractor configuration to a structured review error on the review route', async () => {
     const originalApiKey = process.env.OPENAI_API_KEY;

@@ -18,6 +18,7 @@ interface BatchProcessingProps {
   phase: BatchPhase;
   progress: BatchProgress;
   items: BatchStreamItem[];
+  retryingItemIds: Set<string>;
   summary: BatchTerminalSummary | null;
   onCancel: () => void;
   onRetryItem: (itemId: string) => void;
@@ -74,6 +75,7 @@ export function BatchProcessing(props: BatchProcessingProps) {
 
         <StreamBlock
           items={items}
+          retryingItemIds={props.retryingItemIds}
           onRetryItem={props.onRetryItem}
           onPreviewItem={props.onPreviewItem}
           streamEmptyLabel={
