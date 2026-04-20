@@ -12,7 +12,7 @@
  */
 
 import { CANONICAL_GOVERNMENT_WARNING } from '../../shared/contracts/review';
-import { normalizeGovernmentWarningText } from './government-warning-text';
+import { normalizeGovernmentWarningForSimilarity } from './government-warning-text';
 import type { OcrCrossCheckResult } from './warning-ocr-cross-check';
 import type { WarningOcvResult } from './warning-region-ocv';
 
@@ -58,8 +58,8 @@ export function computeWarningSimilarity(
   extracted: string,
   canonical: string
 ): number {
-  const a = normalizeGovernmentWarningText(extracted).toUpperCase();
-  const b = normalizeGovernmentWarningText(canonical).toUpperCase();
+  const a = normalizeGovernmentWarningForSimilarity(extracted).toUpperCase();
+  const b = normalizeGovernmentWarningForSimilarity(canonical).toUpperCase();
   if (a === b) return 1;
   const max = Math.max(a.length, b.length);
   const distance = levenshteinDistance(a, b);

@@ -20,7 +20,7 @@
 - Trace mode: none
 - Local evidence: `npm run eval:golden`
 - Latency notes: review slice stayed in the same low-3-second per-case band in the fixture harness; batch slice stayed in the same low-3-second per-item band
-- Persona-specific observations: marker-only warning omissions no longer create avoidable warning-text noise in the extracted value path while the core-six and batch route fixtures remain stable
+- Persona-specific observations: marker-only warning omissions no longer create avoidable exact-text noise in the comparison path while the displayed extracted warning text stays untouched and the core-six plus batch route fixtures remain stable
 - 2026-04-20 follow-up note: the same golden slices remained green after softening reviewer-facing exact-text mismatch copy/iconography and routing Toolbench batch sample loads through the live dual-image `cola-cloud-all` pack
 
 ## Cases run
@@ -56,7 +56,7 @@
 
 - Sarah: fixture-backed review and batch routes stayed stable after a narrow warning extraction fix
 - Dave: marker-only OCR noise is less likely to distract from an otherwise correct warning read
-- Jenny: the extracted warning text is closer to the printed statutory shape when the clause text is clearly present
+- Jenny: the workstation keeps the raw extracted warning text visible while the exact-text comparison can still treat dropped clause markers as minor read noise
 - Marcus: fixture-only eval; no persistence posture changed
 - Janet: batch route stayed green
 

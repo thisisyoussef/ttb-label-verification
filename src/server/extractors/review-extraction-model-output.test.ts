@@ -42,7 +42,7 @@ describe('reviewExtractionModelOutputSchema', () => {
     expect(payload.summary).toBe('Structured extraction completed successfully.');
   });
 
-  it('repairs missing government warning clause markers when both canonical clauses are present', () => {
+  it('keeps missing government warning clause markers in the extracted warning text', () => {
     const payload = normalizeReviewExtractionModelOutput(
       reviewExtractionModelOutputSchema.parse({
         beverageTypeHint: 'distilled-spirits',
@@ -83,7 +83,7 @@ describe('reviewExtractionModelOutputSchema', () => {
     );
 
     expect(payload.fields.governmentWarning.value).toBe(
-      'GOVERNMENT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. (2) Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems.'
+      'GOVERNMENT WARNING: According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems.'
     );
   });
 });

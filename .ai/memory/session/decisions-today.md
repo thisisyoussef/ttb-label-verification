@@ -1,7 +1,7 @@
 # Decisions Today
 
 - Repair dropped government warning `(1)` / `(2)` clause markers only when the heading plus both canonical warning clauses are present in order; do not synthesize markers for a genuinely truncated warning.
-- Apply that marker repair at the warning-text normalization seam so the extraction contract, OCR cross-check, warning OCV, region-OCR merge path, and final warning row all stay consistent.
+- Keep the extracted warning text raw; only the internal similarity/comparison seam may repair dropped clause markers, so reviewer-facing evidence stays as-read while exact-text scoring can still treat marker loss as minor noise.
 - Keep exact-text mismatch warning evidence reviewer-framed even when the underlying warning check remains fail-grade for deterministic aggregation: the copy says the wording may differ, and the warning sub-check iconography collapses to the same caution/review treatment already used by the row badge.
 - Route Toolbench batch sample loads through `batch.onLoadLiveBatch(images, csv)` instead of the legacy `seed-clean-six` fixture so the Samples tab reuses the real `cola-cloud-all` pack, including any checked-in secondary/front-back image pairs.
 - Treat the checked-in COLA corpus as sufficient for this batch-loader fix when `COLACLOUD_API_KEY` is absent locally: the current `cola-cloud-all` pack already carries 28 rows and 13 `secondary_filename` counterparts, so a live refresh is optional rather than required to validate the client behavior.
