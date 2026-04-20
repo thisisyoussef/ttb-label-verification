@@ -1,5 +1,6 @@
 # Decisions Today
 
+- Collapse the COLA sample-pack quick-load paths onto one shared client helper in `src/client/evalDemoApi.ts` so Batch Upload and Toolbench always fetch the same full `cola-cloud-all` bundle and stop drifting on image count or source resolution.
 - Reserve the Toolbench Samples capability slot with a loading placeholder until live/synthetic probe results settle so the tab does not reflow through intermediate action stacks.
 - Route Toolbench single-sample hydration through a dedicated single-review reset path instead of piecemeal image and field setters, so old OCR/report state cannot leak into the next sample.
 - Keep non-warning capitalization differences as normal matches. Only the government warning diff keeps a dedicated wrong-capitalization surface.

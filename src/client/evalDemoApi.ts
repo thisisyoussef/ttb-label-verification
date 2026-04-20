@@ -33,6 +33,11 @@ export const evalPacksResponseSchema = z.object({
 
 export type EvalPackImage = z.infer<typeof evalPackImageSchema>;
 export type EvalPack = z.infer<typeof evalPackSchema>;
+export type LoadedEvalPackFiles = {
+  pack: EvalPack;
+  csvFile: File;
+  imageFiles: File[];
+};
 
 export async function fetchEvalPacks(signal?: AbortSignal): Promise<EvalPack[]> {
   const response = await fetch('/api/eval/packs', { signal });
@@ -51,9 +56,7 @@ async function fetchPackCsvBlob(packId: string): Promise<Blob> {
 }
 
 async function fetchImageFile(image: EvalPackImage): Promise<File> {
-  const response = await fetch(
-    `/api/eval/label-image/${image.source}/${encodeURIComponent(image.filename)}`
-  );
+  const response = await fetch(imageUrlFor(image));
   if (!response.ok) {
     throw new Error(`Failed to load image "${image.filename}".`);
   }
@@ -67,6 +70,34 @@ export function imageUrlFor(image: EvalPackImage): string {
   return `/api/eval/label-image/${image.source}/${encodeURIComponent(
     image.filename
   )}`;
+}
+
+export async function loadEvalPackFiles(
+  packId: string
+): Promise<LoadedEvalPackFiles> {
+  const pack = (await fetchEvalPacks()).find((entry) => entry.id === packId);
+  if (!pack) {
+    throw new Error(`Eval pack "${packId}" is unavailable.`);
+  }
+
+  const csvBlob = await fetchPackCsvBlob(pack.id);
+  const csvFile = new File([csvBlob], pack.csvFile, { type: 'text/csv' });
+  const imageResults = await Promise.all(
+    pack.images.map(async (image) => {
+      try {
+        return await fetchImageFile(image);
+      } catch {
+        return null;
+      }
+    })
+  );
+  const imageFiles = imageResults.filter((file): file is File => file !== null);
+
+  if (imageFiles.length === 0) {
+    throw new Error(`No images could be fetched from "${packId}".`);
+  }
+
+  return { pack, csvFile, imageFiles };
 }
 
 export type PreparedEvalRun = {
