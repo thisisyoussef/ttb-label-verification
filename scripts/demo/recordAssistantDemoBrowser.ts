@@ -1,7 +1,66 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { chromium, type Locator, type Page } from 'playwright';
 import type { DemoConfig } from './recordAssistantDemoConfig';
+
+interface DemoLocator {
+  click(options?: Record<string, unknown>): Promise<void>;
+  count(): Promise<number>;
+  fill(value: string): Promise<void>;
+  first(): DemoLocator;
+  isVisible(): Promise<boolean>;
+  locator(selector: string, options?: Record<string, unknown>): DemoLocator;
+  nth(index: number): DemoLocator;
+  scrollIntoViewIfNeeded(): Promise<void>;
+  selectOption(value: string): Promise<void>;
+  waitFor(options?: Record<string, unknown>): Promise<void>;
+}
+
+interface DemoPage {
+  goto(url: string): Promise<void>;
+  getByLabel(text: string): DemoLocator;
+  getByPlaceholder(text: string): DemoLocator;
+  getByRole(role: string, options?: Record<string, unknown>): DemoLocator;
+  getByText(text: string | RegExp): DemoLocator;
+  keyboard: {
+    press(key: string): Promise<void>;
+  };
+  locator(selector: string, options?: Record<string, unknown>): DemoLocator;
+  waitForFunction(
+    callback: () => unknown | Promise<unknown>,
+    options?: Record<string, unknown>
+  ): Promise<void>;
+  waitForLoadState(state?: string): Promise<void>;
+}
+
+interface DemoBrowserContext {
+  close(): Promise<void>;
+  newPage(): Promise<DemoPage>;
+}
+
+interface DemoBrowser {
+  close(): Promise<void>;
+  newContext(options: Record<string, unknown>): Promise<DemoBrowserContext>;
+}
+
+interface PlaywrightModule {
+  chromium: {
+    launch(options: Record<string, unknown>): Promise<DemoBrowser>;
+  };
+}
+
+async function loadPlaywright(): Promise<PlaywrightModule> {
+  try {
+    return (await import('playwright')) as PlaywrightModule;
+  } catch {}
+
+  try {
+    return (await import('playwright-core')) as PlaywrightModule;
+  } catch {}
+
+  throw new Error(
+    'Demo recorder requires Playwright at runtime. Install `playwright` or `playwright-core` before running `npm run demo:record`.'
+  );
+}
 
 function detectLatest<T extends { name: string; mtimeMs: number }>(files: T[]) {
   let latest = files[0];
@@ -19,14 +78,14 @@ function sleep(ms: number) {
   });
 }
 
-async function clickIfVisible(locator: Locator) {
+async function clickIfVisible(locator: DemoLocator) {
   const isVisible = await locator.isVisible().catch(() => false);
   if (!isVisible) return false;
   await locator.click({ timeout: 7000 }).catch(() => undefined);
   return true;
 }
 
-async function waitForAppReady(page: Page) {
+async function waitForAppReady(page: DemoPage) {
   await page.waitForLoadState('networkidle');
   await page.waitForFunction(() => document.readyState === 'complete');
   await page.waitForFunction(async () => {
@@ -37,7 +96,11 @@ async function waitForAppReady(page: Page) {
   });
 }
 
-async function openToolbench(page: Page, waits: DemoConfig['waits'], tabName = 'Samples') {
+async function openToolbench(
+  page: DemoPage,
+  waits: DemoConfig['waits'],
+  tabName = 'Samples'
+) {
   await page
     .getByRole('button', { name: /toolbench/i })
     .click({ timeout: 8000 })
@@ -52,7 +115,7 @@ async function openToolbench(page: Page, waits: DemoConfig['waits'], tabName = '
   }
 }
 
-async function closeToolbench(page: Page, waits: DemoConfig['waits']) {
+async function closeToolbench(page: DemoPage, waits: DemoConfig['waits']) {
   const closeButton = page.getByRole('button', {
     name: /close toolbench/i
   });
@@ -64,7 +127,11 @@ async function closeToolbench(page: Page, waits: DemoConfig['waits']) {
   await sleep(waits.short);
 }
 
-async function setExtractionMode(page: Page, waits: DemoConfig['waits'], useCloud = true) {
+async function setExtractionMode(
+  page: DemoPage,
+  waits: DemoConfig['waits'],
+  useCloud = true
+) {
   await openToolbench(page, waits, 'Actions');
   await sleep(waits.medium);
 
@@ -80,7 +147,7 @@ async function setExtractionMode(page: Page, waits: DemoConfig['waits'], useClou
   await closeToolbench(page, waits);
 }
 
-async function loadSpecificLabel(page: Page, labelRegex: RegExp) {
+async function loadSpecificLabel(page: DemoPage, labelRegex: RegExp) {
   const button = page.locator('button', {
     hasText: labelRegex
   }).first();
@@ -99,8 +166,8 @@ type SingleReviewState =
   | 'back-to-batch'
   | 'other';
 
-async function detectSingleReviewState(page: Page): Promise<SingleReviewState> {
-  const stateChecks: Array<[SingleReviewState, Locator]> = [
+async function detectSingleReviewState(page: DemoPage): Promise<SingleReviewState> {
+  const stateChecks: Array<[SingleReviewState, DemoLocator]> = [
     ['results', page.getByRole('button', { name: /New Review/i })],
     ['local-unavailable', page.getByRole('button', { name: /Switch to Cloud/i })],
     ['retry', page.getByRole('button', { name: /Try again/i })],
@@ -127,7 +194,7 @@ async function detectSingleReviewState(page: Page): Promise<SingleReviewState> {
   return 'other';
 }
 
-async function waitForSingleResult(page: Page, timeoutMs = 220000) {
+async function waitForSingleResult(page: DemoPage, timeoutMs = 220000) {
   const started = Date.now();
   while (true) {
     const state = await detectSingleReviewState(page);
@@ -142,7 +209,7 @@ async function waitForSingleResult(page: Page, timeoutMs = 220000) {
 }
 
 async function resolveSingleReviewTerminal(
-  page: Page,
+  page: DemoPage,
   waits: DemoConfig['waits']
 ) {
   let state = await waitForSingleResult(page);
@@ -185,7 +252,7 @@ async function resolveSingleReviewTerminal(
   throw new Error('Could not settle single-review terminal state.');
 }
 
-async function openFirstEvidenceRows(page: Page, count = 5) {
+async function openFirstEvidenceRows(page: DemoPage, count = 5) {
   const buttons = page.getByRole('button', { name: /Show evidence/i });
   const found = await buttons.count();
   const targetCount = Math.min(count, found);
@@ -197,7 +264,7 @@ async function openFirstEvidenceRows(page: Page, count = 5) {
   }
 }
 
-async function closeEvidenceRows(page: Page) {
+async function closeEvidenceRows(page: DemoPage) {
   const hideButtons = page.getByRole('button', { name: /Hide evidence/i });
   const count = await hideButtons.count();
 
@@ -208,7 +275,7 @@ async function closeEvidenceRows(page: Page) {
   }
 }
 
-async function returnToSingleStart(page: Page, waits: DemoConfig['waits']) {
+async function returnToSingleStart(page: DemoPage, waits: DemoConfig['waits']) {
   if (await clickIfVisible(page.getByRole('button', { name: /New Review/i }))) {
     await sleep(waits.short);
     return;
@@ -232,11 +299,11 @@ async function returnToSingleStart(page: Page, waits: DemoConfig['waits']) {
   }
 }
 
-async function waitForBatchTerminal(page: Page) {
+async function waitForBatchTerminal(page: DemoPage) {
   await page.getByText('Batch review complete').waitFor({ timeout: 220000 });
 }
 
-async function openDashboard(page: Page) {
+async function openDashboard(page: DemoPage) {
   const openDashboardButton = page.getByRole('button', {
     name: /Open Dashboard/i
   });
@@ -250,6 +317,7 @@ async function openDashboard(page: Page) {
 export async function runRecordedDemo(config: DemoConfig, rawDir: string) {
   await fs.mkdir(rawDir, { recursive: true });
 
+  const { chromium } = await loadPlaywright();
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     viewport: { width: 1920, height: 1080 },
