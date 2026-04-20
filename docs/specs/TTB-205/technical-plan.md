@@ -2,8 +2,8 @@
 
 ## Modules
 
-- `src/server/review-report.ts` — integrated comparison, rule, and recommendation builder.
-- `src/server/review-report.test.ts` — deterministic rule coverage.
+- `src/server/review/review-report.ts` — integrated comparison, rule, and recommendation builder.
+- `src/server/review/review-report.test.ts` — deterministic rule coverage.
 - `src/server/index.ts` — wire `/api/review` to extraction + warning + aggregation.
 - `src/server/index.test.ts` — route-level regression tests.
 

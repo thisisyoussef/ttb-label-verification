@@ -21,15 +21,15 @@ Keep the repo workflow disciplined but smaller, restore direct branch work as th
 - `docs/specs/PROJECT_STORY_INDEX.md`
 - `docs/specs/TTB-WF-003/*`
 - `.gitignore`
-- `scripts/story-branch.ts`
-- `scripts/story-branch-lib.ts`
-- `scripts/story-branch-lib.test.ts`
-- `scripts/bootstrap-local-env.ts`
-- `scripts/bootstrap-local-env.test.ts`
-- `scripts/check-source-size.ts`
-- `scripts/check-source-size-lib.ts`
-- `scripts/check-source-size-lib.test.ts`
-- `scripts/source-size-baseline.json`
+- `scripts/git/story-branch.ts`
+- `scripts/git/story-branch-lib.ts`
+- `scripts/git/story-branch-lib.test.ts`
+- `scripts/bootstrap/bootstrap-local-env.ts`
+- `scripts/bootstrap/bootstrap-local-env.test.ts`
+- `scripts/quality/check-source-size.ts`
+- `scripts/quality/check-source-size-lib.ts`
+- `scripts/quality/check-source-size-lib.test.ts`
+- `scripts/quality/source-size-baseline.json`
 
 ## Design
 
@@ -58,12 +58,12 @@ Keep the repo workflow disciplined but smaller, restore direct branch work as th
 ### Source-size waiver baseline
 
 - The repo currently has inherited files over the 500-line cap on `origin/main`.
-- `scripts/source-size-baseline.json` freezes those files at their current line counts.
+- `scripts/quality/source-size-baseline.json` freezes those files at their current line counts.
 - The guard should pass for unchanged inherited violations, fail when a baseline file grows, and fail for any new oversized file without a baseline entry.
 
 ### Branch closeout gate
 
-- `scripts/git-story-gate.ts` should accept the current branch in either the active tracker table or the closed-history table.
+- `scripts/git/git-story-gate.ts` should accept the current branch in either the active tracker table or the closed-history table.
 - This keeps the branch-name and description checks intact while allowing the final tracker-close commit and push to run through normal hooks.
 
 ## Testing strategy

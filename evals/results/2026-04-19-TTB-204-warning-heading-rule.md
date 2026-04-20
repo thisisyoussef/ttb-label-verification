@@ -60,15 +60,15 @@
 
 - Fixture-only or sanitized inputs: fixture-only unit inputs
 - `noPersistence` proof: no storage path changed; follow-up only touched validator aggregation and prompt wording
-- Prompt/provider provenance recorded: yes, via `src/server/review-prompt-policy.ts` coverage for the heading-boldness instruction
+- Prompt/provider provenance recorded: yes, via `src/server/review/review-prompt-policy.ts` coverage for the heading-boldness instruction
 
 ## Regressions
 
-- none in the targeted warning-validator slice; `npm run test -- src/server/government-warning-validator.test.ts`, `npm run build`, and `npm run gate:commit` stayed green for the bold-confidence follow-up
+- none in the targeted warning-validator slice; `npm run test -- src/server/validators/government-warning-validator.test.ts`, `npm run build`, and `npm run gate:commit` stayed green for the bold-confidence follow-up
 - repo-wide `npm run test` and `npm run typecheck` are currently blocked on the rebased `main` baseline by unrelated `langsmith/traceable`, `langsmith/wrappers`, and `langsmith/vitest` module-resolution failures outside the warning validator surface
 
 ## Follow-up
 
-- The earlier targeted mutation baseline on `src/server/government-warning-subchecks.ts` remains the last completed score (`51.57%` mutation score with survivors clustered around heading/legibility helper branches and string-level subcheck messages).
-- A fresh rerun on this follow-up (`npm run test:mutation -- --mutate "src/server/government-warning-subchecks.ts"`) was blocked by Stryker's initial dry run timing out in the unrelated `server deployment surfaces accepts a multipart review request and returns the integrated report` test, so this patch carries an explicit mutation waiver instead of pretending the rerun completed.
+- The earlier targeted mutation baseline on `src/server/validators/government-warning-subchecks.ts` remains the last completed score (`51.57%` mutation score with survivors clustered around heading/legibility helper branches and string-level subcheck messages).
+- A fresh rerun on this follow-up (`npm run test:mutation -- --mutate "src/server/validators/government-warning-subchecks.ts"`) was blocked by Stryker's initial dry run timing out in the unrelated `server deployment surfaces accepts a multipart review request and returns the integrated report` test, so this patch carries an explicit mutation waiver instead of pretending the rerun completed.
 - Run a broader fixture or live warning-route sweep after the current LangSmith module-resolution break on `main` is repaired.

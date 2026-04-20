@@ -35,7 +35,7 @@ This story does not change the shipped extraction prompt, validator logic, or ro
 
 ## Verification note
 
-- 2026-04-18 dry run: `npx tsx scripts/run-gemini-batch-extraction-benchmark.ts --dry-run --output evals/results/2026-04-18-TTB-EVAL-002-gemini-batch-dry-run.json`
+- 2026-04-18 dry run: `npx tsx scripts/evals/run-gemini-batch-extraction-benchmark.ts --dry-run --output evals/results/2026-04-18-TTB-EVAL-002-gemini-batch-dry-run.json`
 - Observed corpus size: `35` approved live cases (`28` `cola-cloud`, `7` `supplemental-generated`)
 - Estimated inline payload: `2,104,561` bytes against a `19,922,944` byte ceiling
 - Live provider submission intentionally not run as part of the default verification path for this story

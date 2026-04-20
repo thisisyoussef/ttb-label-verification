@@ -3,8 +3,8 @@ import { afterEach, describe, expect, test } from 'vitest';
 import {
   REVIEW_EXTRACTION_MODE,
   REVIEW_EXTRACTION_PROVIDER
-} from '../../src/server/llm-policy';
-import { resolveReviewPromptPolicy } from '../../src/server/review-prompt-policy';
+} from '../../src/server/llm/llm-policy';
+import { resolveReviewPromptPolicy } from '../../src/server/review/review-prompt-policy';
 import {
   extractionEndpointCases,
   type ExtractionEndpointCase,

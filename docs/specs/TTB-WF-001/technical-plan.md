@@ -12,8 +12,8 @@ Add the checked-in workflow layer under `docs/process/` and `.ai/`, then connect
 - Update `.ai/agents/claude.md`
 - Add `.github/pull_request_template.md`
 - Add `.github/workflows/auto-open-story-prs.yml`
-- Update `scripts/git-story-gate.ts`
-- Add `scripts/install-git-hooks.ts`
+- Update `scripts/git/git-story-gate.ts`
+- Add `scripts/bootstrap/install-git-hooks.ts`
 - Add `.githooks/pre-commit`
 - Add `.githooks/pre-push`
 - Update `package.json`

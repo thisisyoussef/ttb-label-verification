@@ -37,7 +37,7 @@ Generation notes:
 
 - source: Gemini image generation via the Google GenAI SDK
 - default model in the helper script: `gemini-3.1-flash-image-preview`
-- helper script: `scripts/generate-live-label-assets.ts`
+- helper script: `scripts/data/generate-live-label-assets.ts`
 
 Important caveats:
 

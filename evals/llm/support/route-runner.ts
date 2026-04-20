@@ -7,7 +7,7 @@ import {
 import {
   createOpenAIReviewExtractor,
   type ReviewExtractionConfig
-} from '../../../src/server/openai-review-extractor';
+} from '../../../src/server/extractors/openai-review-extractor';
 import {
   buildLabelFile,
   cleanupTestResources,
@@ -23,7 +23,7 @@ import {
   serverUrl,
   startServer
 } from '../../../src/server/index.test-helpers';
-import type { ReviewLatencySummary } from '../../../src/server/review-latency';
+import type { ReviewLatencySummary } from '../../../src/server/review/review-latency';
 import type {
   BatchEndpointCase,
   ExtractionEndpointCase,

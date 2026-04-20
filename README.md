@@ -4,6 +4,12 @@ TTB Label Verification is a standalone proof-of-concept for the take-home brief:
 
 Live demo: [Production](https://ttb-label-verification-production-f17b.up.railway.app) | [Staging](https://ttb-label-verification-staging.up.railway.app)
 
+## Abstract
+
+This submission treats the brief as a workflow and trust problem, not just a multimodal extraction demo. Gemini, OpenAI Responses, or local Qwen/Ollama paths extract structured facts; OCR and warning-specific checks contribute independent evidence; deterministic TypeScript validators decide the report; and the UI stays evidence-first so the reviewer keeps the final judgment. That is the central trade: lower false certainty and better reviewer trust, even when it means more `Needs review` outcomes on ambiguous labels.
+
+The repo is also built to be evaluated, not just run. The README, architecture notes, evaluator guide, regulatory mapping, eval results, and demo script now act as one submission pack. They connect the stakeholder brief to concrete technical choices: COLA Cloud-backed dataset collection, a checked-in GoldenSet, spec-driven story packets, test-driven contracts and validators, trace-driven model tuning, local mode for government/firewall deployments, and a reviewer-friendly source layout that makes the engineering story easy to inspect.
+
 ## Why This Prototype Looks The Way It Does
 
 The assignment pressure is not generic “build an AI app” pressure. It is a very specific operational shape:
@@ -18,7 +24,7 @@ That is why the system is built around four product bets:
 
 1. **AI extracts; deterministic rules judge.**
 2. **Time-to-first-answer matters more than clever orchestration.**
-3. **The UI should feel trustworthy to both Dave and Jenny.**
+3. **The UI should feel trustworthy across reviewer experience levels and tech comfort ranges.**
 4. **The deployment story has to make sense in a government-style environment.**
 
 ## What An Assessor Should Look At
@@ -42,7 +48,7 @@ The full screenshot-backed walkthrough lives in [docs/EVALUATOR_GUIDE.md](docs/E
 
 <p align="center">
   <img src="docs/screenshots/toolbench-intake.png" alt="Toolbench loading a sample into the single-review intake" width="48%" />
-  <img src="docs/screenshots/results-review.png" alt="Results screen with evidence rows and refine activity" width="48%" />
+  <img src="docs/screenshots/results-review-fresh.png" alt="Fresh single-review results screen with evidence expanded and no obstructing popovers" width="48%" />
 </p>
 
 ## Architecture Summary
@@ -113,16 +119,24 @@ sequenceDiagram
 
 Implementation seams:
 
-- server route: [`src/server/register-review-routes.ts`](src/server/register-review-routes.ts)
+- server route: [`src/server/routes/register-review-routes.ts`](src/server/routes/register-review-routes.ts)
 - client request helper: [`src/client/appReviewApi.ts`](src/client/appReviewApi.ts)
 - client orchestration: [`src/client/useSingleReviewFlow.ts`](src/client/useSingleReviewFlow.ts)
 - row merge logic: [`src/client/useRefineReview.ts`](src/client/useRefineReview.ts)
+
+## Code Layout
+
+- `src/client/` stays UI-first and mostly flat so interaction work is easy to scan.
+- `src/server/` now keeps only composition roots at the top level. Runtime code is grouped into shallow concern folders: `routes/`, `batch/`, `extractors/`, `review/`, `validators/`, `llm/`, `anchors/`, and `synthetic/`, alongside the existing `taxonomy/` and `testing/` areas.
+- `scripts/` is organized by job instead of as one long shelf of utilities: `bootstrap/`, `git/`, `stitch/`, `quality/`, `data/`, `evals/`, `local/`, and `demo/`.
+- The goal of that split is reviewer speed: top-level directories now answer “where do I start?” without burying the actual entrypoints behind deep nesting or barrel files.
 
 ## Perceived Latency vs Actual Latency
 
 Latency is the adoption gate in the stakeholder interviews, so the prototype treats it as both a systems problem and a product problem.
 
-- the runtime contract currently advertises `latencyBudgetMs: 4000`
+- the best measured clean single-label trace landed around `4.36s` total, with roughly `4.35s` of that spent waiting on the provider
+- the broader 28-label production-style run averaged about `5.2s`, which is why the docs separate contractual target from observed tail behavior on ambiguous labels
 - the dominant cost is still provider wait time, not deterministic validation
 - the app therefore tackles both **actual latency** and **perceived latency**
 
@@ -131,18 +145,18 @@ Latency is the adoption gate in the stakeholder interviews, so the prototype tre
 | Tactic | What the reviewer experiences | Where it lives |
 | --- | --- | --- |
 | OCR preview | partial fields such as ABV, net contents, class, country, and warning presence appear while the full review is still running | [`src/client/useOcrPreview.ts`](src/client/useOcrPreview.ts), [`/api/review/stream?only=ocr`](src/client/appReviewApi.ts) |
-| Extraction prefetch | image upload starts extraction during form-fill time, so Verify can skip the expensive extract step later | [`src/client/useExtractionPrefetch.ts`](src/client/useExtractionPrefetch.ts), [`/api/review/extract-only`](src/server/register-review-routes.ts) |
+| Extraction prefetch | image upload starts extraction during form-fill time, so Verify can skip the expensive extract step later | [`src/client/useExtractionPrefetch.ts`](src/client/useExtractionPrefetch.ts), [`/api/review/extract-only`](src/server/routes/register-review-routes.ts) |
 | Speculative full prefetch | when the user pauses on a stable input, the client can pre-run the full review in the background and consume a cache hit at Verify time | [`src/client/useSpeculativePrefetch.ts`](src/client/useSpeculativePrefetch.ts) |
-| Silent refine | the second-pass verification happens after the first answer lands, so borderline rows can improve without delaying the first render | [`src/client/useRefineReview.ts`](src/client/useRefineReview.ts), [`/api/review/refine`](src/server/register-review-routes.ts) |
+| Silent refine | the second-pass verification happens after the first answer lands, so borderline rows can improve without delaying the first render | [`src/client/useRefineReview.ts`](src/client/useRefineReview.ts), [`/api/review/refine`](src/server/routes/register-review-routes.ts) |
 
 ### How the app tackles actual latency
 
 | Tactic | Why it helps | Where it lives |
 | --- | --- | --- |
-| Parallel fanout | OCR prepass, warning OCV, VLM extraction, and anchor search run together instead of serially | [`src/server/llm-trace.ts`](src/server/llm-trace.ts) |
+| Parallel fanout | OCR prepass, warning OCV, VLM extraction, and anchor search run together instead of serially | [`src/server/llm/llm-trace.ts`](src/server/llm/llm-trace.ts) |
 | Boot warmup | primes Tesseract, sharp, OCR pipeline, and optional model/network connections before traffic starts | [`src/server/boot-warmup.ts`](src/server/boot-warmup.ts), [`src/server/index.ts`](src/server/index.ts) |
-| Fast-fail fallback window | provider fallback is only attempted if the primary path fails quickly enough to still be worth it | [`src/server/review-latency.ts`](src/server/review-latency.ts), [`src/server/review-fallback-executor.ts`](src/server/review-fallback-executor.ts) |
-| Stage-level timing | every request can emit a structured latency summary for diagnosis instead of anecdotal “it felt slow” reports | [`src/server/review-latency.ts`](src/server/review-latency.ts) |
+| Fast-fail fallback window | provider fallback is only attempted if the primary path fails quickly enough to still be worth it | [`src/server/review/review-latency.ts`](src/server/review/review-latency.ts), [`src/server/review/review-fallback-executor.ts`](src/server/review/review-fallback-executor.ts) |
+| Stage-level timing | every request can emit a structured latency summary for diagnosis instead of anecdotal “it felt slow” reports | [`src/server/review/review-latency.ts`](src/server/review/review-latency.ts) |
 
 ### Latency decisions the prototype deliberately rejected
 
@@ -352,24 +366,14 @@ The exhaustive checked-in example is [`.env.example`](.env.example). The tables 
 | `VITE_ENABLE_EVAL_DEMO` | expose evaluator demo route | `1` in dev |
 | `VITE_ENABLE_TOOLBENCH` | expose developer toolbench | optional |
 
-### Story / UI workflow tooling
+### Evidence corpus and quality gates
 
-These are not required for runtime review, but they are documented in the repo and surfaced in `.env.example`.
-
-| Variable | Purpose |
-| --- | --- |
-| `STITCH_FLOW_MODE` | Claude/Stitch workflow mode |
-| `STITCH_API_KEY` | Stitch API key |
-| `STITCH_ACCESS_TOKEN` | Stitch access token |
-| `STITCH_PROJECT_ID` | Stitch project id |
-| `STITCH_PROJECT_TITLE` | Stitch project display name |
-| `STITCH_MODEL_ID` | Stitch model id |
-| `STITCH_DEVICE_TYPE` | Stitch device target |
-| `STITCH_AUTOMATION_REVIEW_REQUIRED` | require human review for Stitch automation |
-| `STITCH_GENERATION_TIMEOUT_MS` | Stitch generation timeout |
-| `STITCH_DOWNLOAD_TIMEOUT_MS` | Stitch download timeout |
-| `STITCH_POLL_INTERVAL_MS` | Stitch poll interval |
-| `STITCH_POLL_TIMEOUT_MS` | Stitch poll timeout |
+- Current local verification on this branch: `99` test files and `579` passing tests, plus `npm run typecheck`, `npm run build`, and `npm run guard:source-size`.
+- `evals/golden/manifest.json` is the canonical GoldenSet. It tracks the core-six smoke slice, the latency-twenty slice, cross-field dependencies, warning edge cases, batch cases, and failure-handling scenarios.
+- `evals/labels/manifest.json` is the live image-backed quick subset used for faster smoke runs when a full GoldenSet pass is unnecessary.
+- Public real-label coverage is assembled from COLA Cloud using [`scripts/data/fetch-cola-cloud-labels.ts`](scripts/data/fetch-cola-cloud-labels.ts), [`scripts/data/generate-cola-cloud-batch-fixtures.ts`](scripts/data/generate-cola-cloud-batch-fixtures.ts), and related helpers, then strengthened with synthetic negative cases via [`scripts/data/generate-supplemental-negative-labels.ts`](scripts/data/generate-supplemental-negative-labels.ts).
+- Delivery is intentionally disciplined: spec-driven story packets define the scope, TDD guards contracts and validators, and trace-driven development is used for prompt and model tuning where deterministic tests are not enough.
+- Codex owns the engineering lane and cloud/runtime integration; optional Claude/Stitch workflow tooling remains documented in process docs instead of being mixed into the runtime review path.
 
 ## Running Tests And Evals
 
@@ -392,6 +396,7 @@ Useful supporting docs:
 
 - [Eval Results](docs/EVAL_RESULTS.md)
 - [Evaluator Guide](docs/EVALUATOR_GUIDE.md)
+- [Demo Video Script](docs/DEMO_VIDEO_SCRIPT.md)
 - [Trace-Driven Development](docs/process/TRACE_DRIVEN_DEVELOPMENT.md)
 - [Test Quality Standard](docs/process/TEST_QUALITY_STANDARD.md)
 
@@ -429,6 +434,7 @@ scripts/                     Eval helpers, bootstrap, stage-timing tools
 - [ARCHITECTURE.md](ARCHITECTURE.md): directory map, domain groupings, where each concern lives
 - [CONTRIBUTING.md](CONTRIBUTING.md): on-ramp for new contributors (humans and agents)
 - [Evaluator Guide](docs/EVALUATOR_GUIDE.md): screenshot-backed reviewer test script and Toolbench walkthrough
+- [Demo Video Script](docs/DEMO_VIDEO_SCRIPT.md): 5-8 minute submission walkthrough aligned to the evaluation criteria
 - [Government Warning](docs/GOVERNMENT_WARNING.md): the most detailed single-rule deep dive
 - [Regulatory Mapping](docs/REGULATORY_MAPPING.md): CFR-to-code traceability
 - [Eval Results](docs/EVAL_RESULTS.md): model and pipeline evidence

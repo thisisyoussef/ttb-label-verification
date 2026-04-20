@@ -77,8 +77,8 @@ For trace-driven stories, add or update:
 
 ```bash
 npm run eval:golden
-npx vitest run src/server/review-relevance.test.ts
-npx tsx scripts/stage-timings.ts --route review --fixture perfect-spirit-label
+npx vitest run src/server/review/review-relevance.test.ts
+npx tsx scripts/evals/stage-timings.ts --route review --fixture perfect-spirit-label
 ```
 
 5. Inspect local evidence

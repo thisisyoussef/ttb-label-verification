@@ -2,8 +2,8 @@ import { traceable } from '../../../src/server/trace-runtime';
 
 import {
   REVIEW_EXTRACTION_PROVIDER
-} from '../../../src/server/llm-policy';
-import { resolveReviewPromptPolicy } from '../../../src/server/review-prompt-policy';
+} from '../../../src/server/llm/llm-policy';
+import { resolveReviewPromptPolicy } from '../../../src/server/review/review-prompt-policy';
 import type { RawReviewModelOutput } from '../../../src/server/testing/llm-fixture-builders';
 
 type FixtureParseRequest = {

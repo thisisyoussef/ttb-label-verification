@@ -7,7 +7,7 @@
 ## Commands
 
 ```bash
-npx vitest run src/server/review-relevance.test.ts src/client/singleReviewFlowSupport.test.ts src/client/ReviewRelevanceBanner.test.tsx
+npx vitest run src/server/review/review-relevance.test.ts src/client/singleReviewFlowSupport.test.ts src/client/ReviewRelevanceBanner.test.tsx
 npm run typecheck
 npm run build
 npm run eval:golden
@@ -34,9 +34,9 @@ This follow-up does not change warning-route logic.
 
 `npm run test` still fails in unrelated long-running and anchor-focused suites outside this relevance follow-up:
 
-- `src/server/llm-trace.test.ts`
+- `src/server/llm/llm-trace.test.ts`
 - `src/server/index.provider-routing.test.ts`
-- `src/server/review-pipeline.e2e.test.ts`
-- `src/server/anchor-field-track.e2e.test.ts`
+- `src/server/review/review-pipeline.e2e.test.ts`
+- `src/server/anchors/anchor-field-track.e2e.test.ts`
 
 Those failures were not introduced by this quick-scan change set.

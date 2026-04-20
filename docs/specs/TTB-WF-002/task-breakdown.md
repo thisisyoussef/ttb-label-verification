@@ -16,7 +16,7 @@
 
 - Objective: reduce orchestration-file size by extracting batch workflow and batch session helpers
 - Dependency: `must-have`
-- Validation: `src/client/useBatchWorkflow.ts` and `src/server/batch-session.ts` become composition-oriented modules with helper extraction and passing tests
+- Validation: `src/client/useBatchWorkflow.ts` and `src/server/batch/batch-session.ts` become composition-oriented modules with helper extraction and passing tests
 
 ## Task 4
 

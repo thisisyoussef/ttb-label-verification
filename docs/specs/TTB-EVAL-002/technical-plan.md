@@ -6,20 +6,20 @@ Add a cost-optimized, eval-only Gemini Batch runner for the approved live extrac
 
 ## Modules and files
 
-- `scripts/run-gemini-batch-extraction-benchmark.ts`
+- `scripts/evals/run-gemini-batch-extraction-benchmark.ts`
   - CLI entrypoint
   - loads repo-local env
   - resolves allowed corpus manifests
   - submits/polls/deletes Gemini Batch jobs
   - writes result artifacts under `evals/results/`
-- `scripts/gemini-batch-extraction.ts`
+- `scripts/evals/gemini-batch-extraction.ts`
   - pure helpers for:
     - corpus loading
     - request assembly
     - inline-size estimation
     - batch response parsing
     - aggregate metric calculation
-- `scripts/gemini-batch-extraction.test.ts`
+- `scripts/evals/gemini-batch-extraction.test.ts`
   - RED/GREEN coverage for helper seams
 - `docs/specs/TTB-EVAL-002/*`
   - packet and privacy notes
@@ -30,10 +30,10 @@ Add a cost-optimized, eval-only Gemini Batch runner for the approved live extrac
 
 ## Reused contracts and exemplars
 
-- Reuse `buildGeminiReviewExtractionRequest()` from `src/server/gemini-review-extractor.ts` for prompt/config parity.
-- Reuse `reviewExtractionModelOutputSchema` and `normalizeReviewExtractionModelOutput()` from `src/server/review-extraction-model-output.ts`.
-- Mirror metric semantics from `scripts/run-cola-cloud-extraction-benchmark.ts`.
-- Keep corpus metadata aligned with `scripts/eval-corpus-types.ts`.
+- Reuse `buildGeminiReviewExtractionRequest()` from `src/server/extractors/gemini-review-extractor.ts` for prompt/config parity.
+- Reuse `reviewExtractionModelOutputSchema` and `normalizeReviewExtractionModelOutput()` from `src/server/extractors/review-extraction-model-output.ts`.
+- Mirror metric semantics from `scripts/evals/run-cola-cloud-extraction-benchmark.ts`.
+- Keep corpus metadata aligned with `scripts/evals/eval-corpus-types.ts`.
 
 ## Data flow
 

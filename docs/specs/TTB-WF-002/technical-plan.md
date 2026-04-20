@@ -2,7 +2,7 @@
 
 ## Scope
 
-Clean up the highest-complexity source files by extracting focused helpers and section components that follow patterns already present in the repo, then add a source-size guard that blocks new line-count debt while freezing inherited oversized files at checked-in allowances.
+Clean up the highest-complexity source files by extracting focused helpers and section components that follow patterns already present in the repo, then add a reviewer-oriented folder pass for the flattest server and script surfaces. The source-size guard still blocks new line-count debt and freezes inherited oversized files at checked-in allowances.
 
 ## Implemented modules and files
 
@@ -13,13 +13,15 @@ Clean up the highest-complexity source files by extracting focused helpers and s
 - `src/client/GuidedTourSpotlight.tsx` now delegates spotlight targeting and callout rendering to `src/client/useGuidedTourSpotlightTarget.ts` and `src/client/GuidedTourCallout.tsx`
 - `src/client/useSingleReviewFlow.ts` now delegates async request lifecycle and export shaping to `src/client/useSingleReviewPipeline.ts` and `src/client/single-review-export.ts`
 - `src/client/useBatchWorkflow.ts` now delegates live run/preflight/retry behavior to `src/client/batchWorkflowLive.ts`
-- `src/server/batch-session.ts` now delegates preflight/session construction and assignment resolution to `src/server/batch-session-preflight.ts` and `src/server/batch-session-assignments.ts`
-- `src/server/index.ts` now delegates route wiring to `src/server/register-app-routes.ts`, `src/server/register-review-routes.ts`, and `src/server/register-batch-routes.ts`
-- `scripts/check-source-size.ts` classifies warnings, new violations, baseline regressions, and baseline candidates for runtime/tooling files
-- `scripts/check-source-size-lib.ts` centralizes source-size classification logic
-- `scripts/check-source-size-lib.test.ts` covers inherited-baseline, regression, and new-violation behavior
-- `scripts/source-size-baseline.json` freezes inherited oversized files at checked-in allowances until follow-up cleanup lands
-- `scripts/git-story-gate.ts` and `package.json` wire the guard into `npm run gate:commit` and `npm run gate:push`
+- `src/server/batch/batch-session.ts` now delegates preflight/session construction and assignment resolution to `src/server/batch/batch-session-preflight.ts` and `src/server/batch/batch-session-assignments.ts`
+- `src/server/index.ts` now delegates route wiring to `src/server/routes/register-app-routes.ts`, `src/server/routes/register-review-routes.ts`, and `src/server/routes/register-batch-routes.ts`
+- `src/server/` now keeps only composition roots at the top level; review, extraction, validation, route wiring, anchor logic, and synthetic helpers live in shallow concern folders instead of one flat runtime layer
+- `scripts/quality/check-source-size.ts` classifies warnings, new violations, baseline regressions, and baseline candidates for runtime/tooling files
+- `scripts/quality/check-source-size-lib.ts` centralizes source-size classification logic
+- `scripts/quality/check-source-size-lib.test.ts` covers inherited-baseline, regression, and new-violation behavior
+- `scripts/quality/source-size-baseline.json` freezes inherited oversized files at checked-in allowances until follow-up cleanup lands
+- `scripts/git/git-story-gate.ts` and `package.json` wire the guard into `npm run gate:commit` and `npm run gate:push`
+- `scripts/` now routes entrypoints through grouped folders (`bootstrap`, `git`, `stitch`, `quality`, `data`, `evals`, `local`) so setup, evaluation, and repo-hygiene tools are separated by purpose
 
 ## Measured outcomes
 
@@ -29,17 +31,19 @@ Clean up the highest-complexity source files by extracting focused helpers and s
 - `src/client/help-tour-runtime.ts`: `395 -> 250`
 - `src/client/useSingleReviewFlow.ts`: `478 -> 283`
 - `src/client/useBatchWorkflow.ts`: `482 -> 344`
-- `src/server/batch-session.ts`: `496 -> 353`
+- `src/server/batch/batch-session.ts`: `496 -> 353`
 - `src/server/index.ts`: `443 -> 133`
+- `src/server/` top-level runtime files now read as `12` composition-root files plus named concern folders instead of a 100+-file flat layer
+- `scripts/` root is now folder-first rather than file-first, with package entrypoints updated to point into the grouped script areas
 - `npm run guard:source-size` now passes with no new violations or baseline regressions over 500 lines
-- 2026-04-19 baseline refresh removed entries that are back under the cap and raised `src/server/llm-trace.ts` to its current checked-in allowance (`595`)
+- 2026-04-19 baseline refresh removed entries that are back under the cap and raised `src/server/llm/llm-trace.ts` to its current checked-in allowance (`595`)
 
 ## Dependency boundaries
 
 - Keep UI components free of domain validation and transport normalization.
 - Keep orchestration roots focused on sequencing and delegate pure transforms or repeated interactions to helpers.
 - Prefer direct imports over new barrels.
-- Keep new helpers colocated in the existing flat `src/client` / `src/server` structure.
+- Keep the client mostly flat, but use shallow concern folders in `src/server/` and `scripts/` once top-level sprawl starts hiding composition roots.
 
 ## Risks and fallback
 

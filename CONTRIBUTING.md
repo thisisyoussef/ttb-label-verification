@@ -47,8 +47,8 @@ Your operating contract is [`AGENTS.md`](AGENTS.md). Key points:
 ### When you add a new field check
 
 1. Add a `judgeX` function under `src/server/judgment-*` with a CFR citation and a criticality tier.
-2. Add its id to `CHECK_TIER_MAP` in `src/server/judgment-scoring.ts`.
-3. Wire it into `src/server/review-report-field-checks.ts`.
+2. Add its id to `CHECK_TIER_MAP` in `src/server/validators/judgment-scoring.ts`.
+3. Wire it into `src/server/review/review-report-field-checks.ts`.
 4. Add fixtures to `evals/labels/` if the check needs end-to-end coverage.
 5. Add a golden-corpus case to the `cola-cloud-all` slice if the field is mandatory.
 

@@ -1,4 +1,3 @@
-import { REVIEW_LATENCY_BUDGET_MS } from '../shared/contracts/review';
 import type {
   CheckReview,
   DiffSegment,
@@ -38,14 +37,10 @@ export function countsFor(checks: CheckReview[], crossField: CheckReview[]) {
 }
 
 export function withReportDefaults(
-  report: Omit<
-    UIVerificationReport,
-    'mode' | 'latencyBudgetMs' | 'noPersistence'
-  >
+  report: Omit<UIVerificationReport, 'mode' | 'noPersistence'>
 ): UIVerificationReport {
   return {
     mode: 'single-label',
-    latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
     noPersistence: true,
     ...report
   };

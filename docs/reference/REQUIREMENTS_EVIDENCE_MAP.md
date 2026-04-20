@@ -57,29 +57,29 @@ Batch session data lives in a `Map<>` inside the Node process. A long-running pr
 
 | Layer | Location | What it proves |
 |---|---|---|
-| Internal constant | `review-base.ts:59` | `REVIEW_LATENCY_BUDGET_MS = 4000` (internal optimization target). |
-| Schema enforcement | `review-base.ts:251` | `latencyBudgetMs: z.number().int().positive().max(REVIEW_LATENCY_BUDGET_MS)` -- the response cannot declare a budget above 4000. |
-| Public contract | `FULL_PRODUCT_SPEC.md:21` | "keeping the public contract at `<= 5,000 ms`" |
+| Runtime contract | `review-base.ts` | The report payload no longer publishes `latencyBudgetMs`; latency is documented through measured evidence instead of a synthetic budget field. |
+| Measured single-label reference | `README.md` | Best clean single-label trace on this branch: about `4.36s` total with about `4.35s` in provider wait. |
+| Measured production-style reference | `EVAL_RESULTS.md` | 28-label production-style run averaged about `5.2s`. |
 | Gemini timeout | `gemini-review-extractor.ts:28` | `DEFAULT_GEMINI_TIMEOUT_MS = 5000` |
 | Gemini tuning | `SINGLE_SOURCE_OF_TRUTH.md` | TTB-209 locked winning profile: `gemini-2.5-flash-lite`, raster `low`, PDF `medium`, `thinkingBudget=0`. |
 | Latency observer | `review-latency.ts` (193 lines) | `ReviewLatencyCapture` class with stage-level timing: `intake-parse`, `provider-selection`, `request-assembly`, `provider-wait`, `fallback-handoff`, `deterministic-validation`, `report-shaping`. |
 | Fallback budget gate | `review-latency.ts:4` | `REVIEW_MAX_RETRYABLE_FALLBACK_ELAPSED_MS = 550` -- fallback only attempted if primary fails within 550ms. |
 | Latency corpus | `evals/labels/latency-twenty.manifest.json` | 20-case synthetic benchmark set for timing regression. |
-| Test | `review.test.ts:58` | `expect(report.latencyBudgetMs).toBeLessThanOrEqual(4000)` |
 
 ### Demo path
 
-Every `POST /api/review` response includes `latencyBudgetMs` in the payload. Stage-level timing is logged to the server console via `[ttb-latency]` JSON lines.
+The app no longer returns a fixed latency budget in `POST /api/review`. Instead, the user-facing story is documented through measured references, while stage-level timing is logged to the server console via `[ttb-latency]` JSON lines.
 
 ### Measured results
 
-- Gemini flash-lite typical range: **1.5s -- 4.5s** end-to-end depending on image complexity and API load.
+- Clean single-label reference: **4.36s** total, with provider wait dominating the trace.
+- Production-style 28-label reference: **5.2s average** across the checked-in run.
 - Deterministic validation adds **< 50ms** after extraction.
-- The tighter 4000ms internal target was not definitively proved across all conditions (TTB-209 finding). The public contract remains at 5000ms.
+- The 5-second target is therefore best treated as an evaluation goal, not a hard runtime promise.
 
 ### Tradeoff
 
-The 5-second budget is a monitoring contract, not a hard SLA. Real-world latency depends on Gemini API response time, which varies with load. The system monitors and reports per-request latency but cannot guarantee the target under API contention. The fallback path (OpenAI) adds ~1-3s if the primary path fails fast enough to attempt it.
+Real-world latency depends mainly on provider response time, which varies with image complexity and API load. The system measures and reports that behavior, but it does not guarantee a fixed SLA under contention. The fallback path (OpenAI) adds roughly 1-3 extra seconds when the primary path fails early enough to justify trying it, and local mode trades even more latency for a tighter network boundary.
 
 ---
 
@@ -253,7 +253,7 @@ All six have checked-in synthetic image assets under `evals/labels/assets/` and 
 | 1 | No persistence | `FULL_PRODUCT_SPEC.md:16` | `review-base.ts:252` `z.literal(true)`, `openai-review-extractor.ts:91` `store: false`, `batch-session.ts` `Map<>` | `/api/health` returns `store: false` | Enforced at schema level |
 | 2 | OpenAI `store: false` | `FULL_PRODUCT_SPEC.md:17` | `openai-review-extractor.ts:31,74,91` type + runtime + env gate | `/api/health` returns `store: false` | Adapter refuses to start if violated |
 | 3 | Gemini inline-only | `FULL_PRODUCT_SPEC.md:18` | `gemini-review-extractor.ts:123` `inlineData` | Gemini requests use no Files API | Enforced by request construction |
-| 4 | 5-second target | `FULL_PRODUCT_SPEC.md:19` | `review-base.ts:59` budget=4000, `review-latency.ts` observer, `gemini-review-extractor.ts:28` timeout=5000 | `latencyBudgetMs` in every response | Monitored; not guaranteed under API contention |
+| 4 | 5-second target | `FULL_PRODUCT_SPEC.md:19` | `review-latency.ts` observer, `gemini-review-extractor.ts:28` timeout=5000, measured references in `README.md` and `EVAL_RESULTS.md` | first answer appears quickly in UI; deeper timing is available via `[ttb-latency]` logs and checked-in eval runs | Monitored; not guaranteed under API contention |
 | 5 | Deterministic outcomes | `FULL_PRODUCT_SPEC.md:22` | `government-warning-validator.ts`, field comparators, recommendation aggregator | Expanding any check row shows deterministic evidence | Enforced by architecture |
 | 6 | Uncertain -> review | `FULL_PRODUCT_SPEC.md:23-24` | `government-warning-validator.ts:115,148,159` | Low-quality-image scenario shows `review` | Enforced in every validator path |
 | 7 | Batch support | `FULL_PRODUCT_SPEC.md:59-66` | `batch-session.ts`, `review-batch.ts`, 67 batch files | Batch tab: upload, match, progress, dashboard, drill-in, export | Working; capped at 50 |

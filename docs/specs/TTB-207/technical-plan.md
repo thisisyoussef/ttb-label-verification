@@ -6,23 +6,23 @@ Move the default cloud label-extraction path to Gemini-first while preserving th
 
 ## Planned modules and files
 
-- `src/server/gemini-review-extractor.ts`
+- `src/server/extractors/gemini-review-extractor.ts`
   - native Google GenAI SDK adapter for image/PDF extraction using structured JSON output
-- `src/server/gemini-review-extractor.test.ts`
+- `src/server/extractors/gemini-review-extractor.test.ts`
   - request-building, normalization, and provider-failure coverage
-- `src/server/review-extraction-model-output.ts`
+- `src/server/extractors/review-extraction-model-output.ts`
   - shared API-facing schema, prompt text, JSON-schema conversion, and normalization used by both cloud providers
-- `src/server/ai-provider-policy.ts`
+- `src/server/llm/ai-provider-policy.ts`
   - consume the `cloud` mode plus `label-extraction=gemini,openai` order and enforce fast-fail fallback rules
-- `src/server/review-extractor-factory.ts`
+- `src/server/extractors/review-extractor-factory.ts`
   - instantiate Gemini first, OpenAI second, classify retryable failures, and return the winning cloud provider
-- `src/server/openai-review-extractor.ts`
+- `src/server/extractors/openai-review-extractor.ts`
   - remain the fallback adapter with existing Responses + `store: false` behavior while sharing the same extraction schema/prompt layer
 - `src/server/index.ts`
   - route `/api/review`, `/api/review/extraction`, and `/api/review/warning` through the Gemini-primary cloud factory path
-- `src/server/batch-session.ts`
+- `src/server/batch/batch-session.ts`
   - inherit the same cloud-mode label-extraction provider order for item processing and trace metadata
-- `scripts/bootstrap-local-env.ts`
+- `scripts/bootstrap/bootstrap-local-env.ts`
   - add Gemini keys/models and provider-order defaults
 
 ## Provider choice
@@ -112,6 +112,6 @@ The repo's current upload cap is 10 MB, which fits under Gemini's documented PDF
 
 ## Evidence from implementation
 
-- Shared API-facing extraction schema/prompt logic now lives in `src/server/review-extraction-model-output.ts` and is reused by both Gemini and OpenAI adapters.
+- Shared API-facing extraction schema/prompt logic now lives in `src/server/extractors/review-extraction-model-output.ts` and is reused by both Gemini and OpenAI adapters.
 - Sanitized LangSmith traces on 2026-04-14 favored `gemini-2.5-flash-lite` over `gpt-5.4` on the generated PDF slice (roughly `4.4-5.3 s` for Gemini vs `9.9-11.6 s` for OpenAI) with equal-or-better present-field coverage.
 - The same day, the current `GEMINI_TIMEOUT_MS=3000` default produced retryable timeouts on sanitized clean PDF and PNG runs, so the provider cutover is implemented but not yet production-ready without the timing work in `TTB-208` and `TTB-209`.

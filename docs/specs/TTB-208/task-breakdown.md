@@ -2,12 +2,12 @@
 
 1. Define the latency span contract.
    - Objective: add the internal timing model and safe-summary rules for the review pipeline.
-   - Files: `src/server/review-latency.ts`, tests
+   - Files: `src/server/review/review-latency.ts`, tests
    - Validation: monotonic stage ordering, bounded metadata only
 
 2. Wire timing into the real route and batch seams.
    - Objective: capture stage timings for single-label routes and per-item batch execution.
-   - Files: `src/server/index.ts`, `src/server/batch-session.ts`, provider extractors
+   - Files: `src/server/index.ts`, `src/server/batch/batch-session.ts`, provider extractors
    - Validation: route and batch tests prove timing presence on success/fallback/error paths
 
 3. Publish the sub-4-second target envelope.

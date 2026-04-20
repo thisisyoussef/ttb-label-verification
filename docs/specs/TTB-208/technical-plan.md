@@ -6,19 +6,19 @@ Add the measurement and budgeting foundation required to tune the single-label p
 
 ## Planned modules and files
 
-- `src/server/review-latency.ts`
+- `src/server/review/review-latency.ts`
   - stage-span types
   - monotonic timer helpers
   - safe summary/redaction helpers for tests and evals
 - `src/server/index.ts`
   - route wiring for single-label timing capture
-- `src/server/batch-session.ts`
+- `src/server/batch/batch-session.ts`
   - per-item timing capture for batch execution
-- `src/server/gemini-review-extractor.ts`
+- `src/server/extractors/gemini-review-extractor.ts`
   - provider-attempt timing hooks on the primary path
-- `src/server/openai-review-extractor.ts`
+- `src/server/extractors/openai-review-extractor.ts`
   - provider-attempt timing hooks on the fallback path
-- `src/server/review-report.ts`
+- `src/server/review/review-report.ts`
   - timing handoff into eval/debug surfaces without changing the approved UI payload
 - `evals/results/*`
   - measured latency run artifacts

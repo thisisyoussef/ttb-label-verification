@@ -21,6 +21,6 @@
 
 ## Notes
 
-- Verified 2026-04-13 against `src/server/index.ts`, `src/server/openai-review-extractor.ts`, `src/server/review-extraction.ts`, and the corresponding test files.
+- Verified 2026-04-13 against `src/server/index.ts`, `src/server/extractors/openai-review-extractor.ts`, `src/server/extractors/review-extraction.ts`, and the corresponding test files.
 - The adapter packages PDFs as Base64 `input_file` data URLs and images as Base64 `input_image` data URLs, which keeps uploads in memory and avoids durable file IDs.
 - Config-failure coverage is carried by route and adapter tests that exercise the unconfigured-env path; the structured adapter error does not echo payload content.

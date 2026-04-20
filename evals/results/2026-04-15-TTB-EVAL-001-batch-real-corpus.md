@@ -1,7 +1,7 @@
 # TTB-EVAL-001 Batch Real Corpus Run
 
 Date: 2026-04-15
-Runner: `npx tsx scripts/run-cola-cloud-batch-fixtures.ts`
+Runner: `npx tsx scripts/evals/run-cola-cloud-batch-fixtures.ts`
 Fixture manifest: `evals/batch/cola-cloud/manifest.json`
 Raw output: `evals/results/2026-04-15-TTB-EVAL-001-batch-real-corpus.json`
 

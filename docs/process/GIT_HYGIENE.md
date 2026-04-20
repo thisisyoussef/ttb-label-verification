@@ -58,7 +58,7 @@ git worktree prune
 - Run `npm run gate:push` before reviewable pushes.
 - Run `npm run gate:publish` before claiming a branch is on GitHub.
 - `main` and `production` are integration branches, not story branches.
-- The source-size guard now freezes inherited oversized files at their checked-in line counts through `scripts/source-size-baseline.json`; new oversized files or growth beyond that baseline still fail the gate.
+- The source-size guard now freezes inherited oversized files at their checked-in line counts through `scripts/quality/source-size-baseline.json`; new oversized files or growth beyond that baseline still fail the gate.
 - The branch-tracker gate also accepts the current branch in closed history during that branch's own final closeout commit and push, so the tracker can be finalized without bypassing hooks.
 
 ## CI posture

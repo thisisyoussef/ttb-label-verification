@@ -7,7 +7,7 @@
 
 ## Surfaces introduced or changed
 
-- Pure validator: `src/server/government-warning-validator.ts`
+- Pure validator: `src/server/validators/government-warning-validator.ts`
 - Staging route: `POST /api/review/warning`
 - Shared payload shape: `CheckReview.warning` in `src/shared/contracts/review.ts`
 

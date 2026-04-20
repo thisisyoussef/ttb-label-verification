@@ -13,9 +13,9 @@ Low-contrast dark labels can still produce useful text, but the extractor may ov
 ## Commands
 
 ```bash
-npx vitest run src/server/review-extractor-guardrails.address-url.test.ts
-npx vitest run src/server/review-extractor-guardrails.address-url.test.ts src/server/review-extractor-guardrails.test.ts src/server/review-report.test.ts
-npx vitest run src/server/review-pipeline.e2e.test.ts
+npx vitest run src/server/extractors/review-extractor-guardrails.address-url.test.ts
+npx vitest run src/server/extractors/review-extractor-guardrails.address-url.test.ts src/server/extractors/review-extractor-guardrails.test.ts src/server/review/review-report.test.ts
+npx vitest run src/server/review/review-pipeline.e2e.test.ts
 npm run test
 npm run typecheck
 npm run build

@@ -31,7 +31,7 @@ The batch UI is only valuable once the backend can match files to rows, run boun
 ## Implementation summary
 
 - Added batch schemas and constants to `src/shared/contracts/review.ts` for preflight, streaming run frames, dashboard rows, export payloads, and retry/summary contracts.
-- Added `src/server/batch-csv.ts`, `src/server/batch-matching.ts`, and `src/server/batch-session.ts` to parse CSV uploads, build filename-first/order-fallback matching, keep session data in memory only, stream sequential batch execution, and assemble dashboard/export payloads from the existing single-label report builder.
+- Added `src/server/batch/batch-csv.ts`, `src/server/batch/batch-matching.ts`, and `src/server/batch/batch-session.ts` to parse CSV uploads, build filename-first/order-fallback matching, keep session data in memory only, stream sequential batch execution, and assemble dashboard/export payloads from the existing single-label report builder.
 - Extended `src/server/index.ts` with batch endpoints:
   - `POST /api/batch/preflight`
   - `POST /api/batch/run`

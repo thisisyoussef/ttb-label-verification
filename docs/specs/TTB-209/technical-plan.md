@@ -6,19 +6,19 @@ Use the timing foundation from `TTB-208` to tune the default Gemini path to its 
 
 ## Planned modules and files
 
-- `src/server/gemini-review-extractor.ts`
+- `src/server/extractors/gemini-review-extractor.ts`
   - low-latency primary-model profile experiments
   - media-resolution tuning if adopted
   - priority-tier support if adopted
-- `src/server/openai-review-extractor.ts`
+- `src/server/extractors/openai-review-extractor.ts`
   - lower-latency fallback profile experiments
   - priority-tier support if adopted
   - cache-friendly prompt structuring if adopted
-- `src/server/review-latency.ts`
+- `src/server/review/review-latency.ts`
   - deadline-aware fallback decisions based on remaining budget
 - `src/server/index.ts`
   - route-level budget and timeout policy observation
-- `src/server/batch-session.ts`
+- `src/server/batch/batch-session.ts`
   - tuned per-item budget handling
 - `src/shared/contracts/review-base.ts`
   - keep `latencyBudgetMs` at `5000` unless a later story proves a lower contract honestly
@@ -84,7 +84,7 @@ Use the timing foundation from `TTB-208` to tune the default Gemini path to its 
 
 ## 2026-04-14 implementation notes
 
-- Implemented request-profile tuning in `src/server/gemini-review-extractor.ts`:
+- Implemented request-profile tuning in `src/server/extractors/gemini-review-extractor.ts`:
   - raster labels now default to Gemini `mediaResolution=low`
   - PDFs now default to Gemini `mediaResolution=medium`
   - Gemini 2.5 Flash-family models now default to `thinkingBudget=0` unless explicitly overridden

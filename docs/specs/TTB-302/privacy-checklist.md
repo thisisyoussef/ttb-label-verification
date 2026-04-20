@@ -17,5 +17,5 @@
 
 ## Verification note
 
-- `src/server/register-batch-routes.ts` now marks preflight, run, cancel, summary, report, export, and retry responses as `cache-control: no-store`.
+- `src/server/routes/register-batch-routes.ts` now marks preflight, run, cancel, summary, report, export, and retry responses as `cache-control: no-store`.
 - Local browser verification on 2026-04-15 confirmed the batch privacy copy still renders on intake, processing, terminal, and dashboard surfaces.

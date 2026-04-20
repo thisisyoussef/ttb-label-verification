@@ -51,6 +51,6 @@
 ## 2026-04-19 counterpart reload follow-up
 
 - The original stored COLA corpus predated the shipped multi-image path, so many checked-in records still retained only the primary asset even when COLA Cloud exposed a counterpart image.
-- `scripts/fetch-cola-cloud-labels.ts` now supports refreshing the existing stored COLA ids in place, retaining up to two preferred assets per record and recording counterpart metadata (`secondaryAssetPath`, `secondaryImageUrl`) without rotating the corpus.
-- `scripts/generate-cola-cloud-batch-fixtures.ts` now emits `secondary_filename` in batch CSVs and flattens actual image cases with `sampleId` and `isSecondary`, so batch packs can upload every stored file while single-sample surfaces remain grouped by the original sample id.
+- `scripts/data/fetch-cola-cloud-labels.ts` now supports refreshing the existing stored COLA ids in place, retaining up to two preferred assets per record and recording counterpart metadata (`secondaryAssetPath`, `secondaryImageUrl`) without rotating the corpus.
+- `scripts/data/generate-cola-cloud-batch-fixtures.ts` now emits `secondary_filename` in batch CSVs and flattens actual image cases with `sampleId` and `isSecondary`, so batch packs can upload every stored file while single-sample surfaces remain grouped by the original sample id.
 - `/api/eval/sample` and the built-in Toolbench fallback now hydrate ordered `images` arrays from the refreshed stored files instead of collapsing back to one image.

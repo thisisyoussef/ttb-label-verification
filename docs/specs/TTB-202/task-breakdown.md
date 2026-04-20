@@ -4,10 +4,10 @@
    - Validation: packet includes feature, technical, privacy, and performance docs
 
 2. Add RED tests for optional application-data intake and normalization.
-   - Files: `src/server/index.test.ts`, `src/server/review-intake.test.ts`
+   - Files: `src/server/index.test.ts`, `src/server/review/review-intake.test.ts`
    - Validation: targeted Vitest run fails before implementation
 
-3. Extract request parsing and normalization into `src/server/review-intake.ts`.
+3. Extract request parsing and normalization into `src/server/review/review-intake.ts`.
    - Validation: targeted Vitest run passes
 
 4. Make standalone intake tolerate omitted `fields`, and omit that part from the client request when no application data exists if needed.

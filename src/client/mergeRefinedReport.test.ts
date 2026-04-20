@@ -35,7 +35,6 @@ function makeReport(checks: CheckReview[]): UIVerificationReport {
     counts: { pass, review, fail },
     checks,
     crossFieldChecks: [],
-    latencyBudgetMs: 4000,
     noPersistence: true,
     summary: 'Some fields need review.'
   };

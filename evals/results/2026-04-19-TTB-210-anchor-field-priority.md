@@ -23,8 +23,8 @@
 
 ## Commands run
 
-- `npx vitest run src/server/review-report-anchor-merge.test.ts src/server/review-pipeline.e2e.test.ts`
-- `npx vitest run src/server/anchor-field-track.e2e.test.ts src/server/review-report-alternative-reading.test.ts`
+- `npx vitest run src/server/review/review-report-anchor-merge.test.ts src/server/review/review-pipeline.e2e.test.ts`
+- `npx vitest run src/server/anchors/anchor-field-track.e2e.test.ts src/server/review/review-report-alternative-reading.test.ts`
 - `NODE_ENV=test npx tsx -e <fast-slice anchor stress A/B>`
 - `npm run test`
 - `npm run typecheck`

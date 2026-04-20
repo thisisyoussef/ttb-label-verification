@@ -18,7 +18,7 @@ Several client, server, and tooling files are nearing or already above the repo'
 
 ## Acceptance criteria
 
-1. No new file under `src/` or `scripts/` exceeds 500 lines, and any inherited oversized file is frozen in `scripts/source-size-baseline.json` at its checked-in allowance.
+1. No new file under `src/` or `scripts/` exceeds 500 lines, and any inherited oversized file is frozen in `scripts/quality/source-size-baseline.json` at its checked-in allowance.
 2. Large multi-responsibility files are split along existing architectural seams rather than by arbitrary naming churn.
 3. Shared drag/drop and picker behavior is extracted so the batch upload surfaces do not duplicate the same interaction logic.
 4. Batch workflow and batch session orchestration read as composition roots over helpers instead of as monolithic implementations.

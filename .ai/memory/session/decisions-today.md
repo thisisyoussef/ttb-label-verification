@@ -45,3 +45,8 @@
 - For the screenshot follow-up, use the live Toolbench-enabled local app as the capture source and document Toolbench explicitly as the fastest evaluator harness rather than burying it as a developer-only surface.
 - For the `TTB-203` inverse-contrast follow-up, treat a standalone geography that exactly matches `countryOfOrigin` or `appellation` as an applicant-address overcall and scrub it before report shaping.
 - Cover the low-contrast applicant-address regression at two seams: direct guardrail tests for the duplication rule and a real-label review-pipeline e2e using `supplemental-generated/uncorked-in-mayberry-low-contrast-review.webp`.
+- Use shallow concern folders for reviewer-facing repo cleanup: `src/server/` may group runtime code by domain and `scripts/` may group utilities by job, but avoid deep nesting and avoid barrel indirection.
+- Keep only true composition roots at the top of `src/server/`; everything else should live where a reviewer expects it from the filename (`routes`, `batch`, `extractors`, `review`, `validators`, `llm`, `anchors`, `synthetic`).
+- Let `package.json` own the public script entrypoints and keep the actual implementation files in grouped `scripts/*` folders so setup, eval, and repo-hygiene tooling do not share one flat layer.
+- Remove the synthetic `latencyBudgetMs` field from the visible review contract and point reviewers to measured latency references in the README, evaluator guide, architecture doc, and requirements evidence map instead.
+- Replace the stale results screenshot with a clean local Toolbench-enabled capture and upgrade the demo narration so it explicitly covers GoldenSet evidence, COLA Cloud sourcing, deterministic validation, local-mode tradeoffs, and the evaluation criteria.

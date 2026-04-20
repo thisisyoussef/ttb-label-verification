@@ -49,7 +49,7 @@
 - Letting an explicit `local` mode selection silently hop back to Gemini or OpenAI after a failure
 - Spending another model/provider round-trip just to decide whether an upload looks like a label before extraction starts, instead of using the existing OCR/local signal seam
 - Treating a fast relevance scan as a hard blocker that prevents the reviewer from continuing into the canonical review path
-- Flipping `latencyBudgetMs` from `5000` to `4000` before the optimized path is actually measured against the approved fixture slice
+- Re-introducing a made-up `latencyBudgetMs` field or tightening a latency claim before the optimized path is actually measured against the approved fixture slice
 - Treating explicit provider caching or raw timing logs as acceptable shortcuts to a faster path
 - Exposing internal latency summaries as a stable public route contract or including user-bearing content in those summaries
 - Embedding route-specific prompt strings directly in `/api/review`, `/api/review/extraction`, `/api/review/warning`, or batch code instead of routing through one shared prompt-policy module

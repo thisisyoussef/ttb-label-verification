@@ -52,16 +52,16 @@ Promote the existing live batch path to the primary runtime and shrink fixtures 
 - `src/client/appBatchPreflight.ts`
 - `src/client/AppShell.tsx`
 - `src/client/batch-runtime.ts`
-- `src/server/register-batch-routes.ts`
-- `src/server/batch-session.ts`
-- `src/server/batch-routes.test.ts`
+- `src/server/routes/register-batch-routes.ts`
+- `src/server/batch/batch-session.ts`
+- `src/server/batch/batch-routes.test.ts`
 - `src/shared/contracts/review-batch.ts`
 
 ### Dependent surfaces
 
 - `src/shared/contracts/help.ts`
 - `src/shared/help-fixture.ts`
-- `src/server/help-routes.test.ts`
+- `src/server/routes/help-routes.test.ts`
 - batch-related `data-tour-target` anchors in `src/client/AppShell.tsx`
 - batch packet and handoff docs:
   - `docs/specs/TTB-103/**`

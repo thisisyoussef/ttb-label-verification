@@ -55,7 +55,6 @@ describe('review contract', () => {
     const report = verificationReportSchema.parse(getSeedVerificationReport());
 
     expect(report.noPersistence).toBe(true);
-    expect(report.latencyBudgetMs).toBeLessThanOrEqual(4000);
     expect(report.verdict).toBe('review');
     expect(report.counts.review).toBeGreaterThan(0);
     expect(report.crossFieldChecks).toHaveLength(1);
@@ -148,7 +147,6 @@ describe('review contract', () => {
           citations: []
         }
       ],
-      latencyBudgetMs: 4000,
       noPersistence: true,
       summary: 'Standalone review preserves extraction evidence without application comparisons.'
     });
@@ -178,7 +176,6 @@ describe('review contract', () => {
       },
       checks: [],
       crossFieldChecks: [],
-      latencyBudgetMs: 4000,
       noPersistence: true,
       summary: 'No text could be extracted from the label.'
     });

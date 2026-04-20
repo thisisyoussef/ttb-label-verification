@@ -15,9 +15,9 @@ Primary grounding:
 - `docs/backlog/codex-handoffs/TTB-104.md`
 - `docs/backlog/codex-handoffs/TTB-105.md`
 - `src/server/index.ts`
-- `src/server/openai-review-extractor.ts`
-- `src/server/government-warning-validator.ts`
-- `src/server/review-report.ts`
+- `src/server/extractors/openai-review-extractor.ts`
+- `src/server/validators/government-warning-validator.ts`
+- `src/server/review/review-report.ts`
 - `src/shared/contracts/review.ts`
 
 ## Executive Summary
@@ -35,8 +35,8 @@ Primary grounding:
 | Product architecture | Single-package Vite/React + Express with shared Zod contracts | `README.md`, `docs/specs/FULL_PRODUCT_SPEC.md`, `src/shared/contracts/review.ts` |
 | Single-label UI | Intake, processing, results, standalone, no-text, warning evidence all implemented | `docs/backlog/codex-handoffs/TTB-101.md`, `docs/backlog/codex-handoffs/TTB-102.md`, `src/client/App.tsx` |
 | Single-label backend | Live `/api/review`, `/api/review/extraction`, `/api/review/warning` routes | `src/server/index.ts` |
-| Extraction | OpenAI Responses parse with `store: false`, structured output, image/PDF input support | `src/server/openai-review-extractor.ts` |
-| Deterministic validation | Government warning validator and report builder with beverage-specific checks | `src/server/government-warning-validator.ts`, `src/server/review-report.ts` |
+| Extraction | OpenAI Responses parse with `store: false`, structured output, image/PDF input support | `src/server/extractors/openai-review-extractor.ts` |
+| Deterministic validation | Government warning validator and report builder with beverage-specific checks | `src/server/validators/government-warning-validator.ts`, `src/server/review/review-report.ts` |
 | Batch UX | Upload, matching review, processing stream, dashboard shell, drill-in shell, export shell | `docs/backlog/codex-handoffs/TTB-103.md`, `docs/backlog/codex-handoffs/TTB-104.md`, `src/client/Batch*.tsx` |
 | Release/process harness | Story tracker, Git hygiene, Stitch automation, deployment flow, eval discipline | `docs/process/*.md`, `scripts/*.ts` |
 
@@ -208,11 +208,11 @@ The current server wiring goes beyond a simple stub:
 Key files:
 
 - `src/server/index.ts`
-- `src/server/review-intake.ts`
-- `src/server/openai-review-extractor.ts`
-- `src/server/review-extraction.ts`
-- `src/server/government-warning-validator.ts`
-- `src/server/review-report.ts`
+- `src/server/review/review-intake.ts`
+- `src/server/extractors/openai-review-extractor.ts`
+- `src/server/extractors/review-extraction.ts`
+- `src/server/validators/government-warning-validator.ts`
+- `src/server/review/review-report.ts`
 
 ### 3. Deterministic compliance work already present
 
@@ -228,7 +228,7 @@ Implemented rule/report logic already in the worktree:
 
 Key file:
 
-- `src/server/review-report.ts`
+- `src/server/review/review-report.ts`
 
 ### 4. Batch product surfaces already designed and implemented
 
@@ -269,8 +269,8 @@ Key files:
 - `docs/process/STITCH_AUTOMATION.md`
 - `docs/process/TRACE_DRIVEN_DEVELOPMENT.md`
 - `docs/process/DEPLOYMENT_FLOW.md`
-- `scripts/bootstrap-local-env.ts`
-- `scripts/git-story-gate.ts`
+- `scripts/bootstrap/bootstrap-local-env.ts`
+- `scripts/git/git-story-gate.ts`
 - `eval.vitest.config.ts`
 
 ## Evidence of Validation So Far
@@ -289,7 +289,7 @@ Evidence files:
 
 ### 1. `TTB-205` appears partially landed in code but not formally closed
 
-The tracker still marks `TTB-205` as `in-progress`, but the current worktree already contains `src/server/review-report.ts` plus `/api/review` wiring that builds a deterministic report. The likely reality is that the runtime slice has progressed faster than the checked-in tracker/handoff state.
+The tracker still marks `TTB-205` as `in-progress`, but the current worktree already contains `src/server/review/review-report.ts` plus `/api/review` wiring that builds a deterministic report. The likely reality is that the runtime slice has progressed faster than the checked-in tracker/handoff state.
 
 Impact:
 

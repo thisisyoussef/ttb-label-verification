@@ -19,12 +19,12 @@ import {
   startServer,
   validReviewFields
 } from './index.test-helpers';
-import type { NormalizedReviewIntake } from './review-intake';
-import { createReviewExtractionFailure } from './review-extraction';
+import type { NormalizedReviewIntake } from './review/review-intake';
+import { createReviewExtractionFailure } from './extractors/review-extraction';
 import type {
   ReviewExtractorProvider,
   ReviewExtractorProviderFactories
-} from './review-extractor-factory';
+} from './extractors/review-extractor-factory';
 
 function provider(input: {
   provider: ReviewExtractorProvider['provider'];
