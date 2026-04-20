@@ -31,7 +31,8 @@
     "stitch:mcp-proxy": "tsx scripts/stitch-mcp-proxy.ts",
     "stitch:story": "tsx scripts/stitch-story.ts",
     "generate:label-assets": "tsx scripts/generate-live-label-assets.ts",
-    "model:cache": "tsx scripts/cache-local-model.ts"
+    "model:cache": "tsx scripts/cache-local-model.ts",
+    "demo:record": "tsx scripts/record-assistant-demo.ts"
   },
   "dependencies": {
     "@google/genai": "^1.50.0",

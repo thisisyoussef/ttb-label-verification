@@ -10,6 +10,7 @@ import {
   type ReviewStreamFrame
 } from '../shared/contracts/review';
 import { buildBatchResolutions } from './batch-runtime';
+import { resolveTourDemoReviewReport } from './help-tour-demo';
 import type { BatchLabelImage, BatchMatchingState } from './batchTypes';
 import { withProviderOverrideHeader } from './providerOverride';
 import type {
@@ -49,6 +50,21 @@ function buildReviewFields(
   };
 }
 
+const EMPTY_INTAKE_FIELDS: IntakeFields = {
+  brandName: '',
+  fancifulName: '',
+  classType: '',
+  alcoholContent: '',
+  netContents: '',
+  applicantAddress: '',
+  origin: 'domestic',
+  country: '',
+  formulaId: '',
+  appellation: '',
+  vintage: '',
+  varietals: []
+};
+
 function appendReviewImages(
   formData: FormData,
   image: LabelImage,
@@ -75,6 +91,11 @@ export async function submitReview(options: {
    */
   extractionCacheKey?: string;
 }) {
+  const demoReport = resolveTourDemoReviewReport(options.image);
+  if (demoReport) {
+    return { ok: true as const, report: demoReport };
+  }
+
   const formData = new FormData();
   appendReviewImages(formData, options.image, options.secondaryImage);
   formData.append(
@@ -124,26 +145,15 @@ export async function prefetchExtraction(options: {
   signal: AbortSignal;
   clientRequestId?: string;
 }): Promise<{ cacheKey: string; ocrText: string } | null> {
+  if (options.image.demoScenarioId) {
+    return null;
+  }
+
   const formData = new FormData();
   appendReviewImages(formData, options.image, options.secondaryImage);
   formData.append(
     'fields',
-    JSON.stringify(
-      buildReviewFields(options.beverage, {
-        brandName: '',
-        fancifulName: '',
-        classType: '',
-        alcoholContent: '',
-        netContents: '',
-        applicantAddress: '',
-        origin: 'domestic',
-        country: '',
-        formulaId: '',
-        appellation: '',
-        vintage: '',
-        varietals: []
-      })
-    )
+    JSON.stringify(buildReviewFields(options.beverage, EMPTY_INTAKE_FIELDS))
   );
 
   const response = await fetch('/api/review/extract-only', {
@@ -170,26 +180,15 @@ export async function checkReviewRelevance(options: {
   signal: AbortSignal;
   clientRequestId?: string;
 }) {
+  if (options.image.demoScenarioId) {
+    return null;
+  }
+
   const formData = new FormData();
   appendReviewImages(formData, options.image, options.secondaryImage);
   formData.append(
     'fields',
-    JSON.stringify(
-      buildReviewFields(options.beverage, {
-        brandName: '',
-        fancifulName: '',
-        classType: '',
-        alcoholContent: '',
-        netContents: '',
-        applicantAddress: '',
-        origin: 'domestic',
-        country: '',
-        formulaId: '',
-        appellation: '',
-        vintage: '',
-        varietals: []
-      })
-    )
+    JSON.stringify(buildReviewFields(options.beverage, EMPTY_INTAKE_FIELDS))
   );
 
   const response = await fetch('/api/review/relevance', {
