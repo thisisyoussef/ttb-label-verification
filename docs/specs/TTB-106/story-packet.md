@@ -125,7 +125,7 @@ This story adds an optional, replayable guided tour plus a contextual info layer
 - Finishing the tour now returns the shell to a clean signed-in single-label intake instead of leaving the user in the last demo state.
 - Checked in the branch model behind that hardening in `docs/specs/TTB-106/tour-logic-branches.md` so each step's recovery behavior is explicit and reviewable.
 - Removed the unused `src/client/GuidedReviewPanel.tsx` file from the rejected first-pass side-panel implementation so the approved spotlight flow is the only active help path.
-- Verification added in `src/shared/contracts/help.test.ts`, `src/server/help-routes.test.ts`, and `src/client/help-runtime.test.ts`.
+- Verification added in `src/shared/contracts/help.test.ts`, `src/server/routes/help-routes.test.ts`, and `src/client/help-runtime.test.ts`.
 - Additional tour-hardening verification added in `src/client/help-tour-runtime.test.ts`.
 - Mutation testing waived for this story: the changed logic is schema validation plus route/runtime plumbing, not a high-risk pure validator or comparison helper where mutation score would add signal.
 

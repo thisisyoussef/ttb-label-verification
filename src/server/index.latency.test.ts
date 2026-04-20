@@ -14,13 +14,13 @@ import {
   startServer,
   validReviewFields
 } from './index.test-helpers';
-import type { ReviewExtractorProvider } from './review-extractor-factory';
-import type { ReviewLatencySummary } from './review-latency';
-import { createReviewExtractionFailure } from './review-extraction';
+import type { ReviewExtractorProvider } from './extractors/review-extractor-factory';
+import type { ReviewLatencySummary } from './review/review-latency';
+import { createReviewExtractionFailure } from './extractors/review-extraction';
 import type {
   ReviewExtractorProviderFactories
-} from './review-extractor-factory';
-import type { NormalizedReviewIntake } from './review-intake';
+} from './extractors/review-extractor-factory';
+import type { NormalizedReviewIntake } from './review/review-intake';
 import { buildExtractionPayload } from './index.test-helpers';
 
 function provider(input: {

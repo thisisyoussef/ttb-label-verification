@@ -114,7 +114,7 @@ Run targeted mutation testing when a story changes:
 Use the local Stryker harness:
 
 ```bash
-npm run test:mutation -- --mutate "src/server/government-warning-validator.ts"
+npm run test:mutation -- --mutate "src/server/validators/government-warning-validator.ts"
 ```
 
 Do not run repo-wide mutation testing by reflex. Target the changed high-signal modules.

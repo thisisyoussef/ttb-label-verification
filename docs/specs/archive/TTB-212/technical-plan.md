@@ -10,19 +10,19 @@ This plan is deferred. The user explicitly scrapped the in-progress local-model 
 
 ## Planned modules and files
 
-- `src/server/ai-provider-policy.ts`
+- `src/server/llm/ai-provider-policy.ts`
   - extend extraction-mode resolution to support `local`
 - `src/server/ollama-review-extractor.ts`
   - local Ollama adapter for image-first extraction and structured-output normalization
 - `src/server/ollama-review-extractor.test.ts`
   - request-building, normalization, and local-failure coverage
-- `src/server/review-extractor-factory.ts`
+- `src/server/extractors/review-extractor-factory.ts`
   - instantiate the local extractor when `local` mode is selected
 - `src/server/index.ts`
   - pass the selected extraction mode through the shared route surfaces
-- `src/server/batch-session.ts`
+- `src/server/batch/batch-session.ts`
   - inherit the same local-mode extractor for item processing and retry
-- `scripts/bootstrap-local-env.ts`
+- `scripts/bootstrap/bootstrap-local-env.ts`
   - add Ollama host/model env slots
 - `README.md`
   - document local-mode setup, limitations, and deployment framing

@@ -103,7 +103,6 @@ describe('applyFrame', () => {
         crossFieldChecks: [],
         verdict: 'approve',
         verdictSecondary: '',
-        latencyBudgetMs: 4000,
         noPersistence: true,
         summary: ''
       }

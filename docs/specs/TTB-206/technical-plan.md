@@ -6,19 +6,19 @@ Create the extraction-mode and provider-policy foundation needed for a dual-mode
 
 ## Planned modules and files
 
-- `src/server/ai-provider-policy.ts`
+- `src/server/llm/ai-provider-policy.ts`
   - capability enum, extraction-mode enum, provider enum, env parsing, mode resolution, ordered-provider resolution, and fallback eligibility helpers
-- `src/server/ai-provider-policy.test.ts`
+- `src/server/llm/ai-provider-policy.test.ts`
   - unit coverage for config parsing, duplicate/unknown providers, and fallback classification
-- `src/server/review-extractor-factory.ts`
+- `src/server/extractors/review-extractor-factory.ts`
   - create the extractor from selected extraction mode and ordered providers instead of binding OpenAI directly in `index.ts`
-- `src/server/openai-review-extractor.ts`
+- `src/server/extractors/openai-review-extractor.ts`
   - adapt the existing OpenAI extractor to the new provider interface without changing its live behavior
 - `src/server/index.ts`
   - consume the mode-aware factory/router instead of hard-coding OpenAI at boot
-- `src/server/batch-session.ts`
+- `src/server/batch/batch-session.ts`
   - use the same extractor abstraction so batch inherits provider policy automatically
-- `scripts/bootstrap-local-env.ts`
+- `scripts/bootstrap/bootstrap-local-env.ts`
   - add Gemini env slots, extraction-mode defaults, and local-mode env slots
 
 ## Extraction-mode policy
@@ -96,4 +96,4 @@ Each provider leg should expose:
 - mutation-worthy modules:
   - provider-order parser and fallback classifier
 - mutation note:
-  - a targeted Stryker run against `src/server/ai-provider-policy.ts` was started on 2026-04-14 and aborted at 41% after 16 timeouts / 0 survivors because the current harness expanded the file to 201 mutants with low-signal runtime overhead; rely on the focused unit + integration coverage until the mutation harness is tightened for this module.
+  - a targeted Stryker run against `src/server/llm/ai-provider-policy.ts` was started on 2026-04-14 and aborted at 41% after 16 timeouts / 0 survivors because the current harness expanded the file to 201 mutants with low-signal runtime overhead; rely on the focused unit + integration coverage until the mutation harness is tightened for this module.

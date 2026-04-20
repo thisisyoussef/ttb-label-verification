@@ -15,16 +15,16 @@
 - Extraction mode: fixture-backed verification-mode fields
 - Provider: none; deterministic report-builder coverage only
 - Prompt profile: existing verification-mode identifier output (`visibleText` + `alternativeReading`)
-- Guardrail policy: shared `alternativeReading` downgrade path in `src/server/review-report-field-checks.ts`
+- Guardrail policy: shared `alternativeReading` downgrade path in `src/server/review/review-report-field-checks.ts`
 - Trace mode: none
 - LangSmith project: not used
 - Trace ids: none
 - Latency notes:
   - no model call or route timing change; this eval exercised deterministic report assembly only
-  - `npm run test -- src/server/review-report.test.ts src/server/review-report-alternative-reading.test.ts src/server/anchor-upgrade-evidence.test.ts src/server/review-pipeline.e2e.test.ts` passed in the isolated publish worktree
+  - `npm run test -- src/server/review/review-report.test.ts src/server/review/review-report-alternative-reading.test.ts src/server/anchors/anchor-upgrade-evidence.test.ts src/server/review/review-pipeline.e2e.test.ts` passed in the isolated publish worktree
   - `npm run typecheck` passed in the isolated publish worktree
   - `npm run build` passed in the isolated publish worktree
-  - `npm run test` reached 495 passing tests and then hit one unrelated timeout in `src/server/pdf-label-converter.test.ts`; the PDF test passed on immediate isolated rerun
+  - `npm run test` reached 495 passing tests and then hit one unrelated timeout in `src/server/extractors/pdf-label-converter.test.ts`; the PDF test passed on immediate isolated rerun
 - Persona-specific observations:
   - Dave: equivalent identifier readings no longer surface as obviously dumb `Needs review` rows.
   - Jenny: genuinely conflicting alternative readings still stay reviewable with the mismatch called out.
@@ -68,7 +68,7 @@
 ## Regressions
 
 - none in the targeted report-builder coverage
-- existing unrelated full-suite timeout noise remains in `src/server/pdf-label-converter.test.ts` under concurrent load; isolated rerun passed
+- existing unrelated full-suite timeout noise remains in `src/server/extractors/pdf-label-converter.test.ts` under concurrent load; isolated rerun passed
 
 ## Follow-up
 

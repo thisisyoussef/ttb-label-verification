@@ -4,8 +4,8 @@
 
 - `src/server/index.ts`
 - `src/server/index.test.ts`
-- `src/server/review-intake.ts`
-- `src/server/review-intake.test.ts`
+- `src/server/review/review-intake.ts`
+- `src/server/review/review-intake.test.ts`
 - `src/client/App.tsx` only if the standalone path should omit `fields`
 
 ## Approach

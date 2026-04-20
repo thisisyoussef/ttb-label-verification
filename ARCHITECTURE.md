@@ -46,11 +46,11 @@ Three readers fire in parallel before that, each in its own module:
 
 | Reader | Path | Purpose |
 |---|---|---|
-| Tesseract OCR prepass | `src/server/ocr-prepass.ts` | Full-image text, ~500ms |
-| Warning region OCV | `src/server/warning-ocr-cross-check.ts` | Cropped warning re-read |
-| Gemini / Ollama VLM | `src/server/gemini-review-extractor.ts`, `src/server/ollama-vlm-review-extractor.ts` | Schema-constrained JSON |
+| Tesseract OCR prepass | `src/server/extractors/ocr-prepass.ts` | Full-image text, ~500ms |
+| Warning region OCV | `src/server/validators/warning-ocr-cross-check.ts` | Cropped warning re-read |
+| Gemini / Ollama VLM | `src/server/extractors/gemini-review-extractor.ts`, `src/server/extractors/ollama-vlm-review-extractor.ts` | Schema-constrained JSON |
 
-The reconciler then picks per-field winners in `src/server/extraction-merge.ts` (and the helper `extraction-ocr-reconciler.ts`).
+The reconciler then picks per-field winners in `src/server/extractors/extraction-merge.ts` (and the helper `extraction-ocr-reconciler.ts`).
 
 ## src/server by domain
 
@@ -75,12 +75,12 @@ The server is ~130 flat files today. They cluster into these domains:
 The most load-bearing files (read these first if you're orienting):
 
 1. `src/server/index.ts` — Express entry, route registration
-2. `src/server/review-report.ts` — Pipeline orchestrator, final `VerificationReport` builder
-3. `src/server/extraction-merge.ts` — Per-field winner selection from the parallel reads
-4. `src/server/judgment-field-rules.ts` — `judgeBrandName`, `judgeClassType`, `judgeAlcoholContent`, etc.
-5. `src/server/judgment-scoring.ts` — Verdict rollup + safety gates
-6. `src/server/llm-resolver.ts` — LLM uncertainty resolver (one-directional)
-7. `src/server/government-warning-validator.ts` — 27 CFR warning check
+2. `src/server/review/review-report.ts` — Pipeline orchestrator, final `VerificationReport` builder
+3. `src/server/extractors/extraction-merge.ts` — Per-field winner selection from the parallel reads
+4. `src/server/validators/judgment-field-rules.ts` — `judgeBrandName`, `judgeClassType`, `judgeAlcoholContent`, etc.
+5. `src/server/validators/judgment-scoring.ts` — Verdict rollup + safety gates
+6. `src/server/llm/llm-resolver.ts` — LLM uncertainty resolver (one-directional)
+7. `src/server/validators/government-warning-validator.ts` — 27 CFR warning check
 
 ## src/client by area
 
@@ -137,9 +137,9 @@ See `scripts/README.md` for a longer description per script.
 Tests live next to the code they test, with a `.test.ts` / `.test.tsx` suffix. No separate `__tests__` directories.
 
 End-to-end pipeline tests:
-- `src/server/review-pipeline.e2e.test.ts` — full pipeline with mocked VLM
+- `src/server/review/review-pipeline.e2e.test.ts` — full pipeline with mocked VLM
 - `src/server/index.*.test.ts` — HTTP boundary tests
-- `src/server/anchor-field-track.e2e.test.ts` — anchor track against real extraction
+- `src/server/anchors/anchor-field-track.e2e.test.ts` — anchor track against real extraction
 
 Golden eval harness (uses real VLM, gated on `GEMINI_API_KEY`):
 - `evals/llm/**` + `ls.vitest.config.ts` — run via `npm run eval:llm`

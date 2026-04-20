@@ -1,6 +1,6 @@
 # Eval Results
 
-This document collects the accuracy and latency evidence that is currently checked into the repository, plus one live stage-timing probe run executed locally on 2026-04-19 via [`scripts/stage-timings.ts`](../scripts/stage-timings.ts).
+This document collects the accuracy and latency evidence that is currently checked into the repository, plus one live stage-timing probe run executed locally on 2026-04-19 via [`scripts/evals/stage-timings.ts`](../scripts/evals/stage-timings.ts).
 
 The main point of this page is provenance. Some configuration names only survive in the historical README and inline comments; others have full per-label logs under `docs/evals/`. This document keeps those sources separate.
 
@@ -35,7 +35,7 @@ The following table is the repository's own configuration summary as recorded in
 | E | simple pipeline, no resolver | 18/28 | 8 | 10 | 5.7s | historical README summary |
 | F | simple + few-shot + resolver | 23/28 | 11 | 5 | 9.0s | historical README summary |
 | B2 | B + warning-validator fuzzy handling | 27/28 | 9 | 1 | 5.2s | historical README summary |
-| H | B2 + expanded VLM trust + 2-of-3 warning vote | 26/28 | 12-14 | 2 | 4.9s | historical README summary + `src/server/extraction-merge.ts` comments |
+| H | B2 + expanded VLM trust + 2-of-3 warning vote | 26/28 | 12-14 | 2 | 4.9s | historical README summary + `src/server/extractors/extraction-merge.ts` comments |
 
 ### What this table says architecturally
 
@@ -101,7 +101,7 @@ That is why the most valuable architecture changes were:
 
 ## 5. Per-Stage Latency Breakdown
 
-The review route emits an `X-Stage-Timings` header from [`src/server/register-review-routes.ts`](../src/server/register-review-routes.ts). The repository ships the probe script but not a committed timing snapshot, so the following table comes from a local run on 2026-04-19 against the running API via [`scripts/stage-timings.ts`](../scripts/stage-timings.ts).
+The review route emits an `X-Stage-Timings` header from [`src/server/routes/register-review-routes.ts`](../src/server/routes/register-review-routes.ts). The repository ships the probe script but not a committed timing snapshot, so the following table comes from a local run on 2026-04-19 against the running API via [`scripts/evals/stage-timings.ts`](../scripts/evals/stage-timings.ts).
 
 | Label | Total | provider-wait | ocr-prepass | warning-ocv | deterministic-validation | Notable extra |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
@@ -166,7 +166,7 @@ The synthetic harness in [`evals/results/judgment-variations.json`](../evals/res
 
 ## 8. Expanded Trust Tier Analysis
 
-The expanded trust tier is documented most clearly in [`src/server/extraction-merge.ts`](../src/server/extraction-merge.ts).
+The expanded trust tier is documented most clearly in [`src/server/extractors/extraction-merge.ts`](../src/server/extractors/extraction-merge.ts).
 
 Key inline note:
 

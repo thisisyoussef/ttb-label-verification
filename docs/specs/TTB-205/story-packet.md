@@ -50,6 +50,6 @@ After extraction and warning validation exist, the product still needs the full 
 
 ## Delivery notes
 
-- `src/server/review-report.ts` now owns deterministic field comparison, beverage rules, cross-field checks, verdict aggregation, and the no-text fallback.
+- `src/server/review/review-report.ts` now owns deterministic field comparison, beverage rules, cross-field checks, verdict aggregation, and the no-text fallback.
 - `POST /api/review` now calls the live extractor plus warning validator and returns the integrated `VerificationReport`.
 - Local OpenAI config is present, but the checked-in six-label media files are still absent, so the live corpus eval remains blocked by missing assets.

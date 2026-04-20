@@ -83,7 +83,7 @@ stable eval set that can grow without manual curation.
 
 ### Eval harness integration
 
-- Extend `scripts/remote-eval.ts` with a `--slice=synthetic` option
+- Extend `scripts/evals/remote-eval.ts` with a `--slice=synthetic` option
   that iterates the manifest, calls `/api/eval/synthetic/generate`
   for each entry with a deterministic seed, and scores against the
   stored `expectedVerdict`.

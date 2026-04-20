@@ -14,7 +14,7 @@ Create the project-wide golden eval baseline, the live image-backed core subset,
 - `evals/results/README.md` — run-log naming and minimum contents.
 - `evals/results/TEMPLATE.md` — standard run-log shape.
 - `docs/specs/PROJECT_STORY_INDEX.md` — queue order so implementation stories consume the corpus in the right sequence.
-- `scripts/validate-evals.ts` — manifest integrity checks between the golden set and live subset.
+- `scripts/evals/validate-evals.ts` — manifest integrity checks between the golden set and live subset.
 
 ## Contracts
 

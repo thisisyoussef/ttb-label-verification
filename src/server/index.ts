@@ -6,27 +6,27 @@ import { fileURLToPath } from 'node:url';
 
 import express from 'express';
 
-import { BatchSessionStore } from './batch-session';
+import { BatchSessionStore } from './batch/batch-session';
 import {
   DEFAULT_EXTRACTION_MODE,
   type ExtractionMode
-} from './ai-provider-policy';
+} from './llm/ai-provider-policy';
 import { runBootWarmup } from './boot-warmup';
 import {
   createConfiguredReviewExtractor,
   type ReviewExtractorProviderFactories
-} from './review-extractor-factory';
-import { type ReviewExtractor } from './review-extraction';
-import { registerAppRoutes } from './register-app-routes';
+} from './extractors/review-extractor-factory';
+import { type ReviewExtractor } from './extractors/review-extraction';
+import { registerAppRoutes } from './routes/register-app-routes';
 import {
   type ExtractorResolver,
   type ResolvedExtractor
-} from './review-route-support';
+} from './routes/review-route-support';
 import {
   createConsoleReviewLatencyObserver,
   mergeReviewLatencyObservers,
   type ReviewLatencyObserver
-} from './review-latency';
+} from './review/review-latency';
 
 if (process.env.NODE_ENV !== 'test') {
   loadLocalEnv();

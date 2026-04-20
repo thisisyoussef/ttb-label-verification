@@ -80,4 +80,4 @@
 
 ## Follow-up
 
-- Mutation coverage for `src/server/review-extraction.ts` remains waived for now because the current Stryker harness is failing on local environment constraints (`ENOSPC` temp-space exhaustion, then sandbox copy `ENOENT` on hashed `dist/assets` files), not on the changed fallback logic.
+- Mutation coverage for `src/server/extractors/review-extraction.ts` remains waived for now because the current Stryker harness is failing on local environment constraints (`ENOSPC` temp-space exhaustion, then sandbox copy `ENOENT` on hashed `dist/assets` files), not on the changed fallback logic.

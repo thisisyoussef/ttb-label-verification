@@ -315,7 +315,7 @@ AI_PROVIDER=local \
   OLLAMA_KEEP_ALIVE=30m \
   OLLAMA_MAX_LOADED_MODELS=2 \
   NODE_ENV=test \
-  npx tsx scripts/run-cola-cloud-batch-fixtures.ts
+  npx tsx scripts/evals/run-cola-cloud-batch-fixtures.ts
 ```
 
 Compare against `evals/results/2026-04-15-TTB-EVAL-001-batch-real-corpus.json` (cloud baseline).

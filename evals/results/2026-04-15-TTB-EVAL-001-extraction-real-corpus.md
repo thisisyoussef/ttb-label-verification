@@ -1,7 +1,7 @@
 # TTB-EVAL-001 Extraction Real Corpus Run
 
 Date: 2026-04-15
-Runner: `npx tsx scripts/run-cola-cloud-extraction-benchmark.ts`
+Runner: `npx tsx scripts/evals/run-cola-cloud-extraction-benchmark.ts`
 Raw output: `evals/results/2026-04-15-TTB-EVAL-001-extraction-real-corpus.json`
 
 ## Totals

@@ -20,9 +20,9 @@ Turn the existing corpus-first eval setup into an endpoint-aware, mode-aware, an
   - document how endpoint-aware and mode-aware slices plus persona scorecards are selected
 - `evals/results/TEMPLATE.md`
   - add endpoint/mode/provider/prompt-profile/guardrail/persona result sections
-- `src/server/llm-trace.ts`
+- `src/server/llm/llm-trace.ts`
   - privacy-safe LangSmith wrappers for the shared extraction capability plus root surface traces and nested deterministic follow-on spans
-- `src/server/llm-policy.ts`
+- `src/server/llm/llm-policy.ts`
   - extraction-mode, provider, prompt-profile, guardrail-policy, and endpoint-surface identity constants
 - `docs/process/TRACE_DRIVEN_DEVELOPMENT.md`
   - add endpoint and prompt-profile recording expectations for trace reviews

@@ -20,6 +20,6 @@
 
 ## Notes
 
-- Verified 2026-04-13 against `src/server/index.ts`, `src/server/review-intake.ts`, `src/server/index.test.ts`, and `src/server/review-intake.test.ts`.
+- Verified 2026-04-13 against `src/server/index.ts`, `src/server/review/review-intake.ts`, `src/server/index.test.ts`, and `src/server/review/review-intake.test.ts`.
 - The normalized intake shape now keeps only in-memory buffer metadata (`originalName`, `mimeType`, `bytes`, `buffer`) plus normalized application fields; it does not expose `path`, `filename`, or `destination`.
 - OpenAI `store: false` remains a future extraction-story requirement; this story does not invoke the model layer.

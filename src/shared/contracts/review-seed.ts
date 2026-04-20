@@ -7,7 +7,6 @@ import type {
 } from './review-base';
 import {
   CANONICAL_GOVERNMENT_WARNING,
-  REVIEW_LATENCY_BUDGET_MS,
   verificationReportSchema
 } from './review-base';
 
@@ -32,7 +31,6 @@ export const seedVerificationReport: VerificationReport = {
     review: 2,
     fail: 0
   },
-  latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
   noPersistence: true,
   summary:
     'Sample result for demonstration purposes.',
@@ -184,7 +182,6 @@ const standaloneSeedVerificationReport: VerificationReport = {
     review: 2,
     fail: 0
   },
-  latencyBudgetMs: REVIEW_LATENCY_BUDGET_MS,
   noPersistence: true,
   summary:
     'Image-only review. Values read from the label are shown without application-data comparisons.',

@@ -54,10 +54,10 @@ flowchart LR
 The warning path uses three independent reads.
 
 1. **VLM extraction** from the normal structured extraction pass
-2. **Warning OCV** from [`src/server/warning-region-ocv.ts`](../src/server/warning-region-ocv.ts), which looks for the known warning text in likely warning regions
-3. **Full-image OCR cross-check** from [`src/server/warning-ocr-cross-check.ts`](../src/server/warning-ocr-cross-check.ts)
+2. **Warning OCV** from [`src/server/validators/warning-region-ocv.ts`](../src/server/validators/warning-region-ocv.ts), which looks for the known warning text in likely warning regions
+3. **Full-image OCR cross-check** from [`src/server/validators/warning-ocr-cross-check.ts`](../src/server/validators/warning-ocr-cross-check.ts)
 
-The vote logic lives in [`src/server/government-warning-vote.ts`](../src/server/government-warning-vote.ts).
+The vote logic lives in [`src/server/validators/government-warning-vote.ts`](../src/server/validators/government-warning-vote.ts).
 
 - pass threshold: `0.93`
 - review threshold: `0.75`
@@ -96,7 +96,7 @@ That difference matters because verification is easier than open-ended reading. 
 
 ### Current warning OCV flow
 
-Implemented in [`src/server/warning-region-ocv.ts`](../src/server/warning-region-ocv.ts):
+Implemented in [`src/server/validators/warning-region-ocv.ts`](../src/server/validators/warning-region-ocv.ts):
 
 - use prepass OCR anchors when available
 - try the bottom band first
@@ -123,7 +123,7 @@ This is an intentional compression. The CFR contains more obligations than the U
 
 | Sub-check | Code path | What it means in practice |
 | --- | --- | --- |
-| `present` | `src/server/government-warning-subchecks.ts` | the system found evidence that the warning exists |
+| `present` | `src/server/validators/government-warning-subchecks.ts` | the system found evidence that the warning exists |
 | `exact-text` | same | the wording matches the canonical text closely enough |
 | `uppercase-bold-heading` | same | the heading signal looks like `GOVERNMENT WARNING` rather than decorative or title-case drift |
 | `continuous-paragraph` | same | the warning does not appear split into distinct blocks or bullets |
@@ -148,7 +148,7 @@ This distinction is important. The code is stronger than a naive text diff, but 
 
 After the sub-checks are built, the warning path applies an additional safety gate.
 
-The critical words currently live in [`src/server/government-warning-verification.ts:59`](../src/server/government-warning-verification.ts):
+The critical words currently live in [`src/server/validators/government-warning-verification.ts:59`](../src/server/validators/government-warning-verification.ts):
 
 - `GOVERNMENT`
 - `WARNING`
@@ -216,7 +216,7 @@ In practice the repo is slightly more conservative than that diagram:
 - the validator can still soften outcomes when the image likely does not contain the warning panel
 - the scoring layer can downweight warning reviews so a front-only photo does not mechanically become a hard reject
 
-That last step is implemented in [`src/server/judgment-scoring.ts`](../src/server/judgment-scoring.ts), not inside the warning validator itself.
+That last step is implemented in [`src/server/validators/judgment-scoring.ts`](../src/server/validators/judgment-scoring.ts), not inside the warning validator itself.
 
 ## 9. Stochastic Variance: The Real Problem The Vote Solves
 

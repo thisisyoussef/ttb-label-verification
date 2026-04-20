@@ -65,7 +65,7 @@ Local Railway link state is stored in `~/.railway/config.json`. Do not commit th
 
 ### 1. Create the GitHub repository
 
-- local script: `scripts/bootstrap-github-repo.sh <owner/repo> [private|public]`
+- local script: `scripts/bootstrap/bootstrap-github-repo.sh <owner/repo> [private|public]`
 - the script:
   - initializes git if needed
   - creates the GitHub repo with `gh repo create`

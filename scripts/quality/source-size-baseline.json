@@ -1,0 +1,12 @@
+{
+  "src/server/validators/judgment-field-rules.ts": 781,
+  "src/server/extractors/gemini-review-extractor.ts": 764,
+  "scripts/evals/run-cola-cloud-batch-fixtures.ts": 656,
+  "scripts/evals/remote-eval.ts": 638,
+  "scripts/evals/run-cola-cloud-batch-fixtures-local.ts": 617,
+  "src/server/extractors/review-extractor-factory.ts": 585,
+  "src/server/llm/llm-trace.ts": 595,
+  "src/client/useSingleReviewPipeline.ts": 559,
+  "src/client/useBatchWorkflow.ts": 526,
+  "src/server/extractors/ollama-vlm-review-extractor.ts": 505
+}

@@ -15,9 +15,9 @@
 
 ## Verification notes
 
-- Gemini inline-only proof: `src/server/gemini-review-extractor.ts` builds `inlineData` parts for both `image/*` and `application/pdf` and never calls the Files API.
-- OpenAI fallback proof: `src/server/openai-review-extractor.ts` still reads config through `OPENAI_STORE=false` and sends `store: false` on every Responses parse request.
-- Logging proof in repo code: `src/server/llm-trace.ts` records only bounded metadata plus summarized outputs; no raw label bytes, application fields, or provider JSON are written to disk.
+- Gemini inline-only proof: `src/server/extractors/gemini-review-extractor.ts` builds `inlineData` parts for both `image/*` and `application/pdf` and never calls the Files API.
+- OpenAI fallback proof: `src/server/extractors/openai-review-extractor.ts` still reads config through `OPENAI_STORE=false` and sends `store: false` on every Responses parse request.
+- Logging proof in repo code: `src/server/llm/llm-trace.ts` records only bounded metadata plus summarized outputs; no raw label bytes, application fields, or provider JSON are written to disk.
 - Remaining manual gate: the Gemini API key alone does not prove the AI Studio project keeps API logging and dataset sharing disabled, so that check remains open until someone verifies the project settings directly.
 
 ## Negative verification

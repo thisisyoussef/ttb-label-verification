@@ -1,6 +1,6 @@
 [phases.setup]
 aptPkgs = [
-  # OCR engine — used by src/server/ocr-prepass.ts, warning-ocr-cross-check.ts,
+  # OCR engine — used by src/server/extractors/ocr-prepass.ts, warning-ocr-cross-check.ts,
   # vlm-region-detector.ts, and warning-region-ocv.ts. Without this the
   # pipeline gracefully degrades to VLM-only extraction, which measurably
   # reduces accuracy on the golden set (0% vs 36% auto-approve).

@@ -24,31 +24,31 @@ defects elsewhere on the label.
 
 ## Planned modules and files
 
-- `src/server/review-prompt-policy.ts`
+- `src/server/review/review-prompt-policy.ts`
   - base extraction policy, endpoint overlays, mode overlays, and provider-agnostic prompt assembly
-- `src/server/review-prompt-policy.test.ts`
+- `src/server/review/review-prompt-policy.test.ts`
   - unit coverage for overlay selection, persona/user priorities, and prompt composition
-- `src/server/review-extractor-guardrails.ts`
+- `src/server/extractors/review-extractor-guardrails.ts`
   - structural output checks, suspicious-output classification, and route-aware degradation helpers
-- `src/server/review-extractor-guardrails.test.ts`
+- `src/server/extractors/review-extractor-guardrails.test.ts`
   - unit coverage for sparse output, hallucination patterns, warning-block completeness, and safe degradation
-- `src/server/review-relevance.ts`
+- `src/server/review/review-relevance.ts`
   - OCR-backed relevance preflight that scores label-specific signals before the expensive extract-only path
-- `src/server/review-relevance.test.ts`
+- `src/server/review/review-relevance.test.ts`
   - unit coverage for likely, uncertain, unlikely, multi-image, and OCR-unavailable quick-scan decisions
-- `src/server/review-relevance-route.test.ts`
+- `src/server/review/review-relevance-route.test.ts`
   - route coverage proving `/api/review/relevance` stays extractor-free and merges dual-image OCR signals
 - `src/server/trace-runtime.ts`
   - local no-op trace wrapper that keeps metadata flow and timing helpers intact without depending on an external tracing service
-- `src/server/openai-review-extractor.ts`
+- `src/server/extractors/openai-review-extractor.ts`
   - consume the prompt-policy and guardrail modules instead of embedding a route-agnostic prompt string, without wrapping the client in an external trace adapter
-- `src/server/gemini-review-extractor.ts`
+- `src/server/extractors/gemini-review-extractor.ts`
   - consume the same prompt-policy and guardrail modules once the Gemini path exists
-- `src/server/review-extractor-factory.ts`
+- `src/server/extractors/review-extractor-factory.ts`
   - pass endpoint intent through the shared extraction entry point
 - `eval.vitest.config.ts`
   - dedicated local eval config for the fixture-backed endpoint gate after the external trace-specific harness removal
-- `scripts/bootstrap-local-env.ts`
+- `scripts/bootstrap/bootstrap-local-env.ts`
   - keep repo-local env bootstrap focused on runtime model configuration instead of external tracing credentials
 - `src/server/index.ts`
   - route `/api/review`, `/api/review/extraction`, and `/api/review/warning` through explicit endpoint intents
@@ -58,7 +58,7 @@ defects elsewhere on the label.
   - call the relevance preflight first, then start extract-only only when the quick scan says the upload is likely relevant
 - `src/client/useSingleReviewFlow.ts`
   - gate Verify on `unlikely-label` quick-scan results unless the reviewer explicitly continues anyway
-- `src/server/batch-session.ts`
+- `src/server/batch/batch-session.ts`
   - route item processing through the same canonical `review` extraction overlay and inline report pipeline used by single review while keeping batch session orchestration intact
 
 ## Prompt-policy model

@@ -66,7 +66,7 @@ while the overall verdict still depends on the rest of the report.
   - route-level spot checks against `/api/review/relevance`
   - `X-Stage-Timings` headers and existing latency-focused tests
 - local anchor-priority follow-up evidence:
-  - `npx vitest run src/server/review-report-anchor-merge.test.ts src/server/review-pipeline.e2e.test.ts`
+  - `npx vitest run src/server/review/review-report-anchor-merge.test.ts src/server/review/review-pipeline.e2e.test.ts`
   - `NODE_ENV=test npx tsx -e <fast-slice anchor stress A/B>` comparing `ANCHOR_MERGE=disabled` vs `enabled` on real labels with a hostile extractor stub
   - winning stress-run result: fast-slice correctness improved from `1/7` to
     `2/7`, field passes improved from `10` to `20`, review rows dropped from

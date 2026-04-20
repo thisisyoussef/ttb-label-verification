@@ -16,7 +16,7 @@
 
 - Objective: extend local env/bootstrap docs for Gemini keys and provider-order settings
 - Dependency: `must-have`
-- Validation: `scripts/bootstrap-local-env.ts`, `FULL_PRODUCT_SPEC.md`, and packet docs agree on the new config names
+- Validation: `scripts/bootstrap/bootstrap-local-env.ts`, `FULL_PRODUCT_SPEC.md`, and packet docs agree on the new config names
 
 ## Task 4
 

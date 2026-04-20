@@ -8,7 +8,7 @@ Implement the government warning validator, phrase-level diff shaping, and a war
 
 - `src/shared/contracts/review.ts`
   - export the canonical government warning text for shared server use
-- `src/server/government-warning-validator.ts`
+- `src/server/validators/government-warning-validator.ts`
   - normalize warning text
   - generate phrase-level diff segments
   - map extraction + visual signals into the five approved warning sub-checks

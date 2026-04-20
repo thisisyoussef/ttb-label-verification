@@ -12,12 +12,12 @@
 
 3. Enforce the fallback deadline.
    - Objective: prevent second-provider attempts that cannot still finish inside the target window.
-   - Files: `src/server/review-latency.ts`, route wiring
+   - Files: `src/server/review/review-latency.ts`, route wiring
    - Validation: forced late-fail tests return retryable errors inside budget
 
 4. Cut the visible contract over to `4000`.
    - Objective: update the shared contract, report builder, and seed fixtures only after proof exists.
-   - Files: `src/shared/contracts/review-base.ts`, `src/shared/contracts/review-seed.ts`, `src/server/review-report.ts`
+   - Files: `src/shared/contracts/review-base.ts`, `src/shared/contracts/review-seed.ts`, `src/server/review/review-report.ts`
    - Validation: contract tests and fixtures align on the new ceiling
 
 5. Record final latency evidence.

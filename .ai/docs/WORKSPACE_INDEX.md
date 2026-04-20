@@ -11,14 +11,14 @@
 - `docs/process/DEPLOYMENT_FLOW.md` — GitHub repo bootstrap, Railway staging/prod flow, and story-to-deploy rules
 - `docs/process/GIT_HYGIENE.md` — branch, commit, push, and merge gates for story work
 - `docs/process/PR_DESCRIPTION_STANDARD.md` — required PR body sections and content rules for reviewable story branches
-- `scripts/bootstrap-local-env.ts` — creates or refreshes an ignored repo `.env` from the local gauntlet env inventory without printing secrets
+- `scripts/bootstrap/bootstrap-local-env.ts` — creates or refreshes an ignored repo `.env` from the local gauntlet env inventory without printing secrets
 - `eval.vitest.config.ts` — dedicated Vitest config for fixture-backed endpoint evals
 - `stryker.config.mjs` — targeted mutation-testing configuration for high-risk pure logic
-- `scripts/validate-evals.ts` — validates the full golden manifest against the live core-six subset
-- `scripts/git-story-gate.ts` — shared local commit, push, and publish gate command implementation
-- `scripts/branch-tracker.ts` — branch-tracker helpers for active-row upsert, closeout, and branch-name parsing
-- `scripts/story-branch.ts` — helper CLI for opening, updating, and closing tracked story branches
-- `scripts/install-git-hooks.ts` — installs repo-managed git hooks by setting `core.hooksPath=.githooks`
+- `scripts/evals/validate-evals.ts` — validates the full golden manifest against the live core-six subset
+- `scripts/git/git-story-gate.ts` — shared local commit, push, and publish gate command implementation
+- `scripts/git/branch-tracker.ts` — branch-tracker helpers for active-row upsert, closeout, and branch-name parsing
+- `scripts/git/story-branch.ts` — helper CLI for opening, updating, and closing tracked story branches
+- `scripts/bootstrap/install-git-hooks.ts` — installs repo-managed git hooks by setting `core.hooksPath=.githooks`
 - `.githooks/pre-commit` — automatically runs `npm run gate:commit`
 - `.githooks/pre-push` — automatically runs `npm run gate:push`
 - `.github/pull_request_template.md` — default production-grade PR body template

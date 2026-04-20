@@ -4,6 +4,12 @@ This is the shortest path through the prototype if you are assessing whether it 
 
 Toolbench is an evaluator and developer harness, not the core reviewer workflow. It exists so you can load known samples, jump between single and batch review, reset state, check API health, and compare provider paths from one place.
 
+For latency context while you evaluate:
+
+- the cleanest measured single-label trace on this branch landed around `4.36s` total, with about `4.35s` spent in provider wait time
+- the broader 28-label production-style run averaged about `5.2s`
+- local mode is slower, but it exists for government-style environments where outbound cloud calls may be blocked or disallowed
+
 ## 1. Sign In
 
 ![Prototype sign-in screen](screenshots/auth-screen.png)
@@ -37,6 +43,7 @@ What to watch for:
 - the app can surface OCR preview data before the full review finishes
 - the first useful answer lands before any silent cleanup work
 - the latency question is not just total wall-clock time, but how quickly the reviewer gets something actionable on screen
+- the prototype documents measured latency instead of promising a fake runtime budget in the report payload
 
 If you want to inspect the network path directly, open browser devtools and watch for:
 
@@ -46,7 +53,7 @@ If you want to inspect the network path directly, open browser devtools and watc
 
 ## 4. Read The Results Screen
 
-![Results screen showing review rows, evidence, and refine activity](screenshots/results-review.png)
+![Fresh results screen showing a completed review with evidence expanded](screenshots/results-review-fresh.png)
 
 What to look for:
 
@@ -54,6 +61,7 @@ What to look for:
 - uncertain rows stay visible as `Needs review` instead of being silently forced to pass
 - `CHECKING ... FIELDS...` tells you the silent refine pass is still running
 - the refine pass improves borderline rows after the first answer instead of making the reviewer wait longer up front
+- the row language should make sense to both an experienced reviewer moving quickly and a newer reviewer who needs help following the evidence
 
 This is the key trust interaction in the prototype: the first answer is fast, and any second-pass improvement is additive rather than blocking.
 
@@ -85,7 +93,21 @@ What to look for:
 - the batch surface keeps the file-matching and triage path separate from the single-label reviewer flow
 - the footer and helper copy keep repeating the same privacy story: nothing is intended to be stored
 
-## 7. A Good 5-Minute Assessment Script
+## 7. Sanity-Check The Local / Firewall Story
+
+If the government deployment angle matters for your review, do one quick credibility check after the main UI pass:
+
+1. Open `Toolbench -> Actions`.
+2. Confirm there is a local extraction option alongside cloud.
+3. Read the local-mode section in the README and the Railway/Ollama setup guide.
+
+What to look for:
+
+- the product is honest that local mode trades latency for tighter deployment boundaries
+- the cloud and local paths share one report contract and one deterministic validator layer
+- the repo explains why local mode exists: outbound restrictions and firewall realities in government environments
+
+## 8. A Good 5-Minute Assessment Script
 
 1. Sign in with either prototype auth button.
 2. Open `Toolbench -> Samples -> Load random sample`.
@@ -96,3 +118,13 @@ What to look for:
 7. Use `Open batch review` and inspect the CSV header guidance.
 
 That sequence exercises the single-review flow, the results/evidence model, the refine behavior, the operator utilities, and the batch surface in a few minutes.
+
+## 9. If You Want 10 More Minutes
+
+After the walkthrough, these docs give the best signal fastest:
+
+- [Architecture And Decisions](ARCHITECTURE_AND_DECISIONS.md): the strongest architectural choices, tradeoffs, and why they were made
+- [Eval Results](EVAL_RESULTS.md): GoldenSet, COLA Cloud, and latency evidence
+- [Government Warning](GOVERNMENT_WARNING.md): the strictest rule path and the most detailed validator write-up
+- [Demo Video Script](DEMO_VIDEO_SCRIPT.md): the 5-8 minute spoken walkthrough aligned to the evaluation criteria
+- [Railway / Ollama Setup](process/RAILWAY_OLLAMA_SETUP.md): the clearest local-mode and firewall-context explanation

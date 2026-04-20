@@ -8,9 +8,9 @@ Implement the first live model-backed extraction layer for a single label and op
 
 - `src/shared/contracts/review.ts`
   - add the typed extraction contract shared across server modules and future validators
-- `src/server/review-extraction.ts`
+- `src/server/extractors/review-extraction.ts`
   - pure extraction-domain helpers, including beverage-type resolution and image-quality normalization
-- `src/server/openai-review-extractor.ts`
+- `src/server/extractors/openai-review-extractor.ts`
   - OpenAI Responses adapter, prompt, request builder, and runtime config checks
 - `src/server/index.ts`
   - expose an extraction-only route while preserving the seeded full-review route until `TTB-205`
@@ -19,7 +19,7 @@ Implement the first live model-backed extraction layer for a single label and op
 
 - request:
   - one label file in memory
-  - optional application fields from `src/server/review-intake.ts`
+  - optional application fields from `src/server/review/review-intake.ts`
 - extraction response:
   - typed extracted fields with `present`, `value`, `confidence`, and optional notes
   - warning-specific visual signals for all-caps, boldness, continuity, and separation
