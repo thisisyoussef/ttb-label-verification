@@ -399,26 +399,18 @@ export function App() {
         onTourShowMe={onTourShowMe}
         onTourShowMeAndContinue={onTourShowMeAndContinue}
       />
-      {/*
-        Toolbench is visible by default so assessors demoing the tool
-        can load a real COLA sample with one click. Operators who want
-        to hide it (e.g. in a customer-facing demo) can set
-        VITE_ENABLE_TOOLBENCH=false at build time.
-      */}
-      {import.meta.env.VITE_ENABLE_TOOLBENCH !== 'false' && (
-        <AssessorToolbench
-          onLoadSample={handleToolbenchLoadSample}
-          onLoadImage={handleToolbenchLoadImage}
-          onLoadCsv={handleToolbenchLoadCsv}
-          mode={mode}
-          extractionMode={extractionMode}
-          onReset={handleToolbenchReset}
-          onSwitchMode={handleToolbenchSwitchMode}
-          onToggleExtraction={(next) => setExtractionMode(next)}
-          onLaunchTour={help.onLaunchTour}
-          tourActive={help.tourOpen}
-        />
-      )}
+      <AssessorToolbench
+        onLoadSample={handleToolbenchLoadSample}
+        onLoadImage={handleToolbenchLoadImage}
+        onLoadCsv={handleToolbenchLoadCsv}
+        mode={mode}
+        extractionMode={extractionMode}
+        onReset={handleToolbenchReset}
+        onSwitchMode={handleToolbenchSwitchMode}
+        onToggleExtraction={(next) => setExtractionMode(next)}
+        onLaunchTour={help.onLaunchTour}
+        tourActive={help.tourOpen}
+      />
     </>
   );
 }
