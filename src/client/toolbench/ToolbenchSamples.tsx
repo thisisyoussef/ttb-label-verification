@@ -3,6 +3,7 @@ import {
   syntheticLabelGenerateResponseSchema,
   type SyntheticLabelExpected
 } from '../../shared/contracts/review';
+import { loadEvalPackFiles } from '../evalDemoApi';
 import { BUILTIN_SAMPLES } from './builtin-sample-packs';
 import {
   resolveToolbenchSampleSectionIds,
@@ -248,37 +249,13 @@ export function ToolbenchSamples({
     }
   }, [onLoadSample, onLoadSyntheticSample]);
 
+  // Batch loader — reuses the same full-pack fetch path as the batch
+  // upload quick-load so both entry points stay in sync.
   const loadBatchPack = useCallback(async () => {
     setLoadingBatch(true);
     setLastError(null);
     try {
-      const packsRes = await fetch('/api/eval/packs');
-      if (!packsRes.ok) throw new Error(`packs HTTP ${packsRes.status}`);
-      const packsData = (await packsRes.json()) as {
-        packs: Array<{
-          id: string;
-          csvFile: string;
-          images: Array<{ id: string; filename: string; assetPath: string; beverageType: string }>;
-        }>;
-      };
-      const pack = packsData.packs.find((p) => p.id === 'cola-cloud-all');
-      if (!pack) throw new Error('cola-cloud-all pack missing');
-
-      const csvRes = await fetch(`/api/eval/pack/${encodeURIComponent(pack.id)}/csv`);
-      if (!csvRes.ok) throw new Error(`csv HTTP ${csvRes.status}`);
-      const csvBlob = await csvRes.blob();
-      const csvFile = new File([csvBlob], pack.csvFile, { type: 'text/csv' });
-
-      const imageFiles: File[] = [];
-      for (const img of pack.images) {
-        const source = img.assetPath.split('/')[3] ?? 'cola-cloud';
-        const url = `/api/eval/label-image/${encodeURIComponent(source)}/${encodeURIComponent(img.filename)}`;
-        const imgRes = await fetch(url);
-        if (!imgRes.ok) continue;
-        const blob = await imgRes.blob();
-        imageFiles.push(new File([blob], img.filename, { type: blob.type || 'image/webp' }));
-      }
-      if (imageFiles.length === 0) throw new Error('No images could be fetched from the pack.');
+      const { csvFile, imageFiles } = await loadEvalPackFiles('cola-cloud-all');
       onLoadBatch(imageFiles, csvFile);
     } catch (err) {
       setLastError((err as Error).message);

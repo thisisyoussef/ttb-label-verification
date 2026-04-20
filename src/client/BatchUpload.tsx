@@ -8,6 +8,7 @@ import {
   PrivacyActionBar,
   type BatchUploadCounts
 } from './BatchUploadPanels';
+import { loadEvalPackFiles } from './evalDemoApi';
 import { MatchingReview } from './MatchingReview';
 import type {
   BatchAmbiguousItem,
@@ -47,39 +48,8 @@ export function BatchUpload(props: BatchUploadProps) {
     setSampleLoading(true);
     setSampleError(null);
     try {
-      const packsRes = await fetch('/api/eval/packs');
-      if (!packsRes.ok) throw new Error(`packs HTTP ${packsRes.status}`);
-      const packsData = (await packsRes.json()) as {
-        packs: Array<{
-          id: string;
-          csvFile: string;
-          images: Array<{ id: string; filename: string; assetPath: string; beverageType: string }>;
-        }>;
-      };
-      const pack = packsData.packs.find((p) => p.id === 'cola-cloud-all');
-      if (!pack) throw new Error('cola-cloud-all pack missing');
-
-      const csvRes = await fetch(`/api/eval/pack/${encodeURIComponent(pack.id)}/csv`);
-      if (!csvRes.ok) throw new Error(`csv HTTP ${csvRes.status}`);
-      const csvBlob = await csvRes.blob();
-      const csvFile = new File([csvBlob], pack.csvFile, { type: 'text/csv' });
-
-      // Pull the first N images from the pack. We cap the batch at 10 so
-      // the first-run demo feels quick — users can hit the button again
-      // or switch to a bigger pack if they want the full 28.
-      const MAX_PACK_IMAGES = 10;
-      const slice = pack.images.slice(0, MAX_PACK_IMAGES);
-      const imageFiles: File[] = [];
-      for (const img of slice) {
-        const source = img.assetPath.split('/')[3] ?? 'cola-cloud';
-        const url = `/api/eval/label-image/${encodeURIComponent(source)}/${encodeURIComponent(img.filename)}`;
-        const imgRes = await fetch(url);
-        if (!imgRes.ok) continue;
-        const blob = await imgRes.blob();
-        imageFiles.push(new File([blob], img.filename, { type: blob.type || 'image/webp' }));
-      }
-
-      if (imageFiles.length > 0) props.onSelectImages(imageFiles);
+      const { csvFile, imageFiles } = await loadEvalPackFiles('cola-cloud-all');
+      props.onSelectImages(imageFiles);
       props.onSelectCsv(csvFile);
     } catch (err) {
       setSampleError((err as Error).message);
@@ -116,7 +86,7 @@ export function BatchUpload(props: BatchUploadProps) {
                 Try it with real TTB-approved COLA labels
               </p>
               <p className="text-xs text-on-surface-variant leading-snug">
-                One click populates 10 sample labels + their matching application CSV.
+                One click populates the full sample pack + its matching application CSV.
               </p>
             </div>
             <button
