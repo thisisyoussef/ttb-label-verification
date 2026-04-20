@@ -74,6 +74,7 @@
 - For established UI shells that need live wiring, add a pure client runtime adapter (`src/client/batch-runtime.ts`) so API-to-view-model mapping stays testable outside React components.
 - Repeated live batch image intake should append new files to the current live batch set and preserve existing object URLs until the reviewer explicitly clears or resets the batch.
 - Toolbench direct asset loads should resolve through a mode-aware helper: image loads follow the active review mode, while CSV loads remain batch-only.
+- Toolbench batch sample loads should use the same live `images + csv` batch workflow path as the Batch Upload quick-load button (`batch.onLoadLiveBatch(...)`), not a fixture-only seed shortcut; otherwise dual-image sample packs silently collapse before matching review.
 - Toolbench single-sample loads should reset single-review session state before hydrating the new sample. Do not layer new sample images and fields on top of a previous report, OCR preview, or forced-failure state.
 - When a Toolbench panel reveals capability-dependent actions from async probes, reserve that slot with a deterministic placeholder until the probes settle so the visible control stack does not jump.
 - The golden eval set is part of the product contract, not optional test garnish. The core-six live subset is only the first slice, not the whole corpus.
@@ -84,6 +85,8 @@
 - Every compliance rule should be traceable through `docs/rules/RULE_SOURCE_INDEX.md`.
 - Deterministic validation runs after extraction, not instead of it.
 - Warning text comparison should normalize whitespace for alignment, keep punctuation literal, and shape phrase-level diff segments to match the approved UI evidence contract; body-letter case alone should not fail an otherwise exact warning, because the opening `GOVERNMENT WARNING` heading carries the separate uppercase/bold check.
+- Warning-text normalization may repair dropped `(1)` / `(2)` clause markers, but only at the dedicated warning seam and only when the heading plus both canonical warning clause anchors are present in order; do not treat truncated single-clause text as eligible for that repair.
+- Reviewer-facing warning evidence should stay softer than the underlying deterministic status: exact-text mismatches can remain fail-grade for aggregation while the displayed copy and iconography stay in caution/review language because OCR/VLM read noise is still a plausible cause.
 - Future tutorial/help work should be optional and replayable, with critical guidance inline or in accessible panels/dialogs rather than hidden in tooltip-only affordances.
 - Shared help content should follow the same contract-first pattern as review payloads: keep semantic anchor keys and manifest validation in `src/shared/contracts`, store canonical English fixture content in shared code, serve it through a stateless route, and let the client keep a local fallback instead of duplicating help copy in UI-only modules.
 - Guided tours should resolve against live runtime state through a dedicated helper rather than assuming the happy path in component code; each step needs explicit recovery actions for missing prerequisites and a deterministic demo path when the flow must continue without live backend work.

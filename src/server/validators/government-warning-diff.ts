@@ -1,4 +1,6 @@
 import type { DiffSegment, DiffSegmentKind } from '../../shared/contracts/review';
+import { normalizeGovernmentWarningText } from './government-warning-text';
+export { normalizeGovernmentWarningText } from './government-warning-text';
 
 type WarningDiffStep = {
   kind: DiffSegmentKind | 'extra';
@@ -17,10 +19,6 @@ type FinalWarningDiffStep = {
 // character-level diff — so body case-only differences are collapsed to
 // `match` to avoid redundant "Wrong capitalization" callouts.
 const HEADING_TEXT = 'GOVERNMENT WARNING';
-
-export function normalizeGovernmentWarningText(value: string | undefined) {
-  return (value ?? '').replace(/\s+/g, ' ').trim();
-}
 
 export function diffGovernmentWarningText(input: {
   required: string;

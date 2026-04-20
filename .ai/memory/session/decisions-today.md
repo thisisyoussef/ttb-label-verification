@@ -1,10 +1,10 @@
 # Decisions Today
 
-- Make successful staging deploys the default production promotion path instead of relying on a second workflow handoff after a `GITHUB_TOKEN` branch update.
-- Deploy the staged SHA to Railway production before syncing the `production` branch, so branch state stays behind live production on failure instead of getting ahead of it.
-- Keep `promote-production.yml` as the manual rollback or validated-ref backfill path, but make it deploy directly to Railway production and verify health instead of dispatching `ci` and hoping a downstream workflow continues the release.
-- Keep the existing `production`-branch `workflow_run` deploy job in place as exceptional backward-compatible support, but stop making the default release path depend on it.
-- Reuse the root checkout's `node_modules` in low-space worktrees when a full `npm ci` would fail with `ENOSPC`; treat that as a local verification workaround, not as a repo behavior change.
+- Repair dropped government warning `(1)` / `(2)` clause markers only when the heading plus both canonical warning clauses are present in order; do not synthesize markers for a genuinely truncated warning.
+- Apply that marker repair at the warning-text normalization seam so the extraction contract, OCR cross-check, warning OCV, region-OCR merge path, and final warning row all stay consistent.
+- Keep exact-text mismatch warning evidence reviewer-framed even when the underlying warning check remains fail-grade for deterministic aggregation: the copy says the wording may differ, and the warning sub-check iconography collapses to the same caution/review treatment already used by the row badge.
+- Route Toolbench batch sample loads through `batch.onLoadLiveBatch(images, csv)` instead of the legacy `seed-clean-six` fixture so the Samples tab reuses the real `cola-cloud-all` pack, including any checked-in secondary/front-back image pairs.
+- Treat the checked-in COLA corpus as sufficient for this batch-loader fix when `COLACLOUD_API_KEY` is absent locally: the current `cola-cloud-all` pack already carries 28 rows and 13 `secondary_filename` counterparts, so a live refresh is optional rather than required to validate the client behavior.
 - Collapse the COLA sample-pack quick-load paths onto one shared client helper in `src/client/evalDemoApi.ts` so Batch Upload and Toolbench always fetch the same full `cola-cloud-all` bundle and stop drifting on image count or source resolution.
 - Reserve the Toolbench Samples capability slot with a loading placeholder until live/synthetic probe results settle so the tab does not reflow through intermediate action stacks.
 - Route Toolbench single-sample hydration through a dedicated single-review reset path instead of piecemeal image and field setters, so old OCR/report state cannot leak into the next sample.

@@ -92,8 +92,8 @@ export function useAppToolbench(options: {
   );
 
   const handleToolbenchLoadBatch = useCallback(
-    (_images: File[], _csv: File) => {
-      options.batch.onSelectBatchSeed('seed-clean-six');
+    (images: File[], csv: File) => {
+      options.batch.onLoadLiveBatch(images, csv);
       if (options.mode !== 'batch') {
         options.batch.onSelectMode('batch', options.mode);
       }

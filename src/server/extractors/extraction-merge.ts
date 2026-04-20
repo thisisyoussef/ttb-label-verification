@@ -20,6 +20,7 @@
 //                          a region's raw OCR text for each field type.
 
 import type { ReviewExtraction } from '../../shared/contracts/review';
+import { normalizeGovernmentWarningText } from '../validators/government-warning-text';
 import type { ReviewExtractionModelOutput } from './review-extraction';
 import type { RegionOcrResult } from './vlm-region-detector';
 
@@ -242,7 +243,9 @@ export function extractFieldValue(field: string, ocrText: string): string | null
     case 'government_warning': {
       const match = ocrText.match(/GOVERNMENT\s*WARN(?:ING|SING)[\s\S]*/i);
       if (!match) return null;
-      return match[0].replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+      return normalizeGovernmentWarningText(
+        match[0].replace(/\n/g, ' ').replace(/\s+/g, ' ').trim()
+      );
     }
     case 'alcohol_content': {
       // Try three patterns in decreasing specificity.

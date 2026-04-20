@@ -7,6 +7,7 @@ import {
 } from '../../shared/contracts/review';
 import type { ExtractionMode } from '../llm/ai-provider-policy';
 import type { LlmEndpointSurface } from '../llm/llm-policy';
+import { normalizeGovernmentWarningText } from '../validators/government-warning-text';
 import {
   buildReviewExtractionPrompt as buildPolicyPrompt,
   buildOcrAugmentedExtractionPrompt as buildOcrAugmentedPolicyPrompt,
@@ -206,7 +207,9 @@ function normalizeModelFields(
     sulfiteDeclaration: normalizeExtractionField(fields.sulfiteDeclaration),
     appellation: normalizeExtractionField(fields.appellation),
     vintage: normalizeExtractionField(fields.vintage),
-    governmentWarning: normalizeExtractionField(fields.governmentWarning),
+    governmentWarning: normalizeExtractionField(fields.governmentWarning, {
+      normalizeValue: normalizeGovernmentWarningText
+    }),
     varietals: fields.varietals.map((varietal) => ({
       name: varietal.name,
       percentage: varietal.percentage ?? undefined,
@@ -238,11 +241,16 @@ function normalizeVisualSignal(
 }
 
 function normalizeExtractionField(
-  field: z.infer<typeof apiExtractionFieldSchema>
+  field: z.infer<typeof apiExtractionFieldSchema>,
+  options?: {
+    normalizeValue?: (value: string | undefined) => string;
+  }
 ) {
   return {
     present: field.present,
-    value: field.value ?? undefined,
+    value: options?.normalizeValue
+      ? options.normalizeValue(field.value ?? undefined) || undefined
+      : field.value ?? undefined,
     confidence: field.confidence,
     note: field.note ?? undefined,
     visibleText: field.visibleText ?? undefined,
