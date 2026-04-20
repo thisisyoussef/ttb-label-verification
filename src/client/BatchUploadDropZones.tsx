@@ -45,7 +45,7 @@ export function ImagesDropZone({
           </span>
         </div>
         <p className="text-sm text-on-surface-variant font-body">
-          Add as many labels as possible. Files stay local until you start processing.
+          Add as many labels as possible before processing. Files stay local until you start processing.
         </p>
       </header>
 

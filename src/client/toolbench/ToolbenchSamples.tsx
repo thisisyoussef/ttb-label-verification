@@ -389,7 +389,7 @@ export function ToolbenchSamples({
               {loadingBatch ? 'Loading pack…' : 'Load test batch'}
             </button>
             <p className="text-[11px] text-on-surface-variant leading-snug">
-              Populates the batch intake with 10 real COLA labels + their matching CSV.
+              Populates the batch intake with a full sample pack of real COLA labels + matching CSV data.
             </p>
           </section>
         );
