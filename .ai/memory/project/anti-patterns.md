@@ -23,7 +23,7 @@
 - Treating automated Stitch as mandatory after `claude-direct` became the default UI flow
 - Starting standard feature work without a spec packet or behavior changes without a RED test
 - Leaving a leaf story as `story-packet.md` only after active implementation has already started and deeper working docs are clearly needed
-- Treating production promotion as automatic per story instead of an explicit release action
+- Treating the `production` branch push itself as the thing that production deployment depends on after a workflow-authenticated update; in this repo that handoff is too fragile and the live deploy must happen in the same trusted automation path
 - Adding multipart upload middleware globally instead of constraining it to the route that actually handles uploads
 - Letting `src/client/**` keep a parallel report model after `src/shared/contracts/review.ts` has already been expanded for the same UI state
 - Re-parsing optional multipart `fields` ad hoc inside route handlers instead of using the shared intake normalizer

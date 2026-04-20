@@ -16,7 +16,8 @@
 - Durable product-level design guidance lives in `docs/design/MASTER_DESIGN.md`; feature-specific UI design belongs in `docs/specs/<story-id>/ui-component-spec.md`.
 - `docs/specs/FULL_PRODUCT_SPEC.md` is the product-wide blueprint, while `docs/specs/PROJECT_STORY_INDEX.md` plus the tracker define the executable leaf-story order.
 - Pre-authored leaf stories may start as `docs/specs/<story-id>/story-packet.md`; any agent may create or expand that compact packet before real implementation begins, while lane ownership still controls implementation and handoff work.
-- Deployment uses a branch-linked Railway model: `main` to staging, `production` to production, with CI gating deploys and explicit production promotion.
+- Deployment uses a CI-gated Railway model: `main` verifies first, deploys staging, then auto-promotes the same SHA to production and only afterward syncs the `production` branch as the live-release record.
+- Manual production promotion is now a direct deploy workflow for rollback or validated-ref backfill; it should not depend on a second workflow run after a `GITHUB_TOKEN` branch push.
 - Validator and extraction stories also produce evidence, rule-source, privacy, performance, and eval artifacts when relevant.
 - Behavior changes use RED -> GREEN -> REFACTOR through `.ai/workflows/tdd-pipeline.md`.
 - Prompt, model, tool-call, and agentic LLM stories use trace-driven development through `docs/process/TRACE_DRIVEN_DEVELOPMENT.md` and `.ai/workflows/trace-driven-development.md`, with local fixture-backed runs and timing evidence instead of an external trace service.

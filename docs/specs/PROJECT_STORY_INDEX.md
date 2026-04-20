@@ -27,6 +27,7 @@ This file is the checked-in leaf-story queue for completing the TTB Label Verifi
 | W1 | `TTB-WF-001` | workflow foundation upgrade | baseline harness and process story |
 | W2 | `TTB-WF-002` | source cleanup and reviewer-oriented refactor pass | user-directed maintenance story for structural cleanup and file-size enforcement |
 | W3 | `TTB-WF-003` | lean agent workspace and direct-branch story workflow | simplify the agent contract, keep SSOT plus memory bank, make direct branch work the default, and keep sibling linked worktrees optional |
+| W4 | `TTB-WF-004` | automatic production promotion after verified staging deploy | make staging-to-production rollout automatic without depending on a second workflow handoff from a `GITHUB_TOKEN` branch update |
 
 ## Delivery order
 
@@ -34,6 +35,7 @@ This file is the checked-in leaf-story queue for completing the TTB Label Verifi
 | --- | --- | --- | --- | --- | --- | --- |
 | 0 | `TTB-EVAL-001` | eval foundation | golden eval set foundation and run discipline | Codex-only | none | the golden set, live core-six subset, and run log format are locked |
 | 0.1 | `TTB-EVAL-002` | eval foundation | Gemini Batch golden-set live eval runner and cost discipline | Codex-only | `TTB-EVAL-001`, `TTB-207` | approved live Gemini extraction corpus can run through inline Batch without weakening the canonical golden gate |
+| 0.15 | `TTB-WF-004` | workflow | automatic production promotion after verified staging deploy | Codex-only | `TTB-WF-001`, `TTB-WF-003` | successful `main` CI completions deploy staging first, then auto-promote the same verified SHA to Railway production and sync the `production` branch after production health passes |
 | 1 | `TTB-101` | `TTB-001` | single-label intake and processing UI | Claude-first, then Codex integration | `TTB-EVAL-001` | the intake and processing screens are approved and frozen |
 | 2 | `TTB-102` | `TTB-001` | single-label results, warning evidence, and standalone UI | Claude-first, then Codex integration | `TTB-101` approved | the single-label results experience is approved and frozen |
 | 3 | `TTB-201` | `TTB-002` | shared review contract expansion and seed fixture alignment | Codex-only | `TTB-102` ready-for-codex | the contract supports the approved single-label results UI |

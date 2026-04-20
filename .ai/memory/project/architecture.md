@@ -6,6 +6,7 @@
 - Backend: Express in `src/server`
 - Shared boundary: Zod contracts in `src/shared/contracts`
 - Harness: checked-in docs under `.ai/` plus canonical repo rules in `AGENTS.md` and `CLAUDE.md`
+- Release harness: successful `main` CI completions now drive the full Railway release path in one workflow chain (`main` -> staging deploy -> production deploy -> `production` branch sync), while `promote-production.yml` remains the manual rollback or validated-ref backfill path
 - UI flow harness: `STITCH_FLOW_MODE` now supports `claude-direct`, `automated`, and `manual`, with `claude-direct` as the workspace default and Stitch remaining optional per pass
 - Intake backend: route-local multipart `POST /api/review` validates one required in-memory primary label file plus one optional secondary label file, accepts omitted `fields` for standalone reviews, normalizes a bounded intake object in `src/server/review-intake.ts`, then runs the extractor, warning validator, and deterministic report builder before returning the final `VerificationReport`
 - Runtime review wiring: `src/client/App.tsx` now consumes the `VerificationReport` returned by `POST /api/review`, while `src/client/review-runtime.ts` decides when dev fixtures are allowed and falls back to a standalone seed report when application data is absent

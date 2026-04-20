@@ -5,7 +5,7 @@ This file defines how GitHub and Railway fit into the story-completion workflow 
 ## Goals
 
 - every completed implementation story can reach staging automatically after merge
-- production is promoted deliberately, not implicitly
+- production now follows verified staging automatically by default
 - the deploy flow stays compatible with direct story-branch work by either agent
 - the workflow works from checked-in state instead of one-off chat instructions
 
@@ -14,21 +14,21 @@ This file defines how GitHub and Railway fit into the story-completion workflow 
 For this project, use GitHub Actions plus Railway CLI rather than Railway dashboard branch-trigger settings.
 
 - GitHub `main` push -> `ci` workflow -> Railway CLI deploy to `staging`
-- GitHub `production` push -> `ci` workflow -> Railway CLI deploy to `production`
-- production promotion is still explicit and happens by updating the `production` branch through `promote-production.yml`
+- successful staging deploy for that `main` SHA -> Railway CLI deploy to `production` -> sync `production` branch
+- manual production promotion remains available through `promote-production.yml` for rollback or validated-ref backfill
 
 Why this model:
 
 - it uses the same Railway CLI locally and in GitHub Actions
 - it removes manual Railway service-setting drift from the harness
-- full CI remains the hard gate before staging or production deploys
+- full CI on `main` remains the hard gate before the automatic staging-to-production release path continues
 - the repo still stays simple: one app, one service, two long-lived environments
 
 ## Git gates around deploys
 
 - Normal story work happens on story branches, not directly on `main` or `production`.
 - Merge reviewed story branches into `main` through their GitHub PRs to trigger staging deploys.
-- Do not push directly to `production` for routine work; production promotion stays explicit through the checked-in promotion workflow.
+- Do not push directly to `production` for routine work; automatic promotion now follows successful staging deploys, and the checked-in promotion workflow is reserved for rollback or validated-ref backfill.
 - Direct ref updates to `main` or `production` that are not associated with merged PRs now fail the GitHub-side CI guard and do not remain on the green deploy path.
 - Follow `docs/process/GIT_HYGIENE.md` before any push that is meant to be merged or deployed. The local gate commands for that are `npm run gate:push`, followed by `npm run gate:publish` before any handoff that claims the branch is available on GitHub.
 
@@ -114,14 +114,17 @@ Do not store app data, uploads, or results in Railway volumes or attached databa
 - `.github/workflows/auto-open-story-prs.yml`
   - opens a ready PR to `main` when a normal story branch is first published and no PR already exists
 - `.github/workflows/railway-post-deploy.yml`
-  - listens for successful `ci` runs triggered by branch pushes
+  - listens for successful `ci` runs on integration refs, including the explicit `workflow_dispatch` handoff used by the checked-in release automation
   - uses Railway CLI with `RAILWAY_API_TOKEN`
-  - deploys `main` to staging and `production` to production
+  - deploys `main` to staging
+  - after staging health passes, deploys that same SHA to production and then syncs the `production` branch
+  - still supports `production` branch deploys for exceptional manual branch-driven releases
   - verifies `/api/health` against the known Railway public domain for that environment
 - `.github/workflows/promote-production.yml`
-  - manual promotion workflow
-  - updates the `production` branch to the selected source ref
-  - explicitly dispatches `ci` on `production` after updating the branch so the subsequent `railway-deploy` workflow runs even though the branch update came from GitHub Actions
+  - manual rollback or validated-ref backfill workflow
+  - deploys the selected source ref directly to Railway production
+  - verifies `/api/health`
+  - syncs the `production` branch only after production verification succeeds
 
 ## Story-completion wiring
 
@@ -143,21 +146,30 @@ Do not store app data, uploads, or results in Railway volumes or attached databa
 
 ### Production promotion
 
-Production is not automatic per story.
+Production now promotes automatically after a successful staging deploy by default.
 
-Use production promotion only when:
+Use the manual production-promotion workflow only when:
 
-- a grouped milestone is staging-validated, or
-- the release gate story is complete, or
-- the user explicitly asks to promote
+- you need to roll back to an older validated ref, or
+- you need to backfill production from a specific validated ref outside the normal `main` release path
 
-Promotion path:
+Automatic path:
 
-1. confirm staging is healthy
-2. run `promote-production` GitHub workflow with `source_ref=main` or another validated ref
-3. CI runs on the updated `production` branch
-4. `railway-deploy` runs `railway up` against `production`
-5. verify `/api/health` and the agreed smoke path
+1. merge reviewed story work to `main`
+2. `ci` verifies that `main` SHA
+3. `railway-deploy` runs `railway up` against `staging`
+4. staging `/api/health` must pass
+5. the same SHA is deployed to Railway `production`
+6. production `/api/health` must pass
+7. the workflow syncs the `production` branch to the verified live SHA
+
+Manual path:
+
+1. choose a validated `source_ref`
+2. run `promote-production` with that `source_ref`
+3. the workflow deploys that exact SHA to Railway `production`
+4. production `/api/health` must pass
+5. the workflow syncs the `production` branch to the verified live SHA
 
 ## Agent responsibility
 
@@ -166,7 +178,7 @@ Promotion path:
 
 ## Blocking rules
 
-- If `RAILWAY_API_TOKEN` is missing or invalid in GitHub Actions, deploys are blocked at the CI-to-Railway layer.
+- If `RAILWAY_API_TOKEN` is missing or invalid in GitHub Actions, both automatic and manual production promotion are blocked at the Railway deploy layer.
 - If the checked-in project, service, environment, or domain values drift from the live Railway project, update the harness docs and workflows before claiming deploy success.
 - Do not run a local production `railway up` unless the user explicitly asks for that direct action.
 - Do not claim a story is staging-deployed or production-promoted unless the relevant external step actually happened.

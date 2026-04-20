@@ -1,5 +1,7 @@
 # Blockers
 
+- Current local tooling blocker: the workspace is effectively out of disk space (`116 MiB` free on `/System/Volumes/Data`), so a fresh `npm ci` in this worktree failed with `ENOSPC`; verification succeeded only after reusing the root checkout's `node_modules` through a symlink.
+- Current release caveat: the new manual `promote-production.yml` path assumes the selected `source_ref` is already validated; there is not yet a reusable GitHub workflow that re-runs the full release gate for arbitrary rollback refs.
 - The immediate `TTB-304` counterpart reload branch is not locally blocked; code, manifests, and refreshed assets are in place pending the user's direction on whether to keep or publish the generated corpus churn.
 - Counterpart coverage improved but is still incomplete: 13 stored COLA records now have paired secondary/back images, while the remaining stored records are still front-only or otherwise lack a warning-visible counterpart.
 - The warning diagnostic run still has a broader corpus-interpretation blocker: many `cola-cloud-real` assets are front labels that do not visibly include the government warning, so those cases still cannot prove warning-reader quality without a paired back-label image.
