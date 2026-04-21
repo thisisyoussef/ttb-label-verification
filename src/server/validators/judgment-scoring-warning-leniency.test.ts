@@ -111,6 +111,21 @@ describe('judgment scoring warning leniency', () => {
     expect(result.reason).toContain('Image quality');
   });
 
+  it('keeps review when the image is too degraded even if the warning text is readable', () => {
+    const result = deriveWeightedVerdict({
+      checks: [buildWarningReview()],
+      crossFieldChecks: [],
+      standalone: false,
+      extraction: buildExtraction({
+        score: 0.42,
+        issues: ['Bottle glare across small text.']
+      })
+    });
+
+    expect(result.verdict).toBe('review');
+    expect(result.reason).toContain('Image quality');
+  });
+
   it('keeps review when the warning review still contains a failing sub-check', () => {
     const warning = buildWarningReview();
     const result = deriveWeightedVerdict({

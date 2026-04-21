@@ -79,12 +79,19 @@ function isAdvisoryWarningReview(check: CheckReview | undefined): boolean {
   );
 }
 
-function hasOnlyLenientLowConfidenceWarningReview(checks: CheckReview[]): boolean {
+function hasOnlyLenientLowConfidenceWarningReview(
+  checks: CheckReview[],
+  extraction: ReviewExtraction
+): boolean {
   const nonPassChecks = checks.filter(
     (check) => check.status !== 'pass' && check.status !== 'info'
   );
+  const hasUsableImageQuality =
+    typeof extraction.imageQuality.score === 'number' &&
+    extraction.imageQuality.score >= 0.55;
 
   return (
+    hasUsableImageQuality &&
     nonPassChecks.length > 0 &&
     nonPassChecks.every((check) =>
       isAdvisoryWarningReview(check)
@@ -185,7 +192,7 @@ export function deriveWeightedVerdict(input: WeightedVerdictInput): WeightedVerd
   // Rule 3: Image quality
   const warningOnlyLowConfidence =
     input.extraction.imageQuality.state === 'low-confidence' &&
-    hasOnlyLenientLowConfidenceWarningReview(allChecks);
+    hasOnlyLenientLowConfidenceWarningReview(allChecks, input.extraction);
 
   if (
     input.extraction.imageQuality.state !== 'ok' &&
