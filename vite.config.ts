@@ -38,6 +38,7 @@ export default defineConfig({
   plugins: [react(), toolbenchLabelsPlugin()],
   test: {
     setupFiles: ["./vitest.setup.ts"],
+    fileParallelism: false,
     exclude: [
       '**/node_modules/**',
       '**/dist/**',

@@ -311,13 +311,16 @@ export class BatchSessionStore {
       }
 
       hiddenRetryCount += 1;
+      const retryDelayMs = readBatchHiddenRetryDelayMs(hiddenRetryCount);
       logServerEvent('batch.item.hidden-retry.started', {
         batchSessionId: input.sessionId,
         imageId: input.assignment.primaryImage.id,
         surface: input.surface,
         hiddenRetryCount,
-        kind: result.error.kind
+        kind: result.error.kind,
+        retryDelayMs
       });
+      await sleep(retryDelayMs);
     }
   }
   private async processAssignment(input: {
@@ -431,10 +434,33 @@ export class BatchSessionStore {
     return session;
   }
 }
+
+const DEFAULT_BATCH_CONCURRENCY = 3;
+const DEFAULT_BATCH_HIDDEN_RETRY_DELAY_MS = 500;
+
 function readBatchConcurrency(): number {
   const raw = process.env.BATCH_CONCURRENCY?.trim();
-  if (!raw) return 5;
+  if (!raw) return DEFAULT_BATCH_CONCURRENCY;
   const parsed = Number.parseInt(raw, 10);
-  if (!Number.isFinite(parsed) || parsed < 1) return 5;
+  if (!Number.isFinite(parsed) || parsed < 1) return DEFAULT_BATCH_CONCURRENCY;
   return Math.min(parsed, 8);
+}
+
+function readBatchHiddenRetryDelayMs(attempt: number): number {
+  const raw = process.env.BATCH_HIDDEN_RETRY_DELAY_MS?.trim();
+  const parsed = raw ? Number.parseInt(raw, 10) : DEFAULT_BATCH_HIDDEN_RETRY_DELAY_MS;
+  const baseDelayMs =
+    Number.isFinite(parsed) && parsed >= 0 ? parsed : DEFAULT_BATCH_HIDDEN_RETRY_DELAY_MS;
+
+  return Math.min(baseDelayMs * Math.max(attempt, 1), 2_000);
+}
+
+function sleep(ms: number) {
+  if (ms <= 0) {
+    return Promise.resolve();
+  }
+
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
