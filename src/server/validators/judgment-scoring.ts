@@ -47,6 +47,51 @@ function getTier(checkId: string): CriticalityTier {
   return CHECK_TIER_MAP[checkId] ?? 'medium';
 }
 
+function getWarningSubCheckStatus(
+  check: CheckReview,
+  subCheckId: string
+): CheckReview['status'] | undefined {
+  return check.warning?.subChecks.find((subCheck) => subCheck.id === subCheckId)
+    ?.status as CheckReview['status'] | undefined;
+}
+
+function isAdvisoryWarningReview(check: CheckReview | undefined): boolean {
+  if (
+    !check ||
+    check.id !== 'government-warning' ||
+    check.status !== 'review'
+  ) {
+    return false;
+  }
+
+  const hasFailingSubCheck =
+    check.warning?.subChecks.some((subCheck) => subCheck.status === 'fail') ?? false;
+  const hasReadableWarningText =
+    typeof check.extractedValue === 'string' &&
+    check.extractedValue.trim() !== '' &&
+    check.extractedValue !== '?';
+
+  return (
+    !hasFailingSubCheck &&
+    hasReadableWarningText &&
+    getWarningSubCheckStatus(check, 'present') === 'pass' &&
+    getWarningSubCheckStatus(check, 'continuous-paragraph') === 'pass'
+  );
+}
+
+function hasOnlyLenientLowConfidenceWarningReview(checks: CheckReview[]): boolean {
+  const nonPassChecks = checks.filter(
+    (check) => check.status !== 'pass' && check.status !== 'info'
+  );
+
+  return (
+    nonPassChecks.length > 0 &&
+    nonPassChecks.every((check) =>
+      isAdvisoryWarningReview(check)
+    )
+  );
+}
+
 export type WeightedVerdictInput = {
   checks: CheckReview[];
   crossFieldChecks: CheckReview[];
@@ -138,7 +183,14 @@ export function deriveWeightedVerdict(input: WeightedVerdictInput): WeightedVerd
   }
 
   // Rule 3: Image quality
-  if (input.extraction.imageQuality.state !== 'ok') {
+  const warningOnlyLowConfidence =
+    input.extraction.imageQuality.state === 'low-confidence' &&
+    hasOnlyLenientLowConfidenceWarningReview(allChecks);
+
+  if (
+    input.extraction.imageQuality.state !== 'ok' &&
+    !warningOnlyLowConfidence
+  ) {
     return {
       verdict: 'review',
       weightedReviewScore: 0,
@@ -202,6 +254,15 @@ export function deriveWeightedVerdict(input: WeightedVerdictInput): WeightedVerd
       // high-confidence "inconclusive visual sub-check" result still means
       // "I confidently don't have enough evidence" — not "there's a defect."
       if (check.id === 'government-warning') {
+        if (isAdvisoryWarningReview(check)) {
+          weight = TIER_WEIGHTS.low;
+          reviewChecks.push(
+            `${check.id}(downweighted:low-confidence-warning,${check.severity})`
+          );
+          weightedScore += weight * severityScale;
+          continue;
+        }
+
         const appEmpty = !check.applicationValue || check.applicationValue === '?' || check.applicationValue.trim() === '';
         const extEmpty = !check.extractedValue || check.extractedValue === '?' || check.extractedValue.trim() === '';
         const lowConfidence = check.confidence < 0.55;

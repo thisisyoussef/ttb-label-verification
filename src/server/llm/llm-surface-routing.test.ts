@@ -287,6 +287,7 @@ describe('LLM route trace surfaces', () => {
       });
 
       expect(runResponse.status).toBe(200);
+      await runResponse.text();
 
       const retryResponse = await fetch(
         serverUrl(
