@@ -1,5 +1,8 @@
 # Decisions Today
 
+- Treat the missing Toolbench batch-loader button as a `TTB-304` regression in section ordering, not as a deleted batch workflow. The handler path in `useAppToolbench` and the UI section in `ToolbenchSamples` were still intact.
+- Keep the Toolbench Samples `batch-sample` section always present once capability probes settle. Live COLA and synthetic generators are capability-dependent; the batch loader is not.
+- Verify the fix at two seams: a RED/GREEN resolver test for `resolveToolbenchSampleSectionIds(...)`, and a real browser check that the restored button appears and still lands in Batch Upload with the real `cola-cloud-all` pack.
 - Treat the user's requested "maybe 8 seconds" as an internal first-result ceiling for long-tail single-review requests, not as a new public SLA.
 - Put that budget on the existing latency-capture seam instead of inventing a new response field or route-local timer state, so provider code and trace code can read the same remaining-budget source of truth.
 - Replace the stale fixed fallback cutoff with a remaining-budget rule: only start fallback when the next provider's own attempt budget plus a small deterministic reserve still fits inside the first-result budget.
