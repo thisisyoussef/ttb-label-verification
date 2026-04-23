@@ -8,9 +8,12 @@ import {
   type WarningSubCheck
 } from '../../shared/contracts/review';
 import {
-  diffGovernmentWarningText,
-  normalizeGovernmentWarningText
+  diffGovernmentWarningText
 } from './government-warning-diff';
+import {
+  normalizeGovernmentWarningForDisplay,
+  normalizeGovernmentWarningText
+} from './government-warning-text';
 import {
   applyOcrCrossCheckToConfidence,
   type OcrCrossCheckResult
@@ -37,7 +40,11 @@ const WARNING_CITATIONS = [
   'TTB health warning statement guidance'
 ] as const;
 
-export { diffGovernmentWarningText, normalizeGovernmentWarningText };
+export {
+  diffGovernmentWarningText,
+  normalizeGovernmentWarningForDisplay,
+  normalizeGovernmentWarningText
+};
 
 export function buildGovernmentWarningCheck(
   extraction: ReviewExtraction,
@@ -68,7 +75,7 @@ export function buildGovernmentWarningCheck(
   const pickedForDisplay = ocvRaw && (ocvSim >= vlmSim || !vlmRaw)
     ? ocvRaw
     : vlmRaw || ocvRaw;
-  const extractedText = normalizeGovernmentWarningText(pickedForDisplay);
+  const extractedText = normalizeGovernmentWarningForDisplay(pickedForDisplay);
   const exactSegments = diffGovernmentWarningText({
     required: CANONICAL_GOVERNMENT_WARNING,
     extracted: extractedText

@@ -1,6 +1,6 @@
 # Blockers
 
-- No functional blocker on the `TTB-000` Results left-panel scroll fix right now; the client-only fix is local, focused tests are green, and the remaining work is full verification plus publish/merge.
+- No functional blocker on the `TTB-204` warning-tail-trim fix right now; the normalization change is local, focused warning tests are green, and the remaining work is full verification plus publish/merge.
 - Current local environment blocker: a fresh live COLA corpus refresh is blocked because `COLACLOUD_API_KEY` is not set in the current shell, so the Toolbench batch-loader fix is validated against the checked-in `cola-cloud-all` corpus rather than a new upstream pull.
 - Current local state is not product-blocked: the warning-marker repair plus the warning-review-copy and Toolbench batch-loader follow-up were green under focused tests, full repo `npm run test`, `npm run typecheck`, `npm run build`, and `npm run eval:golden` before the current rebase onto `origin/main`.
 - The immediate `TTB-304` counterpart reload branch is not locally blocked; code, manifests, and refreshed assets are in place pending the user's direction on whether to keep or publish the generated corpus churn.

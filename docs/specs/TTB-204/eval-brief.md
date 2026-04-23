@@ -26,6 +26,7 @@ This story turns warning extraction output into deterministic warning validation
 - a bold-only visual `no` being surfaced as a confident format failure on an otherwise correct heading
 - missing-word defects being counted twice through both exact-text and a second warning-only downgrade
 - warning route drifting from the shared `CheckReview` schema
+- appended URL/social metadata being treated as warning wording instead of non-warning tail noise
 
 ## Eval inputs or dataset slice
 
@@ -49,6 +50,7 @@ This story turns warning extraction output into deterministic warning validation
 - no extra model call is introduced beyond the existing extraction call
 - warning-not-visible cases stay isolated from visible-warning regressions and resolve to `review`
 - tiny or vertical warning headings do not hard-fail only because OCR casing is unstable
+- clear metadata tails after a complete warning are trimmed, while sentence-style extra warning prose is not silently collapsed
 
 ## Follow-up findings
 
@@ -57,3 +59,4 @@ This story turns warning extraction output into deterministic warning validation
 - Exact-text still shows run-to-run instability on a small subset of visible warnings when both OCR and VLM collapse wording in the same run, so the diagnostic artifacts should remain the reference point for the next warning-only extraction iteration.
 - The 2026-04-20 warning-marker follow-up now treats dropped `(1)` / `(2)` clause markers as comparison-only read noise when both canonical warning clauses are still present, so marker-only OCR/VLM omissions no longer keep the exact-text vote in a noisier-than-necessary state while the displayed extraction stays as-read.
 - The same 2026-04-20 local follow-up now keeps exact-text mismatch evidence reviewer-framed in the UI: the mismatch copy now says the wording may differ and the warning sub-check iconography collapses to the same caution/review language already used elsewhere in the workstation.
+- The 2026-04-23 trailing-noise follow-up trims clear metadata tails such as domains, label codes, and social handles once the full canonical warning is already present, so OCR spillover from nearby footer copy no longer blocks an otherwise correct warning.
