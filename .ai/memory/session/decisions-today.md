@@ -1,5 +1,10 @@
 # Decisions Today
 
+- Treat the user's requested "maybe 8 seconds" as an internal first-result ceiling for long-tail single-review requests, not as a new public SLA.
+- Put that budget on the existing latency-capture seam instead of inventing a new response field or route-local timer state, so provider code and trace code can read the same remaining-budget source of truth.
+- Replace the stale fixed fallback cutoff with a remaining-budget rule: only start fallback when the next provider's own attempt budget plus a small deterministic reserve still fits inside the first-result budget.
+- Clamp provider waits, not just route-level bookkeeping: Gemini and OpenAI should abort on the remaining budget, and retry backoff should also honor that abort instead of quietly overrunning it.
+- Near the deadline, prefer a bounded first report over optional confidence upgrades: skip region detection and judgment when they cannot fit, and clamp spirits colocation to the remaining budget rather than letting it hold the response hostage.
 - For batch mode, treat the first retryable per-item failure as an internal recovery path, not reviewer-facing output. Surface an `error` row only after a second consecutive retryable failure for the same assignment attempt.
 - Keep the hidden retry at the batch-session orchestration layer instead of inventing a batch-only extractor path, so batch continues to reuse the canonical single-review report pipeline.
 - Make both retry affordances visibly react while they are running: processing rows and dashboard rows disable the retry action and switch the label to `Retrying...` until the request settles.

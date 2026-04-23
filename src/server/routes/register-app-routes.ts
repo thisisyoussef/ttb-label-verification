@@ -24,6 +24,7 @@ interface RegisterAppRoutesInput {
   extractorResolution: ResolvedExtractor;
   extractorResolver?: ExtractorResolver;
   latencyObserver?: ReviewLatencyObserver;
+  firstResultBudgetMs?: number;
 }
 
 export function registerAppRoutes({
@@ -31,7 +32,8 @@ export function registerAppRoutes({
   batchSessions,
   extractorResolution,
   extractorResolver,
-  latencyObserver
+  latencyObserver,
+  firstResultBudgetMs
 }: RegisterAppRoutesInput) {
   app.get('/api/health', (_request, response) => {
     response.json(
@@ -88,7 +90,8 @@ export function registerAppRoutes({
     app,
     extractorResolution,
     extractorResolver,
-    latencyObserver
+    latencyObserver,
+    firstResultBudgetMs
   });
   registerBatchRoutes({
     app,

@@ -1,7 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { reviewExtractionSchema } from '../../shared/contracts/review';
 import type { NormalizedReviewIntake } from '../review/review-intake';
+import { createReviewLatencyCapture } from '../review/review-latency';
 import {
   buildReviewExtractionRequest,
   createOpenAIReviewExtractor,
@@ -165,6 +166,10 @@ function requestContent(request: ReturnType<typeof buildReviewExtractionRequest>
   return firstInput.content;
 }
 
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 describe('OpenAI review extractor', () => {
   it('fails config loading when the API key is missing', () => {
     const result = readReviewExtractionConfig({
@@ -187,7 +192,8 @@ describe('OpenAI review extractor', () => {
       OPENAI_API_KEY: 'test-key',
       OPENAI_STORE: 'false',
       OPENAI_VISION_DETAIL: 'auto',
-      OPENAI_SERVICE_TIER: 'priority'
+      OPENAI_SERVICE_TIER: 'priority',
+      OPENAI_TIMEOUT_MS: '2400'
     });
 
     expect(result.success).toBe(true);
@@ -198,6 +204,7 @@ describe('OpenAI review extractor', () => {
     expect(result.value.visionModel).toBe('gpt-5.4-mini');
     expect(result.value.imageDetail).toBe('auto');
     expect(result.value.serviceTier).toBe('priority');
+    expect(result.value.timeoutMs).toBe(2400);
   });
 
   it('builds an image extraction request with store disabled and structured output parsing', () => {
@@ -334,5 +341,55 @@ describe('OpenAI review extractor', () => {
     expect(payload.beverageType).toBe('wine');
     expect(payload.beverageTypeSource).toBe('class-type');
     expect(reviewExtractionSchema.parse(payload).summary).toContain('Structured extraction');
+  });
+
+  it('aborts an OpenAI request when the first-result budget expires first', async () => {
+    vi.useFakeTimers();
+
+    const client = {
+      parse: vi.fn().mockImplementation(
+        (request: { signal?: AbortSignal }) =>
+          new Promise((_resolve, reject) => {
+            request.signal?.addEventListener(
+              'abort',
+              () => {
+                const abortError = new Error('Aborted');
+                abortError.name = 'AbortError';
+                reject(abortError);
+              },
+              { once: true }
+            );
+          })
+      )
+    };
+
+    const extractor = createOpenAIReviewExtractor({
+      client,
+      config: {
+        apiKey: 'test-key',
+        visionModel: 'gpt-5.4',
+        store: false,
+        timeoutMs: 5_000
+      }
+    });
+    const latencyCapture = createReviewLatencyCapture({
+      surface: '/api/review',
+      firstResultBudgetMs: 25
+    });
+
+    const extractionPromise = extractor(buildIntake(), {
+      latencyCapture
+    });
+    const rejection = expect(extractionPromise).rejects.toMatchObject({
+      status: 504,
+      error: {
+        kind: 'timeout',
+        retryable: true
+      }
+    });
+
+    await vi.advanceTimersByTimeAsync(25);
+    await rejection;
+    expect(client.parse).toHaveBeenCalledTimes(1);
   });
 });

@@ -2,6 +2,8 @@ import type { AiProvider } from '../llm/ai-provider-policy';
 import type { LlmEndpointSurface } from '../llm/llm-policy';
 
 export const REVIEW_MAX_RETRYABLE_FALLBACK_ELAPSED_MS = 550;
+export const REVIEW_FIRST_RESULT_DEADLINE_MS = 8_000;
+export const REVIEW_FALLBACK_DETERMINISTIC_RESERVE_MS = 500;
 
 export type ReviewLatencyStage =
   | 'intake-parse'
@@ -60,6 +62,7 @@ export type ReviewLatencySummary = {
   surface: LlmEndpointSurface;
   outcomePath: ReviewLatencyPath;
   totalDurationMs: number;
+  firstResultBudgetMs?: number;
   spans: ReviewLatencySpan[];
   providerMetadata: ReviewLatencyProviderMetadata[];
   providerOrder: AiProvider[];
@@ -83,6 +86,7 @@ export class ReviewLatencyCapture {
       surface: LlmEndpointSurface;
       clientTraceId?: string;
       fixtureId?: string;
+      firstResultBudgetMs?: number;
     }
   ) {}
 
@@ -100,6 +104,28 @@ export class ReviewLatencyCapture {
 
   getElapsedMs() {
     return performance.now() - this.startedAt;
+  }
+
+  getFirstResultBudgetMs() {
+    return this.metadata.firstResultBudgetMs;
+  }
+
+  getRemainingBudgetMs() {
+    const budgetMs = this.metadata.firstResultBudgetMs;
+    if (budgetMs === undefined) {
+      return undefined;
+    }
+
+    return Math.max(0, Math.round(budgetMs - this.getElapsedMs()));
+  }
+
+  hasRemainingBudget(requiredMs: number) {
+    const remainingBudgetMs = this.getRemainingBudgetMs();
+    if (remainingBudgetMs === undefined) {
+      return true;
+    }
+
+    return remainingBudgetMs >= requiredMs;
   }
 
   hasFallbackAttempt() {
@@ -138,6 +164,7 @@ export class ReviewLatencyCapture {
       surface: this.metadata.surface,
       outcomePath: this.outcomePath ?? 'primary-hard-fail',
       totalDurationMs: normalizeDuration(performance.now() - this.startedAt),
+      firstResultBudgetMs: this.metadata.firstResultBudgetMs,
       spans: [...this.spans],
       providerMetadata: [...this.providerMetadata],
       providerOrder: [...this.providerOrder],
@@ -154,8 +181,28 @@ export function createReviewLatencyCapture(input: {
   surface: LlmEndpointSurface;
   clientTraceId?: string;
   fixtureId?: string;
+  firstResultBudgetMs?: number;
 }) {
   return new ReviewLatencyCapture(input);
+}
+
+export function clampTimeoutToRemainingBudget(input: {
+  timeoutMs: number;
+  latencyCapture?: ReviewLatencyCapture;
+}) {
+  const remainingBudgetMs = input.latencyCapture?.getRemainingBudgetMs();
+  if (remainingBudgetMs === undefined) {
+    return input.timeoutMs;
+  }
+
+  return Math.max(0, Math.min(input.timeoutMs, remainingBudgetMs));
+}
+
+export function canRunWithinRemainingBudget(input: {
+  requiredMs: number;
+  latencyCapture?: ReviewLatencyCapture;
+}) {
+  return input.latencyCapture?.hasRemainingBudget(input.requiredMs) ?? true;
 }
 
 export function mergeReviewLatencyObservers(

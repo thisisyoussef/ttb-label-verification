@@ -7,7 +7,8 @@ describe('review latency capture', () => {
     const capture = createReviewLatencyCapture({
       surface: '/api/review/extraction',
       clientTraceId: 'latency-trace-001',
-      fixtureId: 'fixture-fast-fallback-001'
+      fixtureId: 'fixture-fast-fallback-001',
+      firstResultBudgetMs: 8_000
     });
 
     capture.setProviderOrder(['gemini', 'openai']);
@@ -71,6 +72,7 @@ describe('review latency capture', () => {
     expect(summary.providerOrder).toEqual(['gemini', 'openai']);
     expect(summary.clientTraceId).toBe('latency-trace-001');
     expect(summary.fixtureId).toBe('fixture-fast-fallback-001');
+    expect(summary.firstResultBudgetMs).toBe(8_000);
     expect(summary.spans.map((span) => span.stage)).toEqual([
       'intake-parse',
       'intake-normalization',

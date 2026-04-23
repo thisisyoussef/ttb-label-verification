@@ -43,6 +43,7 @@ type CreateAppOptions = {
   maxRetryableFallbackElapsedMs?: number;
   latencyObserver?: ReviewLatencyObserver;
   enableCrossModeFallback?: boolean;
+  firstResultBudgetMs?: number;
 };
 
 // Module-level cache so repeated createApp() calls in the same process
@@ -113,7 +114,8 @@ export function createApp(options: CreateAppOptions = {}) {
     batchSessions,
     extractorResolution,
     extractorResolver,
-    latencyObserver
+    latencyObserver,
+    firstResultBudgetMs: options.firstResultBudgetMs
   });
 
   if (hasBuiltClient) {

@@ -49,6 +49,7 @@ import {
   type TraceStageTimings
 } from './llm-trace-support';
 import {
+  canRunWithinRemainingBudget,
   emitReviewLatencySummary,
   type ReviewLatencyObserver,
   type ReviewLatencySummary
@@ -94,6 +95,10 @@ type WarningSurfaceTraceResult = {
   stageTimingsMs: TraceStageTimings;
   latencySummary: ReviewLatencySummary;
 };
+
+const REGION_DETECTION_REQUIRED_MS = 4_000;
+const REVIEW_RESOLVER_REQUIRED_MS = 2_000;
+const REVIEW_JUDGMENT_REQUIRED_MS = 1_500;
 
 const tracedReviewSurface = traceable(
   async (input: TracedReviewSurfaceInput): Promise<ReviewSurfaceTraceResult> => {
@@ -206,17 +211,33 @@ const tracedReviewSurface = traceable(
     }
 
     if (isRegionDetectionEnabled()) {
-      const regionStage = await measureStage(() =>
-        runVlmRegionDetectionOverLabels(input.intake.labels)
-      );
-      latencyCapture.recordSpan({
-        stage: 'region-detection',
-        outcome: regionStage.result.regions.length > 0 ? 'success' : 'fast-fail',
-        durationMs: regionStage.elapsedMs
-      });
-      extractionElapsedMs += regionStage.elapsedMs;
+      if (
+        canRunWithinRemainingBudget({
+          latencyCapture,
+          requiredMs: REGION_DETECTION_REQUIRED_MS
+        })
+      ) {
+        const regionStage = await measureStage(() =>
+          runVlmRegionDetectionOverLabels(input.intake.labels)
+        );
+        latencyCapture.recordSpan({
+          stage: 'region-detection',
+          outcome: regionStage.result.regions.length > 0 ? 'success' : 'fast-fail',
+          durationMs: regionStage.elapsedMs
+        });
+        extractionElapsedMs += regionStage.elapsedMs;
 
-      extractionResult = applyRegionOverrides(extractionResult, regionStage.result.regions);
+        extractionResult = applyRegionOverrides(
+          extractionResult,
+          regionStage.result.regions
+        );
+      } else {
+        latencyCapture.recordSpan({
+          stage: 'region-detection',
+          outcome: 'skipped',
+          durationMs: 0
+        });
+      }
     }
 
     const { extraction: reconciledExtraction } = reconcileExtractionWithOcr(
@@ -252,16 +273,34 @@ const tracedReviewSurface = traceable(
       reconciledExtraction.beverageType === 'distilled-spirits' &&
       isSpiritsColocationAvailable()
     ) {
-      const colocationStage = await measureStage(() =>
-        runSpiritsColocationOverLabels(input.intake.labels)
-      );
-      spiritsColocation = colocationStage.result;
-      latencyCapture.recordSpan({
-        stage: 'spirits-colocation',
-        outcome: spiritsColocation ? 'success' : 'fast-fail',
-        durationMs: colocationStage.elapsedMs
-      });
+      const colocationTimeoutMs = latencyCapture.getRemainingBudgetMs();
+      if (colocationTimeoutMs === undefined || colocationTimeoutMs > 0) {
+        const colocationStage = await measureStage(() =>
+          runSpiritsColocationOverLabels(input.intake.labels, {
+            timeoutMs: colocationTimeoutMs
+          })
+        );
+        spiritsColocation = colocationStage.result;
+        latencyCapture.recordSpan({
+          stage: 'spirits-colocation',
+          outcome: spiritsColocation ? 'success' : 'fast-fail',
+          durationMs: colocationStage.elapsedMs
+        });
+      } else {
+        latencyCapture.recordSpan({
+          stage: 'spirits-colocation',
+          outcome: 'skipped',
+          durationMs: 0
+        });
+      }
     }
+
+    const deferResolver =
+      input.deferResolver ||
+      !canRunWithinRemainingBudget({
+        latencyCapture,
+        requiredMs: REVIEW_RESOLVER_REQUIRED_MS
+      });
 
     const reportStage = await measureStage(() =>
       tracedReviewReport({
@@ -270,7 +309,7 @@ const tracedReviewSurface = traceable(
         warningCheck: warningStage.result,
         spiritsColocation,
         reportId: input.reportId,
-        deferResolver: input.deferResolver,
+        deferResolver,
         anchorTrack: anchorTrackForReport
       })
     );
@@ -282,7 +321,13 @@ const tracedReviewSurface = traceable(
 
     let finalReport = reportStage.result;
     const judgmentClient = createJudgmentLlmClient();
-    if (judgmentClient) {
+    if (
+      judgmentClient &&
+      canRunWithinRemainingBudget({
+        latencyCapture,
+        requiredMs: REVIEW_JUDGMENT_REQUIRED_MS
+      })
+    ) {
       const judgmentStage = await measureStage(() =>
         resolveReviewJudgment({
           report: finalReport,
@@ -295,6 +340,12 @@ const tracedReviewSurface = traceable(
         stage: 'llm-judgment',
         outcome: 'success',
         durationMs: judgmentStage.elapsedMs
+      });
+    } else if (judgmentClient) {
+      latencyCapture.recordSpan({
+        stage: 'llm-judgment',
+        outcome: 'skipped',
+        durationMs: 0
       });
     }
 

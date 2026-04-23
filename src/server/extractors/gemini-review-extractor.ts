@@ -10,7 +10,12 @@ import sharp from 'sharp';
 import type { ReviewError } from '../../shared/contracts/review';
 import type { ExtractionMode } from '../llm/ai-provider-policy';
 import type { LlmEndpointSurface } from '../llm/llm-policy';
+import { clampTimeoutToRemainingBudget } from '../review/review-latency';
 import { applyReviewExtractorGuardrails } from './review-extractor-guardrails';
+import {
+  collectGeminiStreamedResponse,
+  type GeminiGenerateContentResult
+} from './gemini-stream-collector';
 import type { NormalizedReviewIntake } from '../review/review-intake';
 import {
   buildReviewExtractionPrompt,
@@ -71,23 +76,13 @@ export type GeminiReviewExtractionConfigResult =
   | GeminiReviewExtractionConfigFailure
   | GeminiReviewExtractionConfigSuccess;
 
-type GenerateContentResult = {
-  text?: string;
-  modelVersion?: string;
-  sdkHttpResponse?: {
-    headers?: Record<string, string>;
-  };
-  usageMetadata?: {
-    promptTokenCount?: number;
-    thoughtsTokenCount?: number;
-  };
-};
-
 type GenerateContentClient = {
-  generateContent: (request: GenerateContentParameters) => Promise<GenerateContentResult>;
+  generateContent: (
+    request: GenerateContentParameters
+  ) => Promise<GeminiGenerateContentResult>;
   generateContentStream?: (
     request: GenerateContentParameters
-  ) => Promise<AsyncGenerator<GenerateContentResult>>;
+  ) => Promise<AsyncGenerator<GeminiGenerateContentResult>>;
 };
 
 export function readGeminiReviewExtractionConfig(
@@ -189,57 +184,6 @@ async function maybePrescaleIntakeForGemini(
     ...intake,
     label: prescaledLabels[0]!,
     labels: prescaledLabels
-  };
-}
-
-// Collect streamed Gemini chunks into a flat response that matches
-// `generateContent`. Validation still runs on the full accumulated JSON.
-async function collectStreamedResponse(
-  streamPromise: Promise<AsyncGenerator<GenerateContentResult>>,
-  onFieldProgress?: (field: { name: string; value: unknown }) => void
-): Promise<GenerateContentResult> {
-  const stream = await streamPromise;
-  let combinedText = '';
-  let modelVersion: string | undefined;
-  let sdkHttpResponse: GenerateContentResult['sdkHttpResponse'];
-  let usageMetadata: GenerateContentResult['usageMetadata'];
-  // Field scanner only spun up when a progress callback is wired.
-  // Pulls completed `fields.XXX: {...}` subobjects out of the
-  // streaming buffer and surfaces them for progressive UI work.
-  const scanner = onFieldProgress
-    ? (await import('./partial-json-field-scanner')).createFieldScanner()
-    : null;
-  for await (const chunk of stream) {
-    if (typeof chunk.text === 'string' && chunk.text.length > 0) {
-      combinedText += chunk.text;
-      if (scanner && onFieldProgress) {
-        for (const field of scanner.feed(chunk.text)) {
-          try {
-            onFieldProgress(field);
-          } catch {
-            // Progress callback errors must never break collection —
-            // the caller's SSE emit can fail, we keep accumulating.
-          }
-        }
-      }
-    }
-    if (chunk.modelVersion && !modelVersion) {
-      modelVersion = chunk.modelVersion;
-    }
-    if (chunk.sdkHttpResponse && !sdkHttpResponse) {
-      sdkHttpResponse = chunk.sdkHttpResponse;
-    }
-    if (chunk.usageMetadata) {
-      // Final chunk carries the authoritative usage metadata; keep the
-      // latest seen.
-      usageMetadata = chunk.usageMetadata;
-    }
-  }
-  return {
-    text: combinedText,
-    modelVersion,
-    sdkHttpResponse,
-    usageMetadata
   };
 }
 
@@ -381,11 +325,22 @@ export function createGeminiReviewExtractor(input: {
 
     recordGeminiLatency(context, 'request-assembly', 'success', requestAssemblyStartedAt);
 
+    const timeoutMs = clampTimeoutToRemainingBudget({
+      timeoutMs: input.config.timeoutMs ?? DEFAULT_GEMINI_TIMEOUT_MS,
+      latencyCapture: context?.latencyCapture
+    });
+    if (timeoutMs <= 0) {
+      recordGeminiLatency(context, 'provider-wait', 'fast-fail', performance.now());
+      throw createReviewExtractionFailure({
+        status: 504,
+        kind: 'timeout',
+        message: 'Gemini extraction timed out.',
+        retryable: true
+      });
+    }
+
     const controller = new AbortController();
-    const timeout = setTimeout(
-      () => controller.abort(),
-      input.config.timeoutMs ?? DEFAULT_GEMINI_TIMEOUT_MS
-    );
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
     const providerWaitStartedAt = performance.now();
     let response: {
@@ -425,7 +380,7 @@ export function createGeminiReviewExtractor(input: {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         if (streamEnabled && client.generateContentStream) {
-          response = await collectStreamedResponse(
+          response = await collectGeminiStreamedResponse(
             client.generateContentStream({
               ...request,
               config: {
@@ -464,7 +419,14 @@ export function createGeminiReviewExtractor(input: {
         }
         // Exponential backoff with a small cap — 200ms, 400ms, 800ms
         const backoffMs = Math.min(200 * Math.pow(2, attempt - 1), 800);
-        await new Promise((resolve) => setTimeout(resolve, backoffMs));
+        try {
+          await waitForAbortableDelay(backoffMs, controller.signal);
+        } catch (error) {
+          clearTimeout(timeout);
+          const normalized = normalizeGeminiRuntimeFailure(error);
+          recordGeminiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
+          throw normalized;
+        }
       }
     }
     if (!succeeded) {
@@ -693,6 +655,37 @@ function isAbortLikeError(error: unknown) {
     'name' in error &&
     error.name === 'AbortError'
   );
+}
+
+async function waitForAbortableDelay(ms: number, signal: AbortSignal) {
+  if (ms <= 0) {
+    return;
+  }
+
+  if (signal.aborted) {
+    throw createAbortError();
+  }
+
+  await new Promise<void>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+
+    const onAbort = () => {
+      clearTimeout(timer);
+      signal.removeEventListener('abort', onAbort);
+      reject(createAbortError());
+    };
+
+    signal.addEventListener('abort', onAbort, { once: true });
+  });
+}
+
+function createAbortError() {
+  const abortError = new Error('Aborted');
+  abortError.name = 'AbortError';
+  return abortError;
 }
 
 function recordGeminiLatency(
