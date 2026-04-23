@@ -4,6 +4,7 @@ import { zodTextFormat } from 'openai/helpers/zod';
 import type { ReviewError } from '../../shared/contracts/review';
 import type { ExtractionMode } from '../llm/ai-provider-policy';
 import type { LlmEndpointSurface } from '../llm/llm-policy';
+import { clampTimeoutToRemainingBudget } from '../review/review-latency';
 import { applyReviewExtractorGuardrails } from './review-extractor-guardrails';
 import type { NormalizedReviewIntake } from '../review/review-intake';
 import {
@@ -23,6 +24,7 @@ import {
 
 const MODEL_OUTPUT_SCHEMA_NAME = 'ttb_label_extraction';
 const DEFAULT_OPENAI_VISION_MODEL = 'gpt-5.4-mini';
+const DEFAULT_OPENAI_TIMEOUT_MS = 2500;
 const DEFAULT_OPENAI_MAX_ATTEMPTS = 3;
 
 type OpenAiImageDetail = 'low' | 'high' | 'auto' | 'original';
@@ -34,6 +36,7 @@ export interface ReviewExtractionConfig {
   store: false;
   imageDetail?: OpenAiImageDetail;
   serviceTier?: OpenAiServiceTier;
+  timeoutMs?: number;
   /**
    * Maximum number of attempts per extraction request. Defaults to 3.
    * Retries on transient network/5xx failures with exponential backoff.
@@ -118,7 +121,8 @@ export function readReviewExtractionConfig(
       visionModel: env.OPENAI_VISION_MODEL?.trim() || DEFAULT_OPENAI_VISION_MODEL,
       store: false,
       imageDetail: readOpenAiImageDetail(env.OPENAI_VISION_DETAIL) ?? 'auto',
-      serviceTier: readOpenAiServiceTier(env.OPENAI_SERVICE_TIER)
+      serviceTier: readOpenAiServiceTier(env.OPENAI_SERVICE_TIER),
+      timeoutMs: readOpenAiTimeoutMs(env.OPENAI_TIMEOUT_MS)
     }
   };
 }
@@ -224,6 +228,17 @@ export function createOpenAIReviewExtractor(input: {
 
     recordOpenAiLatency(context, 'request-assembly', 'success', requestAssemblyStartedAt);
 
+    const timeoutMs = clampTimeoutToRemainingBudget({
+      timeoutMs: input.config.timeoutMs ?? DEFAULT_OPENAI_TIMEOUT_MS,
+      latencyCapture: context?.latencyCapture
+    });
+    if (timeoutMs <= 0) {
+      recordOpenAiLatency(context, 'provider-wait', 'fast-fail', performance.now());
+      throw createOpenAiTimeoutFailure();
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
     const providerWaitStartedAt = performance.now();
     let response: { output_parsed?: unknown };
 
@@ -236,25 +251,49 @@ export function createOpenAIReviewExtractor(input: {
     );
     response = { output_parsed: undefined };
     let succeeded = false;
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      try {
-        response = await client.parse(request);
-        succeeded = true;
-        break;
-      } catch (error) {
-        if (attempt === maxAttempts) {
-          recordOpenAiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
-          throw createReviewExtractionFailure({
-            status: 502,
-            kind: 'network',
-            message: 'We could not reach the extraction service right now.',
-            retryable: true
-          });
+    try {
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          response = await client.parse({
+            ...request,
+            signal: controller.signal
+          } as ResponsesParseRequest);
+          succeeded = true;
+          break;
+        } catch (error) {
+          if (isAbortLikeError(error) || controller.signal.aborted) {
+            recordOpenAiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
+            throw createOpenAiTimeoutFailure();
+          }
+
+          if (attempt === maxAttempts) {
+            recordOpenAiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
+            throw createReviewExtractionFailure({
+              status: 502,
+              kind: 'network',
+              message: 'We could not reach the extraction service right now.',
+              retryable: true
+            });
+          }
+
+          const backoffMs = Math.min(200 * Math.pow(2, attempt - 1), 800);
+          try {
+            await waitForAbortableDelay(backoffMs, controller.signal);
+          } catch (error) {
+            if (isAbortLikeError(error) || controller.signal.aborted) {
+              recordOpenAiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
+              throw createOpenAiTimeoutFailure();
+            }
+
+            throw error;
+          }
         }
-        const backoffMs = Math.min(200 * Math.pow(2, attempt - 1), 800);
-        await new Promise((resolve) => setTimeout(resolve, backoffMs));
       }
+    } catch (error) {
+      clearTimeout(timeout);
+      throw error;
     }
+    clearTimeout(timeout);
     if (!succeeded) {
       recordOpenAiLatency(context, 'provider-wait', 'fast-fail', providerWaitStartedAt);
       throw createReviewExtractionFailure({
@@ -368,6 +407,64 @@ function readOpenAiServiceTier(
     default:
       return undefined;
   }
+}
+
+function readOpenAiTimeoutMs(rawValue: string | undefined) {
+  const parsedValue = Number(rawValue?.trim());
+  if (!Number.isFinite(parsedValue) || parsedValue <= 0) {
+    return DEFAULT_OPENAI_TIMEOUT_MS;
+  }
+
+  return Math.round(parsedValue);
+}
+
+function createOpenAiTimeoutFailure() {
+  return createReviewExtractionFailure({
+    status: 504,
+    kind: 'timeout',
+    message: 'OpenAI extraction timed out.',
+    retryable: true
+  });
+}
+
+async function waitForAbortableDelay(ms: number, signal: AbortSignal) {
+  if (ms <= 0) {
+    return;
+  }
+
+  if (signal.aborted) {
+    throw createAbortError();
+  }
+
+  await new Promise<void>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+
+    const onAbort = () => {
+      clearTimeout(timer);
+      signal.removeEventListener('abort', onAbort);
+      reject(createAbortError());
+    };
+
+    signal.addEventListener('abort', onAbort, { once: true });
+  });
+}
+
+function createAbortError() {
+  const abortError = new Error('Aborted');
+  abortError.name = 'AbortError';
+  return abortError;
+}
+
+function isAbortLikeError(error: unknown) {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'name' in error &&
+    error.name === 'AbortError'
+  );
 }
 
 function recordOpenAiLatency(

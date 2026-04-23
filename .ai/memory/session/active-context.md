@@ -1,11 +1,11 @@
 # Active Context
 
-- Current focus: `TTB-210` refine warning guard follow-up on `codex/TTB-210-refine-warning-guard`
+- Current focus: `TTB-209` first-result timeout follow-up on `codex/TTB-209-first-result-timeout`
 - Current worktree: `/Users/youss/Development/gauntlet/ttb-label-verification`
-- Current objective: prevent the post-results refine merge from replacing a correct reviewer-facing `government-warning` review row with a worse same-status second-pass reading while still allowing true warning upgrades to `pass`, and make the evaluator-facing docs more explicit at the top of the README
-- Current implementation shape: `mergeRefinedReport` stays upward-only for all review rows, `government-warning` now accepts only review-to-pass upgrades during refine, the quick-load batch sample affordance is removed from Batch Upload so Toolbench remains the canonical reviewer harness, and the submission brief plus README entry points now call out architecture, tools, assumptions, trade-offs, and limitations more directly
-- Current verification state: `npm run test`, `npm run typecheck`, `npm run build`, and `npm run gate:commit` are green; the branch commit is complete and the rebase onto `origin/main` is in progress for publish
-- Current durable caution: this guard is intentionally scoped to `government-warning`; other refinable review rows still accept same-status swaps when the refined evidence changes
-- GitHub repo and Railway project remain live; this follow-up is now publish-ready
+- Current objective: keep pathological single-review requests from hanging for tens of seconds or minutes by enforcing an internal 8s first-result budget, clamping provider waits to the remaining route budget, and only starting fallback when the next attempt can still fit
+- Current implementation shape: `src/server/review/review-latency.ts` now carries `firstResultBudgetMs`, single-review route captures wire that budget through `src/server/routes/register-review-routes.ts` and `src/server/routes/review-stream-route.ts`, Gemini and OpenAI clamp their own request lifetime to the remaining budget, the extractor factory uses the next provider's attempt budget plus a deterministic reserve for fallback handoff, and `src/server/llm/llm-trace.ts` skips or clamps optional helper stages near the deadline
+- Current verification state: focused extractor/latency tests, adjacent trace and route latency suites, full `npm run test`, `npm run typecheck`, `npm run build`, and `npm run --silent guard:source-size` are green; `npm run gate:commit` needs one final rerun after tracker and memory sync
+- Current durable caution: the public latency claim stays `5000 ms`; the new `8000 ms` value is an internal tail bound for first result behavior, not a new reviewer-facing promise
+- GitHub repo and Railway project remain live; this follow-up is still local and unpublished
 - Current contract anchor: `src/shared/contracts/review.ts`
 - Current progress tracker: `docs/process/SINGLE_SOURCE_OF_TRUTH.md`

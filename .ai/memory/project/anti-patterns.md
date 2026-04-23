@@ -50,6 +50,7 @@
 - Spending another model/provider round-trip just to decide whether an upload looks like a label before extraction starts, instead of using the existing OCR/local signal seam
 - Treating a fast relevance scan as a hard blocker that prevents the reviewer from continuing into the canonical review path
 - Re-introducing a made-up `latencyBudgetMs` field or tightening a latency claim before the optimized path is actually measured against the approved fixture slice
+- Starting a second provider call after the first provider has already burned almost all of the first-result budget, or letting optional helper passes (region detection, spirits colocation, judgment) keep the first visible result waiting after the deadline is effectively spent
 - Treating explicit provider caching or raw timing logs as acceptable shortcuts to a faster path
 - Exposing internal latency summaries as a stable public route contract or including user-bearing content in those summaries
 - Embedding route-specific prompt strings directly in `/api/review`, `/api/review/extraction`, `/api/review/warning`, or batch code instead of routing through one shared prompt-policy module

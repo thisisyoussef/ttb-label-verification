@@ -104,6 +104,7 @@ export interface SpiritsColocationResult {
 export interface SpiritsColocationDeps {
   /** Override the VLM call (used by tests). */
   callVlm?: (prompt: string, image: NormalizedUploadedLabel) => Promise<string>;
+  timeoutMs?: number;
 }
 
 export function isSpiritsColocationAvailable(): boolean {
@@ -115,7 +116,10 @@ export async function checkSpiritsColocation(
   label: NormalizedUploadedLabel,
   deps: SpiritsColocationDeps = {}
 ): Promise<SpiritsColocationResult | null> {
-  const call = deps.callVlm ?? defaultCallVlm;
+  const call =
+    deps.callVlm ??
+    ((prompt: string, image: NormalizedUploadedLabel) =>
+      defaultCallVlm(prompt, image, deps.timeoutMs));
   let raw: string;
   try {
     raw = await call(PROMPT, label);
@@ -127,7 +131,8 @@ export async function checkSpiritsColocation(
 
 async function defaultCallVlm(
   prompt: string,
-  label: NormalizedUploadedLabel
+  label: NormalizedUploadedLabel,
+  timeoutMs = COLOCATION_TIMEOUT_MS
 ): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) {
@@ -135,7 +140,7 @@ async function defaultCallVlm(
   }
   const ai = new GoogleGenAI({ apiKey });
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), COLOCATION_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = (await ai.models.generateContent({

@@ -21,6 +21,7 @@ import {
 } from './request-handlers';
 import {
   createReviewLatencyCapture,
+  REVIEW_FIRST_RESULT_DEADLINE_MS,
   type ReviewLatencyCapture,
   type ReviewLatencyObserver
 } from '../review/review-latency';
@@ -51,8 +52,15 @@ export function registerReviewRoutes(input: {
   extractorResolution: ResolvedExtractor;
   extractorResolver?: ExtractorResolver;
   latencyObserver?: ReviewLatencyObserver;
+  firstResultBudgetMs?: number;
 }) {
-  const { app, extractorResolution, extractorResolver, latencyObserver } = input;
+  const {
+    app,
+    extractorResolution,
+    extractorResolver,
+    latencyObserver,
+    firstResultBudgetMs = REVIEW_FIRST_RESULT_DEADLINE_MS
+  } = input;
 
   function resolveForRequest(request: express.Request): {
     resolution: ResolvedExtractor;
@@ -96,7 +104,8 @@ export function registerReviewRoutes(input: {
     const { resolution } = resolveForRequest(request);
     const latencyCapture = createReviewLatencyCapture({
       surface,
-      clientTraceId
+      clientTraceId,
+      firstResultBudgetMs
     });
     const prepared = await prepareReviewUpload(request, response);
     recordPreparedReviewLatency(latencyCapture, prepared);
@@ -353,7 +362,8 @@ export function registerReviewRoutes(input: {
     void handleReviewStream(request, response, {
       extractorResolution,
       extractorResolver,
-      latencyObserver
+      latencyObserver,
+      firstResultBudgetMs
     });
   });
 

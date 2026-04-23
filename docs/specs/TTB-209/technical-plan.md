@@ -97,3 +97,11 @@ Use the timing foundation from `TTB-208` to tune the default Gemini path to its 
 - Shipped decision:
   - the improved Gemini profile is materially better than the prior baseline, but it still does not prove a `<= 4000 ms` public target
   - the checked-in default timeout is therefore raised to `5000 ms`, the public contract remains `5000`, and the tighter cutover is explicitly deferred
+
+## 2026-04-23 follow-up plan
+
+- Add a separate internal first-result budget for slow edge cases so single-label requests cannot run unbounded when a provider or sidecar stage stalls.
+- Replace the fixed `REVIEW_MAX_RETRYABLE_FALLBACK_ELAPSED_MS=550` posture with a remaining-budget rule derived from that first-result budget plus a deterministic-work reserve.
+- Enforce the same deadline on primary and fallback extractor attempts so provider waits cannot exceed the route budget just because one SDK call ignores the optimistic happy-path assumptions from `TTB-209`.
+- Clamp best-effort helper stages that run after extraction success to the remaining budget so optional signals such as spirits colocation cannot hold the full response hostage.
+- Keep the visible report contract unchanged: this is an internal tail-latency and correctness hardening pass, not a new public SLA or UI surface.

@@ -367,13 +367,22 @@ export function mergeWarningOcrCrossCheckResults(
 // or error), propagate `null` for the legacy placeholder path.
 
 export async function runSpiritsColocationOverLabels(
-  labels: NormalizedUploadedLabel[]
+  labels: NormalizedUploadedLabel[],
+  input: { timeoutMs?: number } = {}
 ): Promise<SpiritsColocationResult | null> {
   if (labels.length === 0) return null;
   if (labels.length === 1) {
-    return checkSpiritsColocation(labels[0]!);
+    return checkSpiritsColocation(labels[0]!, {
+      timeoutMs: input.timeoutMs
+    });
   }
-  const results = await Promise.all(labels.map((label) => checkSpiritsColocation(label)));
+  const results = await Promise.all(
+    labels.map((label) =>
+      checkSpiritsColocation(label, {
+        timeoutMs: input.timeoutMs
+      })
+    )
+  );
   return mergeSpiritsColocationResults(results);
 }
 

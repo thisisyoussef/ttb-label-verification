@@ -22,6 +22,13 @@
   - `GEMINI_TIMEOUT_MS=5000`
 - The fallback cutoff remains intentionally tight (`REVIEW_MAX_RETRYABLE_FALLBACK_ELAPSED_MS=550`) so a slow primary call does not start a second full provider attempt late in the request.
 
+## 2026-04-23 follow-up posture
+
+- Keep the public contract at `latencyBudgetMs: 5000`.
+- Add an internal first-result ceiling of `8000 ms` for slow edge cases so a single request cannot drift into minute-scale waits.
+- Replace the fixed `550 ms` late-fail cutoff with a remaining-budget rule derived from that `8000 ms` ceiling and a deterministic-work reserve.
+- Treat optional post-extraction helper stages as best effort once the request is near the first-result ceiling; preserving a bounded report is more important than waiting indefinitely for a helper that only upgrades confidence.
+
 ## Late-fail rule
 
 If the primary provider has already consumed enough time that the remaining window cannot support a second full provider attempt plus deterministic work, return a structured retryable error instead of starting a late fallback. This story does not lower the public budget below `5000 ms`.

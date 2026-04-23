@@ -28,7 +28,10 @@ import {
   readOllamaVlmReviewExtractionConfig
 } from './ollama-vlm-review-extractor';
 import type { NormalizedReviewIntake } from '../review/review-intake';
-import { REVIEW_MAX_RETRYABLE_FALLBACK_ELAPSED_MS } from '../review/review-latency';
+import {
+  REVIEW_FALLBACK_DETERMINISTIC_RESERVE_MS,
+  REVIEW_MAX_RETRYABLE_FALLBACK_ELAPSED_MS
+} from '../review/review-latency';
 import {
   type ReviewExtractor,
   type ReviewExtractorContext
@@ -43,6 +46,7 @@ import {
 
 export interface ReviewExtractorProvider {
   provider: AiProvider;
+  attemptBudgetMs?: number;
   supports: (capability: AiCapability) => boolean;
   execute: (
     intake: NormalizedReviewIntake,
@@ -98,23 +102,13 @@ const DEFAULT_PROVIDER_FACTORIES: ReviewExtractorProviderFactories = {
 
 export { ReviewProviderFailure } from './review-provider-failure';
 export type { ReviewProviderFailureMetadata } from './review-provider-failure';
-
 export function createConfiguredReviewExtractor(input: {
   env: Record<string, string | undefined>;
   capability?: AiCapability;
   requestedMode?: ExtractionMode;
   providers?: ReviewExtractorProviderFactories;
   maxRetryableFallbackElapsedMs?: number;
-  /**
-   * When true, the resolved provider chain will also include the
-   * opposite-mode providers as a last-resort fallback tier. This gives us
-   * automatic local <-> cloud fallback when the primary mode's providers
-   * are unreachable, timeout, or throw retryable errors mid-request.
-   *
-   * Defaults to false to preserve existing behavior in tests that explicitly
-   * gate on mode isolation. Default-on is wired in `createApp()` so the
-   * interactive product always has the safety net.
-   */
+  // Opt-in last-resort local <-> cloud provider chaining. Default-on in createApp().
   enableCrossModeFallback?: boolean;
 }): ConfiguredReviewExtractorResult {
   const capability = input.capability ?? 'label-extraction';
@@ -169,13 +163,10 @@ export function createConfiguredReviewExtractor(input: {
       }
       continue;
     }
-
     availableProviders.push(providerResult.provider);
   }
 
-  // Cross-mode fallback: append providers from the opposite mode as a
-  // last-resort tier. Only added when the opt-in flag is set and when the
-  // opposite mode's providers are configured/reachable.
+  // Append opposite-mode providers as a last-resort tier when enabled.
   if (input.enableCrossModeFallback) {
     const oppositeMode: ExtractionMode =
       extractionMode === 'local' ? 'cloud' : 'local';
@@ -227,14 +218,13 @@ export function createConfiguredReviewExtractor(input: {
     };
   }
 
-  // When PARALLEL_EXTRACTION=enabled and we have 2+ providers,
-  // run all extractors concurrently and merge by highest per-field confidence.
+  // PARALLEL_EXTRACTION fans out over 2+ providers and merges by confidence.
   if (isParallelExtractionEnabled(input.env) && availableProviders.length >= 2) {
     return {
       success: true,
       value: {
         extractor: createParallelExtractor({
-          extractors: availableProviders.map(p => p.execute),
+          extractors: availableProviders.map((provider) => provider.execute),
           disagreementPenalty: 0.15
         }),
         extractionMode,
@@ -321,12 +311,20 @@ export function createConfiguredReviewExtractor(input: {
 
             lastProviderFailure = providerFailure;
             const nextProvider = availableProviders[index + 1]?.provider;
-            const fallbackWindowOpen = fallbackWindowStillOpen({
-              elapsedMs:
-                latencyCapture?.getElapsedMs() ??
-                performance.now() - extractorStartedAt,
-              maxRetryableFallbackElapsedMs
-            });
+            const nextProviderAttemptBudgetMs =
+              availableProviders[index + 1]?.attemptBudgetMs;
+            const fallbackWindowOpen =
+              latencyCapture && nextProviderAttemptBudgetMs !== undefined
+                ? latencyCapture.hasRemainingBudget(
+                    nextProviderAttemptBudgetMs +
+                      REVIEW_FALLBACK_DETERMINISTIC_RESERVE_MS
+                  )
+                : fallbackWindowStillOpen({
+                    elapsedMs:
+                      latencyCapture?.getElapsedMs() ??
+                      performance.now() - extractorStartedAt,
+                    maxRetryableFallbackElapsedMs
+                  });
 
             if (!providerFailure.metadata.fallbackAllowed || !nextProvider) {
               latencyCapture?.recordSpan({
@@ -454,6 +452,7 @@ function createGeminiReviewExtractorProvider(input: {
     success: true,
     provider: {
       provider: 'gemini',
+      attemptBudgetMs: configResult.value.timeoutMs,
       supports: (capability) => capability === 'label-extraction',
       execute: (intake, context) => extractor(intake, context)
     }
@@ -487,6 +486,7 @@ function createOpenAiReviewExtractorProvider(input: {
     success: true,
     provider: {
       provider: 'openai',
+      attemptBudgetMs: configResult.value.timeoutMs,
       supports: (capability) => capability === 'label-extraction',
       execute: (intake, context) => extractor(intake, context)
     }

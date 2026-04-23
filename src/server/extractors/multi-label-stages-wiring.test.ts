@@ -34,7 +34,7 @@ describe('per-label stage wiring (OverLabels)', () => {
     expect(LLM_TRACE).toContain('runAnchorTrackOverLabels(input.intake.labels');
     expect(LLM_TRACE).toContain('runVlmRegionDetectionOverLabels(input.intake.labels)');
     expect(LLM_TRACE).toContain('runWarningOcrCrossCheckOverLabels(');
-    expect(LLM_TRACE).toContain('runSpiritsColocationOverLabels(input.intake.labels)');
+    expect(LLM_TRACE).toContain('runSpiritsColocationOverLabels(input.intake.labels');
 
     expect(LLM_TRACE).not.toMatch(/runOcrPrepass\(input\.intake\.label\)/);
     expect(LLM_TRACE).not.toMatch(/runWarningOcv\(\{\s*label:\s*input\.intake\.label/);

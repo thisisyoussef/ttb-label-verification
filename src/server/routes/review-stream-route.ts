@@ -16,6 +16,7 @@ import {
 } from './request-handlers';
 import {
   createReviewLatencyCapture,
+  REVIEW_FIRST_RESULT_DEADLINE_MS,
   type ReviewLatencyObserver
 } from '../review/review-latency';
 import { logServerEvent } from '../server-events';
@@ -36,13 +37,16 @@ export async function handleReviewStream(
     extractorResolution: ResolvedExtractor;
     extractorResolver?: ExtractorResolver;
     latencyObserver?: ReviewLatencyObserver;
+    firstResultBudgetMs?: number;
   }
 ) {
   const requestId = crypto.randomUUID();
   const clientTraceId = readClientTraceId(request);
   const latencyCapture = createReviewLatencyCapture({
     surface: '/api/review',
-    clientTraceId
+    clientTraceId,
+    firstResultBudgetMs:
+      deps.firstResultBudgetMs ?? REVIEW_FIRST_RESULT_DEADLINE_MS
   });
 
   const prepared = await prepareReviewUpload(request, response);

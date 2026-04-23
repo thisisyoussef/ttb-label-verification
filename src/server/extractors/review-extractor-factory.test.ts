@@ -133,11 +133,13 @@ function buildExtractionPayload(model = 'gpt-5.4') {
 function provider(input: {
   provider: ReviewExtractorProvider['provider'];
   execute: ReviewExtractorProvider['execute'];
+  attemptBudgetMs?: number;
 }): ReviewExtractorProvider {
   return {
     provider: input.provider,
     supports: () => true,
-    execute: input.execute
+    execute: input.execute,
+    attemptBudgetMs: input.attemptBudgetMs
   };
 }
 
