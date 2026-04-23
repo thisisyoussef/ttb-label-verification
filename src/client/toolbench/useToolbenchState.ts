@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 // label + matching application fields. Replaces the old "scenarios" tab
 // which was a curated synthetic set — less useful than running the real
 // eval corpus directly from the UI.
-export type ToolbenchTab = 'samples' | 'assets' | 'actions';
+export type ToolbenchTab = 'samples' | 'actions';
 
 const STORAGE_KEY = 'toolbench-state';
 // Lifetime flag (not per-tab): once a user has ever opened the toolbench,
@@ -17,6 +17,10 @@ interface PersistedState {
   tab: ToolbenchTab;
 }
 
+export function resolvePersistedToolbenchTab(raw: unknown): ToolbenchTab {
+  return raw === 'actions' ? 'actions' : 'samples';
+}
+
 function readPersistedState(): PersistedState {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
@@ -26,10 +30,7 @@ function readPersistedState(): PersistedState {
     const parsed = JSON.parse(raw) as Partial<PersistedState>;
     return {
       open: typeof parsed.open === 'boolean' ? parsed.open : false,
-      tab:
-        parsed.tab === 'samples' || parsed.tab === 'assets' || parsed.tab === 'actions'
-          ? parsed.tab
-          : 'samples',
+      tab: resolvePersistedToolbenchTab(parsed.tab),
     };
   } catch {
     return { open: false, tab: 'samples' };

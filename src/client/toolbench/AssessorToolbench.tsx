@@ -1,15 +1,12 @@
 import { useEffect, useRef } from 'react';
 import type { ExtractionMode, Mode } from '../appTypes';
 import { ToolbenchActions } from './ToolbenchActions';
-import { ToolbenchAssets } from './ToolbenchAssets';
 import { ToolbenchSamples, type SampleFields } from './ToolbenchSamples';
 import { type ToolbenchTab, useToolbenchState } from './useToolbenchState';
 
 interface AssessorToolbenchProps {
   onLoadSample: (files: File[], fields: SampleFields, imageId: string) => void;
   onLoadBatch: (files: File[], csv: File) => void;
-  onLoadImage: (file: File) => void;
-  onLoadCsv: (file: File) => void;
   mode: Mode;
   extractionMode: ExtractionMode;
   onReset: () => void;
@@ -21,15 +18,12 @@ interface AssessorToolbenchProps {
 
 const TABS: { id: ToolbenchTab; label: string }[] = [
   { id: 'samples', label: 'Samples' },
-  { id: 'assets', label: 'Upload' },
   { id: 'actions', label: 'Actions' },
 ];
 
 export function AssessorToolbench({
   onLoadSample,
   onLoadBatch,
-  onLoadImage,
-  onLoadCsv,
   extractionMode,
   onReset,
   onSwitchMode,
@@ -111,9 +105,6 @@ export function AssessorToolbench({
                   onLoadSample(files, fields, imageId);
                 }}
               />
-            )}
-            {tab === 'assets' && (
-              <ToolbenchAssets onLoadImage={onLoadImage} onLoadCsv={onLoadCsv} />
             )}
             {tab === 'actions' && (
               <ToolbenchActions
