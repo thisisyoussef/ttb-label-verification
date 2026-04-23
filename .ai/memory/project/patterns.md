@@ -79,6 +79,7 @@
 - Toolbench batch sample loads should use the same live `images + csv` batch workflow path as the Batch Upload quick-load button (`batch.onLoadLiveBatch(...)`), not a fixture-only seed shortcut; otherwise dual-image sample packs silently collapse before matching review.
 - Toolbench single-sample loads should reset single-review session state before hydrating the new sample. Do not layer new sample images and fields on top of a previous report, OCR preview, or forced-failure state.
 - When a Toolbench panel reveals capability-dependent actions from async probes, reserve that slot with a deterministic placeholder until the probes settle so the visible control stack does not jump.
+- Capability probes may hide only truly capability-dependent Toolbench actions. Always-available evaluator actions such as the Samples-tab batch pack loader must remain in the resolved section order after probes settle.
 - The golden eval set is part of the product contract, not optional test garnish. The core-six live subset is only the first slice, not the whole corpus.
 - Trace-driven tuning is a local engineering loop, not runtime product behavior; it should only use approved fixtures or sanitized inputs and should never run on staging or production traffic.
 - When the live core-six assets are missing, use sanitized locally generated media with traced extraction surfaces as the temporary provider-comparison seam, and record an explicit rollback condition instead of guessing production readiness.

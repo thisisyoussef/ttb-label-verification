@@ -29,6 +29,7 @@ export function resolveToolbenchSampleSectionIds(input: {
     if (input.synthAvailability === 'available') {
       ids.push('synthetic-sample');
     }
+    ids.push('batch-sample');
   }
 
   ids.push('sample-catalog');
