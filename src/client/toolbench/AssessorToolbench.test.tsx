@@ -6,7 +6,7 @@ import { AssessorToolbench } from './AssessorToolbench';
 vi.mock('./useToolbenchState', () => ({
   useToolbenchState: () => ({
     open: true,
-    tab: 'assets',
+    tab: 'samples',
     setTab: vi.fn(),
     toggle: vi.fn(),
     close: vi.fn(),
@@ -19,8 +19,6 @@ describe('AssessorToolbench', () => {
     const html = renderToStaticMarkup(
       <AssessorToolbench
         onLoadSample={vi.fn()}
-        onLoadImage={vi.fn()}
-        onLoadCsv={vi.fn()}
         onLoadBatch={vi.fn()}
         mode="single"
         extractionMode="local"
@@ -34,14 +32,15 @@ describe('AssessorToolbench', () => {
 
     expect(html).toContain('h-[min(520px,calc(100vh-96px))]');
     expect(html).toContain('role="tabpanel" class="flex-1 min-h-0 overflow-y-auto"');
+    expect(html).toContain('Samples');
+    expect(html).toContain('Actions');
+    expect(html).not.toContain('Upload');
   });
 
   it('keeps the toolbench collapsed while the guided tour is active', () => {
     const html = renderToStaticMarkup(
       <AssessorToolbench
         onLoadSample={vi.fn()}
-        onLoadImage={vi.fn()}
-        onLoadCsv={vi.fn()}
         onLoadBatch={vi.fn()}
         mode="single"
         extractionMode="local"

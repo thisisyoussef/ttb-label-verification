@@ -34,6 +34,7 @@
 - Leaving dev-only fixture controls visible in normal runtime mode so seeded behavior silently overrides the live path
 - Letting the batch dashboard, retry, export, or processing path branch directly on `fixtureControlsEnabled` instead of the active batch source, so dev mode silently falls back to seeded data even during a live session
 - Letting a Toolbench capability-placeholder refactor drop always-available evaluator actions such as the Samples-tab batch loader just because nearby live/synthetic actions are probe-gated
+- Removing a persisted Toolbench tab such as `assets` from the shell without remapping legacy saved state, which leaves returning users on a blank drawer
 - Replacing the current live batch image list when the reviewer clicks `Add more` instead of appending the newly selected files
 - Routing toolbench direct image loads through the single-review loader unconditionally, which silently flips a batch reviewer back into the single intake flow
 - Treating a seed or staging adapter as “wired” because the schema parses, while non-default submitted values are still dropped before they reach the visible result

@@ -87,8 +87,6 @@ export function App() {
   });
   const help = useHelpTourState();
   const {
-    handleToolbenchLoadCsv,
-    handleToolbenchLoadImage,
     handleToolbenchLoadSample,
     handleToolbenchLoadBatch,
     handleToolbenchReset,
@@ -403,8 +401,6 @@ export function App() {
       <AssessorToolbench
         onLoadSample={handleToolbenchLoadSample}
         onLoadBatch={handleToolbenchLoadBatch}
-        onLoadImage={handleToolbenchLoadImage}
-        onLoadCsv={handleToolbenchLoadCsv}
         mode={mode}
         extractionMode={extractionMode}
         onReset={handleToolbenchReset}

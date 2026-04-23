@@ -4,7 +4,6 @@ import { formatFileSize } from '../shared/batch-file-meta';
 import type { Mode, View } from './appTypes';
 import { seedScenarios } from './scenarios';
 import type { SingleReviewFlow } from './singleReviewFlowSupport';
-import { resolveToolbenchAssetRoute } from './toolbenchRouteState';
 import type { LabelImage } from './types';
 import { buildToolbenchSampleLoadState } from './toolbench/toolbenchSingleSample';
 import type { SampleFields } from './toolbench/toolbenchSampleSupport';
@@ -30,52 +29,6 @@ export function useAppToolbench(options: {
   single: SingleReviewFlow;
   batch: BatchWorkflow;
 }) {
-  const handleToolbenchLoadImage = useCallback(
-    (file: File) => {
-      const route = resolveToolbenchAssetRoute({
-        mode: options.mode,
-        kind: 'image'
-      });
-
-      const scenario =
-        seedScenarios.find((candidate) => candidate.id === stripExtension(file.name)) ??
-        null;
-
-      if (route === 'batch-image') {
-        options.batch.onSelectLiveImages([file]);
-        return;
-      }
-
-      options.single.onImagesChange(toLabelImage(file, scenario?.id), null);
-      if (scenario) {
-        options.single.onSelectScenario(scenario);
-      }
-      if (options.mode !== 'single') {
-        options.batch.onSelectMode('single', options.mode);
-      }
-    },
-    [options.batch, options.mode, options.single]
-  );
-
-  const handleToolbenchLoadCsv = useCallback(
-    (file: File) => {
-      const route = resolveToolbenchAssetRoute({
-        mode: options.mode,
-        kind: 'csv'
-      });
-
-      if (route !== 'batch-csv') {
-        return;
-      }
-
-      options.batch.onSelectLiveCsv(file);
-      if (options.mode !== 'batch') {
-        options.batch.onSelectMode('batch', options.mode);
-      }
-    },
-    [options.batch, options.mode]
-  );
-
   const handleToolbenchReset = useCallback(() => {
     options.single.reset();
     options.batch.reset();
@@ -138,8 +91,6 @@ export function useAppToolbench(options: {
 
   return {
     handleToolbenchLoadBatch,
-    handleToolbenchLoadCsv,
-    handleToolbenchLoadImage,
     handleToolbenchLoadSample,
     handleToolbenchReset,
     handleToolbenchSwitchMode

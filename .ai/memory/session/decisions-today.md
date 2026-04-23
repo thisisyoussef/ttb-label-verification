@@ -1,5 +1,8 @@
 # Decisions Today
 
+- Treat the Toolbench Upload-tab removal as a scoped `TTB-304` follow-up, not a new product story. It removes obsolete evaluator UI without changing single-review or batch backend behavior.
+- Normalize persisted Toolbench tab state through a pure helper. Old sessions can still carry `tab: "assets"` in `sessionStorage`, and removal without fallback would reopen the drawer on an empty panel.
+- Trim the Upload-only shell wiring when the tab is removed. `AssessorToolbench`, `App`, and `useAppToolbench` should no longer pretend there is a direct image/CSV Upload tab if the visible surface is gone.
 - Treat the missing Toolbench batch-loader button as a `TTB-304` regression in section ordering, not as a deleted batch workflow. The handler path in `useAppToolbench` and the UI section in `ToolbenchSamples` were still intact.
 - Keep the Toolbench Samples `batch-sample` section always present once capability probes settle. Live COLA and synthetic generators are capability-dependent; the batch loader is not.
 - Verify the fix at two seams: a RED/GREEN resolver test for `resolveToolbenchSampleSectionIds(...)`, and a real browser check that the restored button appears and still lands in Batch Upload with the real `cola-cloud-all` pack.
