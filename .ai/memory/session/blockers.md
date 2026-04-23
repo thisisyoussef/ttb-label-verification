@@ -1,6 +1,8 @@
 # Blockers
 
 - No functional blocker on `TTB-209` first-result timeout right now; the branch is local, targeted and full local verification are green, and the remaining work is final docs sync plus publish/merge if the user wants it.
+- No current blocker on `codex/TTB-000-cola-cloud-live-exclude`; the live exclusion code is in place and green under focused tests, typecheck, and build.
+- No functional blocker on `TTB-000` batch retry hardening right now; the branch is committed, local gates are green, and the remaining work is the rebase/publish/merge flow.
 - Current local environment blocker: a fresh live COLA corpus refresh is blocked because `COLACLOUD_API_KEY` is not set in the current shell, so the Toolbench batch-loader fix is validated against the checked-in `cola-cloud-all` corpus rather than a new upstream pull.
 - Current local state is not product-blocked: the warning-marker repair plus the warning-review-copy and Toolbench batch-loader follow-up were green under focused tests, full repo `npm run test`, `npm run typecheck`, `npm run build`, and `npm run eval:golden` before the current rebase onto `origin/main`.
 - The immediate `TTB-304` counterpart reload branch is not locally blocked; code, manifests, and refreshed assets are in place pending the user's direction on whether to keep or publish the generated corpus churn.

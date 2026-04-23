@@ -1,11 +1,11 @@
 # Active Context
 
-- Current focus: `TTB-209` first-result timeout follow-up on `codex/TTB-209-first-result-timeout`
-- Current worktree: `/Users/youss/Development/gauntlet/ttb-label-verification`
-- Current objective: keep pathological single-review requests from hanging for tens of seconds or minutes by enforcing an internal 8s first-result budget, clamping provider waits to the remaining route budget, and only starting fallback when the next attempt can still fit
-- Current implementation shape: `src/server/review/review-latency.ts` now carries `firstResultBudgetMs`, single-review route captures wire that budget through `src/server/routes/register-review-routes.ts` and `src/server/routes/review-stream-route.ts`, Gemini and OpenAI clamp their own request lifetime to the remaining budget, the extractor factory uses the next provider's attempt budget plus a deterministic reserve for fallback handoff, and `src/server/llm/llm-trace.ts` skips or clamps optional helper stages near the deadline
-- Current verification state: focused extractor/latency tests, adjacent trace and route latency suites, full `npm run test`, `npm run typecheck`, `npm run build`, and `npm run --silent guard:source-size` are green; `npm run gate:commit` needs one final rerun after tracker and memory sync
-- Current durable caution: the public latency claim stays `5000 ms`; the new `8000 ms` value is an internal tail bound for first result behavior, not a new reviewer-facing promise
-- GitHub repo and Railway project remain live; this follow-up is still local and unpublished
+- Current focus: `TTB-000` live COLA Cloud exclusion follow-up on `codex/TTB-000-cola-cloud-live-exclude`
+- Current worktree: `/Users/youss/Development/gauntlet/ttb-label-verification-cola-cloud-live-exclude`
+- Current objective: prevent unreadable live COLA record `26107001000011` from resurfacing through Toolbench `Fetch live` or a future stored-corpus refresh, then verify this fix on top of merged `TTB-209` before publish/deploy
+- Current implementation shape: a shared `isBlockedColaCloudTtbId(...)` helper gates both `src/server/routes/eval-cola-cloud-routes.ts` and the COLA corpus refresh scripts, while the live-route tests reset the in-memory summary cache between cases; this branch is being rebased onto the merged `TTB-209` first-result-budget work
+- Current verification state: focused Vitest coverage, `npm run test`, `npm run typecheck`, `npm run build`, and `npm run gate:commit` were green before rebase; `npm run eval:golden` plus the full combined rerun are next on top of merged `origin/main`
+- Current durable caution: the checked-in stored corpus never contained this TTB id; the exclusion only affects live rotation and future refreshes unless the corpus is explicitly regenerated later
+- GitHub repo and Railway project remain live; `TTB-209` is merged and this follow-up is being rebased for combined verification before publish
 - Current contract anchor: `src/shared/contracts/review.ts`
 - Current progress tracker: `docs/process/SINGLE_SOURCE_OF_TRUTH.md`

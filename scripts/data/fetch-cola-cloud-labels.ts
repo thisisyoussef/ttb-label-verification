@@ -17,6 +17,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+import { isBlockedColaCloudTtbId } from '../../src/shared/cola-cloud-exclusions';
 import {
   buildSelectedImageFilename,
   downloadImage,
@@ -77,6 +78,10 @@ async function main() {
     console.log('[cola-cloud] Refreshing existing stored COLA IDs only...\n');
     for (const existingCase of existingLiveManifest.cases) {
       const ttbId = existingCase.colaCloudMeta.ttbId;
+      if (isBlockedColaCloudTtbId(ttbId)) {
+        console.log(`[cola-cloud] Skip blocked stored id ${ttbId}`);
+        continue;
+      }
       if (seenIds.has(ttbId)) {
         continue;
       }
@@ -148,6 +153,10 @@ async function main() {
       apiKey: API_KEY,
       ttbId,
     });
+    if (isBlockedColaCloudTtbId(detail.ttb_id)) {
+      console.warn(`[cola-cloud] SKIP ${detail.ttb_id} — blocked from repo corpus`);
+      continue;
+    }
     const selectedImages = selectPreferredImages(detail.images);
 
     if (selectedImages.length === 0) {

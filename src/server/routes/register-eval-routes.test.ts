@@ -6,6 +6,7 @@ import {
   serverUrl,
   startServer
 } from '../index.test-helpers';
+import { __resetColaCloudRouteCache } from './eval-cola-cloud-routes';
 
 const originalApiKey = process.env.COLACLOUD_API_KEY;
 const originalBootWarmup = process.env.TTB_BOOT_WARMUP;
@@ -14,6 +15,7 @@ afterEach(async () => {
   await cleanupTestResources();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
+  __resetColaCloudRouteCache();
 
   if (originalApiKey === undefined) {
     delete process.env.COLACLOUD_API_KEY;
@@ -183,5 +185,115 @@ describe('eval COLA Cloud routes', () => {
       imageCount: 3,
       selectedImageCount: 2
     });
+  });
+
+  it('skips blocked live COLA ids and falls through to another candidate', async () => {
+    process.env.COLACLOUD_API_KEY = 'test-cola-cloud-key';
+    process.env.TTB_BOOT_WARMUP = 'disabled';
+
+    const realFetch = fetch;
+    const fetchMock = vi.fn(async (input: string | URL | Request) => {
+      const url = String(input);
+
+      if (url.startsWith('https://app.colacloud.us/api/v1/colas?')) {
+        return new Response(
+          JSON.stringify({
+            data: [
+              {
+                ttb_id: '26107001000011',
+                brand_name: 'Too Hard To Read',
+                product_name: 'Front Label',
+                product_type: 'distilled spirits',
+                class_name: 'Whisky',
+                origin_name: 'United States',
+                image_count: 2
+              },
+              {
+                ttb_id: 'COLA-2026-0002',
+                brand_name: 'Safe Harbor',
+                product_name: 'Reserve',
+                product_type: 'distilled spirits',
+                class_name: 'Vodka',
+                origin_name: 'United States',
+                image_count: 2
+              }
+            ]
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' }
+          }
+        );
+      }
+
+      if (url === 'https://app.colacloud.us/api/v1/colas/COLA-2026-0002') {
+        return new Response(
+          JSON.stringify({
+            data: {
+              ttb_id: 'COLA-2026-0002',
+              brand_name: 'Safe Harbor',
+              product_name: 'Reserve',
+              product_type: 'distilled spirits',
+              class_name: 'Vodka',
+              origin_name: 'United States',
+              abv: 40,
+              domestic_or_imported: 'Domestic',
+              grape_varietals: null,
+              wine_vintage_year: null,
+              wine_appellation: null,
+              address_recipient: 'Safe Harbor Spirits, Austin, TX',
+              address_state: 'TX',
+              images: [
+                {
+                  ttb_image_id: 'front-1',
+                  image_index: 1,
+                  container_position: 'Front',
+                  extension_type: 'jpg',
+                  image_url: 'https://cdn.example.com/safe-front.jpg'
+                },
+                {
+                  ttb_image_id: 'back-1',
+                  image_index: 2,
+                  container_position: 'Back',
+                  extension_type: 'jpg',
+                  image_url: 'https://cdn.example.com/safe-back.jpg'
+                }
+              ]
+            }
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' }
+          }
+        );
+      }
+
+      throw new Error(`Unexpected fetch URL: ${url}`);
+    });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const server = await startServer();
+    registerServer(server);
+
+    const response = await realFetch(serverUrl(server, '/api/eval/cola-cloud/fresh'));
+
+    expect(response.status).toBe(200);
+
+    const payload = (await response.json()) as {
+      fields: { brandName: string; formulaId: string };
+      images: Array<{ filename: string }>;
+    };
+
+    expect(payload.fields.brandName).toBe('Safe Harbor');
+    expect(payload.fields.formulaId).toBe('COLA-2026-0002');
+    expect(payload.images.map((image) => image.filename)).toEqual([
+      'COLA-2026-0002-front.jpg',
+      'COLA-2026-0002-back.jpg'
+    ]);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      'https://app.colacloud.us/api/v1/colas/26107001000011'
+    );
   });
 });

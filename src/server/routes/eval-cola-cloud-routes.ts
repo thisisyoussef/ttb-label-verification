@@ -1,5 +1,7 @@
 import express from 'express';
 
+import { isBlockedColaCloudTtbId } from '../../shared/cola-cloud-exclusions';
+
 const COLA_CLOUD_API_BASE = 'https://app.colacloud.us/api/v1';
 // 2 min (was 10 min) so the "Fetch live" button keeps rotating through
 // the COLA corpus instead of recycling the same 30 IDs for ten minutes.
@@ -189,7 +191,11 @@ async function fetchFreshColaCloudDetail(apiKey: string) {
   }
 
   const summaries = colaCloudCache?.summaries ?? [];
-  if (summaries.length === 0) {
+  const allowedSummaries = summaries.filter(
+    (summary) => !isBlockedColaCloudTtbId(summary.ttb_id)
+  );
+
+  if (allowedSummaries.length === 0) {
     return null;
   }
 
@@ -201,8 +207,8 @@ async function fetchFreshColaCloudDetail(apiKey: string) {
   const allowSingleImage = Math.random() < COLA_CLOUD_SINGLE_IMAGE_CHANCE;
   const recentSet = new Set(recentlyShownTtbIds);
   const pool = allowSingleImage
-    ? buildPool(summaries, (summary) => summary.image_count === 1, recentSet)
-    : buildPool(summaries, (summary) => summary.image_count >= 2, recentSet);
+    ? buildPool(allowedSummaries, (summary) => summary.image_count === 1, recentSet)
+    : buildPool(allowedSummaries, (summary) => summary.image_count >= 2, recentSet);
 
   type DetailResponse = { data: ColaCloudDetail };
   for (let attempt = 0; attempt < 5; attempt += 1) {
@@ -212,6 +218,9 @@ async function fetchFreshColaCloudDetail(apiKey: string) {
         `/colas/${encodeURIComponent(candidate.ttb_id)}`,
         apiKey
       );
+      if (isBlockedColaCloudTtbId(res.data.ttb_id)) {
+        continue;
+      }
       const imageCount = res.data.images?.length ?? 0;
       // Hold the target for the first couple of attempts in case a
       // summary's image_count disagreed with the detail response. After
@@ -254,6 +263,11 @@ function rememberRecentTtbId(ttbId: string) {
   while (recentlyShownTtbIds.length > COLA_CLOUD_RECENT_WINDOW) {
     recentlyShownTtbIds.shift();
   }
+}
+
+export function __resetColaCloudRouteCache(): void {
+  colaCloudCache = null;
+  recentlyShownTtbIds.length = 0;
 }
 
 async function fetchColaCloudJson<T>(endpoint: string, apiKey: string): Promise<T> {

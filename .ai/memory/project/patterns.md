@@ -42,6 +42,7 @@
 - Upload intake starts with route-local in-memory validation and explicit limits; no global multipart middleware is allowed.
 - Multi-image label intake is capped at two ordered files: primary first, optional secondary second, with legacy one-image callers still routed through the same normalized contract.
 - When a live COLA corpus refresh exists to repair stored assets, refresh the existing stored ids in place instead of rotating the corpus; downstream eval manifests and sample references depend on stable sample ids.
+- When a live COLA Cloud record is known-bad for the reviewer harness, exclude it by TTB id in a shared helper that both the live `/api/eval/cola-cloud/fresh` picker and the corpus refresh scripts import; filenames like `26107001000011-front.jpeg` are generated at runtime and do not prove the id exists in the checked-in stored corpus.
 - Stored sample packs should separate sample identity from physical asset identity: batch/eval manifests may flatten actual files with `sampleId` and `isSecondary`, while Toolbench single-sample pickers and fallback loaders stay keyed to the original sample row and hydrate ordered `images` arrays.
 - Multipart request parsing and normalization should live in a dedicated server module (`src/server/review/review-intake.ts`) so routes consume a typed result instead of re-parsing `fields` inline.
 - Standalone single-label intake is represented by omitted or blank multipart `fields`, which normalize to `beverageTypeHint: 'auto'`, `origin: 'domestic'`, and `hasApplicationData: false`.

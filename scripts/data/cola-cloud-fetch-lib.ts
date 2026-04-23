@@ -1,6 +1,8 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import { isBlockedColaCloudTtbId } from '../../src/shared/cola-cloud-exclusions';
+
 export type ColaSummary = {
   ttb_id: string;
   brand_name: string;
@@ -257,7 +259,9 @@ export function nextGoldenCaseId(golden: GoldenManifest) {
 }
 
 export function selectDiverseColas(results: ColaSummary[], pick: number) {
-  const withImages = results.filter((cola) => cola.image_count > 0);
+  const withImages = results.filter(
+    (cola) => cola.image_count > 0 && !isBlockedColaCloudTtbId(cola.ttb_id)
+  );
   const selected: ColaSummary[] = [];
   const seenBrands = new Set<string>();
 
