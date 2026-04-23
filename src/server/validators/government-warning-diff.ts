@@ -1,5 +1,8 @@
 import type { DiffSegment, DiffSegmentKind } from '../../shared/contracts/review';
-import { normalizeGovernmentWarningText } from './government-warning-text';
+import {
+  normalizeGovernmentWarningForDisplay,
+  normalizeGovernmentWarningText
+} from './government-warning-text';
 export { normalizeGovernmentWarningText } from './government-warning-text';
 
 type WarningDiffStep = {
@@ -25,7 +28,7 @@ export function diffGovernmentWarningText(input: {
   extracted: string;
 }): DiffSegment[] {
   const required = normalizeGovernmentWarningText(input.required);
-  const extracted = normalizeGovernmentWarningText(input.extracted);
+  const extracted = normalizeGovernmentWarningForDisplay(input.extracted);
 
   if (required === extracted) {
     return [

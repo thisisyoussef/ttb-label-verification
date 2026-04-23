@@ -29,6 +29,7 @@ import {
 import {
   resolvesToSameStandardBottle
 } from '../taxonomy/net-contents-units';
+import { normalizeGovernmentWarningForComparison } from './government-warning-text';
 
 export type FieldJudgment = {
   disposition: 'approve' | 'review' | 'reject';
@@ -713,12 +714,9 @@ export function judgeVintage(
 // ─── Helpers ─────────────────────────────────────────────────────────
 
 function normalizeForWarningComparison(text: string): string {
-  return text
-    .replace(/\bGOVT\b/gi, 'GOVERNMENT')  // common OCR abbreviation
-    .replace(/\s+/g, ' ')
-    .replace(/[^\w\s]/g, '')
-    .trim()
-    .toLowerCase();
+  return normalizeGovernmentWarningForComparison(
+    text.replace(/\bGOVT\b/gi, 'GOVERNMENT')
+  );
 }
 
 function hasWordLevelChanges(a: string, b: string): boolean {

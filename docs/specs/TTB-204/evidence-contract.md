@@ -16,7 +16,7 @@
 - `id` remains `government-warning`
 - `warning.subChecks` must always contain the five canonical IDs in canonical order
 - `warning.required` is the canonical text from `27 CFR 16.21`
-- `warning.extracted` is the normalized extracted warning text
+- `warning.extracted` is the normalized extracted warning text, with only clear non-warning metadata tails (for example URLs, label codes, or social handles appended after a complete warning) trimmed away
 - `warning.segments` walks left-to-right and uses only:
   - `match`
   - `missing`
@@ -25,9 +25,10 @@
 
 ## Comparison semantics
 
-- Exact-text comparison normalizes whitespace only for positional alignment.
+- Exact-text comparison normalizes whitespace for positional alignment and trims clear non-warning metadata tails once the full canonical warning is already present.
 - Diff rendering keeps punctuation, character substitutions, and case-only differences explicit in the segment list.
 - Warning pass/fail semantics still require exact wording and punctuation, but body-letter case differences alone do not force failure when the wording otherwise matches.
+- Sentence-style extra warning prose is not trimmed away and remains separate review evidence.
 - Missing punctuation may absorb the following matched whitespace into the `missing` segment so the UI stays positionally readable.
 - Case-only word defects are grouped at the phrase level when adjacent wrong-case words are separated only by matching spaces.
 

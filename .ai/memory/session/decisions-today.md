@@ -1,5 +1,8 @@
 # Decisions Today
 
+- Treat the Four Loko-style warning regression as a scoped `TTB-204` maintenance fix, not a new queued product story. The bug is in the warning normalization/comparison seam, not in the UI shell.
+- Trim only metadata-like warning tails. Domains, social handles, and numeric footer codes appended after a complete warning should be removed from the warning seam; sentence-style extra warning prose should remain visible and separate.
+- Keep the active warning path and the legacy pure judgment helper aligned on the same warning-comparison normalization so the repo does not drift between two different exact-text answers.
 - Treat the review-page left-panel bug as a scoped `TTB-000` maintenance fix, not a new queued story. It corrects a results-layout regression without changing contracts, validators, or route behavior.
 - Put the regression guard at the left-rail component seam. `ResultsPinnedColumn` was the source of the sticky/overflow split, so a focused SSR test there is more durable than a broad page snapshot.
 - Keep the Results left rail as one scroll flow. The gallery, file metadata, beverage chip, and privacy note should live in the same vertical column rather than mixing a sticky preview header with separately scrolling metadata.

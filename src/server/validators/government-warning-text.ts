@@ -1,15 +1,29 @@
+import { CANONICAL_GOVERNMENT_WARNING } from '../../shared/contracts/review';
+
 const FIRST_WARNING_CLAUSE = 'According to the Surgeon General';
 const SECOND_WARNING_CLAUSE = 'Consumption of alcoholic beverages';
 const WARNING_HEADING = 'GOVERNMENT WARNING';
+const TRAILING_METADATA_ANCHOR_PATTERN =
+  /(?:https?:\/\/|www\.|@[A-Za-z0-9_.-]+|\b[A-Za-z0-9.-]+\.(?:com|net|org|gov|edu|biz|co|io|us)\b)/i;
+const TRAILING_METADATA_ALLOWED_PATTERN =
+  /^[\s.,:;|/\\()[\]{}'"`~\-–—_*#+=&!?%0-9A-Za-z@.-]+$/;
 
 export function normalizeGovernmentWarningText(value: string | undefined) {
   return collapseWhitespace(value ?? '');
 }
 
+export function normalizeGovernmentWarningForDisplay(value: string | undefined) {
+  return trimGovernmentWarningTrailingMetadata(
+    normalizeGovernmentWarningText(value)
+  );
+}
+
 export function normalizeGovernmentWarningForSimilarity(
   value: string | undefined
 ) {
-  return repairGovernmentWarningClauseMarkers(normalizeGovernmentWarningText(value));
+  return repairGovernmentWarningClauseMarkers(
+    normalizeGovernmentWarningForDisplay(value)
+  );
 }
 
 export function normalizeGovernmentWarningForComparison(
@@ -58,6 +72,45 @@ function repairGovernmentWarningClauseMarkers(value: string) {
   );
 
   return collapseWhitespace(repaired);
+}
+
+function trimGovernmentWarningTrailingMetadata(value: string) {
+  if (!value) {
+    return value;
+  }
+
+  const canonicalIndex = indexOfIgnoreCase(
+    value,
+    CANONICAL_GOVERNMENT_WARNING
+  );
+
+  if (canonicalIndex < 0) {
+    return value;
+  }
+
+  const canonicalEnd = canonicalIndex + CANONICAL_GOVERNMENT_WARNING.length;
+  const trailing = value.slice(canonicalEnd);
+
+  if (!trailing.trim()) {
+    return value;
+  }
+
+  if (
+    !TRAILING_METADATA_ALLOWED_PATTERN.test(trailing) ||
+    !TRAILING_METADATA_ANCHOR_PATTERN.test(trailing)
+  ) {
+    return value;
+  }
+
+  const strippedTrailing = trailing
+    .replace(/^[\s.,:;|/\\()[\]{}'"`~\-–—_*#+=&!?]+/, '')
+    .trim();
+
+  if (!strippedTrailing) {
+    return value;
+  }
+
+  return value.slice(0, canonicalEnd);
 }
 
 function ensureMarkerBeforeAnchor(

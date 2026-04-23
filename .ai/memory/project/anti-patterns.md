@@ -44,6 +44,7 @@
 - Turning batch execution into hidden durable state or a background queue when the checked-in product contract still requires ephemeral in-memory sessions only
 - Reusing shared optional-field Zod schemas directly for Responses structured outputs instead of adapting them into required-plus-nullable API schemas
 - Letting the warning diff collapse into overly broad case-mismatch spans that stop matching the approved UI evidence semantics
+- Treating footer spillover like `FOURLOKO.COM` or `@FOURLOKO` as part of the government warning wording once the full canonical warning is already present
 - Double-counting government-warning defects by failing exact wording and then adding a second warning-only downgrade for the same missing or case-only body text
 - Adding Gemini through the Files API or any other provider-managed durable upload surface inside a no-persistence product
 - Declaring the Gemini default production-ready without recorded live or sanitized trace evidence, timeout behavior, and a manual verification note for AI Studio logging/dataset-sharing settings
