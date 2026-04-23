@@ -126,5 +126,4 @@ After the walkthrough, these docs give the best signal fastest:
 - [Architecture And Decisions](ARCHITECTURE_AND_DECISIONS.md): the strongest architectural choices, tradeoffs, and why they were made
 - [Eval Results](EVAL_RESULTS.md): GoldenSet, COLA Cloud, and latency evidence
 - [Government Warning](GOVERNMENT_WARNING.md): the strictest rule path and the most detailed validator write-up
-- [Demo Video Script](DEMO_VIDEO_SCRIPT.md): the 5-8 minute spoken walkthrough aligned to the evaluation criteria
 - [Railway / Ollama Setup](process/RAILWAY_OLLAMA_SETUP.md): the clearest local-mode and firewall-context explanation
