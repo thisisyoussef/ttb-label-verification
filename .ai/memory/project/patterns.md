@@ -74,6 +74,7 @@
 - Model-backed routes should resolve through one typed provider-policy module plus one extractor factory, not by instantiating provider SDKs directly in route or batch code.
 - Seed fixtures unlock UI progress before live backend integration.
 - For established UI shells that need live wiring, add a pure client runtime adapter (`src/client/batch-runtime.ts`) so API-to-view-model mapping stays testable outside React components.
+- For a viewport-height sidebar that must reveal image evidence and metadata together, keep one scroll container and one document flow. The current Results left rail pattern is a single `overflow-y-auto` aside with no nested sticky gallery wrapper.
 - Repeated live batch image intake should append new files to the current live batch set and preserve existing object URLs until the reviewer explicitly clears or resets the batch.
 - Toolbench direct asset loads should resolve through a mode-aware helper: image loads follow the active review mode, while CSV loads remain batch-only.
 - Toolbench batch sample loads should use the same live `images + csv` batch workflow path as the Batch Upload quick-load button (`batch.onLoadLiveBatch(...)`), not a fixture-only seed shortcut; otherwise dual-image sample packs silently collapse before matching review.
