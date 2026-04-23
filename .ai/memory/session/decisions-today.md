@@ -1,5 +1,8 @@
 # Decisions Today
 
+- Treat the review-page left-panel bug as a scoped `TTB-000` maintenance fix, not a new queued story. It corrects a results-layout regression without changing contracts, validators, or route behavior.
+- Put the regression guard at the left-rail component seam. `ResultsPinnedColumn` was the source of the sticky/overflow split, so a focused SSR test there is more durable than a broad page snapshot.
+- Keep the Results left rail as one scroll flow. The gallery, file metadata, beverage chip, and privacy note should live in the same vertical column rather than mixing a sticky preview header with separately scrolling metadata.
 - Treat the Toolbench Upload-tab removal as a scoped `TTB-304` follow-up, not a new product story. It removes obsolete evaluator UI without changing single-review or batch backend behavior.
 - Normalize persisted Toolbench tab state through a pure helper. Old sessions can still carry `tab: "assets"` in `sessionStorage`, and removal without fallback would reopen the drawer on an empty panel.
 - Trim the Upload-only shell wiring when the tab is removed. `AssessorToolbench`, `App`, and `useAppToolbench` should no longer pretend there is a direct image/CSV Upload tab if the visible surface is gone.
