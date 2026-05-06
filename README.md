@@ -405,7 +405,6 @@ Useful supporting docs:
 
 - [Eval Results](docs/EVAL_RESULTS.md)
 - [Evaluator Guide](docs/EVALUATOR_GUIDE.md)
-- [Demo Video Script](docs/DEMO_VIDEO_SCRIPT.md)
 - [Trace-Driven Development](docs/process/TRACE_DRIVEN_DEVELOPMENT.md)
 - [Test Quality Standard](docs/process/TEST_QUALITY_STANDARD.md)
 
@@ -443,7 +442,6 @@ scripts/                     Eval helpers, bootstrap, stage-timing tools
 - [ARCHITECTURE.md](ARCHITECTURE.md): directory map, domain groupings, where each concern lives
 - [CONTRIBUTING.md](CONTRIBUTING.md): on-ramp for new contributors (humans and agents)
 - [Evaluator Guide](docs/EVALUATOR_GUIDE.md): screenshot-backed reviewer test script and Toolbench walkthrough
-- [Demo Video Script](docs/DEMO_VIDEO_SCRIPT.md): 5-8 minute submission walkthrough aligned to the evaluation criteria
 - [Government Warning](docs/GOVERNMENT_WARNING.md): the most detailed single-rule deep dive
 - [Regulatory Mapping](docs/REGULATORY_MAPPING.md): CFR-to-code traceability
 - [Eval Results](docs/EVAL_RESULTS.md): model and pipeline evidence
